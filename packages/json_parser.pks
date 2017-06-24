@@ -7,11 +7,11 @@ CREATE OR REPLACE PACKAGE json_parser IS
     TYPE tt_parse_events IS TABLE OF rt_parse_event;
     
     FUNCTION parse
-        (p_content IN CLOB)
+        (p_content IN VARCHAR2)
     RETURN tt_parse_events PIPELINED;
     
     FUNCTION parse
-        (p_content IN VARCHAR2)
+        (p_content IN CLOB)
     RETURN tt_parse_events PIPELINED;
 
 END;

@@ -2,7 +2,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
 
     TYPE rt_parse_context IS RECORD
         (state VARCHAR2(30)
-        ,value VARCHAR2(4000));
+        ,value VARCHAR2(4000)
+        ,character_code VARCHAR2(4));
 
     PROCEDURE raise_error
         (p_message IN VARCHAR2) IS
@@ -55,6 +56,11 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 p_context.state := 'lfInteger';
                 p_context.value := '-';
                 
+            ELSIF v_char IN ('t', 'f', 'n') THEN
+            
+                p_context.state := 'rSpecialValue';
+                p_context.value := v_char;
+                
             ELSIF NOT space THEN
             
                 raise_error('Unexpected character ' || v_char || '!');
@@ -99,6 +105,13 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                     p_context.value := p_context.value || CHR(9);
                 WHEN 'b' THEN
                     p_context.value := p_context.value || CHR(8);
+                WHEN 'u' THEN
+                
+                    p_context.character_code := NULL;
+                    p_context.state := 'rUnicode';
+                    
+                    RETURN;
+                    
                 ELSE
                     p_context.value := p_context.value || v_char;
             END CASE;
@@ -124,6 +137,26 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             
                 raise_error('Unexpected character ' || v_char || '!');
             
+            END IF;
+        
+        END;
+        
+        PROCEDURE rUnicode IS
+        BEGIN
+        
+            IF INSTR('1234567890ABCDEF', UPPER(v_char)) > 0 THEN
+            
+                p_context.character_code := p_context.character_code || v_char;
+                
+                IF LENGTH(p_context.character_code) = 4 THEN
+                    p_context.value := p_context.value || CHR(TO_NUMBER(p_context.character_code, 'xxxx'));
+                    p_context.state := 'rString';
+                END IF;
+                
+            ELSE
+            
+                raise_error('Unexpected character ' || v_char || '!');
+                
             END IF;
         
         END;
@@ -219,6 +252,36 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
         END;
         
+        PROCEDURE rSpecialValue IS
+        BEGIN
+        
+            p_context.value := p_context.value || v_char;
+            
+            IF p_context.value = 'true' THEN
+            
+                add_event('BOOLEAN', 'true');
+                p_context.state := 'lfEnd';
+                
+            ELSIF p_context.value = 'false' THEN
+            
+                add_event('BOOLEAN', 'false');
+                p_context.state := 'lfEnd';
+                
+            ELSIF p_context.value = 'null' THEN
+            
+                add_event('NULL', NULL);
+                p_context.state := 'lfEnd';
+                
+            ELSIF 'true' NOT LIKE p_context.value || '%'
+                  AND 'false' NOT LIKE p_context.value || '%'
+                  AND 'null' NOT LIKE p_context.value || '%' THEN
+                  
+                raise_error('Unexpected character ' || v_char || '!');
+                  
+            END IF;
+        
+        END;
+        
     BEGIN
     
         p_events := tt_parse_events();
@@ -228,15 +291,18 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             v_char := SUBSTR(p_buffer, v_i, 1);
             
             CASE p_context.state
+                WHEN 'lfContent' THEN lfValue;
                 WHEN 'lfValue' THEN lfValue;
                 WHEN 'rString' THEN rString;
                 WHEN 'rEscaped' THEN rEscaped;
+                WHEN 'rUnicode' THEN rUnicode;
                 WHEN 'lfInteger' THEN lfInteger;
                 WHEN 'rInteger' THEN rInteger;
                 WHEN 'lfDecimalDot' THEN lfDecimalDot;
                 WHEN 'lfDecimal' THEN lfDecimal;
                 WHEN 'rDecimal' THEN rDecimal;
                 WHEN 'lfEnd' THEN lfEnd;
+                WHEN 'rSpecialValue' THEN rSpecialValue;
             END CASE;
             
         END LOOP;
@@ -268,6 +334,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 add_event('NUMBER', p_context.value);
             WHEN 'lfEnd' THEN
                 NULL;
+            WHEN 'lfContent' THEN
+                NULL;
             ELSE
                 raise_error('Unexpected end of the input!');
         
@@ -284,7 +352,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
     
     BEGIN
     
-        r_context.state := 'lfValue';
+        r_context.state := 'lfContent';
        
         parse(p_content, r_context, t_events);
         check_end(r_context, t_events);

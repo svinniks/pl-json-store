@@ -658,6 +658,10 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 raise_error('Unexpected end of the input!');
         
         END CASE;
+        
+        IF p_context.context_stack.COUNT > 0 THEN
+            raise_error('Unexpected end of the input!');
+        END IF;
     
     END;
 

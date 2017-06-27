@@ -1,9 +1,13 @@
 CREATE OR REPLACE PACKAGE BODY json_parser IS
 
+    TYPE tt_chars IS TABLE OF CHAR;
+
     TYPE rt_parse_context IS RECORD
         (state VARCHAR2(30)
         ,value VARCHAR2(4000)
-        ,character_code VARCHAR2(4));
+        ,name BOOLEAN
+        ,character_code VARCHAR2(4)
+        ,context_stack tt_chars);
 
     PROCEDURE raise_error
         (p_message IN VARCHAR2) IS
@@ -17,6 +21,30 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         ,p_events IN OUT NOCOPY tt_parse_events) IS
         
         v_char CHAR;
+        
+        PROCEDURE push_context
+            (p_value IN CHAR) IS
+        BEGIN
+            p_context.context_stack.EXTEND(1);
+            p_context.context_stack(p_context.context_stack.LAST) := p_value;
+        END;
+        
+        FUNCTION peek_context
+        RETURN CHAR IS
+        BEGIN
+        
+            IF p_context.context_stack.COUNT = 0 THEN
+                RETURN NULL;
+            ELSE
+                RETURN p_context.context_stack(p_context.context_stack.COUNT);
+            END IF;
+        
+        END;
+        
+        PROCEDURE pop_context IS
+        BEGIN
+            p_context.context_stack.TRIM(1);
+        END;
         
         PROCEDURE add_event
             (p_name IN VARCHAR2
@@ -33,6 +61,50 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             RETURN v_char IN (' ', CHR(10), CHR(13));
         END;
         
+        PROCEDURE end_object IS
+        BEGIN
+        
+            IF peek_context = 'O' THEN
+            
+                add_event('END_OBJECT', NULL);
+                pop_context;
+                
+                IF peek_context IS NULL THEN
+                    p_context.state := 'lfEnd';
+                ELSE
+                    p_context.state := 'lfComma';
+                END IF;
+                
+            ELSE
+            
+                raise_error('Unexpected character ' || v_char || '!');
+                
+            END IF;
+        
+        END;
+        
+        PROCEDURE end_array IS
+        BEGIN
+        
+            IF peek_context = 'A' THEN
+            
+                add_event('END_ARRAY', NULL);
+                pop_context;
+                
+                IF peek_context IS NULL THEN
+                    p_context.state := 'lfEnd';
+                ELSE
+                    p_context.state := 'lfComma';
+                END IF;
+                
+            ELSE
+            
+                raise_error('Unexpected character ' || v_char || '!');
+                
+            END IF;
+        
+        END;
+        
         PROCEDURE lfValue IS
         BEGIN
         
@@ -40,6 +112,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             
                 p_context.state := 'rString';
                 p_context.value := NULL;
+                p_context.name := FALSE;
                 
             ELSIF INSTR('123456789', v_char) > 0 THEN
             
@@ -61,10 +134,35 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 p_context.state := 'rSpecialValue';
                 p_context.value := v_char;
                 
+            ELSIF v_char = '{' THEN
+            
+                push_context('O');
+                add_event('START_OBJECT', NULL);
+                
+                p_context.state := 'lfFirstProperty';
+                
+            ELSIF v_char = '[' THEN
+            
+                push_context('A');
+                add_event('START_ARRAY', NULL);
+                
+                p_context.state := 'lfFirstValue';    
+                
             ELSIF NOT space THEN
             
                 raise_error('Unexpected character ' || v_char || '!');
                 
+            END IF;
+        
+        END;
+        
+        PROCEDURE lfFirstValue IS
+        BEGIN
+        
+            IF v_char = ']' THEN
+                end_array;
+            ELSE
+                lfValue;
             END IF;
         
         END;
@@ -74,8 +172,22 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF v_char = '"' THEN
             
-                add_event('STRING', p_context.value);
-                p_context.state := 'lfEnd';
+                IF p_context.name THEN
+                
+                    add_event('NAME', p_context.value);
+                    p_context.state := 'lfColon';
+                    
+                ELSE
+                
+                    add_event('STRING', p_context.value);
+                    
+                    IF peek_context IS NOT NULL THEN
+                        p_context.state := 'lfComma';
+                    ELSE
+                        p_context.state := 'lfEnd';
+                    END IF;
+                    
+                END IF;
             
             ELSIF v_char = '\' THEN
             
@@ -172,11 +284,46 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             
                 p_context.value := p_context.value || '.';
                 p_context.state := 'lfDecimal';
+            
+            ELSIF v_char = ',' THEN
+            
+                IF peek_context IS NOT NULL THEN
+                
+                    add_event('NUMBER', p_context.value);
+                
+                    IF peek_context = 'O' THEN
+                        p_context.state := 'lfNextProperty';
+                    ELSE
+                        p_context.state := 'lfValue';
+                    END IF;
+                    
+                ELSE
+                
+                    raise_error('Unexpected character ' || v_char || '!');
+                    
+                END IF;
                 
             ELSIF space THEN
             
                 add_event('NUMBER', p_context.value);
-                p_context.state := 'lfEnd';
+                
+                IF peek_context IS NOT NULL THEN
+                    p_context.state := 'lfComma';
+                ELSE
+                    p_context.state := 'lfEnd';
+                END IF;
+                
+            ELSIF v_char = '}' THEN
+            
+                add_event('NUMBER', p_context.value);
+                
+                end_object;
+                
+            ELSIF v_char = ']' THEN
+            
+                add_event('NUMBER', p_context.value);
+                
+                end_array;
                 
             ELSE
             
@@ -193,11 +340,46 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             
                 p_context.value := p_context.value || '.';
                 p_context.state := 'lfDecimal';
+            
+            ELSIF v_char = ',' THEN
+            
+                IF peek_context IS NOT NULL THEN
                 
+                    add_event('NUMBER', p_context.value);
+                
+                    IF peek_context = 'O' THEN
+                        p_context.state := 'lfNextProperty';
+                    ELSE
+                        p_context.state := 'lfValue';
+                    END IF;
+                    
+                ELSE
+                
+                    raise_error('Unexpected character ' || v_char || '!');
+                    
+                END IF;
+                
+            ELSIF v_char = '}' THEN
+            
+                add_event('NUMBER', p_context.value);
+                
+                end_object;
+                
+            ELSIF v_char = ']' THEN
+            
+                add_event('NUMBER', p_context.value);
+                
+                end_array;
+                            
             ELSIF space THEN
             
                 add_event('NUMBER', p_context.value);
-                p_context.state := 'lfEnd';
+                
+                IF peek_context IS NOT NULL THEN
+                    p_context.state := 'lfComma';
+                ELSE
+                    p_context.state := 'lfEnd';
+                END IF;
                 
             ELSE
             
@@ -217,7 +399,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSE
             
-                raise_error('Unexpected characted ' || v_char || '!');
+                raise_error('Unexpected character ' || v_char || '!');
             
             END IF;
         
@@ -230,10 +412,45 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             
                 p_context.value := p_context.value || v_char;
                 
+            ELSIF v_char = ',' THEN
+            
+                IF peek_context IS NOT NULL THEN
+                
+                    add_event('NUMBER', p_context.value);
+                
+                    IF peek_context = 'O' THEN
+                        p_context.state := 'lfNextProperty';
+                    ELSE
+                        p_context.state := 'lfValue';
+                    END IF;
+                    
+                ELSE
+                
+                    raise_error('Unexpected character ' || v_char || '!');
+                    
+                END IF;    
+                
             ELSIF space THEN
             
                 add_event('NUMBER', p_context.value);
-                p_context.state := 'lfEnd';
+                
+                IF peek_context IS NOT NULL THEN
+                    p_context.state := 'lfComma';
+                ELSE
+                    p_context.state := 'lfEnd';
+                END IF;
+            
+            ELSIF v_char = '}' THEN
+            
+                add_event('NUMBER', p_context.value);
+                
+                end_object;
+                
+            ELSIF v_char = ']' THEN
+            
+                add_event('NUMBER', p_context.value);
+                
+                end_array;
                 
             ELSE
             
@@ -260,17 +477,32 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             IF p_context.value = 'true' THEN
             
                 add_event('BOOLEAN', 'true');
-                p_context.state := 'lfEnd';
+                
+                IF peek_context IS NOT NULL THEN
+                    p_context.state := 'lfComma';
+                ELSE
+                    p_context.state := 'lfEnd';
+                END IF;
                 
             ELSIF p_context.value = 'false' THEN
             
                 add_event('BOOLEAN', 'false');
-                p_context.state := 'lfEnd';
+                
+                IF peek_context IS NOT NULL THEN
+                    p_context.state := 'lfComma';
+                ELSE
+                    p_context.state := 'lfEnd';
+                END IF;
                 
             ELSIF p_context.value = 'null' THEN
             
                 add_event('NULL', NULL);
-                p_context.state := 'lfEnd';
+                
+                IF peek_context IS NOT NULL THEN
+                    p_context.state := 'lfComma';
+                ELSE
+                    p_context.state := 'lfEnd';
+                END IF;
                 
             ELSIF 'true' NOT LIKE p_context.value || '%'
                   AND 'false' NOT LIKE p_context.value || '%'
@@ -279,6 +511,87 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 raise_error('Unexpected character ' || v_char || '!');
                   
             END IF;
+        
+        END;
+        
+        PROCEDURE lfFirstProperty IS
+        BEGIN
+        
+            IF v_char = '}' THEN
+            
+                end_object;
+                
+            ELSIF v_char = '"' THEN
+            
+                p_context.value := NULL;
+                p_context.state := 'rString';
+                p_context.name := TRUE;
+                
+            ELSIF NOT space THEN
+            
+                raise_error('Unexpected character ' || v_char || '!');
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE lfNextProperty IS
+        BEGIN
+        
+            IF v_char = '"' THEN
+            
+                p_context.value := NULL;
+                p_context.state := 'rString';
+                p_context.name := TRUE;
+                
+            ELSIF NOT space THEN
+            
+                raise_error('Unexpected character ' || v_char || '!');
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE lfColon IS
+        BEGIN
+        
+            IF v_char = ':' THEN
+            
+                p_context.state := 'lfValue';
+                
+            ELSIF NOT space THEN
+            
+                raise_error('Unexpected character ' || v_char || '!');
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE lfComma IS
+        BEGIN
+        
+            IF v_char = ',' THEN
+            
+                IF peek_context = 'O' THEN
+                    p_context.state := 'lfNextProperty';
+                ELSE
+                    p_context.state := 'lfValue';
+                END IF;
+                
+            ELSIF v_char = '}' THEN
+            
+                end_object;
+                
+            ELSIF v_char = ']' THEN
+            
+                end_array;
+                
+            ELSIF NOT space THEN
+            
+                raise_error('Unexpected character ' || v_char || '!');
+            
+            END IF;
+                
         
         END;
         
@@ -303,6 +616,11 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 WHEN 'rDecimal' THEN rDecimal;
                 WHEN 'lfEnd' THEN lfEnd;
                 WHEN 'rSpecialValue' THEN rSpecialValue;
+                WHEN 'lfFirstProperty' THEN lfFirstProperty;
+                WHEN 'lfColon' THEN lfColon;
+                WHEN 'lfComma' THEN lfComma;
+                WHEN 'lfNextProperty' THEN lfNextProperty;
+                WHEN 'lfFirstValue' THEN lfFirstValue;
             END CASE;
             
         END LOOP;
@@ -353,6 +671,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
     BEGIN
     
         r_context.state := 'lfContent';
+        r_context.context_stack := tt_chars();
        
         parse(p_content, r_context, t_events);
         check_end(r_context, t_events);

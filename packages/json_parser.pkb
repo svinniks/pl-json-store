@@ -9,10 +9,10 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         ,character_code VARCHAR2(4)
         ,context_stack tt_chars);
 
-    PROCEDURE raise_error
-        (p_message IN VARCHAR2) IS
+    PROCEDURE register_messages IS
     BEGIN
-        raise_application_error(-20000, p_message);
+        log$.register_message('JSON-00001', 'Unexpected character ":1"!');
+        log$.register_message('JSON-00002', 'Unexpected end of the input!');
     END;
 
     PROCEDURE parse
@@ -77,7 +77,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSE
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
                 
             END IF;
         
@@ -99,7 +100,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSE
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
                 
             END IF;
         
@@ -150,7 +152,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF NOT space THEN
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
                 
             END IF;
         
@@ -247,7 +250,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF NOT space THEN
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
             
             END IF;
         
@@ -267,7 +271,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSE
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
                 
             END IF;
         
@@ -299,7 +304,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                     
                 ELSE
                 
-                    raise_error('Unexpected character ' || v_char || '!');
+                    -- Unexpected character ":1"!
+                    error$.raise('JSON-00001', v_char);
                     
                 END IF;
                 
@@ -327,7 +333,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSE
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
                 
             END IF;
         
@@ -355,7 +362,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                     
                 ELSE
                 
-                    raise_error('Unexpected character ' || v_char || '!');
+                    -- Unexpected character ":1"!
+                    error$.raise('JSON-00001', v_char);
                     
                 END IF;
                 
@@ -383,7 +391,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSE
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
             
             END IF;
         
@@ -399,7 +408,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSE
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
             
             END IF;
         
@@ -426,7 +436,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                     
                 ELSE
                 
-                    raise_error('Unexpected character ' || v_char || '!');
+                    -- Unexpected character ":1"!
+                    error$.raise('JSON-00001', v_char);
                     
                 END IF;    
                 
@@ -454,7 +465,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSE
             
-                raise_error('Unexpected characted ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
             
             END IF;
         
@@ -464,7 +476,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         BEGIN
         
             IF NOT space THEN
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
             END IF;
         
         END;
@@ -508,7 +521,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                   AND 'false' NOT LIKE p_context.value || '%'
                   AND 'null' NOT LIKE p_context.value || '%' THEN
                   
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
                   
             END IF;
         
@@ -529,7 +543,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF NOT space THEN
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
             
             END IF;
         
@@ -546,7 +561,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF NOT space THEN
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
             
             END IF;
         
@@ -561,7 +577,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF NOT space THEN
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
             
             END IF;
         
@@ -588,7 +605,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF NOT space THEN
             
-                raise_error('Unexpected character ' || v_char || '!');
+                -- Unexpected character ":1"!
+                error$.raise('JSON-00001', v_char);
             
             END IF;
                 
@@ -655,12 +673,14 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             WHEN 'lfContent' THEN
                 NULL;
             ELSE
-                raise_error('Unexpected end of the input!');
+                -- Unexpected end of the input!
+                error$.raise('JSON-00002');
         
         END CASE;
         
         IF p_context.context_stack.COUNT > 0 THEN
-            raise_error('Unexpected end of the input!');
+            -- Unexpected end of the input!
+            error$.raise('JSON-00002');
         END IF;
     
     END;
@@ -696,6 +716,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         RETURN;
     
     END;
-
+    
+BEGIN
+    register_messages;
 END;
 /

@@ -1,3 +1,4 @@
+
 suite("JSON path parser tests", function() {
 
     test("Invalid start of the path", function() {
@@ -8,7 +9,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "123"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -20,7 +21,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "   123"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
     
@@ -32,7 +33,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "hello.123"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -44,7 +45,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "  hello  .  123"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -56,7 +57,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "hello-123"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -68,7 +69,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "#a"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -80,7 +81,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "#123a"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -92,7 +93,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "abc abc"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -104,7 +105,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "abc[cda]"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -116,7 +117,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "  abc  [  cba  ]  "
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -128,7 +129,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "abc[123a]"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -140,7 +141,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "abc[123.cba"
             });
         
-        }).to.throw(/JPTH-00001/);
+        }).to.throw(/JDOC-00001/);
     
     });
 
@@ -152,7 +153,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "abc[123"
             });
         
-        }).to.throw(/JPTH-00002/);
+        }).to.throw(/JDOC-00002/);
     
     });
 
@@ -164,7 +165,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: "\"abc" 
             });
         
-        }).to.throw(/JPTH-00002/);
+        }).to.throw(/JDOC-00002/);
     
     });
 
@@ -176,7 +177,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: 'hello["world'
             });
         
-        }).to.throw(/JPTH-00002/);
+        }).to.throw(/JDOC-00002/);
     
     });
 
@@ -188,7 +189,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: 'hello.world.'
             });
         
-        }).to.throw(/JPTH-00002/);
+        }).to.throw(/JDOC-00002/);
     
     });
 
@@ -200,7 +201,7 @@ suite("JSON path parser tests", function() {
                 p_path_string: '  hello  .  world  .  '
             });
         
-        }).to.throw(/JPTH-00002/);
+        }).to.throw(/JDOC-00002/);
     
     });
 
@@ -427,6 +428,21 @@ suite("JSON path parser tests", function() {
                 type: 1,
                 value: null
             },
+            {
+                type: 3,
+                value: "12345"
+            }
+        ]);
+
+    });
+
+    test("Just an array element", function() {
+
+        var result = database.call("json_documents.parse_path", {
+            p_path_string: '[12345]'
+        });
+
+        expect(result).to.eql([
             {
                 type: 3,
                 value: "12345"
@@ -786,3 +802,484 @@ suite("JSON path parser tests", function() {
     });
 
 });
+
+suite("JSON document management tests", function() {
+
+    test("Try to modify the root", function() {
+        
+        expect(function() {
+        
+            var result = database.call("json_documents.set_json", {
+                p_path: '$',
+                p_content: 'null'
+            });
+        
+        }).to.throw(/JDOC-00003/);
+    
+    });
+
+    suite("Anonymous value creation tests", function() {
+
+        test("Create anonymous null", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: 'null'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'E',
+                name: null,
+                value: null
+            });
+
+        });
+
+        test("Create anonymous string", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: '"Hello, World!"'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'S',
+                name: null,
+                value: "Hello, World!"
+            });
+
+        });
+
+        test("Create anonymous number", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: '123.456'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'N',
+                name: null,
+                value: "123.456"
+            });
+
+        });
+
+        test("Create anonymous boolean", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: 'true'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'B',
+                name: null,
+                value: "true"
+            });
+
+        });
+
+        test("Create anonymous object", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: '{}'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'O',
+                name: null,
+                value: null
+            });
+
+        });
+
+        test("Create anonymous array", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: '[]'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'A',
+                name: null,
+                value: null
+            });
+
+        });
+
+        test("Create anonymous object with all possible scalar properties", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: '{"name":"Sergejs","age":35,"married":true,"children":null}'
+            });
+
+            expect(id).to.not.be(null);
+
+            var values = database.selectRows(`LEVEL AS lvl
+                    ,type
+                    ,name
+                    ,value
+                FROM json_values
+                START WITH id = ${id}
+                CONNECT BY PRIOR id = parent_id
+                ORDER SIBLINGS BY id
+            `);
+
+            expect(values).to.eql([
+                [1, "O", null, null],
+                [2, "S", "name", "Sergejs"],
+                [2, "N", "age", "35"],
+                [2, "B", "married", "true"],
+                [2, "E", "children", null],
+            ]);
+
+        });
+
+        test("Create anonymous object with a nested object property", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: '{"name":"Sergejs","age":35,"address":{"country":"Latvia","city":"Riga"}}'
+            });
+
+            expect(id).to.not.be(null);
+
+            var values = database.selectRows(`LEVEL AS lvl
+                    ,type
+                    ,name
+                    ,value
+                FROM json_values
+                START WITH id = ${id}
+                CONNECT BY PRIOR id = parent_id
+                ORDER SIBLINGS BY id
+            `);
+
+            expect(values).to.eql([
+                [1, "O", null, null],
+                [2, "S", "name", "Sergejs"],
+                [2, "N", "age", "35"],
+                [2, "O", "address", null],
+                [3, "S", "country", "Latvia"],
+                [3, "S", "city", "Riga"]
+            ]);
+
+        });
+
+        test("Create anonymous array with all possible scalar elements", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: '["Sergejs","Vinniks",35,true,null]'
+            });
+
+            expect(id).to.not.be(null);
+
+            var values = database.selectRows(`LEVEL AS lvl
+                    ,type
+                    ,name
+                    ,value
+                FROM json_values
+                START WITH id = ${id}
+                CONNECT BY PRIOR id = parent_id
+                ORDER SIBLINGS BY id
+            `);
+
+            expect(values).to.eql([
+                [1, "A", null, null],
+                [2, "S", "1", "Sergejs"],
+                [2, "S", "2", "Vinniks"],
+                [2, "N", "3", "35"],
+                [2, "B", "4", "true"],
+                [2, "E", "5", null]
+            ]);
+
+        });
+
+        test("Create anonymous multidimensional array", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: '[["Sergejs","Vinniks",35,true,null],["Hello","World"]]'
+            });
+
+            expect(id).to.not.be(null);
+
+            var values = database.selectRows(`LEVEL AS lvl
+                    ,type
+                    ,name
+                    ,value
+                FROM json_values
+                START WITH id = ${id}
+                CONNECT BY PRIOR id = parent_id
+                ORDER SIBLINGS BY id
+            `);
+
+            expect(values).to.eql([
+                [1, "A", null, null],
+                [2, "A", "1", null],
+                [3, "S", "1", "Sergejs"],
+                [3, "S", "2", "Vinniks"],
+                [3, "N", "3", "35"],
+                [3, "B", "4", "true"],
+                [3, "E", "5", null],
+                [2, "A", "2", null],
+                [3, "S", "1", "Hello"],
+                [3, "S", "2", "World"]
+            ]);
+
+        });
+
+        test("Create anonymous complex object", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: null,
+                p_content: JSON.stringify({
+                    name: "Sergejs",
+                    surname: "Vinniks",
+                    phones: [
+                        {
+                            type: "fixed",
+                            number: 1234567
+                        }
+                    ]
+                })
+            });
+
+            expect(id).to.not.be(null);
+
+            var values = database.selectRows(`LEVEL AS lvl
+                    ,type
+                    ,name
+                    ,value
+                FROM json_values
+                START WITH id = ${id}
+                CONNECT BY PRIOR id = parent_id
+                ORDER SIBLINGS BY id
+            `);
+
+            expect(values).to.eql([
+                [1, "O", null, null],
+                [2, "S", "name", "Sergejs"],
+                [2, "S", "surname", "Vinniks"],
+                [2, "A", "phones", null],
+                [3, "O", "1", null],
+                [4, "S", "type", "fixed"],
+                [4, "N", "number", "1234567"],
+            ]);
+
+        });
+
+        teardown("Teardown", function() {
+            database.rollback();
+        });
+
+    });
+
+    suite("Named value management tests", function() {
+
+        test("Create named null in the root", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: '$.null',
+                p_content: 'null'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'E',
+                name: "null",
+                value: null
+            });
+
+        });
+
+        test("Create named string in the root", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: '$.string',
+                p_content: '"Hello, World!"'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'S',
+                name: "string",
+                value: "Hello, World!"
+            });
+
+        });
+
+        test("Create named number in the root", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: '$.number',
+                p_content: '123.456'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'N',
+                name: "number",
+                value: "123.456"
+            });
+
+        });
+
+        test("Create named boolean in the root", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: '$.boolean',
+                p_content: 'true'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'B',
+                name: "boolean",
+                value: "true"
+            });
+
+        });
+
+        test("Create named object in the root", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: '$.object',
+                p_content: '{}'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'O',
+                name: "object",
+                value: null
+            });
+
+        });
+
+        test("Create named array in the root", function() {
+
+            var id = database.call("json_documents.set_json", {
+                p_path: '$.array',
+                p_content: '[]'
+            });
+
+            expect(id).to.not.be(null);
+
+            var value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}
+            `);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: 'A',
+                name: "array",
+                value: null
+            });
+
+        });
+
+    });
+
+});
+

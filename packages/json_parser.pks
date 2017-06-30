@@ -1,18 +1,17 @@
 CREATE OR REPLACE PACKAGE json_parser IS
 
-    TYPE rt_parse_event IS RECORD 
+    TYPE t_parse_event IS RECORD 
         (name VARCHAR2(30)
         ,value VARCHAR2(4000));
        
-    TYPE tt_parse_events IS TABLE OF rt_parse_event;
+    TYPE t_parse_events IS TABLE OF t_parse_event;
     
     FUNCTION parse
         (p_content IN VARCHAR2)
-    RETURN tt_parse_events PIPELINED;
+    RETURN t_parse_events;
     
     FUNCTION parse
         (p_content IN CLOB)
-    RETURN tt_parse_events PIPELINED;
-
+    RETURN t_parse_events;
+    
 END;
-/

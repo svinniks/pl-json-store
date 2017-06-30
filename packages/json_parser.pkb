@@ -1,13 +1,6 @@
 CREATE OR REPLACE PACKAGE BODY json_parser IS
 
-    TYPE tt_chars IS TABLE OF CHAR;
-
-    TYPE rt_parse_context IS RECORD
-        (state VARCHAR2(30)
-        ,value VARCHAR2(4000)
-        ,name BOOLEAN
-        ,character_code VARCHAR2(4)
-        ,context_stack tt_chars);
+    TYPE t_chars IS TABLE OF CHAR;
 
     PROCEDURE register_messages IS
     BEGIN
@@ -15,44 +8,52 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         log$.register_message('JSON-00002', 'Unexpected end of the input!');
     END;
 
-    PROCEDURE parse
-        (p_buffer IN VARCHAR2
-        ,p_context IN OUT NOCOPY rt_parse_context
-        ,p_events IN OUT NOCOPY tt_parse_events) IS
+    FUNCTION parse
+        (p_content IN t_varchars)
+    RETURN t_parse_events IS
         
+        v_state VARCHAR2(30);
+        v_value VARCHAR2(4000);
+        v_name BOOLEAN;
+        v_character_code VARCHAR2(4);
+        v_context_stack t_chars;
+        
+        v_string VARCHAR2(32000);
         v_char CHAR;
+        
+        v_events t_parse_events;
         
         PROCEDURE push_context
             (p_value IN CHAR) IS
         BEGIN
-            p_context.context_stack.EXTEND(1);
-            p_context.context_stack(p_context.context_stack.LAST) := p_value;
+            v_context_stack.EXTEND(1);
+            v_context_stack(v_context_stack.LAST) := p_value;
         END;
         
         FUNCTION peek_context
         RETURN CHAR IS
         BEGIN
         
-            IF p_context.context_stack.COUNT = 0 THEN
+            IF v_context_stack.COUNT = 0 THEN
                 RETURN NULL;
             ELSE
-                RETURN p_context.context_stack(p_context.context_stack.COUNT);
+                RETURN v_context_stack(v_context_stack.COUNT);
             END IF;
         
         END;
         
         PROCEDURE pop_context IS
         BEGIN
-            p_context.context_stack.TRIM(1);
+            v_context_stack.TRIM(1);
         END;
         
         PROCEDURE add_event
             (p_name IN VARCHAR2
             ,p_value IN VARCHAR2) IS
         BEGIN
-            p_events.EXTEND(1);
-            p_events(p_events.COUNT).name := p_name;
-            p_events(p_events.COUNT).value := p_value;
+            v_events.EXTEND(1);
+            v_events(v_events.COUNT).name := p_name;
+            v_events(v_events.COUNT).value := p_value;
         END;
         
         FUNCTION space
@@ -70,9 +71,9 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 pop_context;
                 
                 IF peek_context IS NULL THEN
-                    p_context.state := 'lfEnd';
+                    v_state := 'lfEnd';
                 ELSE
-                    p_context.state := 'lfComma';
+                    v_state := 'lfComma';
                 END IF;
                 
             ELSE
@@ -93,9 +94,9 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 pop_context;
                 
                 IF peek_context IS NULL THEN
-                    p_context.state := 'lfEnd';
+                    v_state := 'lfEnd';
                 ELSE
-                    p_context.state := 'lfComma';
+                    v_state := 'lfComma';
                 END IF;
                 
             ELSE
@@ -112,43 +113,43 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF v_char = '"' THEN
             
-                p_context.state := 'rString';
-                p_context.value := NULL;
-                p_context.name := FALSE;
+                v_state := 'rString';
+                v_value := NULL;
+                v_name := FALSE;
                 
             ELSIF INSTR('123456789', v_char) > 0 THEN
             
-                p_context.state := 'rInteger';
-                p_context.value := v_char;
+                v_state := 'rInteger';
+                v_value := v_char;
                 
             ELSIF v_char = '0' THEN
             
-                p_context.state := 'lfDecimalDot';
-                p_context.value := '0';
+                v_state := 'lfDecimalDot';
+                v_value := '0';
                 
             ELSIF v_char = '-' THEN
             
-                p_context.state := 'lfInteger';
-                p_context.value := '-';
+                v_state := 'lfInteger';
+                v_value := '-';
                 
             ELSIF v_char IN ('t', 'f', 'n') THEN
             
-                p_context.state := 'rSpecialValue';
-                p_context.value := v_char;
+                v_state := 'rSpecialValue';
+                v_value := v_char;
                 
             ELSIF v_char = '{' THEN
             
                 push_context('O');
                 add_event('START_OBJECT', NULL);
                 
-                p_context.state := 'lfFirstProperty';
+                v_state := 'lfFirstProperty';
                 
             ELSIF v_char = '[' THEN
             
                 push_context('A');
                 add_event('START_ARRAY', NULL);
                 
-                p_context.state := 'lfFirstValue';    
+                v_state := 'lfFirstValue';    
                 
             ELSIF NOT space THEN
             
@@ -175,30 +176,30 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF v_char = '"' THEN
             
-                IF p_context.name THEN
+                IF v_name THEN
                 
-                    add_event('NAME', p_context.value);
-                    p_context.state := 'lfColon';
+                    add_event('NAME', v_value);
+                    v_state := 'lfColon';
                     
                 ELSE
                 
-                    add_event('STRING', p_context.value);
+                    add_event('STRING', v_value);
                     
                     IF peek_context IS NOT NULL THEN
-                        p_context.state := 'lfComma';
+                        v_state := 'lfComma';
                     ELSE
-                        p_context.state := 'lfEnd';
+                        v_state := 'lfEnd';
                     END IF;
                     
                 END IF;
             
             ELSIF v_char = '\' THEN
             
-                p_context.state := 'rEscaped';
+                v_state := 'rEscaped';
                 
             ELSE
             
-                p_context.value := p_context.value || v_char;
+                v_value := v_value || v_char;
                 
             END IF;
         
@@ -209,29 +210,29 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             CASE v_char
                 WHEN 'n' THEN
-                    p_context.value := p_context.value || CHR(10);
+                    v_value := v_value || CHR(10);
                 WHEN 'f' THEN
-                    p_context.value := p_context.value || CHR(12);
+                    v_value := v_value || CHR(12);
                 WHEN 't' THEN
-                    p_context.value := p_context.value || CHR(9);
+                    v_value := v_value || CHR(9);
                 WHEN 'r' THEN
-                    p_context.value := p_context.value || CHR(13);
+                    v_value := v_value || CHR(13);
                 WHEN 't' THEN
-                    p_context.value := p_context.value || CHR(9);
+                    v_value := v_value || CHR(9);
                 WHEN 'b' THEN
-                    p_context.value := p_context.value || CHR(8);
+                    v_value := v_value || CHR(8);
                 WHEN 'u' THEN
                 
-                    p_context.character_code := NULL;
-                    p_context.state := 'rUnicode';
+                    v_character_code := NULL;
+                    v_state := 'rUnicode';
                     
                     RETURN;
                     
                 ELSE
-                    p_context.value := p_context.value || v_char;
+                    v_value := v_value || v_char;
             END CASE;
         
-            p_context.state := 'rString';
+            v_state := 'rString';
         
         END;
         
@@ -240,13 +241,13 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF INSTR('123456789', v_char) > 0 THEN
             
-                p_context.state := 'rInteger';
-                p_context.value := p_context.value || v_char;
+                v_state := 'rInteger';
+                v_value := v_value || v_char;
                 
             ELSIF v_char = '0' THEN
             
-                p_context.state := 'lfDecimalDot';
-                p_context.value := p_context.value || '0';
+                v_state := 'lfDecimalDot';
+                v_value := v_value || '0';
                 
             ELSIF NOT space THEN
             
@@ -262,11 +263,11 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF INSTR('1234567890ABCDEF', UPPER(v_char)) > 0 THEN
             
-                p_context.character_code := p_context.character_code || v_char;
+                v_character_code := v_character_code || v_char;
                 
-                IF LENGTH(p_context.character_code) = 4 THEN
-                    p_context.value := p_context.value || CHR(TO_NUMBER(p_context.character_code, 'xxxx'));
-                    p_context.state := 'rString';
+                IF LENGTH(v_character_code) = 4 THEN
+                    v_value := v_value || CHR(TO_NUMBER(v_character_code, 'xxxx'));
+                    v_state := 'rString';
                 END IF;
                 
             ELSE
@@ -283,23 +284,23 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF INSTR('1234567890', v_char) > 0 THEN
             
-                p_context.value := p_context.value || v_char;
+                v_value := v_value || v_char;
                 
             ELSIF v_char = '.' THEN
             
-                p_context.value := p_context.value || '.';
-                p_context.state := 'lfDecimal';
+                v_value := v_value || '.';
+                v_state := 'lfDecimal';
             
             ELSIF v_char = ',' THEN
             
                 IF peek_context IS NOT NULL THEN
                 
-                    add_event('NUMBER', p_context.value);
+                    add_event('NUMBER', v_value);
                 
                     IF peek_context = 'O' THEN
-                        p_context.state := 'lfNextProperty';
+                        v_state := 'lfNextProperty';
                     ELSE
-                        p_context.state := 'lfValue';
+                        v_state := 'lfValue';
                     END IF;
                     
                 ELSE
@@ -311,23 +312,23 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF space THEN
             
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
                 
                 IF peek_context IS NOT NULL THEN
-                    p_context.state := 'lfComma';
+                    v_state := 'lfComma';
                 ELSE
-                    p_context.state := 'lfEnd';
+                    v_state := 'lfEnd';
                 END IF;
                 
             ELSIF v_char = '}' THEN
             
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
                 
                 end_object;
                 
             ELSIF v_char = ']' THEN
             
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
                 
                 end_array;
                 
@@ -345,19 +346,19 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF v_char = '.' THEN
             
-                p_context.value := p_context.value || '.';
-                p_context.state := 'lfDecimal';
+                v_value := v_value || '.';
+                v_state := 'lfDecimal';
             
             ELSIF v_char = ',' THEN
             
                 IF peek_context IS NOT NULL THEN
                 
-                    add_event('NUMBER', p_context.value);
+                    add_event('NUMBER', v_value);
                 
                     IF peek_context = 'O' THEN
-                        p_context.state := 'lfNextProperty';
+                        v_state := 'lfNextProperty';
                     ELSE
-                        p_context.state := 'lfValue';
+                        v_state := 'lfValue';
                     END IF;
                     
                 ELSE
@@ -369,24 +370,24 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF v_char = '}' THEN
             
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
                 
                 end_object;
                 
             ELSIF v_char = ']' THEN
             
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
                 
                 end_array;
                             
             ELSIF space THEN
             
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
                 
                 IF peek_context IS NOT NULL THEN
-                    p_context.state := 'lfComma';
+                    v_state := 'lfComma';
                 ELSE
-                    p_context.state := 'lfEnd';
+                    v_state := 'lfEnd';
                 END IF;
                 
             ELSE
@@ -403,8 +404,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF INSTR('1234567890', v_char) > 0 THEN
             
-                p_context.value := p_context.value || v_char;
-                p_context.state := 'rDecimal';
+                v_value := v_value || v_char;
+                v_state := 'rDecimal';
                 
             ELSE
             
@@ -420,18 +421,18 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF INSTR('1234567890', v_char) > 0 THEN
             
-                p_context.value := p_context.value || v_char;
+                v_value := v_value || v_char;
                 
             ELSIF v_char = ',' THEN
             
                 IF peek_context IS NOT NULL THEN
                 
-                    add_event('NUMBER', p_context.value);
+                    add_event('NUMBER', v_value);
                 
                     IF peek_context = 'O' THEN
-                        p_context.state := 'lfNextProperty';
+                        v_state := 'lfNextProperty';
                     ELSE
-                        p_context.state := 'lfValue';
+                        v_state := 'lfValue';
                     END IF;
                     
                 ELSE
@@ -443,23 +444,23 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF space THEN
             
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
                 
                 IF peek_context IS NOT NULL THEN
-                    p_context.state := 'lfComma';
+                    v_state := 'lfComma';
                 ELSE
-                    p_context.state := 'lfEnd';
+                    v_state := 'lfEnd';
                 END IF;
             
             ELSIF v_char = '}' THEN
             
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
                 
                 end_object;
                 
             ELSIF v_char = ']' THEN
             
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
                 
                 end_array;
                 
@@ -485,41 +486,41 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         PROCEDURE rSpecialValue IS
         BEGIN
         
-            p_context.value := p_context.value || v_char;
+            v_value := v_value || v_char;
             
-            IF p_context.value = 'true' THEN
+            IF v_value = 'true' THEN
             
                 add_event('BOOLEAN', 'true');
                 
                 IF peek_context IS NOT NULL THEN
-                    p_context.state := 'lfComma';
+                    v_state := 'lfComma';
                 ELSE
-                    p_context.state := 'lfEnd';
+                    v_state := 'lfEnd';
                 END IF;
                 
-            ELSIF p_context.value = 'false' THEN
+            ELSIF v_value = 'false' THEN
             
                 add_event('BOOLEAN', 'false');
                 
                 IF peek_context IS NOT NULL THEN
-                    p_context.state := 'lfComma';
+                    v_state := 'lfComma';
                 ELSE
-                    p_context.state := 'lfEnd';
+                    v_state := 'lfEnd';
                 END IF;
                 
-            ELSIF p_context.value = 'null' THEN
+            ELSIF v_value = 'null' THEN
             
                 add_event('NULL', NULL);
                 
                 IF peek_context IS NOT NULL THEN
-                    p_context.state := 'lfComma';
+                    v_state := 'lfComma';
                 ELSE
-                    p_context.state := 'lfEnd';
+                    v_state := 'lfEnd';
                 END IF;
                 
-            ELSIF 'true' NOT LIKE p_context.value || '%'
-                  AND 'false' NOT LIKE p_context.value || '%'
-                  AND 'null' NOT LIKE p_context.value || '%' THEN
+            ELSIF 'true' NOT LIKE v_value || '%'
+                  AND 'false' NOT LIKE v_value || '%'
+                  AND 'null' NOT LIKE v_value || '%' THEN
                   
                 -- Unexpected character ":1"!
                 error$.raise('JSON-00001', v_char);
@@ -537,9 +538,9 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 
             ELSIF v_char = '"' THEN
             
-                p_context.value := NULL;
-                p_context.state := 'rString';
-                p_context.name := TRUE;
+                v_value := NULL;
+                v_state := 'rString';
+                v_name := TRUE;
                 
             ELSIF NOT space THEN
             
@@ -555,9 +556,9 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF v_char = '"' THEN
             
-                p_context.value := NULL;
-                p_context.state := 'rString';
-                p_context.name := TRUE;
+                v_value := NULL;
+                v_state := 'rString';
+                v_name := TRUE;
                 
             ELSIF NOT space THEN
             
@@ -573,7 +574,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF v_char = ':' THEN
             
-                p_context.state := 'lfValue';
+                v_state := 'lfValue';
                 
             ELSIF NOT space THEN
             
@@ -590,9 +591,9 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             IF v_char = ',' THEN
             
                 IF peek_context = 'O' THEN
-                    p_context.state := 'lfNextProperty';
+                    v_state := 'lfNextProperty';
                 ELSE
-                    p_context.state := 'lfValue';
+                    v_state := 'lfValue';
                 END IF;
                 
             ELSIF v_char = '}' THEN
@@ -609,65 +610,55 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 error$.raise('JSON-00001', v_char);
             
             END IF;
+        
+        END;
+        
+    BEGIN
+    
+        v_state := 'lfContent';
+        v_context_stack := t_chars();
+        v_events := t_parse_events();
+        
+        FOR v_i IN 1..p_content.COUNT LOOP
+        
+            v_string := p_content(v_i);
+        
+            FOR v_j IN 1..NVL(LENGTH(v_string), 0) LOOP
                 
+                v_char := SUBSTR(v_string, v_j, 1);
+                
+                CASE v_state
+                    WHEN 'lfContent' THEN lfValue;
+                    WHEN 'lfValue' THEN lfValue;
+                    WHEN 'rString' THEN rString;
+                    WHEN 'rEscaped' THEN rEscaped;
+                    WHEN 'rUnicode' THEN rUnicode;
+                    WHEN 'lfInteger' THEN lfInteger;
+                    WHEN 'rInteger' THEN rInteger;
+                    WHEN 'lfDecimalDot' THEN lfDecimalDot;
+                    WHEN 'lfDecimal' THEN lfDecimal;
+                    WHEN 'rDecimal' THEN rDecimal;
+                    WHEN 'lfEnd' THEN lfEnd;
+                    WHEN 'rSpecialValue' THEN rSpecialValue;
+                    WHEN 'lfFirstProperty' THEN lfFirstProperty;
+                    WHEN 'lfColon' THEN lfColon;
+                    WHEN 'lfComma' THEN lfComma;
+                    WHEN 'lfNextProperty' THEN lfNextProperty;
+                    WHEN 'lfFirstValue' THEN lfFirstValue;
+                END CASE;
+                
+            END LOOP;
         
-        END;
-        
-    BEGIN
-    
-        p_events := tt_parse_events();
-        
-        FOR v_i IN 1..NVL(LENGTH(p_buffer), 0) LOOP
-            
-            v_char := SUBSTR(p_buffer, v_i, 1);
-            
-            CASE p_context.state
-                WHEN 'lfContent' THEN lfValue;
-                WHEN 'lfValue' THEN lfValue;
-                WHEN 'rString' THEN rString;
-                WHEN 'rEscaped' THEN rEscaped;
-                WHEN 'rUnicode' THEN rUnicode;
-                WHEN 'lfInteger' THEN lfInteger;
-                WHEN 'rInteger' THEN rInteger;
-                WHEN 'lfDecimalDot' THEN lfDecimalDot;
-                WHEN 'lfDecimal' THEN lfDecimal;
-                WHEN 'rDecimal' THEN rDecimal;
-                WHEN 'lfEnd' THEN lfEnd;
-                WHEN 'rSpecialValue' THEN rSpecialValue;
-                WHEN 'lfFirstProperty' THEN lfFirstProperty;
-                WHEN 'lfColon' THEN lfColon;
-                WHEN 'lfComma' THEN lfComma;
-                WHEN 'lfNextProperty' THEN lfNextProperty;
-                WHEN 'lfFirstValue' THEN lfFirstValue;
-            END CASE;
-            
         END LOOP;
-    
-    END;
-
-    PROCEDURE check_end
-        (p_context IN OUT NOCOPY rt_parse_context
-        ,p_events IN OUT NOCOPY tt_parse_events) IS
         
-        PROCEDURE add_event
-            (p_name IN VARCHAR2
-            ,p_value IN VARCHAR2) IS
-        BEGIN
-            p_events.EXTEND(1);
-            p_events(p_events.COUNT).name := p_name;
-            p_events(p_events.COUNT).value := p_value;
-        END;
-        
-    BEGIN
-    
-        CASE p_context.state
+        CASE v_state
         
             WHEN 'rInteger' THEN
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
             WHEN 'rDecimal' THEN
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
             WHEN 'lfDecimalDot' THEN
-                add_event('NUMBER', p_context.value);
+                add_event('NUMBER', v_value);
             WHEN 'lfEnd' THEN
                 NULL;
             WHEN 'lfContent' THEN
@@ -678,46 +669,34 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
         END CASE;
         
-        IF p_context.context_stack.COUNT > 0 THEN
+        IF v_context_stack.COUNT > 0 THEN
             -- Unexpected end of the input!
             error$.raise('JSON-00002');
         END IF;
+        
+        RETURN v_events;
     
     END;
 
     FUNCTION parse
         (p_content IN VARCHAR2)
-    RETURN tt_parse_events PIPELINED IS
-    
-        r_context rt_parse_context;
-        t_events tt_parse_events;
-    
+    RETURN t_parse_events IS
     BEGIN
     
-        r_context.state := 'lfContent';
-        r_context.context_stack := tt_chars();
-       
-        parse(p_content, r_context, t_events);
-        check_end(r_context, t_events);
-        
-        FOR v_i IN 1..t_events.COUNT LOOP
-            PIPE ROW(t_events(v_i));
-        END LOOP;
-    
-        RETURN;
+        RETURN parse(t_varchars(p_content));
     
     END;
     
     FUNCTION parse
         (p_content IN CLOB)
-    RETURN tt_parse_events PIPELINED IS
+    RETURN t_parse_events IS
     BEGIN
     
-        RETURN;
+        RETURN NULL;
     
     END;
     
 BEGIN
     register_messages;
 END;
-/
+

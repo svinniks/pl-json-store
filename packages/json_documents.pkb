@@ -1,9 +1,15 @@
 CREATE OR REPLACE PACKAGE BODY json_documents IS
 
+    TYPE t_json_values IS TABLE OF json_values%ROWTYPE;
+    
+    TYPE t_integer_indexed_numbers IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+
     PROCEDURE register_messages IS
     BEGIN
-        log$.register_message('JPTH-00001', 'Unexpected character ":1"!');
-        log$.register_message('JPTH-00002', 'Unexpected end of the input!');
+        log$.register_message('JDOC-00001', 'Unexpected character ":1"!');
+        log$.register_message('JDOC-00002', 'Unexpected end of the input!');
+        log$.register_message('JDOC-00003', 'Root can''t be modified!');
+        log$.register_message('JDOC-00004', 'Multiple values found at the path :1!');
     END;
 
     FUNCTION parse_path
@@ -54,7 +60,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JPTH-00001', v_char);
+                error$.raise('JDOC-00001', v_char);
                 
             END IF;
         
@@ -67,6 +73,10 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             
                 add_element(c_root);
                 v_state := 'lfDot';
+            
+            ELSIF v_char = '[' THEN
+                
+                v_state := 'lfArrayElement';
                 
             ELSE
             
@@ -101,7 +111,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JPTH-00001', v_char);
+                error$.raise('JDOC-00001', v_char);
             
             END IF;
         
@@ -118,7 +128,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JPTH-00001', v_char);
+                error$.raise('JDOC-00001', v_char);
             
             END IF;
         
@@ -149,7 +159,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JPTH-00001', v_char);
+                error$.raise('JDOC-00001', v_char);
             
             END IF;
         
@@ -169,7 +179,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JPTH-00001', v_char);
+                error$.raise('JDOC-00001', v_char);
             
             END IF;
         
@@ -219,7 +229,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JPTH-00001', v_char);
+                error$.raise('JDOC-00001', v_char);
             
             END IF;
         
@@ -245,7 +255,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JPTH-00001', v_char);
+                error$.raise('JDOC-00001', v_char);
             
             END IF;
         
@@ -289,7 +299,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JPTH-00001', v_char);
+                error$.raise('JDOC-00001', v_char);
             
             END IF;
         
@@ -333,11 +343,256 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         ELSIF v_state NOT IN ('lfDot', 'lfRoot') THEN
         
             -- Unexpected end of the input!
-            error$.raise('JPTH-00002');
+            error$.raise('JDOC-00002');
         
         END IF;
     
         RETURN v_path;
+    
+    END;
+    
+    FUNCTION create_json
+        (p_parents IN t_numbers
+        ,p_name IN VARCHAR2
+        ,p_content IN VARCHAR2) 
+    RETURN t_numbers IS
+    
+        v_parse_events json_parser.t_parse_events;    
+        v_json_values t_json_values;
+        
+        v_event_i PLS_INTEGER;
+        v_id NUMBER;
+        
+        v_id_map t_integer_indexed_numbers;
+        
+        v_created_ids t_numbers;
+        
+        FUNCTION next_id
+        RETURN NUMBER IS
+        BEGIN
+            v_id := v_id - 1;
+            RETURN v_id;
+        END;
+        
+        PROCEDURE flush_values IS
+            
+            v_ids t_numbers;
+            v_id_count NUMBER;
+            
+        BEGIN
+        
+            v_id_count := NVL(v_id_map.FIRST, 0) - v_id;
+        
+            SELECT jsvl_id.NEXTVAL
+            BULK COLLECT INTO v_ids
+            FROM dual
+            CONNECT BY LEVEL <= v_id_count;
+            
+            FOR v_i IN 1..v_ids.COUNT LOOP
+                v_id_map(NVL(v_id_map.FIRST, 0) - 1) := v_ids(v_i);
+            END LOOP;
+            
+            FOR v_i IN 1..v_json_values.COUNT LOOP
+            
+                IF v_id_map.EXISTS(v_json_values(v_i).id) THEN
+                    v_json_values(v_i).id := v_id_map(v_json_values(v_i).id);
+                END IF;
+                
+                IF v_id_map.EXISTS(v_json_values(v_i).parent_id) THEN
+                    v_json_values(v_i).parent_id := v_id_map(v_json_values(v_i).parent_id);
+                END IF;
+            
+            END LOOP;
+            
+            FORALL v_i IN 1..v_json_values.COUNT
+                INSERT INTO json_values
+                VALUES v_json_values(v_i);
+        
+            v_json_values := t_json_values();
+        
+        END;
+        
+        PROCEDURE insert_value
+            (p_value json_values%ROWTYPE) IS
+            
+            c_flush_amount CONSTANT PLS_INTEGER := 200;
+            
+        BEGIN
+        
+            v_json_values.EXTEND(1);
+            v_json_values(v_json_values.COUNT) := p_value;
+            
+            IF v_json_values.COUNT = c_flush_amount THEN
+                flush_values;
+            END IF;
+            
+        END;
+        
+        FUNCTION create_value
+            (p_parent_id IN NUMBER
+            ,p_name IN VARCHAR2) 
+        RETURN NUMBER IS
+            
+            v_value json_values%ROWTYPE;
+            v_child_id NUMBER;
+            
+            v_name VARCHAR2(4000);
+            v_i PLS_INTEGER;
+            
+        BEGIN
+        
+            v_value.id := next_id;
+            v_value.parent_id := p_parent_id;
+            v_value.name := p_name;
+            
+            IF v_parse_events(v_event_i).name = 'STRING' THEN
+            
+                v_value.type := 'S';
+                v_value.value := v_parse_events(v_event_i).value;
+                
+                insert_value(v_value);
+                
+            ELSIF v_parse_events(v_event_i).name = 'NUMBER' THEN
+            
+                v_value.type := 'N';
+                v_value.value := v_parse_events(v_event_i).value;
+                
+                insert_value(v_value);
+                
+            ELSIF v_parse_events(v_event_i).name = 'BOOLEAN' THEN
+            
+                v_value.type := 'B';
+                v_value.value := v_parse_events(v_event_i).value;
+                
+                insert_value(v_value);
+                
+            ELSIF v_parse_events(v_event_i).name = 'NULL' THEN
+            
+                v_value.type := 'E';
+                v_value.value := NULL;
+                
+                insert_value(v_value);
+                
+            ELSIF v_parse_events(v_event_i).name = 'START_OBJECT' THEN
+            
+                v_value.type := 'O';
+                v_value.value := NULL;
+                
+                insert_value(v_value);
+                
+                v_event_i := v_event_i + 1;
+                
+                WHILE v_parse_events(v_event_i).name != 'END_OBJECT' LOOP
+                
+                    v_name := v_parse_events(v_event_i).value;
+                    v_event_i := v_event_i + 1;
+                    
+                    v_child_id := create_value(v_value.id, v_name);
+                    v_event_i := v_event_i + 1;
+                
+                END LOOP;
+            
+            ELSIF v_parse_events(v_event_i).name = 'START_ARRAY' THEN
+            
+                v_value.type := 'A';
+                v_value.value := NULL;
+                
+                insert_value(v_value);
+                
+                v_i := 1;
+                v_event_i := v_event_i + 1;
+                
+                WHILE v_parse_events(v_event_i).name != 'END_ARRAY' LOOP
+                
+                    v_child_id := create_value(v_value.id, v_i);
+                    
+                    v_event_i := v_event_i + 1;
+                    v_i := v_i + 1;
+                
+                END LOOP;
+            
+            END IF;
+            
+            RETURN v_value.id;
+        
+        END;
+    
+    BEGIN
+    
+        v_parse_events := json_parser.parse(p_content);
+        v_json_values := t_json_values();
+        v_id := 0;
+    
+        v_created_ids := t_numbers();
+    
+        FOR v_i IN 1..p_parents.COUNT LOOP
+        
+            v_event_i := 1;
+            
+            v_created_ids.EXTEND(1);
+            v_created_ids(v_created_ids.COUNT) := create_value(p_parents(v_i), p_name);
+            
+        END LOOP;
+        
+        flush_values;
+        
+        FOR v_i IN 1..v_created_ids.COUNT LOOP
+            IF v_id_map.EXISTS(v_created_ids(v_i)) THEN
+                v_created_ids(v_i) := v_id_map(v_created_ids(v_i));
+            END IF;
+        END LOOP;
+        
+        RETURN v_created_ids;
+    
+    END;
+    
+    FUNCTION set_json
+        (p_path IN VARCHAR2
+        ,p_content IN VARCHAR2)
+    RETURN NUMBER IS
+    
+        v_path t_path;
+        
+        v_parent_ids t_numbers;
+        v_name VARCHAR2(4000);
+    
+    BEGIN
+    
+        v_path := parse_path(p_path);
+        
+        -- If path is empty, then an anonymous JSON value creation has been requested
+        IF v_path.COUNT = 0 THEN
+        
+            v_parent_ids := t_numbers(NULL);
+            v_name := NULL;
+            
+        -- Root can't be modified
+        ELSIF v_path(v_path.COUNT).type = c_root THEN
+
+            -- Root can''t be modified!        
+            error$.raise('JDOC-00003');
+        
+        ELSE
+        
+            error$.raise('Named value creation is not yet implemented!');
+        
+        END IF;
+    
+        IF v_parent_ids.COUNT > 1 THEN
+            -- Multiple values found at the path :1!
+            error$.raise('JDOC-00004', p_path);
+        END IF;
+    
+        RETURN create_json(v_parent_ids, v_name, p_content)(1);
+    
+    END;
+    
+    FUNCTION set_json
+        (p_content IN VARCHAR2)
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN set_json(NULL, p_content);
     
     END;
     

@@ -1,10 +1,8 @@
--- Installs database objects
-
--- Tables
+@@sequences/jsvl_id.seq
+/
 
 @@tables/json_values.sql
-
--- Packages
+/
 
 @@packages/json_parser.pks
 /

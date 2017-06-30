@@ -13,5 +13,14 @@ CREATE OR REPLACE PACKAGE json_documents IS
     FUNCTION parse_path
         (p_path_string IN VARCHAR2)
     RETURN t_path;
+    
+    FUNCTION set_json
+        (p_path IN VARCHAR2
+        ,p_content IN VARCHAR2)
+    RETURN NUMBER;
+    
+    FUNCTION set_json
+        (p_content IN VARCHAR2)
+    RETURN NUMBER;
 
 END;

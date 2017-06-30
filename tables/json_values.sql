@@ -7,4 +7,4 @@ CREATE TABLE json_values (
    ,CONSTRAINT jsvl_pk PRIMARY KEY(id)
    ,CONSTRAINT jsvl_jsvl_fk FOREIGN KEY(parent_id) REFERENCES json_values(id)
 )
-/
+

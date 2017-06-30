@@ -1,7 +1,7 @@
 -- Uninstalls all objects
 
 -- Packages
-DROP PACKAGE json_document_utility
+DROP PACKAGE json_documents
 /
 DROP PACKAGE json_parser
 /

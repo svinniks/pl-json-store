@@ -300,6 +300,13 @@ suite("Invalid JSON handling", function() {
     
     });
 
+    test("Duplicate property check", function() {
+    
+        throw "TODO"
+    
+    });
+    
+
 });
 
 suite("Scalar value tests", function() {

@@ -233,7 +233,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             }
         ]);
@@ -248,7 +248,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             }
         ]);
@@ -263,7 +263,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             }
         ]);
@@ -278,7 +278,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             }
         ]);
@@ -293,7 +293,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: " 89 "
             }
         ]);
@@ -308,7 +308,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: " 89 "
             }
         ]);
@@ -323,7 +323,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: " 89\" "
             }
         ]);
@@ -338,7 +338,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 2,
+                type: 'I',
                 value: "12345"
             }
         ]);
@@ -353,7 +353,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 2,
+                type: 'I',
                 value: "12345"
             }
         ]);
@@ -368,11 +368,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             },
             {
-                type: 3,
+                type: 'N',
                 value: "1"
             }
         ]);
@@ -387,11 +387,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             },
             {
-                type: 3,
+                type: 'N',
                 value: "1"
             }
         ]);
@@ -406,11 +406,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             },
             {
-                type: 3,
+                type: 'N',
                 value: "12345"
             }
         ]);
@@ -425,11 +425,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             },
             {
-                type: 3,
+                type: 'N',
                 value: "12345"
             }
         ]);
@@ -444,7 +444,7 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "12345"
             }
         ]);
@@ -459,11 +459,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             },
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             }
         ]);
@@ -478,11 +478,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             },
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             }
         ]);
@@ -497,11 +497,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "123"
             }
         ]);
@@ -516,11 +516,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "123"
             }
         ]);
@@ -535,11 +535,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "123"
             }
         ]);
@@ -554,11 +554,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "123"
             }
         ]);
@@ -573,11 +573,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 2,
+                type: 'I',
                 value: "123"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "456"
             }
         ]);
@@ -592,11 +592,11 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 2,
+                type: 'I',
                 value: "123"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "456"
             }
         ]);
@@ -611,15 +611,15 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "array"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "123"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "321"
             }
         ]);
@@ -634,15 +634,15 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "array"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "123"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "321"
             }
         ]);
@@ -657,31 +657,31 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "world"
             },
             {
-                type: 2,
+                type: 'I',
                 value: "12345"
             },
             {
-                type: 2,
+                type: 'I',
                 value: "54321"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "aaa"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "bbb"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "1"
             }
         ]);
@@ -696,27 +696,27 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "world"
             },
             {
-                type: 2,
+                type: 'I',
                 value: "12345"
             },
             {
-                type: 2,
+                type: 'I',
                 value: "54321"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "aaa"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "bbb"
             }
         ]);
@@ -731,31 +731,31 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             },
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "world"
             },
             {
-                type: 2,
+                type: 'I',
                 value: "12345"
             },
             {
-                type: 2,
+                type: 'I',
                 value: "54321"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "aaa"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "bbb"
             }
         ]);
@@ -770,31 +770,31 @@ suite("JSON path parser tests", function() {
 
         expect(result).to.eql([
             {
-                type: 1,
+                type: 'R',
                 value: null
             },
             {
-                type: 3,
+                type: 'N',
                 value: "hello"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "world"
             },
             {
-                type: 2,
+                type: 'I',
                 value: "12345"
             },
             {
-                type: 2,
+                type: 'I',
                 value: "54321"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "aaa"
             },
             {
-                type: 3,
+                type: 'N',
                 value: "bbb"
             }
         ]);

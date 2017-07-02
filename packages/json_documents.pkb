@@ -3,6 +3,9 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
     TYPE t_json_values IS TABLE OF json_values%ROWTYPE;
     
     TYPE t_integer_indexed_numbers IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+    TYPE t_varchar_indexed_varchars IS TABLE OF VARCHAR2(32000) INDEX BY VARCHAR2(32000);
+
+    v_property_request_sqls t_varchar_indexed_varchars;
 
     PROCEDURE register_messages IS
     BEGIN
@@ -10,10 +13,12 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         log$.register_message('JDOC-00002', 'Unexpected end of the input!');
         log$.register_message('JDOC-00003', 'Root can''t be modified!');
         log$.register_message('JDOC-00004', 'Multiple values found at the path :1!');
+        log$.register_message('JDOC-00005', 'Empty path specified!');
+        log$.register_message('JDOC-00006', 'Root requested as a property!');
     END;
 
     FUNCTION parse_path
-        (p_path_string IN VARCHAR2)
+        (p_path IN VARCHAR2)
     RETURN t_path IS
     
         v_state VARCHAR2(30);
@@ -23,7 +28,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         v_path t_path;
     
         PROCEDURE add_element
-            (p_type IN PLS_INTEGER
+            (p_type IN CHAR
             ,p_value IN VARCHAR2 := NULL) IS
         BEGIN
             v_path.EXTEND(1);
@@ -71,7 +76,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         
             IF v_char = '$' THEN
             
-                add_element(c_root);
+                add_element('R');
                 v_state := 'lfDot';
             
             ELSIF v_char = '[' THEN
@@ -95,17 +100,17 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
                 
             ELSIF v_char = '.' THEN
             
-                add_element(c_name, v_value);
+                add_element('N', v_value);
                 v_state := 'lfElement';    
             
             ELSIF v_char = '[' THEN
               
-                add_element(c_name, v_value);
+                add_element('N', v_value);
                 v_state := 'lfArrayElement';
                 
             ELSIF space THEN
             
-                add_element(c_name, v_value);
+                add_element('N', v_value);
                 v_state := 'lfDot';
                 
             ELSE
@@ -143,17 +148,17 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
                 
             ELSIF v_char = '.' THEN
             
-                add_element(c_id, v_value);
+                add_element('I', v_value);
                 v_state := 'lfElement';
                 
             ELSIF v_char = '[' THEN
               
-                add_element(c_id, v_value);
+                add_element('I', v_value);
                 v_state := 'lfArrayElement';    
                 
             ELSIF space THEN
             
-                add_element(c_id, v_value);
+                add_element('I', v_value);
                 v_state := 'lfDot';    
             
             ELSE
@@ -190,7 +195,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         
             IF v_char = '"' THEN
             
-                add_element(c_name, v_value);
+                add_element('N', v_value);
                 v_state := 'lfDot';
                 
             ELSIF v_char = '\' THEN
@@ -244,12 +249,12 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
                 
             ELSIF v_char = ']' THEN
             
-                add_element(c_name, v_value);
+                add_element('N', v_value);
                 v_state := 'lfDot';
                 
             ELSIF space THEN
             
-                add_element(c_name, v_value);
+                add_element('N', v_value);
                 v_state := 'lfClosingBracket';
                 
             ELSE
@@ -266,7 +271,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         
             IF v_char = '"' THEN
             
-                add_element(c_name, v_value);
+                add_element('N', v_value);
                 v_state := 'lfClosingBracket';
                 
             ELSIF v_char = '\' THEN
@@ -310,9 +315,9 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         v_path := t_path();
         v_state := 'lfRoot';
         
-        FOR v_i IN 1..NVL(LENGTH(p_path_string), 0) LOOP
+        FOR v_i IN 1..NVL(LENGTH(p_path), 0) LOOP
         
-            v_char := SUBSTR(p_path_string, v_i, 1);
+            v_char := SUBSTR(p_path, v_i, 1);
             
             CASE v_state
                 WHEN 'lfRoot' THEN lfRoot;
@@ -334,11 +339,11 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         
         IF v_state = 'rName' THEN
         
-            add_element(c_name, v_value);
+            add_element('N', v_value);
             
         ELSIF v_state = 'rId' THEN
         
-            add_element(c_id, v_value);
+            add_element('I', v_value);
             
         ELSIF v_state NOT IN ('lfDot', 'lfRoot') THEN
         
@@ -348,6 +353,163 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         END IF;
     
         RETURN v_path;
+    
+    END;
+    
+    PROCEDURE request_properties
+        (p_path IN VARCHAR2
+        ,p_properties OUT SYS_REFCURSOR) IS
+    
+        v_path t_path;
+        v_path_signature VARCHAR2(4000);
+        
+        v_start_level PLS_INTEGER;
+        v_sql VARCHAR2(32000);
+        
+        v_path_values t_varchars;
+        
+        FUNCTION field
+            (p_i IN PLS_INTEGER)
+        RETURN VARCHAR2 IS
+        BEGIN
+            RETURN CASE v_path(p_i).type
+                       WHEN 'I' THEN 'id'
+                       ELSE 'name'
+                   END;
+        END;
+        
+    BEGIN
+    
+        v_path := parse_path(p_path);
+        
+        IF v_path.COUNT = 0 THEN
+            -- Empty path specified!
+            error$.raise('JDOC-00005');
+        ELSIF v_path(v_path.COUNT).type = 'R' THEN
+            -- Root requested as a property!
+            error$.raise('JDOC-00006');
+        END IF;
+        
+        FOR v_i IN 1..v_path.COUNT LOOP
+            v_path_signature := v_path_signature || v_path(v_i).type;
+        END LOOP;
+    
+        IF v_property_request_sqls.EXISTS(v_path_signature) THEN
+        
+            v_sql := v_property_request_sqls(v_path_signature);
+            
+        ELSE
+        
+            v_sql := 'WITH path_values AS
+    (SELECT column_value AS value, ROWNUM AS rn 
+     FROM TABLE(:path_values))
+';     
+        
+            IF v_path.COUNT = 1 THEN
+            
+                v_sql := v_sql || 'SELECT parent.id, parent.type, property.id, property.type
+FROM json_values property
+    ,json_values parent
+WHERE property.' || field(1) || ' = :property_value 
+      AND parent.id(+) = property.parent_id';
+
+            ELSIF v_path.COUNT = 2 AND v_path(1).type = 'R' THEN
+            
+                v_sql := v_sql || 'SELECT NULL, NULL, jsvl.id, jsvl.type
+FROM (SELECT jsvl.*, 0 AS nvl_parent_id 
+      FROM json_values jsvl 
+      WHERE ' || field(2) || ' = :property_value 
+            AND parent_id IS NULL) jsvl
+    ,(SELECT 0 AS id 
+      FROM dual) root
+WHERE jsvl.nvl_parent_id(+) = root.id';
+                               
+            ELSE
+            
+                v_start_level := CASE v_path(1).type WHEN 'R' THEN 2 ELSE 1 END;
+                
+                v_sql := v_sql || 'SELECT l' || (v_path.COUNT - 1) || '.id, l' || (v_path.COUNT - 1) || '.type, property.id, property.type
+FROM ';
+                
+                FOR v_i IN v_start_level..v_path.COUNT - 1 LOOP
+                    v_sql := v_sql || 'json_values l' || v_i || ', ';
+                END LOOP;
+                
+                v_sql := v_sql || 'json_values property
+WHERE 1=1';
+                
+                IF v_path(1).type = 'R' THEN
+                    v_sql := v_sql || '
+      AND l2.parent_id IS NULL';
+                END IF;
+                
+                FOR v_i IN v_start_level..v_path.COUNT - 1 LOOP
+                
+                    v_sql := v_sql || '
+      AND l' || v_i || '.' || field(v_i) || ' = (SELECT value FROM path_values WHERE rn = ' || v_i || ')';
+                    
+                    IF v_i > v_start_level THEN
+                        v_sql := v_sql || '
+      AND l' || v_i || '.parent_id = l' || (v_i - 1) || '.id';
+                    END IF;
+                    
+                END LOOP;
+                
+                v_sql := v_sql || '
+      AND property.parent_id(+) = l' || (v_path.COUNT - 1) || '.id
+      AND property.' || field(v_path.COUNT) || '(+) = :property_value';
+            
+            END IF;
+            
+            v_property_request_sqls(v_path_signature) := v_sql;
+        
+        END IF;
+        
+        v_path_values := t_varchars();
+        v_path_values.EXTEND(v_path.COUNT - 1);
+        
+        FOR v_i IN 1..v_path.COUNT - 1 LOOP
+            v_path_values(v_i) := v_path(v_i).value;
+        END LOOP;
+        
+        OPEN p_properties
+        FOR v_sql
+        USING IN v_path_values, v_path(v_path.COUNT).value;
+    
+    END;
+    
+    FUNCTION request_properties
+        (p_path IN VARCHAR2)
+    RETURN t_properties PIPELINED IS
+    
+        c_properties SYS_REFCURSOR;
+        v_properties t_properties;
+        
+        c_fetch_limit CONSTANT PLS_INTEGER := 100;
+        
+    BEGIN
+    
+        request_properties(p_path, c_properties);
+        
+        LOOP
+        
+            v_properties := t_properties();
+            
+            FETCH c_properties
+            BULK COLLECT INTO v_properties
+            LIMIT c_fetch_limit;
+            
+            FOR v_i IN 1..v_properties.COUNT LOOP
+                PIPE ROW(v_properties(v_i));
+            END LOOP;
+            
+            EXIT WHEN v_properties.COUNT < c_fetch_limit;
+        
+        END LOOP;
+        
+        CLOSE c_properties;
+        
+        RETURN;
     
     END;
     
@@ -567,7 +729,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
             v_name := NULL;
             
         -- Root can't be modified
-        ELSIF v_path(v_path.COUNT).type = c_root THEN
+        ELSIF v_path(v_path.COUNT).type = 'R' THEN
 
             -- Root can''t be modified!        
             error$.raise('JDOC-00003');
@@ -575,7 +737,7 @@ CREATE OR REPLACE PACKAGE BODY json_documents IS
         ELSE
         
             error$.raise('Named value creation is not yet implemented!');
-        
+            
         END IF;
     
         IF v_parent_ids.COUNT > 1 THEN

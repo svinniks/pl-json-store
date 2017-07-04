@@ -113,6 +113,10 @@ CREATE OR REPLACE PACKAGE json_documents IS
 
     FUNCTION get_json
         (p_path IN VARCHAR2)
+    RETURN VARCHAR2;
+    
+    FUNCTION get_json_clob
+        (p_path IN VARCHAR2)
     RETURN CLOB;
     
 END;

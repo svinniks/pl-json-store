@@ -1,5 +1,3 @@
-
-/*
 suite("JSON path parser tests", function() {
 
     test("Invalid start of the path", function() {
@@ -803,9 +801,7 @@ suite("JSON path parser tests", function() {
     });
 
 });
-*/
 
-/*
 suite("JSON document creation in the root", function() {
 
     suite("Anonymous value creation", function() {
@@ -1619,7 +1615,6 @@ suite("JSON document creation in the root", function() {
     });
 
 });
-*/
 
 suite("JSON document retrieval from the root", function() {
 

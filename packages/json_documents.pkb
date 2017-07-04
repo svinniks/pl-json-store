@@ -1413,7 +1413,175 @@ WHERE 1=1';
     
     END;
     
+    FUNCTION serialize_value
+        (p_id IN NUMBER) 
+    RETURN VARCHAR2 IS
+        
+        v_json VARCHAR2(32000);
+        
+        CURSOR c_values (p_root_id IN NUMBER) IS
+            WITH parent_jsvl(id, type, name, value, lvl, ord) AS
+                (SELECT id
+                       ,type
+                       ,name
+                       ,value
+                       ,1 AS lvl
+                       ,0
+                 FROM json_values
+                 WHERE id = p_root_id
+                 UNION ALL
+                 SELECT jsvl.id
+                       ,jsvl.type
+                       ,jsvl.name
+                       ,jsvl.value
+                       ,parent_jsvl.lvl + 1
+                       ,CASE parent_jsvl.type
+                            WHEN 'A' THEN
+                                TO_NUMBER(jsvl.name)
+                            ELSE
+                                jsvl.id
+                        END
+                 FROM parent_jsvl
+                     ,json_values jsvl
+                 WHERE jsvl.parent_id = parent_jsvl.id
+                 ORDER BY 6)
+            SEARCH DEPTH FIRST BY ord SET dummy
+            SELECT *
+            FROM parent_jsvl;
+
+        TYPE t_values IS TABLE OF c_values%ROWTYPE;
+        v_values t_values;
+        c_fetch_limit CONSTANT PLS_INTEGER := 1000;
+        
+        TYPE t_chars IS TABLE OF CHAR;
+        v_json_stack t_chars;
+        v_element_count_stack t_numbers;
+        
+        v_last_lvl PLS_INTEGER;
+        
+    BEGIN
+      
+        v_json_stack := t_chars();
+        v_element_count_stack := t_numbers(1);
+        v_last_lvl := 0;
+    
+        OPEN c_values(p_id);
+      
+        LOOP
+        
+            v_values := t_values();
+            
+            FETCH c_values
+            BULK COLLECT INTO v_values
+            LIMIT c_fetch_limit;
+            
+            FOR v_i IN 1..v_values.COUNT LOOP
+                
+                FOR v_j IN v_values(v_i).lvl..v_last_lvl LOOP
+                  
+                    IF v_json_stack(v_json_stack.COUNT) = 'O' THEN
+                        v_json := v_json || '}';    
+                    ELSIF v_json_stack(v_json_stack.COUNT) = 'A' THEN
+                        v_json := v_json || ']';
+                    END IF;
+                    
+                    v_json_stack.TRIM(1);   
+                    v_element_count_stack.TRIM(1);   
+                    
+                END LOOP;
+            
+                IF v_element_count_stack(v_element_count_stack.COUNT) > 1 THEN
+                    v_json := v_json || ',';
+                END IF;
+            
+                IF v_values(v_i).name IS NOT NULL 
+                   AND v_json_stack.COUNT > 0
+                   AND v_json_stack(v_json_stack.COUNT) = 'O' THEN
+                   
+                    IF REGEXP_LIKE(LOWER(v_values(v_i).name), '^[a-z][a-z0-9_\&]*$') THEN 
+                        v_json := v_json || '"' || v_values(v_i).name || '":';
+                    ELSE
+                        v_json := v_json || '"' || escape_string(v_values(v_i).name) || '":';
+                    END IF;
+                    
+                END IF;
+            
+                CASE v_values(v_i).type
+                  
+                    WHEN 'S' THEN
+                      
+                        v_json := v_json || '"' || escape_string(v_values(v_i).value) || '"';
+                        
+                    WHEN 'N' THEN
+                      
+                        v_json := v_json || v_values(v_i).value;
+                        
+                    WHEN 'B' THEN
+                      
+                        v_json := v_json || v_values(v_i).value;
+                        
+                    WHEN 'E' THEN
+                      
+                        v_json := v_json || 'null';  
+                        
+                    WHEN 'O' THEN
+                      
+                        v_json := v_json || '{';
+                        
+                    WHEN 'A' THEN
+                      
+                        v_json := v_json || '[';
+                
+                END CASE;
+                
+                v_element_count_stack(v_element_count_stack.COUNT) := v_element_count_stack(v_element_count_stack.COUNT) + 1;
+                
+                v_json_stack.EXTEND(1);
+                v_json_stack(v_json_stack.COUNT) := v_values(v_i).type;
+                
+                v_element_count_stack.EXTEND(1);
+                v_element_count_stack(v_element_count_stack.COUNT) := 1;
+                
+                v_last_lvl := v_values(v_i).lvl;
+            
+            END LOOP;
+            
+            EXIT WHEN v_values.COUNT < c_fetch_limit;  
+        
+        END LOOP;
+        
+        CLOSE c_values;
+        
+        FOR v_i IN REVERSE 1..v_json_stack.COUNT LOOP
+          
+             IF v_json_stack(v_i) = 'O' THEN
+                 v_json := v_json || '}';    
+             ELSIF v_json_stack(v_i) = 'A' THEN
+                 v_json := v_json || ']';
+             END IF;
+        
+        END LOOP;
+        
+        RETURN v_json;
+    
+    END;
+    
     FUNCTION get_json
+        (p_path IN VARCHAR2)
+    RETURN VARCHAR2 IS
+    
+        v_value t_value;
+        v_json CLOB;
+    
+    BEGIN
+      
+        v_value := request_value(p_path);
+        
+        RETURN serialize_value(v_value.id);
+    
+    END;
+    
+    FUNCTION get_json_clob
         (p_path IN VARCHAR2)
     RETURN CLOB IS
     

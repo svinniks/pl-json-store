@@ -1018,7 +1018,7 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous null", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: 'null'
+                p_content: "null"
             });
 
             expect(id).to.not.be(null);
@@ -1041,7 +1041,7 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous string", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: '"Hello, World!"'
+                p_content: "Hello, World!"
             });
 
             expect(id).to.not.be(null);
@@ -1064,7 +1064,7 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous number", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: '123.456'
+                p_content: 123.456
             });
 
             expect(id).to.not.be(null);
@@ -1087,7 +1087,7 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous boolean", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: 'true'
+                p_content: true
             });
 
             expect(id).to.not.be(null);
@@ -1110,7 +1110,7 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous object", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: '{}'
+                p_content: {}
             });
 
             expect(id).to.not.be(null);
@@ -1133,7 +1133,7 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous array", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: '[]'
+                p_content: []
             });
 
             expect(id).to.not.be(null);
@@ -1156,7 +1156,12 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous object with all possible scalar properties", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: '{"name":"Sergejs","age":35,"married":true,"children":null}'
+                p_content: {
+                    name: "Sergejs",
+                    age: 35,
+                    married: true,
+                    children: null
+                }
             });
 
             expect(id).to.not.be(null);
@@ -1184,7 +1189,14 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous object with a nested object property", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: '{"name":"Sergejs","age":35,"address":{"country":"Latvia","city":"Riga"}}'
+                p_content: {
+                    name: "Sergejs",
+                    age: 35,
+                    address: {
+                       country: "Latvia",
+                       city: "Riga"
+                    }
+                }
             });
 
             expect(id).to.not.be(null);
@@ -1213,7 +1225,7 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous array with all possible scalar elements", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: '["Sergejs","Vinniks",35,true,null]'
+                p_content: ["Sergejs", "Vinniks", 35, true, null]
             });
 
             expect(id).to.not.be(null);
@@ -1242,7 +1254,7 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous multidimensional array", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: '[["Sergejs","Vinniks",35,true,null],["Hello","World"]]'
+                p_content: [["Sergejs", "Vinniks", 35, true, null], ["Hello", "World"]]
             });
 
             expect(id).to.not.be(null);
@@ -1275,7 +1287,7 @@ suite("JSON document creation in the root", function() {
         test("Create anonymous complex object", function() {
 
             var id = database.call("json_store.create_json", {
-                p_content: JSON.stringify({
+                p_content: {
                     name: "Sergejs",
                     surname: "Vinniks",
                     phones: [
@@ -1284,7 +1296,7 @@ suite("JSON document creation in the root", function() {
                             number: 1234567
                         }
                     ]
-                })
+                }
             });
 
             expect(id).to.not.be(null);
@@ -1468,7 +1480,7 @@ suite("JSON document creation in the root", function() {
 
             var id = database.call("json_store.set_json", {
                 p_path: '$.jodus_null',
-                p_content: 'null'
+                p_content: null
             });
 
             expect(id).to.not.be(null);
@@ -1492,7 +1504,7 @@ suite("JSON document creation in the root", function() {
 
             var id = database.call("json_store.set_json", {
                 p_path: '$.jodus_string',
-                p_content: '"Hello, World!"'
+                p_content: "Hello, World!"
             });
 
             expect(id).to.not.be(null);
@@ -1516,7 +1528,7 @@ suite("JSON document creation in the root", function() {
 
             var id = database.call("json_store.set_json", {
                 p_path: '$.jodus_number',
-                p_content: '123.456'
+                p_content: 123.456
             });
 
             expect(id).to.not.be(null);
@@ -1540,7 +1552,7 @@ suite("JSON document creation in the root", function() {
 
             var id = database.call("json_store.set_json", {
                 p_path: '$.jodus_boolean',
-                p_content: 'true'
+                p_content: true
             });
 
             expect(id).to.not.be(null);
@@ -1564,7 +1576,7 @@ suite("JSON document creation in the root", function() {
 
             var id = database.call("json_store.set_json", {
                 p_path: '$.jodus_object',
-                p_content: '{}'
+                p_content: {}
             });
 
             expect(id).to.not.be(null);
@@ -1588,7 +1600,7 @@ suite("JSON document creation in the root", function() {
 
             var id = database.call("json_store.set_json", {
                 p_path: '$.jodus_array',
-                p_content: '[]'
+                p_content: []
             });
 
             expect(id).to.not.be(null);
@@ -1793,7 +1805,7 @@ suite("JSON document retrieval from the root", function() {
         test("Anonymous empty object retrieval as JSON", function() {
         
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify({})
+                p_content: {}
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -1809,9 +1821,9 @@ suite("JSON document retrieval from the root", function() {
         test("Anonymous object with one property retrieval as JSON", function() {
         
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify({
+                p_content: {
                     name: "Sergejs"
-                })
+                }
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -1829,9 +1841,9 @@ suite("JSON document retrieval from the root", function() {
         test("Anonymous object with escaped property retrieval as JSON", function() {
         
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify({
+                p_content: {
                     "Hello,\n\"World\"!": "Sergejs"
-                })
+                }
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -1849,12 +1861,12 @@ suite("JSON document retrieval from the root", function() {
         test("Anonymous object with multiple properties retrieval as JSON", function() {
         
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify({
+                p_content: {
                     name: "Sergejs",
                     surname: "Vinniks",
                     age: 35,
                     married: true
-                })
+                }
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -1875,7 +1887,7 @@ suite("JSON document retrieval from the root", function() {
         test("Anonymous object with nested object retrieval as JSON", function() {
         
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify({
+                p_content: {
                     name: "Sergejs",
                     surname: "Vinniks",
                     child: {
@@ -1884,7 +1896,7 @@ suite("JSON document retrieval from the root", function() {
                     },
                     age: 35,
                     married: true
-                })
+                }
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -1909,7 +1921,7 @@ suite("JSON document retrieval from the root", function() {
         test("Anonymous empty array retrieval as JSON", function() {
         
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify([])
+                p_content: []
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -1925,7 +1937,7 @@ suite("JSON document retrieval from the root", function() {
         test("Anonymous array with one element retrieval as JSON", function() {
         
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify([123])
+                p_content: [123]
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -1941,7 +1953,7 @@ suite("JSON document retrieval from the root", function() {
         test("Anonymous array with multiple elements retrieval as JSON", function() {
         
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify([123, "Hello", true, null])
+                p_content: [123, "Hello", true, null]
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -1957,7 +1969,7 @@ suite("JSON document retrieval from the root", function() {
         test("Anonymous two-dimensional array retrieval as JSON", function() {
         
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify([123, ["a", "b"], [null, null, 1, 1]])
+                p_content: [123, ["a", "b"], [null, null, 1, 1]]
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -1978,7 +1990,7 @@ suite("JSON document retrieval from the root", function() {
                 array[i] = i;
 
             var valueId = database.call("json_store.create_json", {
-                p_content: JSON.stringify(array)
+                p_content: array
             });
 
             var jsonValue = database.call("json_store.get_json", {
@@ -2090,7 +2102,7 @@ suite("JSON document retrieval from the root", function() {
         
             database.call("json_store.set_json", {
                 p_path: "$.jodus_me",
-                p_content: JSON.stringify({
+                p_content: {
                     name: "Sergejs",
                     surname: "Vinniks",
                     age: 35,
@@ -2105,7 +2117,7 @@ suite("JSON document retrieval from the root", function() {
                             number: "54321"
                         },
                     ]
-                })
+                }
             });   
 
             var jsonValue = database.call("json_store.get_json", {
@@ -2170,7 +2182,7 @@ suite("Huge JSON document handling", function() {
     test("Save anonymous huge document via the CLOB method", function() {
 
         documentId = database.call("json_store.create_json_clob", {
-            p_content: JSON.stringify(document)
+            p_content: document
         });
         
     });
@@ -2212,7 +2224,7 @@ suite("JSON document modification", function() {
 
         database.call("json_store.set_json", {
             p_path: "$.jodus_document",
-            p_content: JSON.stringify({
+            p_content: {
                 persons: [
                     {
                         id: 123,
@@ -2226,7 +2238,7 @@ suite("JSON document modification", function() {
                         ]
                     }
                 ]
-            })
+            }
         });
 
     });
@@ -2265,7 +2277,7 @@ suite("JSON document modification", function() {
     
         database.call("json_store.set_json", {
             p_path: "$.jodus_document.persons[0].children[0].surname",
-            p_content: '"Vinnika"'
+            p_content: "Vinnika"
         });    
 
         var document = JSON.parse(database.call("json_store.get_json", {
@@ -2296,11 +2308,11 @@ suite("JSON document modification", function() {
     
         database.call("json_store.set_json", {
             p_path: "$.jodus_document.persons[1]",
-            p_content: JSON.stringify({
+            p_content: {
                 id: 321,
                 name: "Janis",
                 surname: "Berzins"
-            })
+            }
         });    
 
         var document = JSON.parse(database.call("json_store.get_json", {
@@ -2336,11 +2348,11 @@ suite("JSON document modification", function() {
     
         database.call("json_store.set_json", {
             p_path: "$.jodus_document.persons[4]",
-            p_content: JSON.stringify({
+            p_content: {
                 id: 999,
                 name: "Frank",
                 surname: "Sinatra"
-            })
+            }
         });    
 
         var document = JSON.parse(database.call("json_store.get_json", {

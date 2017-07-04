@@ -1,4 +1,4 @@
-DROP PACKAGE json_store
+DROP PACKAGE json_documents
 /
 DROP PACKAGE json_parser
 /

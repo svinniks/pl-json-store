@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE json_documents IS
+CREATE OR REPLACE PACKAGE json_store IS
 
     TYPE t_path_element IS RECORD
         (type CHAR
@@ -38,6 +38,10 @@ CREATE OR REPLACE PACKAGE json_documents IS
         (p_content IN VARCHAR2)
     RETURN NUMBER;
     
+    FUNCTION create_json_clob
+        (p_content IN CLOB)
+    RETURN NUMBER;
+    
     FUNCTION create_string
         (p_value IN VARCHAR2)
     RETURN NUMBER;
@@ -62,6 +66,11 @@ CREATE OR REPLACE PACKAGE json_documents IS
     FUNCTION set_json
         (p_path IN VARCHAR2
         ,p_content IN VARCHAR2)
+    RETURN NUMBER;
+    
+    FUNCTION set_json_clob
+        (p_path IN VARCHAR2
+        ,p_content IN CLOB)
     RETURN NUMBER;
     
     FUNCTION set_string

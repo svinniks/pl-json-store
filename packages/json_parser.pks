@@ -15,3 +15,4 @@ CREATE OR REPLACE PACKAGE json_parser IS
     RETURN t_parse_events;
     
 END;
+/

@@ -690,9 +690,39 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
     FUNCTION parse
         (p_content IN CLOB)
     RETURN t_parse_events IS
+    
+        v_content t_varchars;
+    
+        v_offset INTEGER;
+        v_amount INTEGER;
+        v_buffer VARCHAR2(32000);
+    
     BEGIN
     
-        RETURN NULL;
+        IF p_content IS NULL THEN
+          
+            v_content := t_varchars(NULL);
+            
+        ELSE
+          
+            v_offset := 1;
+            v_amount := 32000;
+            v_content := t_varchars();
+            
+            WHILE v_amount = 32000 LOOP
+              
+                dbms_lob.read(p_content, v_amount, v_offset, v_buffer);
+                
+                v_content.EXTEND(1);
+                v_content(v_content.COUNT) := v_buffer;
+                
+                v_offset := v_offset + v_amount;
+            
+            END LOOP;
+            
+        END IF;
+        
+        RETURN parse(v_content);
     
     END;
     

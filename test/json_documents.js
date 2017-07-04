@@ -4,7 +4,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "123"
             });
         
@@ -16,7 +16,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "   123"
             });
         
@@ -28,7 +28,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "hello.123"
             });
         
@@ -40,7 +40,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "  hello  .  123"
             });
         
@@ -52,7 +52,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "hello-123"
             });
         
@@ -64,7 +64,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "#a"
             });
         
@@ -76,7 +76,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "#123a"
             });
         
@@ -88,7 +88,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "abc abc"
             });
         
@@ -100,7 +100,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "abc[cda]"
             });
         
@@ -112,7 +112,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "  abc  [  cba  ]  "
             });
         
@@ -124,7 +124,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "abc[123a]"
             });
         
@@ -136,7 +136,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "abc[123.cba"
             });
         
@@ -148,7 +148,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "abc[123"
             });
         
@@ -160,7 +160,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: "\"abc" 
             });
         
@@ -172,7 +172,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: 'hello["world'
             });
         
@@ -184,7 +184,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: 'hello.world.'
             });
         
@@ -196,7 +196,7 @@ suite("JSON path parser tests", function() {
     
         expect(function() {
         
-            var result = database.call("json_documents.parse_path", {
+            var result = database.call("json_store.parse_path", {
                 p_path: '  hello  .  world  .  '
             });
         
@@ -206,7 +206,7 @@ suite("JSON path parser tests", function() {
 
     test("Empty path", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: null
         });
 
@@ -216,7 +216,7 @@ suite("JSON path parser tests", function() {
 
     test("Empty path (spaces only)", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: "   "
         });
 
@@ -226,7 +226,7 @@ suite("JSON path parser tests", function() {
 
     test("Root only", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: "$"
         });
 
@@ -241,7 +241,7 @@ suite("JSON path parser tests", function() {
 
     test("Root only with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: "  $    "
         });
 
@@ -256,7 +256,7 @@ suite("JSON path parser tests", function() {
 
     test("Single simple name", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: "hello"
         });
 
@@ -271,7 +271,7 @@ suite("JSON path parser tests", function() {
 
     test("Single simple name with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: "   hello   "
         });
 
@@ -286,7 +286,7 @@ suite("JSON path parser tests", function() {
 
     test("Single quoted name", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '" 89 "'
         });
 
@@ -301,7 +301,7 @@ suite("JSON path parser tests", function() {
 
     test("Single quoted name with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '   " 89 "   '
         });
 
@@ -316,7 +316,7 @@ suite("JSON path parser tests", function() {
 
     test("Single quoted name with escaped quote", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '" 89\\" "'
         });
 
@@ -331,7 +331,7 @@ suite("JSON path parser tests", function() {
 
     test("Single ID", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '#12345'
         });
 
@@ -346,7 +346,7 @@ suite("JSON path parser tests", function() {
 
     test("Single ID with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '   #12345   '
         });
 
@@ -361,7 +361,7 @@ suite("JSON path parser tests", function() {
 
     test("Single digit array element of root", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '$[1]'
         });
 
@@ -380,7 +380,7 @@ suite("JSON path parser tests", function() {
 
     test("Single digit array element of root with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '  $  [  1  ]  '
         });
 
@@ -399,7 +399,7 @@ suite("JSON path parser tests", function() {
 
     test("Multi-digit array element of root", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '$[12345]'
         });
 
@@ -418,7 +418,7 @@ suite("JSON path parser tests", function() {
 
     test("Multi-digit array element of root with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '  $  [  12345  ]  '
         });
 
@@ -437,7 +437,7 @@ suite("JSON path parser tests", function() {
 
     test("Just an array element", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '[12345]'
         });
 
@@ -452,7 +452,7 @@ suite("JSON path parser tests", function() {
 
     test("Quoted array element of root", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '$["hello"]'
         });
 
@@ -471,7 +471,7 @@ suite("JSON path parser tests", function() {
 
     test("Quoted array element of root with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '  $  [  "hello"  ]  '
         });
 
@@ -490,7 +490,7 @@ suite("JSON path parser tests", function() {
 
     test("Array element of simple name", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: 'hello[123]'
         });
 
@@ -509,7 +509,7 @@ suite("JSON path parser tests", function() {
 
     test("Array element of simple name with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '  hello  [  123  ]  '
         });
 
@@ -528,7 +528,7 @@ suite("JSON path parser tests", function() {
 
     test("Array element of quoted name", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '"hello"[123]'
         });
 
@@ -547,7 +547,7 @@ suite("JSON path parser tests", function() {
 
     test("Array element of quoted name with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '  "hello"  [  123  ]  '
         });
 
@@ -566,7 +566,7 @@ suite("JSON path parser tests", function() {
 
     test("Array element of ID", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '#123[456]'
         });
 
@@ -585,7 +585,7 @@ suite("JSON path parser tests", function() {
 
     test("Array element of ID with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '  #123  [  456  ]  '
         });
 
@@ -604,7 +604,7 @@ suite("JSON path parser tests", function() {
 
     test("Multi-dimensional array access", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: 'array[123]["321"]'
         });
 
@@ -627,7 +627,7 @@ suite("JSON path parser tests", function() {
 
     test("Multi-dimensional array access with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: ' array [123] ["321"] '
         });
 
@@ -650,7 +650,7 @@ suite("JSON path parser tests", function() {
 
     test("Multiple mixed elements", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: 'hello.world.#12345.#54321."aaa"."bbb"[1]'
         });
 
@@ -689,7 +689,7 @@ suite("JSON path parser tests", function() {
 
     test("Multiple mixed elements with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '  hello  .  world  .  #12345  .  #54321  .  "aaa"  .  "bbb"  '
         });
 
@@ -724,7 +724,7 @@ suite("JSON path parser tests", function() {
 
     test("Multiple mixed elements starting with root", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '$.hello.world.#12345.#54321."aaa"."bbb"'
         });
 
@@ -763,7 +763,7 @@ suite("JSON path parser tests", function() {
 
     test("Multiple mixed elements starting with root, with spaces", function() {
 
-        var result = database.call("json_documents.parse_path", {
+        var result = database.call("json_store.parse_path", {
             p_path: '  $  .  hello . world.#12345.#54321."aaa"."bbb"'
         });
 
@@ -808,7 +808,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous null", function() {
 
-            var id = database.call("json_documents.create_null");
+            var id = database.call("json_store.create_null");
 
             expect(id).to.not.be(null);
 
@@ -829,7 +829,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous string", function() {
 
-            var id = database.call("json_documents.create_string", {
+            var id = database.call("json_store.create_string", {
                 p_value: "Hello, World!"
             });
 
@@ -852,7 +852,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous number", function() {
 
-            var id = database.call("json_documents.create_number", {
+            var id = database.call("json_store.create_number", {
                 p_value: '123.456'
             });
 
@@ -875,7 +875,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous boolean", function() {
 
-            var id = database.call("json_documents.create_boolean", {
+            var id = database.call("json_store.create_boolean", {
                 p_value: true
             });
 
@@ -898,7 +898,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous object", function() {
 
-            var id = database.call("json_documents.create_object");
+            var id = database.call("json_store.create_object");
 
             expect(id).to.not.be(null);
 
@@ -919,7 +919,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous array", function() {
 
-            var id = database.call("json_documents.create_array");
+            var id = database.call("json_store.create_array");
 
             expect(id).to.not.be(null);
 
@@ -940,7 +940,7 @@ suite("JSON document creation in the root", function() {
 
         test("NULL for string value must be converted to JSON null", function() {
 
-            var id = database.call("json_documents.create_string", {
+            var id = database.call("json_store.create_string", {
                 p_value: null
             });
 
@@ -963,7 +963,7 @@ suite("JSON document creation in the root", function() {
 
         test("NULL for number value must be converted to JSON null", function() {
 
-            var id = database.call("json_documents.create_number", {
+            var id = database.call("json_store.create_number", {
                 p_value: null
             });
 
@@ -986,7 +986,7 @@ suite("JSON document creation in the root", function() {
 
         test("NULL for boolean value must be converted to JSON null", function() {
 
-            var id = database.call("json_documents.create_boolean", {
+            var id = database.call("json_store.create_boolean", {
                 p_value: null
             });
 
@@ -1017,7 +1017,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous null", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: 'null'
             });
 
@@ -1040,7 +1040,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous string", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: '"Hello, World!"'
             });
 
@@ -1063,7 +1063,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous number", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: '123.456'
             });
 
@@ -1086,7 +1086,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous boolean", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: 'true'
             });
 
@@ -1109,7 +1109,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous object", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: '{}'
             });
 
@@ -1132,7 +1132,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous array", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: '[]'
             });
 
@@ -1155,7 +1155,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous object with all possible scalar properties", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: '{"name":"Sergejs","age":35,"married":true,"children":null}'
             });
 
@@ -1183,7 +1183,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous object with a nested object property", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: '{"name":"Sergejs","age":35,"address":{"country":"Latvia","city":"Riga"}}'
             });
 
@@ -1212,7 +1212,7 @@ suite("JSON document creation in the root", function() {
 
         test("Create anonymous array with all possible scalar elements", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: '["Sergejs","Vinniks",35,true,null]'
             });
 
@@ -1230,18 +1230,18 @@ suite("JSON document creation in the root", function() {
 
             expect(values).to.eql([
                 [1, "A", null, null],
-                [2, "S", "1", "Sergejs"],
-                [2, "S", "2", "Vinniks"],
-                [2, "N", "3", "35"],
-                [2, "B", "4", "true"],
-                [2, "E", "5", null]
+                [2, "S", "0", "Sergejs"],
+                [2, "S", "1", "Vinniks"],
+                [2, "N", "2", "35"],
+                [2, "B", "3", "true"],
+                [2, "E", "4", null]
             ]);
 
         });
 
         test("Create anonymous multidimensional array", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: '[["Sergejs","Vinniks",35,true,null],["Hello","World"]]'
             });
 
@@ -1259,22 +1259,22 @@ suite("JSON document creation in the root", function() {
 
             expect(values).to.eql([
                 [1, "A", null, null],
+                [2, "A", "0", null],
+                [3, "S", "0", "Sergejs"],
+                [3, "S", "1", "Vinniks"],
+                [3, "N", "2", "35"],
+                [3, "B", "3", "true"],
+                [3, "E", "4", null],
                 [2, "A", "1", null],
-                [3, "S", "1", "Sergejs"],
-                [3, "S", "2", "Vinniks"],
-                [3, "N", "3", "35"],
-                [3, "B", "4", "true"],
-                [3, "E", "5", null],
-                [2, "A", "2", null],
-                [3, "S", "1", "Hello"],
-                [3, "S", "2", "World"]
+                [3, "S", "0", "Hello"],
+                [3, "S", "1", "World"]
             ]);
 
         });
 
         test("Create anonymous complex object", function() {
 
-            var id = database.call("json_documents.create_json", {
+            var id = database.call("json_store.create_json", {
                 p_content: JSON.stringify({
                     name: "Sergejs",
                     surname: "Vinniks",
@@ -1304,7 +1304,7 @@ suite("JSON document creation in the root", function() {
                 [2, "S", "name", "Sergejs"],
                 [2, "S", "surname", "Vinniks"],
                 [2, "A", "phones", null],
-                [3, "O", "1", null],
+                [3, "O", "0", null],
                 [4, "S", "type", "fixed"],
                 [4, "N", "number", "1234567"],
             ]);
@@ -1321,8 +1321,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named null", function() {
 
-            var id = database.call("json_documents.set_null", {
-                p_path: '$.null'
+            var id = database.call("json_store.set_null", {
+                p_path: '$.jodus_null'
             });
 
             expect(id).to.not.be(null);
@@ -1336,7 +1336,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'E',
-                name: "null",
+                name: "jodus_null",
                 value: null
             });
 
@@ -1344,8 +1344,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named string", function() {
 
-            var id = database.call("json_documents.set_string", {
-                p_path: '$.string',
+            var id = database.call("json_store.set_string", {
+                p_path: '$.jodus_string',
                 p_value: 'Hello, World!'
             });
 
@@ -1360,7 +1360,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'S',
-                name: "string",
+                name: "jodus_string",
                 value: "Hello, World!"
             });
 
@@ -1368,8 +1368,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named number", function() {
 
-            var id = database.call("json_documents.set_number", {
-                p_path: '$.number',
+            var id = database.call("json_store.set_number", {
+                p_path: '$.jodus_number',
                 p_value: 123.456
             });
 
@@ -1384,7 +1384,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'N',
-                name: "number",
+                name: "jodus_number",
                 value: "123.456"
             });
 
@@ -1392,8 +1392,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named boolean", function() {
 
-            var id = database.call("json_documents.set_boolean", {
-                p_path: '$.boolean',
+            var id = database.call("json_store.set_boolean", {
+                p_path: '$.jodus_boolean',
                 p_value: true
             });
 
@@ -1408,7 +1408,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'B',
-                name: "boolean",
+                name: "jodus_boolean",
                 value: "true"
             });
 
@@ -1416,8 +1416,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named object", function() {
 
-            var id = database.call("json_documents.set_object", {
-                p_path: '$.object'
+            var id = database.call("json_store.set_object", {
+                p_path: '$.jodus_object'
             });
 
             expect(id).to.not.be(null);
@@ -1431,7 +1431,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'O',
-                name: "object",
+                name: "jodus_object",
                 value: null
             });
 
@@ -1439,8 +1439,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named array", function() {
 
-            var id = database.call("json_documents.set_array", {
-                p_path: '$.array'
+            var id = database.call("json_store.set_array", {
+                p_path: '$.jodus_array'
             });
 
             expect(id).to.not.be(null);
@@ -1454,7 +1454,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'A',
-                name: "array",
+                name: "jodus_array",
                 value: null
             });
 
@@ -1466,8 +1466,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named null", function() {
 
-            var id = database.call("json_documents.set_json", {
-                p_path: '$.null',
+            var id = database.call("json_store.set_json", {
+                p_path: '$.jodus_null',
                 p_content: 'null'
             });
 
@@ -1482,7 +1482,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'E',
-                name: "null",
+                name: "jodus_null",
                 value: null
             });
 
@@ -1490,8 +1490,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named string", function() {
 
-            var id = database.call("json_documents.set_json", {
-                p_path: '$.string',
+            var id = database.call("json_store.set_json", {
+                p_path: '$.jodus_string',
                 p_content: '"Hello, World!"'
             });
 
@@ -1506,7 +1506,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'S',
-                name: "string",
+                name: "jodus_string",
                 value: "Hello, World!"
             });
 
@@ -1514,8 +1514,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named number", function() {
 
-            var id = database.call("json_documents.set_json", {
-                p_path: '$.number',
+            var id = database.call("json_store.set_json", {
+                p_path: '$.jodus_number',
                 p_content: '123.456'
             });
 
@@ -1530,7 +1530,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'N',
-                name: "number",
+                name: "jodus_number",
                 value: "123.456"
             });
 
@@ -1538,8 +1538,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named boolean", function() {
 
-            var id = database.call("json_documents.set_json", {
-                p_path: '$.boolean',
+            var id = database.call("json_store.set_json", {
+                p_path: '$.jodus_boolean',
                 p_content: 'true'
             });
 
@@ -1554,7 +1554,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'B',
-                name: "boolean",
+                name: "jodus_boolean",
                 value: "true"
             });
 
@@ -1562,8 +1562,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named object", function() {
 
-            var id = database.call("json_documents.set_json", {
-                p_path: '$.object',
+            var id = database.call("json_store.set_json", {
+                p_path: '$.jodus_object',
                 p_content: '{}'
             });
 
@@ -1578,7 +1578,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'O',
-                name: "object",
+                name: "jodus_object",
                 value: null
             });
 
@@ -1586,8 +1586,8 @@ suite("JSON document creation in the root", function() {
 
         test("Create named array", function() {
 
-            var id = database.call("json_documents.set_json", {
-                p_path: '$.array',
+            var id = database.call("json_store.set_json", {
+                p_path: '$.jodus_array',
                 p_content: '[]'
             });
 
@@ -1602,7 +1602,7 @@ suite("JSON document creation in the root", function() {
                 id: id,
                 parent_id: null,
                 type: 'A',
-                name: "array",
+                name: "jodus_array",
                 value: null
             });
 
@@ -1622,11 +1622,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous string retrieval", function() {
 
-            var valueId = database.call("json_documents.create_string", {
+            var valueId = database.call("json_store.create_string", {
                 p_value: "Hello, World!"
             });
 
-            var value = database.call("json_documents.get_string", {
+            var value = database.call("json_store.get_string", {
                 p_path: `#${valueId}`
             });
 
@@ -1636,11 +1636,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous number retrieval", function() {
 
-            var valueId = database.call("json_documents.create_number", {
+            var valueId = database.call("json_store.create_number", {
                 p_value: 123.456
             });
 
-            var value = database.call("json_documents.get_number", {
+            var value = database.call("json_store.get_number", {
                 p_path: `#${valueId}`
             });
 
@@ -1650,11 +1650,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous boolean retrieval", function() {
 
-            var valueId = database.call("json_documents.create_boolean", {
+            var valueId = database.call("json_store.create_boolean", {
                 p_value: true
             });
 
-            var value = database.call("json_documents.get_boolean", {
+            var value = database.call("json_store.get_boolean", {
                 p_path: `#${valueId}`
             });
 
@@ -1664,9 +1664,9 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous null retrieval as string", function() {
 
-            var valueId = database.call("json_documents.create_null");
+            var valueId = database.call("json_store.create_null");
 
-            var value = database.call("json_documents.get_string", {
+            var value = database.call("json_store.get_string", {
                 p_path: `#${valueId}`
             });
 
@@ -1676,9 +1676,9 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous null retrieval as number", function() {
 
-            var valueId = database.call("json_documents.create_null");
+            var valueId = database.call("json_store.create_null");
 
-            var value = database.call("json_documents.get_number", {
+            var value = database.call("json_store.get_number", {
                 p_path: `#${valueId}`
             });
 
@@ -1688,9 +1688,9 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous null retrieval as boolean", function() {
 
-            var valueId = database.call("json_documents.create_null");
+            var valueId = database.call("json_store.create_null");
 
-            var value = database.call("json_documents.get_boolean", {
+            var value = database.call("json_store.get_boolean", {
                 p_path: `#${valueId}`
             });
 
@@ -1700,11 +1700,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous string retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_string", {
+            var valueId = database.call("json_store.create_string", {
                 p_value: "Hello, World!"
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1716,11 +1716,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous escaped string retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_string", {
+            var valueId = database.call("json_store.create_string", {
                 p_value: "Hello,\n\"World\"!"
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1732,11 +1732,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous number retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_number", {
+            var valueId = database.call("json_store.create_number", {
                 p_value: 123.456
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1748,11 +1748,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous boolean retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_boolean", {
+            var valueId = database.call("json_store.create_boolean", {
                 p_value: true
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1764,9 +1764,9 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous null retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_null");
+            var valueId = database.call("json_store.create_null");
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1778,9 +1778,9 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous null retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_null");
+            var valueId = database.call("json_store.create_null");
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1792,11 +1792,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous empty object retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify({})
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1808,13 +1808,13 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous object with one property retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify({
                     name: "Sergejs"
                 })
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1828,13 +1828,13 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous object with escaped property retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify({
                     "Hello,\n\"World\"!": "Sergejs"
                 })
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1848,7 +1848,7 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous object with multiple properties retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify({
                     name: "Sergejs",
                     surname: "Vinniks",
@@ -1857,7 +1857,7 @@ suite("JSON document retrieval from the root", function() {
                 })
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1874,7 +1874,7 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous object with nested object retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify({
                     name: "Sergejs",
                     surname: "Vinniks",
@@ -1887,7 +1887,7 @@ suite("JSON document retrieval from the root", function() {
                 })
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1908,11 +1908,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous empty array retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify([])
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1924,11 +1924,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous array with one element retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify([123])
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1940,11 +1940,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous array with multiple elements retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify([123, "Hello", true, null])
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1956,11 +1956,11 @@ suite("JSON document retrieval from the root", function() {
 
         test("Anonymous two-dimensional array retrieval as JSON", function() {
         
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify([123, ["a", "b"], [null, null, 1, 1]])
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -1977,11 +1977,11 @@ suite("JSON document retrieval from the root", function() {
             for (var i = 0; i < 100; i++)
                 array[i] = i;
 
-            var valueId = database.call("json_documents.create_json", {
+            var valueId = database.call("json_store.create_json", {
                 p_content: JSON.stringify(array)
             });
 
-            var jsonValue = database.call("json_documents.get_json", {
+            var jsonValue = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
 
@@ -2001,13 +2001,13 @@ suite("JSON document retrieval from the root", function() {
 
         test("Named string retrieval", function() {
 
-            database.call("json_documents.set_string", {
-                p_path: "$.string",
+            database.call("json_store.set_string", {
+                p_path: "$.jodus_string",
                 p_value: "Hello, World!"
             });
 
-            var value = database.call("json_documents.get_string", {
-                p_path: "$.string"
+            var value = database.call("json_store.get_string", {
+                p_path: "$.jodus_string"
             });
 
             expect(value).to.be("Hello, World!");
@@ -2016,13 +2016,13 @@ suite("JSON document retrieval from the root", function() {
 
         test("Named number retrieval", function() {
 
-            var valueId = database.call("json_documents.set_number", {
-                p_path: "$.number",
+            var valueId = database.call("json_store.set_number", {
+                p_path: "$.jodus_number",
                 p_value: 123.456
             });
 
-            var value = database.call("json_documents.get_number", {
-                p_path: "$.number"
+            var value = database.call("json_store.get_number", {
+                p_path: "$.jodus_number"
             });
 
             expect(value).to.be(123.456);
@@ -2031,13 +2031,13 @@ suite("JSON document retrieval from the root", function() {
 
         test("Named boolean retrieval", function() {
 
-            var valueId = database.call("json_documents.set_boolean", {
-                p_path: "$.boolean",
+            var valueId = database.call("json_store.set_boolean", {
+                p_path: "$.jodus_boolean",
                 p_value: true
             });
 
-            var value = database.call("json_documents.get_boolean", {
-                p_path: "$.boolean"
+            var value = database.call("json_store.get_boolean", {
+                p_path: "$.jodus_boolean"
             });
 
             expect(value).to.be(true);
@@ -2046,12 +2046,12 @@ suite("JSON document retrieval from the root", function() {
 
         test("Named null retrieval as string", function() {
 
-            database.call("json_documents.set_null", {
-                p_path: "$.null"
+            database.call("json_store.set_null", {
+                p_path: "$.jodus_null"
             });
 
-            var value = database.call("json_documents.get_string", {
-                p_path: "$.null"
+            var value = database.call("json_store.get_string", {
+                p_path: "$.jodus_null"
             });
 
             expect(value).to.be(null);
@@ -2060,12 +2060,12 @@ suite("JSON document retrieval from the root", function() {
 
         test("Named null retrieval as number", function() {
 
-            database.call("json_documents.set_null", {
-                p_path: "$.null"
+            database.call("json_store.set_null", {
+                p_path: "$.jodus_null"
             });
 
-            var value = database.call("json_documents.get_number", {
-                p_path: "$.null"
+            var value = database.call("json_store.get_number", {
+                p_path: "$.jodus_null"
             });
 
             expect(value).to.be(null);
@@ -2074,12 +2074,12 @@ suite("JSON document retrieval from the root", function() {
 
         test("Named null retrieval as string", function() {
 
-            database.call("json_documents.set_null", {
-                p_path: "$.null"
+            database.call("json_store.set_null", {
+                p_path: "$.jodus_null"
             });
 
-            var value = database.call("json_documents.get_boolean", {
-                p_path: "$.null"
+            var value = database.call("json_store.get_boolean", {
+                p_path: "$.jodus_null"
             });
 
             expect(value).to.be(null);
@@ -2088,8 +2088,8 @@ suite("JSON document retrieval from the root", function() {
 
         test("Named complex object retrieval", function() {
         
-            database.call("json_documents.set_json", {
-                p_path: "$.me",
+            database.call("json_store.set_json", {
+                p_path: "$.jodus_me",
                 p_content: JSON.stringify({
                     name: "Sergejs",
                     surname: "Vinniks",
@@ -2108,8 +2108,8 @@ suite("JSON document retrieval from the root", function() {
                 })
             });   
 
-            var jsonValue = database.call("json_documents.get_json", {
-                p_path: "$.me"
+            var jsonValue = database.call("json_store.get_json", {
+                p_path: "$.jodus_me"
             }); 
 
             var value = JSON.parse(jsonValue);
@@ -2141,10 +2141,242 @@ suite("JSON document retrieval from the root", function() {
 
 });
 
+suite("Huge JSON document handling", function() {
+
+    var document;
+    var documentId;
+
+    setup("Create a huge array", function() {
+        
+        document = [];
+
+        for (var i = 0; i < 100000; i++)
+            document[i] = i;
+
+    });
+
+    test("Save anonymous huge document via the VARCHAR method", function() {
+
+        expect(function() {
+        
+            database.call("json_store.create_json", {
+                p_content: JSON.stringify(document)
+            });
+        
+        }).to.throw(/./);
+
+    });
+
+    test("Save anonymous huge document via the CLOB method", function() {
+
+        documentId = database.call("json_store.create_json_clob", {
+            p_content: JSON.stringify(document)
+        });
+        
+    });
+
+    test("Retrieve anonymous huge document via the VARCHAR method", function() {
+
+        expect(function() {
+        
+            database.call("json_store.get_json", {
+                p_path: `#${documentId}`
+            });
+        
+        }).to.throw(/./);
+        
+    });
+
+    test("Retrieve anonymous huge document via the CLOB method", function() {
+    
+        var savedDocumentJSON = database.call("json_store.get_json_clob", {
+            p_path: `#${documentId}`
+        });
+
+        var savedDocument = JSON.parse(savedDocumentJSON);
+
+        expect(savedDocument).to.eql(document);
+    
+    });
+    
+
+    teardown("Rollback", function() {
+        database.rollback();
+    });
+
+});
+
 suite("JSON document modification", function() {
 
-    setup("Setup", function() {
+    setup("Create a document to play with", function() {
 
+        database.call("json_store.set_json", {
+            p_path: "$.jodus_document",
+            p_content: JSON.stringify({
+                persons: [
+                    {
+                        id: 123,
+                        name: "Sergejs",
+                        age: 35,
+                        children: [
+                            {
+                                name: "Alisa",
+                                age: 2
+                            }
+                        ]
+                    }
+                ]
+            })
+        });
+
+    });
+
+    test("Add string property to the object", function() {
+    
+        database.call("json_store.set_string", {
+            p_path: "$.jodus_document.persons[0].surname",
+            p_value: "Vinniks"
+        });    
+
+        var document = JSON.parse(database.call("json_store.get_json", {
+            p_path: "$.jodus_document"
+        }));
+
+        expect(document).to.eql({
+            persons: [
+                {
+                    id: 123,
+                    name: "Sergejs",
+                    surname: "Vinniks",
+                    age: 35,
+                    children: [
+                        {
+                            name: "Alisa",
+                            age: 2
+                        }
+                    ]
+                }
+            ]
+        });
+    
+    });
+    
+    test("Add JSON property to the object", function() {
+    
+        database.call("json_store.set_json", {
+            p_path: "$.jodus_document.persons[0].children[0].surname",
+            p_content: '"Vinnika"'
+        });    
+
+        var document = JSON.parse(database.call("json_store.get_json", {
+            p_path: "$.jodus_document"
+        }));
+
+        expect(document).to.eql({
+            persons: [
+                {
+                    id: 123,
+                    name: "Sergejs",
+                    surname: "Vinniks",
+                    age: 35,
+                    children: [
+                        {
+                            name: "Alisa",
+                            surname: "Vinnika",
+                            age: 2
+                        }
+                    ]
+                }
+            ]
+        });
+    
+    });
+
+    test("Add a next object element into the array", function() {
+    
+        database.call("json_store.set_json", {
+            p_path: "$.jodus_document.persons[1]",
+            p_content: JSON.stringify({
+                id: 321,
+                name: "Janis",
+                surname: "Berzins"
+            })
+        });    
+
+        var document = JSON.parse(database.call("json_store.get_json", {
+            p_path: "$.jodus_document"
+        }));
+
+        expect(document).to.eql({
+            persons: [
+                {
+                    id: 123,
+                    name: "Sergejs",
+                    surname: "Vinniks",
+                    age: 35,
+                    children: [
+                        {
+                            name: "Alisa",
+                            surname: "Vinnika",
+                            age: 2
+                        }
+                    ]
+                },
+                {
+                    id: 321,
+                    name: "Janis",
+                    surname: "Berzins"
+                }
+            ]
+        });
+    
+    });
+
+    test("Fill a gap between array elements with nulls", function() {
+    
+        database.call("json_store.set_json", {
+            p_path: "$.jodus_document.persons[4]",
+            p_content: JSON.stringify({
+                id: 999,
+                name: "Frank",
+                surname: "Sinatra"
+            })
+        });    
+
+        var document = JSON.parse(database.call("json_store.get_json", {
+            p_path: "$.jodus_document"
+        }));
+
+        expect(document).to.eql({
+            persons: [
+                {
+                    id: 123,
+                    name: "Sergejs",
+                    surname: "Vinniks",
+                    age: 35,
+                    children: [
+                        {
+                            name: "Alisa",
+                            surname: "Vinnika",
+                            age: 2
+                        }
+                    ]
+                },
+                {
+                    id: 321,
+                    name: "Janis",
+                    surname: "Berzins"
+                },
+                null,
+                null,
+                {
+                    id: 999,
+                    name: "Frank",
+                    surname: "Sinatra"
+                }
+            ]
+        });
+    
     });
 
 

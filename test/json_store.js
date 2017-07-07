@@ -1,1111 +1,1165 @@
 suite("JSON path parser tests", function() {
 
-    test("Invalid start of the path", function() {
-    
-        expect(function() {
+    suite("Invalid path tests", function() {
+
+        test("Invalid start of the path", function() {
         
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "123"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid start of the path with spaces", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "   123"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+        
+        test("Invalid start of the property", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "hello.123"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid start of the property with spaces", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "  hello  .  123"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid character in simple name", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "hello-123"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid start of ID", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "#a"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid character in ID", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "#123a"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test(". or [ missing", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "abc abc"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid start of array element", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "abc[cda]"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid start of array element with spaces", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "  abc  [  cba  ]  "
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid character in array element", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "abc[123a]"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("] missing", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "abc[123.cba"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Trailing ] missing", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "abc[123"
+                });
+            
+            }).to.throw(/JDOC-00002/);
+        
+        });
+
+        test("Name closing quote missing", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: "\"abc" 
+                });
+            
+            }).to.throw(/JDOC-00002/);
+        
+        });
+
+        test("Array element closing quote missing", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: 'hello["world'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+        
+        });
+
+        test("Dot in the end", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: 'hello.world.'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+        
+        });
+
+        test("Dot in the end with spaces", function() {
+        
+            expect(function() {
+            
+                var result = database.call("json_store.parse_path", {
+                    p_path: '  hello  .  world  .  '
+                });
+            
+            }).to.throw(/JDOC-00002/);
+        
+        });
+
+    });
+
+    suite("Valid path tests", function() {
+
+        test("Empty path", function() {
+
             var result = database.call("json_store.parse_path", {
-                p_path: "123"
+                p_path: null
+            });
+
+            expect(result).to.eql([]);
+
+        });
+
+        test("Empty path (spaces only)", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: "   "
+            });
+
+            expect(result).to.eql([]);
+
+        });
+
+        test("Root only", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: "$"
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                }
+            ]);
+
+        });
+
+        test("Root only with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: "  $    "
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                }
+            ]);
+
+        });
+
+        test("Single simple name", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: "hello"
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "hello"
+                }
+            ]);
+
+        });
+
+        test("Single simple name with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: "   hello   "
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "hello"
+                }
+            ]);
+
+        });
+
+        test("Single quoted name", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '" 89 "'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: " 89 "
+                }
+            ]);
+
+        });
+
+        test("Single quoted name with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '   " 89 "   '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: " 89 "
+                }
+            ]);
+
+        });
+
+        test("Single quoted name with escaped quote", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '" 89\\" "'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: " 89\" "
+                }
+            ]);
+
+        });
+
+        test("Single ID", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '#12345'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'I',
+                    value: "12345"
+                }
+            ]);
+
+        });
+
+        test("Single ID with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '   #12345   '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'I',
+                    value: "12345"
+                }
+            ]);
+
+        });
+
+        test("Single digit array element of root", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '$[1]'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                },
+                {
+                    type: 'N',
+                    value: "1"
+                }
+            ]);
+
+        });
+
+        test("Single digit array element of root with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '  $  [  1  ]  '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                },
+                {
+                    type: 'N',
+                    value: "1"
+                }
+            ]);
+
+        });
+
+        test("Multi-digit array element of root", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '$[12345]'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                },
+                {
+                    type: 'N',
+                    value: "12345"
+                }
+            ]);
+
+        });
+
+        test("Multi-digit array element of root with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '  $  [  12345  ]  '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                },
+                {
+                    type: 'N',
+                    value: "12345"
+                }
+            ]);
+
+        });
+
+        test("Just an array element", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '[12345]'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "12345"
+                }
+            ]);
+
+        });
+
+        test("Quoted array element of root", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '$["hello"]'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                },
+                {
+                    type: 'N',
+                    value: "hello"
+                }
+            ]);
+
+        });
+
+        test("Quoted array element of root with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '  $  [  "hello"  ]  '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                },
+                {
+                    type: 'N',
+                    value: "hello"
+                }
+            ]);
+
+        });
+
+        test("Array element of simple name", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: 'hello[123]'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "hello"
+                },
+                {
+                    type: 'N',
+                    value: "123"
+                }
+            ]);
+
+        });
+
+        test("Array element of simple name with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '  hello  [  123  ]  '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "hello"
+                },
+                {
+                    type: 'N',
+                    value: "123"
+                }
+            ]);
+
+        });
+
+        test("Array element of quoted name", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '"hello"[123]'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "hello"
+                },
+                {
+                    type: 'N',
+                    value: "123"
+                }
+            ]);
+
+        });
+
+        test("Array element of quoted name with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '  "hello"  [  123  ]  '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "hello"
+                },
+                {
+                    type: 'N',
+                    value: "123"
+                }
+            ]);
+
+        });
+
+        test("Array element of ID", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '#123[456]'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'I',
+                    value: "123"
+                },
+                {
+                    type: 'N',
+                    value: "456"
+                }
+            ]);
+
+        });
+
+        test("Array element of ID with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '  #123  [  456  ]  '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'I',
+                    value: "123"
+                },
+                {
+                    type: 'N',
+                    value: "456"
+                }
+            ]);
+
+        });
+
+        test("Multi-dimensional array access", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: 'array[123]["321"]'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "array"
+                },
+                {
+                    type: 'N',
+                    value: "123"
+                },
+                {
+                    type: 'N',
+                    value: "321"
+                }
+            ]);
+
+        });
+
+        test("Multi-dimensional array access with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: ' array [123] ["321"] '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "array"
+                },
+                {
+                    type: 'N',
+                    value: "123"
+                },
+                {
+                    type: 'N',
+                    value: "321"
+                }
+            ]);
+
+        });
+
+        test("Multiple mixed elements", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: 'hello.world.#12345.#54321."aaa"."bbb"[1]'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "hello"
+                },
+                {
+                    type: 'N',
+                    value: "world"
+                },
+                {
+                    type: 'I',
+                    value: "12345"
+                },
+                {
+                    type: 'I',
+                    value: "54321"
+                },
+                {
+                    type: 'N',
+                    value: "aaa"
+                },
+                {
+                    type: 'N',
+                    value: "bbb"
+                },
+                {
+                    type: 'N',
+                    value: "1"
+                }
+            ]);
+
+        });
+
+        test("Multiple mixed elements with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '  hello  .  world  .  #12345  .  #54321  .  "aaa"  .  "bbb"  '
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'N',
+                    value: "hello"
+                },
+                {
+                    type: 'N',
+                    value: "world"
+                },
+                {
+                    type: 'I',
+                    value: "12345"
+                },
+                {
+                    type: 'I',
+                    value: "54321"
+                },
+                {
+                    type: 'N',
+                    value: "aaa"
+                },
+                {
+                    type: 'N',
+                    value: "bbb"
+                }
+            ]);
+
+        });
+
+        test("Multiple mixed elements starting with root", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '$.hello.world.#12345.#54321."aaa"."bbb"'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                },
+                {
+                    type: 'N',
+                    value: "hello"
+                },
+                {
+                    type: 'N',
+                    value: "world"
+                },
+                {
+                    type: 'I',
+                    value: "12345"
+                },
+                {
+                    type: 'I',
+                    value: "54321"
+                },
+                {
+                    type: 'N',
+                    value: "aaa"
+                },
+                {
+                    type: 'N',
+                    value: "bbb"
+                }
+            ]);
+
+        });
+
+        test("Multiple mixed elements starting with root, with spaces", function() {
+
+            var result = database.call("json_store.parse_path", {
+                p_path: '  $  .  hello . world.#12345.#54321."aaa"."bbb"'
+            });
+
+            expect(result).to.eql([
+                {
+                    type: 'R',
+                    value: null
+                },
+                {
+                    type: 'N',
+                    value: "hello"
+                },
+                {
+                    type: 'N',
+                    value: "world"
+                },
+                {
+                    type: 'I',
+                    value: "12345"
+                },
+                {
+                    type: 'I',
+                    value: "54321"
+                },
+                {
+                    type: 'N',
+                    value: "aaa"
+                },
+                {
+                    type: 'N',
+                    value: "bbb"
+                }
+            ]);
+
+        });
+
+    });
+
+});
+
+suite("JSON store management tests", function() {
+
+    suite("JSON value creation tests", function() {
+    
+        suite("Scalar value creation tests", function() {
+        
+            suite("Create anonymous values using the JSON_STORE.CREATE_XXX function", function() {
+
+                test("Create anonymous null", function() {
+
+                    var id = database.call("json_store.create_null");
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'E',
+                        name: null,
+                        value: null
+                    });
+
+                });
+
+                test("Create anonymous string", function() {
+
+                    var id = database.call("json_store.create_string", {
+                        p_value: "Hello, World!"
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'S',
+                        name: null,
+                        value: "Hello, World!"
+                    });
+
+                });
+
+                test("Create anonymous number", function() {
+
+                    var id = database.call("json_store.create_number", {
+                        p_value: '123.456'
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'N',
+                        name: null,
+                        value: "123.456"
+                    });
+
+                });
+
+                test("Create anonymous boolean", function() {
+
+                    var id = database.call("json_store.create_boolean", {
+                        p_value: true
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'B',
+                        name: null,
+                        value: "true"
+                    });
+
+                });
+
+                test("Create anonymous null string", function() {
+
+                    var id = database.call("json_store.create_string", {
+                        p_value: null
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'E',
+                        name: null,
+                        value: null
+                    });
+
+                });
+
+                test("Create anonymous null number", function() {
+
+                    var id = database.call("json_store.create_number", {
+                        p_value: null
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'E',
+                        name: null,
+                        value: null
+                    });
+
+                });
+
+                test("Create anonymous null boolean", function() {
+
+                    var id = database.call("json_store.create_boolean", {
+                        p_value: null
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'E',
+                        name: null,
+                        value: null
+                    });
+
+                });
+
+            });
+
+            suite("Create anonymous values using the JSON_STORE.CREATE_JSON function", function() {
+            
+                test("Create anonymous null", function() {
+
+                    var id = database.call("json_store.create_json", {
+                        p_content: null
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'E',
+                        name: null,
+                        value: null
+                    });
+
+                });
+
+                test("Create anonymous string", function() {
+
+                    var id = database.call("json_store.create_json", {
+                        p_content: "Hello, World!"
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'S',
+                        name: null,
+                        value: "Hello, World!"
+                    });
+
+                });
+
+                test("Create anonymous number", function() {
+
+                    var id = database.call("json_store.create_json", {
+                        p_content: 123.456
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'N',
+                        name: null,
+                        value: "123.456"
+                    });
+
+                });
+
+                test("Create anonymous boolean", function() {
+
+                    var id = database.call("json_store.create_json", {
+                        p_content: true
+                    });
+
+                    expect(id).to.not.be(null);
+
+                    var value = database.selectObject(`*
+                        FROM json_values
+                        WHERE id = ${id}
+                    `);
+
+                    expect(value).to.eql({
+                        id: id,
+                        parent_id: null,
+                        type: 'B',
+                        name: null,
+                        value: "true"
+                    });
+
+                });    
+            
+            });
+
+            teardown("Rollback", function() {
+                database.rollback();
             });
         
-        }).to.throw(/JDOC-00001/);
-    
-    });
+        });
 
-    test("Invalid start of the path with spaces", function() {
-    
-        expect(function() {
+        suite("Object creation tests", function() {
         
-            var result = database.call("json_store.parse_path", {
-                p_path: "   123"
+            test("Create anonymous object using the JSON_STORE.CREATE_OBJECT function", function() {
+
+                var id = database.call("json_store.create_object");
+
+                expect(id).to.not.be(null);
+
+                var value = database.selectObject(`*
+                    FROM json_values
+                    WHERE id = ${id}
+                `);
+
+                expect(value).to.eql({
+                    id: id,
+                    parent_id: null,
+                    type: 'O',
+                    name: null,
+                    value: null
+                });
+
             });
-        
-        }).to.throw(/JDOC-00001/);
-    
-    });
-    
-    test("Invalid start of the property", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "hello.123"
+
+            teardown("Rollback", function() {
+                database.rollback();
             });
-        
-        }).to.throw(/JDOC-00001/);
-    
-    });
 
-    test("Invalid start of the property with spaces", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "  hello  .  123"
+        });
+
+        suite("Array creation tests", function() {
+            
+            test("Create anonymous array using the JSON_STORE.CREATE_ARRAY function", function() {
+
+                var id = database.call("json_store.create_array");
+
+                expect(id).to.not.be(null);
+
+                var value = database.selectObject(`*
+                    FROM json_values
+                    WHERE id = ${id}
+                `);
+
+                expect(value).to.eql({
+                    id: id,
+                    parent_id: null,
+                    type: 'A',
+                    name: null,
+                    value: null
+                });
+
             });
-        
-        }).to.throw(/JDOC-00001/);
-    
-    });
 
-    test("Invalid character in simple name", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "hello-123"
+            teardown("Rollback", function() {
+                database.rollback();
             });
-        
-        }).to.throw(/JDOC-00001/);
+
+        });
     
     });
 
-    test("Invalid start of ID", function() {
+    suite("JSON value retrieval tests", function() {
     
-        expect(function() {
         
-            var result = database.call("json_store.parse_path", {
-                p_path: "#a"
-            });
-        
-        }).to.throw(/JDOC-00001/);
+    });
+
+    suite("JSON value modification tests", function() {
     
-    });
-
-    test("Invalid character in ID", function() {
     
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "#123a"
-            });
-        
-        }).to.throw(/JDOC-00001/);
-    
-    });
-
-    test(". or [ missing", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "abc abc"
-            });
-        
-        }).to.throw(/JDOC-00001/);
-    
-    });
-
-    test("Invalid start of array element", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "abc[cda]"
-            });
-        
-        }).to.throw(/JDOC-00001/);
-    
-    });
-
-    test("Invalid start of array element with spaces", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "  abc  [  cba  ]  "
-            });
-        
-        }).to.throw(/JDOC-00001/);
-    
-    });
-
-    test("Invalid character in array element", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "abc[123a]"
-            });
-        
-        }).to.throw(/JDOC-00001/);
-    
-    });
-
-    test("] missing", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "abc[123.cba"
-            });
-        
-        }).to.throw(/JDOC-00001/);
-    
-    });
-
-    test("Trailing ] missing", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "abc[123"
-            });
-        
-        }).to.throw(/JDOC-00002/);
-    
-    });
-
-    test("Name closing quote missing", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: "\"abc" 
-            });
-        
-        }).to.throw(/JDOC-00002/);
-    
-    });
-
-    test("Array element closing quote missing", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: 'hello["world'
-            });
-        
-        }).to.throw(/JDOC-00002/);
-    
-    });
-
-    test("Dot in the end", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: 'hello.world.'
-            });
-        
-        }).to.throw(/JDOC-00002/);
-    
-    });
-
-    test("Dot in the end with spaces", function() {
-    
-        expect(function() {
-        
-            var result = database.call("json_store.parse_path", {
-                p_path: '  hello  .  world  .  '
-            });
-        
-        }).to.throw(/JDOC-00002/);
-    
-    });
-
-    test("Empty path", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: null
-        });
-
-        expect(result).to.eql([]);
-
-    });
-
-    test("Empty path (spaces only)", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: "   "
-        });
-
-        expect(result).to.eql([]);
-
-    });
-
-    test("Root only", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: "$"
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            }
-        ]);
-
-    });
-
-    test("Root only with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: "  $    "
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            }
-        ]);
-
-    });
-
-    test("Single simple name", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: "hello"
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "hello"
-            }
-        ]);
-
-    });
-
-    test("Single simple name with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: "   hello   "
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "hello"
-            }
-        ]);
-
-    });
-
-    test("Single quoted name", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '" 89 "'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: " 89 "
-            }
-        ]);
-
-    });
-
-    test("Single quoted name with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '   " 89 "   '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: " 89 "
-            }
-        ]);
-
-    });
-
-    test("Single quoted name with escaped quote", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '" 89\\" "'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: " 89\" "
-            }
-        ]);
-
-    });
-
-    test("Single ID", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '#12345'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'I',
-                value: "12345"
-            }
-        ]);
-
-    });
-
-    test("Single ID with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '   #12345   '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'I',
-                value: "12345"
-            }
-        ]);
-
-    });
-
-    test("Single digit array element of root", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '$[1]'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            },
-            {
-                type: 'N',
-                value: "1"
-            }
-        ]);
-
-    });
-
-    test("Single digit array element of root with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '  $  [  1  ]  '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            },
-            {
-                type: 'N',
-                value: "1"
-            }
-        ]);
-
-    });
-
-    test("Multi-digit array element of root", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '$[12345]'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            },
-            {
-                type: 'N',
-                value: "12345"
-            }
-        ]);
-
-    });
-
-    test("Multi-digit array element of root with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '  $  [  12345  ]  '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            },
-            {
-                type: 'N',
-                value: "12345"
-            }
-        ]);
-
-    });
-
-    test("Just an array element", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '[12345]'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "12345"
-            }
-        ]);
-
-    });
-
-    test("Quoted array element of root", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '$["hello"]'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            },
-            {
-                type: 'N',
-                value: "hello"
-            }
-        ]);
-
-    });
-
-    test("Quoted array element of root with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '  $  [  "hello"  ]  '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            },
-            {
-                type: 'N',
-                value: "hello"
-            }
-        ]);
-
-    });
-
-    test("Array element of simple name", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: 'hello[123]'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "hello"
-            },
-            {
-                type: 'N',
-                value: "123"
-            }
-        ]);
-
-    });
-
-    test("Array element of simple name with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '  hello  [  123  ]  '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "hello"
-            },
-            {
-                type: 'N',
-                value: "123"
-            }
-        ]);
-
-    });
-
-    test("Array element of quoted name", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '"hello"[123]'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "hello"
-            },
-            {
-                type: 'N',
-                value: "123"
-            }
-        ]);
-
-    });
-
-    test("Array element of quoted name with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '  "hello"  [  123  ]  '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "hello"
-            },
-            {
-                type: 'N',
-                value: "123"
-            }
-        ]);
-
-    });
-
-    test("Array element of ID", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '#123[456]'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'I',
-                value: "123"
-            },
-            {
-                type: 'N',
-                value: "456"
-            }
-        ]);
-
-    });
-
-    test("Array element of ID with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '  #123  [  456  ]  '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'I',
-                value: "123"
-            },
-            {
-                type: 'N',
-                value: "456"
-            }
-        ]);
-
-    });
-
-    test("Multi-dimensional array access", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: 'array[123]["321"]'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "array"
-            },
-            {
-                type: 'N',
-                value: "123"
-            },
-            {
-                type: 'N',
-                value: "321"
-            }
-        ]);
-
-    });
-
-    test("Multi-dimensional array access with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: ' array [123] ["321"] '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "array"
-            },
-            {
-                type: 'N',
-                value: "123"
-            },
-            {
-                type: 'N',
-                value: "321"
-            }
-        ]);
-
-    });
-
-    test("Multiple mixed elements", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: 'hello.world.#12345.#54321."aaa"."bbb"[1]'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "hello"
-            },
-            {
-                type: 'N',
-                value: "world"
-            },
-            {
-                type: 'I',
-                value: "12345"
-            },
-            {
-                type: 'I',
-                value: "54321"
-            },
-            {
-                type: 'N',
-                value: "aaa"
-            },
-            {
-                type: 'N',
-                value: "bbb"
-            },
-            {
-                type: 'N',
-                value: "1"
-            }
-        ]);
-
-    });
-
-    test("Multiple mixed elements with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '  hello  .  world  .  #12345  .  #54321  .  "aaa"  .  "bbb"  '
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'N',
-                value: "hello"
-            },
-            {
-                type: 'N',
-                value: "world"
-            },
-            {
-                type: 'I',
-                value: "12345"
-            },
-            {
-                type: 'I',
-                value: "54321"
-            },
-            {
-                type: 'N',
-                value: "aaa"
-            },
-            {
-                type: 'N',
-                value: "bbb"
-            }
-        ]);
-
-    });
-
-    test("Multiple mixed elements starting with root", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '$.hello.world.#12345.#54321."aaa"."bbb"'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            },
-            {
-                type: 'N',
-                value: "hello"
-            },
-            {
-                type: 'N',
-                value: "world"
-            },
-            {
-                type: 'I',
-                value: "12345"
-            },
-            {
-                type: 'I',
-                value: "54321"
-            },
-            {
-                type: 'N',
-                value: "aaa"
-            },
-            {
-                type: 'N',
-                value: "bbb"
-            }
-        ]);
-
-    });
-
-    test("Multiple mixed elements starting with root, with spaces", function() {
-
-        var result = database.call("json_store.parse_path", {
-            p_path: '  $  .  hello . world.#12345.#54321."aaa"."bbb"'
-        });
-
-        expect(result).to.eql([
-            {
-                type: 'R',
-                value: null
-            },
-            {
-                type: 'N',
-                value: "hello"
-            },
-            {
-                type: 'N',
-                value: "world"
-            },
-            {
-                type: 'I',
-                value: "12345"
-            },
-            {
-                type: 'I',
-                value: "54321"
-            },
-            {
-                type: 'N',
-                value: "aaa"
-            },
-            {
-                type: 'N',
-                value: "bbb"
-            }
-        ]);
-
     });
 
 });
 
 suite("JSON document creation in the root", function() {
 
-    suite("Anonymous value creation", function() {
-
-        test("Create anonymous null", function() {
-
-            var id = database.call("json_store.create_null");
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'E',
-                name: null,
-                value: null
-            });
-
-        });
-
-        test("Create anonymous string", function() {
-
-            var id = database.call("json_store.create_string", {
-                p_value: "Hello, World!"
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'S',
-                name: null,
-                value: "Hello, World!"
-            });
-
-        });
-
-        test("Create anonymous number", function() {
-
-            var id = database.call("json_store.create_number", {
-                p_value: '123.456'
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'N',
-                name: null,
-                value: "123.456"
-            });
-
-        });
-
-        test("Create anonymous boolean", function() {
-
-            var id = database.call("json_store.create_boolean", {
-                p_value: true
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'B',
-                name: null,
-                value: "true"
-            });
-
-        });
-
-        test("Create anonymous object", function() {
-
-            var id = database.call("json_store.create_object");
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'O',
-                name: null,
-                value: null
-            });
-
-        });
-
-        test("Create anonymous array", function() {
-
-            var id = database.call("json_store.create_array");
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'A',
-                name: null,
-                value: null
-            });
-
-        });
-
-        test("NULL for string value must be converted to JSON null", function() {
-
-            var id = database.call("json_store.create_string", {
-                p_value: null
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'E',
-                name: null,
-                value: null
-            });
-
-        });
-
-        test("NULL for number value must be converted to JSON null", function() {
-
-            var id = database.call("json_store.create_number", {
-                p_value: null
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'E',
-                name: null,
-                value: null
-            });
-
-        });
-
-        test("NULL for boolean value must be converted to JSON null", function() {
-
-            var id = database.call("json_store.create_boolean", {
-                p_value: null
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'E',
-                name: null,
-                value: null
-            });
-
-        });
-
-        teardown("Rollback", function() {
-            database.rollback();
-        });
-
-    });
+    
 
     suite("Anonymous JSON creation in the root", function() {
 
-        test("Create anonymous null", function() {
-
-            var id = database.call("json_store.create_json", {
-                p_content: "null"
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'E',
-                name: null,
-                value: null
-            });
-
-        });
-
-        test("Create anonymous string", function() {
-
-            var id = database.call("json_store.create_json", {
-                p_content: "Hello, World!"
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'S',
-                name: null,
-                value: "Hello, World!"
-            });
-
-        });
-
-        test("Create anonymous number", function() {
-
-            var id = database.call("json_store.create_json", {
-                p_content: 123.456
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'N',
-                name: null,
-                value: "123.456"
-            });
-
-        });
-
-        test("Create anonymous boolean", function() {
-
-            var id = database.call("json_store.create_json", {
-                p_content: true
-            });
-
-            expect(id).to.not.be(null);
-
-            var value = database.selectObject(`*
-                FROM json_values
-                WHERE id = ${id}
-            `);
-
-            expect(value).to.eql({
-                id: id,
-                parent_id: null,
-                type: 'B',
-                name: null,
-                value: "true"
-            });
-
-        });
+        
 
         test("Create anonymous object", function() {
 
@@ -1716,11 +1770,9 @@ suite("JSON document retrieval from the root", function() {
                 p_value: "Hello, World!"
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.be("Hello, World!");
         
@@ -1732,11 +1784,9 @@ suite("JSON document retrieval from the root", function() {
                 p_value: "Hello,\n\"World\"!"
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.be("Hello,\n\"World\"!");
         
@@ -1748,11 +1798,9 @@ suite("JSON document retrieval from the root", function() {
                 p_value: 123.456
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.be(123.456);
         
@@ -1764,11 +1812,9 @@ suite("JSON document retrieval from the root", function() {
                 p_value: true
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.be(true);
         
@@ -1778,11 +1824,9 @@ suite("JSON document retrieval from the root", function() {
         
             var valueId = database.call("json_store.create_null");
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.be(null);
         
@@ -1792,11 +1836,9 @@ suite("JSON document retrieval from the root", function() {
         
             var valueId = database.call("json_store.create_null");
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.be(null);
         
@@ -1808,11 +1850,9 @@ suite("JSON document retrieval from the root", function() {
                 p_content: {}
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql({});
         
@@ -1826,11 +1866,9 @@ suite("JSON document retrieval from the root", function() {
                 }
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql({
                 name: "Sergejs"
@@ -1846,11 +1884,9 @@ suite("JSON document retrieval from the root", function() {
                 }
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql({
                 "Hello,\n\"World\"!": "Sergejs"
@@ -1869,11 +1905,9 @@ suite("JSON document retrieval from the root", function() {
                 }
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql({
                 name: "Sergejs",
@@ -1899,11 +1933,9 @@ suite("JSON document retrieval from the root", function() {
                 }
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql({
                 name: "Sergejs",
@@ -1924,11 +1956,9 @@ suite("JSON document retrieval from the root", function() {
                 p_content: []
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql([]);
         
@@ -1940,11 +1970,9 @@ suite("JSON document retrieval from the root", function() {
                 p_content: [123]
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql([123]);
         
@@ -1956,11 +1984,9 @@ suite("JSON document retrieval from the root", function() {
                 p_content: [123, "Hello", true, null]
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql([123, "Hello", true, null]);
         
@@ -1972,11 +1998,9 @@ suite("JSON document retrieval from the root", function() {
                 p_content: [123, ["a", "b"], [null, null, 1, 1]]
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql([123, ["a", "b"], [null, null, 1, 1]]);
         
@@ -1993,11 +2017,9 @@ suite("JSON document retrieval from the root", function() {
                 p_content: array
             });
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: `#${valueId}`
             });
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql(array);
         
@@ -2120,11 +2142,9 @@ suite("JSON document retrieval from the root", function() {
                 }
             });   
 
-            var jsonValue = database.call("json_store.get_json", {
+            var value = database.call("json_store.get_json", {
                 p_path: "$.jodus_me"
             }); 
-
-            var value = JSON.parse(jsonValue);
 
             expect(value).to.eql({
                 name: "Sergejs",
@@ -2201,11 +2221,9 @@ suite("Huge JSON document handling", function() {
 
     test("Retrieve anonymous huge document via the CLOB method", function() {
     
-        var savedDocumentJSON = database.call("json_store.get_json_clob", {
+        var savedDocument = database.call("json_store.get_json_clob", {
             p_path: `#${documentId}`
         });
-
-        var savedDocument = JSON.parse(savedDocumentJSON);
 
         expect(savedDocument).to.eql(document);
     
@@ -2250,9 +2268,9 @@ suite("JSON document modification", function() {
             p_value: "Vinniks"
         });    
 
-        var document = JSON.parse(database.call("json_store.get_json", {
+        var document = database.call("json_store.get_json", {
             p_path: "$.jodus_document"
-        }));
+        });
 
         expect(document).to.eql({
             persons: [
@@ -2280,9 +2298,9 @@ suite("JSON document modification", function() {
             p_content: "Vinnika"
         });    
 
-        var document = JSON.parse(database.call("json_store.get_json", {
+        var document = database.call("json_store.get_json", {
             p_path: "$.jodus_document"
-        }));
+        });
 
         expect(document).to.eql({
             persons: [
@@ -2315,9 +2333,9 @@ suite("JSON document modification", function() {
             }
         });    
 
-        var document = JSON.parse(database.call("json_store.get_json", {
+        var document = database.call("json_store.get_json", {
             p_path: "$.jodus_document"
-        }));
+        });
 
         expect(document).to.eql({
             persons: [
@@ -2355,9 +2373,9 @@ suite("JSON document modification", function() {
             }
         });    
 
-        var document = JSON.parse(database.call("json_store.get_json", {
+        var document = database.call("json_store.get_json", {
             p_path: "$.jodus_document"
-        }));
+        });
 
         expect(document).to.eql({
             persons: [
@@ -2390,7 +2408,6 @@ suite("JSON document modification", function() {
         });
     
     });
-
 
     teardown("Rollback", function() {
         database.rollback();

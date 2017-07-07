@@ -131,6 +131,7 @@ CREATE OR REPLACE PACKAGE json_store IS
     
     FUNCTION get_json_clob
         (p_path IN VARCHAR2)
+    -- @json
     RETURN CLOB;
     
 END;

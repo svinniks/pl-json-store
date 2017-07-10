@@ -1314,6 +1314,9 @@ WHERE 1=1';
             SELECT *
             FROM parent_jsvl;
 
+        v_value VARCHAR2(4000);
+        v_length PLS_INTEGER;
+
         TYPE t_values IS TABLE OF c_values%ROWTYPE;
         v_values t_values;
         c_fetch_limit CONSTANT PLS_INTEGER := 1000;
@@ -1326,11 +1329,10 @@ WHERE 1=1';
         
     BEGIN
       
-        p_json := NULL;
-    
         v_json_stack := t_chars();
         v_element_count_stack := t_numbers(1);
         v_last_lvl := 0;
+        v_length := 0;
     
         OPEN c_values(p_id);
       
@@ -1347,9 +1349,11 @@ WHERE 1=1';
                 FOR v_j IN v_values(v_i).lvl..v_last_lvl LOOP
                   
                     IF v_json_stack(v_json_stack.COUNT) = 'O' THEN
-                        p_json := p_json || '}';    
+                        p_json := p_json || '}';
+                        v_length := v_length + 1;    
                     ELSIF v_json_stack(v_json_stack.COUNT) = 'A' THEN
                         p_json := p_json || ']';
+                        v_length := v_length + 1;
                     END IF;
                     
                     v_json_stack.TRIM(1);   
@@ -1359,16 +1363,25 @@ WHERE 1=1';
             
                 IF v_element_count_stack(v_element_count_stack.COUNT) > 1 THEN
                     p_json := p_json || ',';
+                    v_length := v_length + 1;
                 END IF;
             
                 IF v_values(v_i).name IS NOT NULL 
                    AND v_json_stack.COUNT > 0
                    AND v_json_stack(v_json_stack.COUNT) = 'O' THEN
                    
-                    IF REGEXP_LIKE(LOWER(v_values(v_i).name), '^[a-z][a-z0-9_\&]*$') THEN 
+                    IF REGEXP_LIKE(LOWER(v_values(v_i).name), '^[a-z][a-z0-9_\&]*$') THEN
+                    
                         p_json := p_json || '"' || v_values(v_i).name || '":';
+                        v_length := v_length + 3 + LENGTH(v_values(v_i).name);
+                        
                     ELSE
-                        p_json := p_json || '"' || escape_string(v_values(v_i).name) || '":';
+                    
+                        v_value := escape_string(v_values(v_i).name);
+                        
+                        p_json := p_json || '"' || v_value || '":';
+                        v_length := v_length + LENGTH(v_value);
+                        
                     END IF;
                     
                 END IF;
@@ -1377,27 +1390,35 @@ WHERE 1=1';
                   
                     WHEN 'S' THEN
                       
-                        p_json := p_json || '"' || escape_string(v_values(v_i).value) || '"';
+                        v_value := escape_string(v_values(v_i).value);
+                        
+                        p_json := p_json || '"' || v_value || '"';
+                        v_length := v_length + 2 + LENGTH(v_value);
                         
                     WHEN 'N' THEN
                       
                         p_json := p_json || v_values(v_i).value;
+                        v_length := v_length + 2 + LENGTH(v_values(v_i).value);
                         
                     WHEN 'B' THEN
                       
                         p_json := p_json || v_values(v_i).value;
+                        v_length := v_length + 2 + LENGTH(v_values(v_i).value);
                         
                     WHEN 'E' THEN
                       
                         p_json := p_json || 'null';  
+                        v_length := v_length + 4;
                         
                     WHEN 'O' THEN
                       
                         p_json := p_json || '{';
+                        v_length := v_length + 1;
                         
                     WHEN 'A' THEN
                       
                         p_json := p_json || '[';
+                        v_length := v_length + 1;
                 
                 END CASE;
                 
@@ -1411,9 +1432,13 @@ WHERE 1=1';
                 
                 v_last_lvl := v_values(v_i).lvl;
                 
-                IF p_json_clob IS NOT NULL AND LENGTH(p_json) >= 25000 THEN
+                IF p_json_clob IS NOT NULL AND v_length >= 25000 THEN
+                
                     dbms_lob.append(p_json_clob, p_json);
+                    
                     p_json := NULL;
+                    v_length := 0;
+                    
                 END IF;
             
             END LOOP;
@@ -1434,7 +1459,7 @@ WHERE 1=1';
         
         END LOOP;
         
-        IF p_json_clob IS NOT NULL THEN
+        IF p_json_clob IS NOT NULL AND p_json IS NOT NULL THEN
             dbms_lob.append(p_json_clob, p_json);
             p_json := NULL;
         END IF;

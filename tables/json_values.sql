@@ -12,5 +12,5 @@ CREATE TABLE json_values (
 CREATE INDEX jsvl_i1 ON json_values(parent_id)
 /
 
-CREATE INDEX jsvl_i2 ON json_values(name, parent_id)
+CREATE UNIQUE INDEX jsvl_i2 ON json_values(name, parent_id)
 

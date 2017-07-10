@@ -2164,6 +2164,7 @@ suite("JSON store management tests", function() {
     suite("Huge JSON document handling", function() {
 
         var document;
+        var documentJSON;
         var documentId;
 
         setup("Create a huge array", function() {
@@ -2172,6 +2173,8 @@ suite("JSON store management tests", function() {
 
             for (var i = 0; i < 100000; i++)
                 document[i] = i;
+
+            documentJSON = JSON.stringify(document);
 
         });
 
@@ -2185,6 +2188,14 @@ suite("JSON store management tests", function() {
             
             }).to.throw(/./);
 
+        });
+
+        test("Parse huge document via the CLOB method", function() {
+
+            documentId = database.call2("json_parser.parse", {
+                p_content: documentJSON
+            });
+            
         });
 
         test("Save anonymous huge document via the CLOB method", function() {
@@ -2217,7 +2228,6 @@ suite("JSON store management tests", function() {
         
         });
         
-
         teardown("Rollback", function() {
             database.rollback();
         });
@@ -2350,7 +2360,7 @@ suite("JSON store management tests", function() {
         
         });
 
-        test("Fill a gap between array elements with nulls", function() {
+        test("Fill the gap between array elements with nulls", function() {
         
             database.call("json_store.set_json", {
                 p_path: "$.jodus_document.persons[4]",
@@ -2401,6 +2411,12 @@ suite("JSON store management tests", function() {
             database.rollback();
         });
 
+    });
+
+    suite("JSON value deletion tests", function() {
+    
+        throw "TODO";
+    
     });
 
 });

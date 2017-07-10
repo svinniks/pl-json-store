@@ -12,17 +12,14 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+*/    
 
-DROP PACKAGE json_store
-/
-DROP PACKAGE json_parser
-/
-
-
-DROP TABLE json_values
-/
-
-DROP SEQUENCE jsvl_id
-/
-
+CREATE TABLE json_values (
+    id NUMBER NOT NULL
+   ,parent_id NUMBER
+   ,type CHAR
+   ,name VARCHAR2(4000)
+   ,value VARCHAR2(4000)
+   ,CONSTRAINT jsvl_pk PRIMARY KEY(id)
+   ,CONSTRAINT jsvl_jsvl_fk FOREIGN KEY(parent_id) REFERENCES json_values(id) ON DELETE CASCADE
+)

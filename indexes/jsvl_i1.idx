@@ -14,15 +14,4 @@
     limitations under the License.
 */
 
-DROP PACKAGE json_store
-/
-DROP PACKAGE json_parser
-/
-
-
-DROP TABLE json_values
-/
-
-DROP SEQUENCE jsvl_id
-/
-
+CREATE INDEX jsvl_i1 ON json_values(parent_id)

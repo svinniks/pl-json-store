@@ -26,16 +26,14 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     PROCEDURE register_messages IS
     BEGIN
-        log$.register_message('JDOC-00001', 'Unexpected character ":1"!');
-        log$.register_message('JDOC-00002', 'Unexpected end of the input!');
-        log$.register_message('JDOC-00003', 'Root can''t be modified!');
-        log$.register_message('JDOC-00004', 'Multiple values found at the path :1!');
-        log$.register_message('JDOC-00005', 'Empty path specified!');
-        log$.register_message('JDOC-00006', 'Root requested as a property!');
-        log$.register_message('JDOC-00007', 'No container for property at path :1 could be found!');
-        log$.register_message('JDOC-00008', 'Scalar values and null can''t have properties!');
-        log$.register_message('JDOC-00009', 'Value :1 does not exist!');
-        log$.register_message('JDOC-00010', 'Type conversion error!');
+        log$.register_message('JSON-00003', 'Root can''t be modified!');
+        log$.register_message('JSON-00004', 'Multiple values found at the path :1!');
+        log$.register_message('JSON-00005', 'Empty path specified!');
+        log$.register_message('JSON-00006', 'Root requested as a property!');
+        log$.register_message('JSON-00007', 'No container for property at path :1 could be found!');
+        log$.register_message('JSON-00008', 'Scalar values and null can''t have properties!');
+        log$.register_message('JSON-00009', 'Value :1 does not exist!');
+        log$.register_message('JSON-00010', 'Type conversion error!');
     END;
 
     FUNCTION parse_path
@@ -86,7 +84,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSIF NOT space THEN
 
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JSON-00001', v_char);
 
             END IF;
 
@@ -137,7 +135,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSE
 
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JSON-00001', v_char);
 
             END IF;
 
@@ -154,7 +152,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSE
 
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JSON-00001', v_char);
 
             END IF;
 
@@ -185,7 +183,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSE
 
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JSON-00001', v_char);
 
             END IF;
 
@@ -205,7 +203,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSIF NOT space THEN
 
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JSON-00001', v_char);
 
             END IF;
 
@@ -255,7 +253,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSIF NOT space THEN
 
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JSON-00001', v_char);
 
             END IF;
 
@@ -281,7 +279,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSE
 
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JSON-00001', v_char);
 
             END IF;
 
@@ -325,7 +323,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSIF NOT space THEN
 
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JSON-00001', v_char);
 
             END IF;
 
@@ -369,7 +367,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         ELSIF v_state NOT IN ('lfDot', 'lfRoot') THEN
 
             -- Unexpected end of the input!
-            error$.raise('JDOC-00002');
+            error$.raise('JSON-00002');
 
         END IF;
 
@@ -402,10 +400,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
         IF p_path_elements.COUNT = 0 THEN
             -- Empty path specified!
-            error$.raise('JDOC-00005');
+            error$.raise('JSON-00005');
         ELSIF p_path_elements(p_path_elements.COUNT).type = 'R' THEN
             -- Root requested as a property!
-            error$.raise('JDOC-00006');
+            error$.raise('JSON-00006');
         END IF;
 
         FOR v_i IN 1..p_path_elements.COUNT LOOP
@@ -871,10 +869,10 @@ WHERE 1=1';
 
         IF p_exact AND v_properties.COUNT > 1 THEN
             -- Multiple values found at the path :1!
-            error$.raise('JDOC-00004', p_path);
+            error$.raise('JSON-00004', p_path);
         ELSIF v_properties.COUNT = 0 THEN
             -- No container for property at path :1 could be found!
-            error$.raise('JDOC-00007', p_path);
+            error$.raise('JSON-00007', p_path);
         END IF;
 
         v_existing_ids := t_numbers();
@@ -884,7 +882,7 @@ WHERE 1=1';
 
             IF NVL(v_properties(v_i).parent_type, 'R') NOT IN ('R', 'O', 'A') THEN
                 -- Scalar values and null can't have properties!
-                error$.raise('JDOC-00008');
+                error$.raise('JSON-00008');
             END IF;
 
             IF v_properties(v_i).property_id IS NOT NULL THEN
@@ -1057,7 +1055,7 @@ WHERE 1=1';
 
         IF p_path_elements.COUNT = 0 THEN
             -- Empty path specified!
-            error$.raise('JDOC-00005');
+            error$.raise('JSON-00005');
         END IF;
 
         FOR v_i IN 1..p_path_elements.COUNT LOOP
@@ -1193,10 +1191,10 @@ WHERE 1=1';
         
         IF v_values.COUNT = 0 THEN
             -- Value :1 does not exist!
-            error$.raise('JDOC-00009', p_path);
+            error$.raise('JSON-00009', p_path);
         ELSIF v_values.COUNT > 1 THEN
             -- Multiple values found at the path :1!
-            error$.raise('JDOC-00004', p_path);
+            error$.raise('JSON-00004', p_path);
         END IF;
         
         RETURN v_values(1);
@@ -1217,7 +1215,7 @@ WHERE 1=1';
             RETURN v_value.value;
         ELSE
             -- Type conversion error!
-            error$.raise('JDOC-00010');
+            error$.raise('JSON-00010');
         END IF;
 
     END;
@@ -1243,13 +1241,13 @@ WHERE 1=1';
             EXCEPTION
                 WHEN OTHERS THEN
                     -- Type conversion error!
-                    error$.raise('JDOC-00010');
+                    error$.raise('JSON-00010');
             END;
             
         ELSE
           
             -- Type conversion error!
-            error$.raise('JDOC-00010');
+            error$.raise('JSON-00010');
             
         END IF;
 
@@ -1269,7 +1267,7 @@ WHERE 1=1';
             RETURN v_value.value = 'true';
         ELSE
             -- Type conversion error!
-            error$.raise('JDOC-00010');
+            error$.raise('JSON-00010');
         END IF;
 
     END;

@@ -26,16 +26,16 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     PROCEDURE register_messages IS
     BEGIN
-        log$.register_message('JDOC-00001', 'Unexpected character ":1"!');
-        log$.register_message('JDOC-00002', 'Unexpected end of the input!');
-        log$.register_message('JDOC-00003', 'Root can''t be modified!');
-        log$.register_message('JDOC-00004', 'Multiple values found at the path :1!');
-        log$.register_message('JDOC-00005', 'Empty path specified!');
-        log$.register_message('JDOC-00006', 'Root requested as a property!');
-        log$.register_message('JDOC-00007', 'No container for property at path :1 could be found!');
-        log$.register_message('JDOC-00008', 'Scalar values and null can''t have properties!');
-        log$.register_message('JDOC-00009', 'Value :1 does not exist!');
-        log$.register_message('JDOC-00010', 'Type conversion error!');
+        default_message_resolver.register_message('JDOC-00001', 'Unexpected character ":1"!');
+        default_message_resolver.register_message('JDOC-00002', 'Unexpected end of the input!');
+        default_message_resolver.register_message('JDOC-00003', 'Root can''t be modified!');
+        default_message_resolver.register_message('JDOC-00004', 'Multiple values found at the path :1!');
+        default_message_resolver.register_message('JDOC-00005', 'Empty path specified!');
+        default_message_resolver.register_message('JDOC-00006', 'Root requested as a property!');
+        default_message_resolver.register_message('JDOC-00007', 'No container for property at path :1 could be found!');
+        default_message_resolver.register_message('JDOC-00008', 'Scalar values and null can''t have properties!');
+        default_message_resolver.register_message('JDOC-00009', 'Value :1 does not exist!');
+        default_message_resolver.register_message('JDOC-00010', 'Type conversion error!');
     END;
 
     FUNCTION parse_path

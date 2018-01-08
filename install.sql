@@ -17,6 +17,9 @@
 @@sequences/jsvl_id.seq
 /
 
+@@functions/to_index.fnc
+/
+
 @@tables/json_values.tab
 /
 @@indexes/jsvl_i1.idx
@@ -33,3 +36,4 @@
 /
 @@packages/json_store.pkb
 /
+

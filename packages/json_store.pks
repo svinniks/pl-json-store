@@ -37,7 +37,7 @@ CREATE OR REPLACE PACKAGE json_store IS
         ,value VARCHAR2(4000));
         
     TYPE t_values IS TABLE OF t_value;
-
+   
     FUNCTION parse_path
         (p_path IN VARCHAR2)
     RETURN t_path_elements;
@@ -98,23 +98,41 @@ CREATE OR REPLACE PACKAGE json_store IS
         ,p_value IN VARCHAR2)
     RETURN NUMBER;
     
+    PROCEDURE set_string
+        (p_path IN VARCHAR2
+        ,p_value IN VARCHAR2);
+    
     FUNCTION set_number
         (p_path IN VARCHAR2
         ,p_value IN NUMBER)
     RETURN NUMBER;
+    
+    PROCEDURE set_number
+        (p_path IN VARCHAR2
+        ,p_value IN NUMBER);
     
     FUNCTION set_boolean
         (p_path IN VARCHAR2
         ,p_value IN BOOLEAN)
     RETURN NUMBER;
     
+    PROCEDURE set_boolean
+        (p_path IN VARCHAR2
+        ,p_value IN BOOLEAN);
+    
     FUNCTION set_null
         (p_path IN VARCHAR2)
     RETURN NUMBER;
     
+    PROCEDURE set_null
+        (p_path IN VARCHAR2);
+    
     FUNCTION set_object
         (p_path IN VARCHAR2)
     RETURN NUMBER;
+    
+    PROCEDURE set_object
+        (p_path IN VARCHAR2);
     
     FUNCTION set_array
         (p_path IN VARCHAR2)
@@ -149,6 +167,95 @@ CREATE OR REPLACE PACKAGE json_store IS
         (p_path IN VARCHAR2)
     -- @json
     RETURN CLOB;
+    
+    PROCEDURE apply_json
+        (p_path IN VARCHAR2,
+         -- @json
+         p_content IN VARCHAR2
+        ,p_check_types IN BOOLEAN := FALSE);
+        
+    PROCEDURE apply_json_clob
+        (p_path IN VARCHAR2,
+         -- @json
+         p_content IN VARCHAR2
+        ,p_check_types IN BOOLEAN := FALSE);    
+        
+    FUNCTION get_length
+        (p_path IN VARCHAR2)
+    RETURN NUMBER;
+    
+    FUNCTION push_string
+        (p_path IN VARCHAR2
+        ,p_value IN VARCHAR2)
+    RETURN NUMBER;
+    
+    PROCEDURE push_string
+        (p_path IN VARCHAR2
+        ,p_value IN VARCHAR2);
+   
+    FUNCTION push_number
+        (p_path IN VARCHAR2
+        ,p_value IN NUMBER)
+    RETURN NUMBER;
+    
+    PROCEDURE push_number
+        (p_path IN VARCHAR2
+        ,p_value IN NUMBER);
+    
+    FUNCTION push_boolean
+        (p_path IN VARCHAR2
+        ,p_value IN BOOLEAN)
+    RETURN NUMBER;
+    
+    PROCEDURE push_boolean
+        (p_path IN VARCHAR2
+        ,p_value IN BOOLEAN);
+    
+    FUNCTION push_null
+        (p_path IN VARCHAR2)
+    RETURN NUMBER;
+        
+    PROCEDURE push_null
+        (p_path IN VARCHAR2);
+        
+    FUNCTION push_object
+        (p_path IN VARCHAR2)
+    RETURN NUMBER;
+        
+    PROCEDURE push_object
+        (p_path IN VARCHAR2);
+        
+    FUNCTION push_array
+        (p_path IN VARCHAR2)
+    RETURN NUMBER;
+        
+    PROCEDURE push_array
+        (p_path IN VARCHAR2);
+        
+    FUNCTION push_json
+        (p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2)
+    RETURN NUMBER;
+        
+    PROCEDURE push_json
+        (p_path IN VARCHAR2,
+         -- @json
+         p_content IN VARCHAR2);
+        
+    FUNCTION push_json_clob
+        (p_path IN VARCHAR2,
+         -- @json
+        p_content IN CLOB)
+    RETURN NUMBER;
+        
+    PROCEDURE push_json_clob
+        (p_path IN VARCHAR2,
+         -- @json
+         p_content IN CLOB);
+         
+    PROCEDURE delete_value
+        (p_path IN VARCHAR2);
     
 END;
 /

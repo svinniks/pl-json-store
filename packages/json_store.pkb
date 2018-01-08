@@ -23,7 +23,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     v_property_request_sqls t_varchar_indexed_varchars;
     v_value_request_sqls t_varchar_indexed_varchars;
-
+    
     PROCEDURE register_messages IS
     BEGIN
         default_message_resolver.register_message('JDOC-00001', 'Unexpected character ":1"!');
@@ -36,7 +36,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00008', 'Scalar values and null can''t have properties!');
         default_message_resolver.register_message('JDOC-00009', 'Value :1 does not exist!');
         default_message_resolver.register_message('JDOC-00010', 'Type conversion error!');
+        default_message_resolver.register_message('JDOC-00011', 'Property :1 type mismatch!');
+        default_message_resolver.register_message('JDOC-00012', ':1 is not an array!');
+        default_message_resolver.register_message('JDOC-00013', 'Invalid array element index :1!');
+        default_message_resolver.register_message('JDOC-00014', 'Requested target is not an array!');
     END;
+    
+    FUNCTION get_length
+        (p_array_id IN NUMBER)
+    RETURN NUMBER;
 
     FUNCTION parse_path
         (p_path IN VARCHAR2)
@@ -68,7 +76,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         PROCEDURE lfElement IS
         BEGIN
 
-            IF INSTR('qwertyuioplkjhgfdsazxcvbnm', LOWER(v_char)) > 0 THEN
+            IF INSTR('qwertyuioplkjhgfdsazxcvbnm$_', LOWER(v_char)) > 0 THEN
 
                 v_value := v_char;
                 v_state := 'rName';
@@ -548,12 +556,13 @@ WHERE 1=1';
 
     END;
 
-    FUNCTION create_json
+    PROCEDURE create_json
         (p_parent_ids IN t_numbers
         ,p_name IN VARCHAR2
         ,p_content_parse_events IN json_parser.t_parse_events
-        ,p_id IN NUMBER := NULL)
-    RETURN t_numbers IS
+        ,p_event_i IN OUT NOCOPY PLS_INTEGER
+        ,p_created_ids IN OUT NOCOPY t_numbers
+        ,p_id IN NUMBER := NULL) IS
 
         v_json_values t_json_values;
 
@@ -562,12 +571,10 @@ WHERE 1=1';
 
         v_id_map t_integer_indexed_numbers;
 
-        v_created_ids t_numbers;
-
         FUNCTION next_id
         RETURN NUMBER IS
         BEGIN
-            v_id := v_id - 1;
+            v_id := v_id + 1;
             RETURN v_id;
         END;
 
@@ -578,7 +585,7 @@ WHERE 1=1';
 
         BEGIN
 
-            v_id_count := NVL(v_id_map.FIRST, 0) - v_id;
+            v_id_count := v_id - NVL(v_id_map.LAST, 0);
 
             SELECT jsvl_id.NEXTVAL
             BULK COLLECT INTO v_ids
@@ -586,7 +593,7 @@ WHERE 1=1';
             CONNECT BY LEVEL <= v_id_count;
 
             FOR v_i IN 1..v_ids.COUNT LOOP
-                v_id_map(NVL(v_id_map.FIRST, 0) - 1) := v_ids(v_i);
+                v_id_map(NVL(v_id_map.LAST, 0) + 1) := v_ids(v_i);
             END LOOP;
 
             FOR v_i IN 1..v_json_values.COUNT LOOP
@@ -720,32 +727,52 @@ WHERE 1=1';
         v_json_values := t_json_values();
         v_id := 0;
 
-        v_created_ids := t_numbers();
+        p_created_ids := t_numbers();
 
         FOR v_i IN 1..p_parent_ids.COUNT LOOP
 
-            v_event_i := 1;
+            v_event_i := p_event_i;
 
-            v_created_ids.EXTEND(1);
-            v_created_ids(v_created_ids.COUNT) := create_value(p_parent_ids(v_i), p_name, p_id);
+            p_created_ids.EXTEND(1);
+            p_created_ids(p_created_ids.COUNT) := create_value(p_parent_ids(v_i), p_name, p_id);
 
         END LOOP;
 
         flush_values;
 
-        FOR v_i IN 1..v_created_ids.COUNT LOOP
-            IF v_id_map.EXISTS(v_created_ids(v_i)) THEN
-                v_created_ids(v_i) := v_id_map(v_created_ids(v_i));
+        p_event_i := v_event_i;
+
+        FOR v_i IN 1..p_created_ids.COUNT LOOP
+            IF v_id_map.EXISTS(p_created_ids(v_i)) THEN
+                p_created_ids(v_i) := v_id_map(p_created_ids(v_i));
             END IF;
         END LOOP;
 
-        RETURN v_created_ids;
+    END;
 
+    FUNCTION create_json
+        (p_parent_ids IN t_numbers
+        ,p_name IN VARCHAR2
+        ,p_content_parse_events IN json_parser.t_parse_events
+        ,p_id IN NUMBER := NULL) 
+    RETURN t_numbers IS
+    
+        v_event_i PLS_INTEGER;
+        v_created_ids t_numbers;
+    
+    BEGIN
+    
+        v_event_i := 1;
+        create_json(p_parent_ids, p_name, p_content_parse_events, v_event_i, v_created_ids, p_id);
+        
+        RETURN v_created_ids;
+    
     END;
 
     FUNCTION create_json
         (p_content IN VARCHAR2)
     RETURN NUMBER IS
+        v_created_ids t_numbers;
     BEGIN
         RETURN create_json(t_numbers(NULL), NULL, json_parser.parse(p_content))(1);
     END;
@@ -757,67 +784,79 @@ WHERE 1=1';
         RETURN create_json(t_numbers(NULL), NULL, json_parser.parse(p_content))(1);
     END;
 
-    FUNCTION create_string
+    FUNCTION string_events
         (p_value IN VARCHAR2)
-    RETURN NUMBER IS
-
+    RETURN json_parser.t_parse_events IS
+    
         v_parse_event json_parser.t_parse_event;
-
+    
     BEGIN
-
-        v_parse_event.name := CASE WHEN p_value IS NULL THEN 'NULL' ELSE 'STRING' END;
-        v_parse_event.value := p_value;
-
-        RETURN create_json(t_numbers(NULL), NULL, json_parser.t_parse_events(v_parse_event))(1);
-
+    
+        IF p_value IS NULL THEN
+            v_parse_event.name := 'NULL';
+        ELSE
+            v_parse_event.name := 'STRING';
+            v_parse_event.value := p_value;
+        END IF;
+        
+        RETURN json_parser.t_parse_events(v_parse_event);
+    
     END;
-
-    FUNCTION create_number
+    
+    FUNCTION number_events
         (p_value IN NUMBER)
-    RETURN NUMBER IS
-
+    RETURN json_parser.t_parse_events IS
+    
         v_parse_event json_parser.t_parse_event;
-
+    
     BEGIN
-
-        v_parse_event.name := CASE WHEN p_value IS NULL THEN 'NULL' ELSE 'NUMBER' END;
-        v_parse_event.value := p_value;
-
-        RETURN create_json(t_numbers(NULL), NULL, json_parser.t_parse_events(v_parse_event))(1);
-
+    
+        IF p_value IS NULL THEN
+            v_parse_event.name := 'NULL';
+        ELSE
+            v_parse_event.name := 'NUMBER';
+            v_parse_event.value := p_value;
+        END IF;
+        
+        RETURN json_parser.t_parse_events(v_parse_event);
+    
     END;
-
-    FUNCTION create_boolean
+    
+    FUNCTION boolean_events
         (p_value IN BOOLEAN)
-    RETURN NUMBER IS
-
+    RETURN json_parser.t_parse_events IS
+    
         v_parse_event json_parser.t_parse_event;
-
+    
     BEGIN
-
-        v_parse_event.name := CASE WHEN p_value IS NULL THEN 'NULL' ELSE 'BOOLEAN' END;
-        v_parse_event.value := CASE WHEN p_value THEN 'true' ELSE 'false' END;
-
-        RETURN create_json(t_numbers(NULL), NULL, json_parser.t_parse_events(v_parse_event))(1);
-
+    
+        IF p_value IS NULL THEN
+            v_parse_event.name := 'NULL';
+        ELSE
+            v_parse_event.name := 'BOOLEAN';
+            v_parse_event.value := CASE WHEN p_value THEN 'true' ELSE 'false' END;
+        END IF;
+        
+        RETURN json_parser.t_parse_events(v_parse_event);
+    
     END;
-
-    FUNCTION create_null
-    RETURN NUMBER IS
-
+    
+    FUNCTION null_events
+    RETURN json_parser.t_parse_events IS
+    
         v_parse_event json_parser.t_parse_event;
-
+    
     BEGIN
-
+    
         v_parse_event.name := 'NULL';
-
-        RETURN create_json(t_numbers(NULL), NULL, json_parser.t_parse_events(v_parse_event))(1);
-
+                
+        RETURN json_parser.t_parse_events(v_parse_event);
+    
     END;
-
-    FUNCTION create_object
-    RETURN NUMBER IS
-
+    
+    FUNCTION object_events
+    RETURN json_parser.t_parse_events IS
+    
         v_start_event json_parser.t_parse_event;
         v_end_event json_parser.t_parse_event;
 
@@ -825,14 +864,14 @@ WHERE 1=1';
 
         v_start_event.name := 'START_OBJECT';
         v_end_event.name := 'END_OBJECT';
-
-        RETURN create_json(t_numbers(NULL), NULL, json_parser.t_parse_events(v_start_event, v_end_event))(1);
-
+        
+        RETURN json_parser.t_parse_events(v_start_event, v_end_event);
+        
     END;
-
-    FUNCTION create_array
-    RETURN NUMBER IS
-
+    
+    FUNCTION array_events
+    RETURN json_parser.t_parse_events IS
+    
         v_start_event json_parser.t_parse_event;
         v_end_event json_parser.t_parse_event;
 
@@ -840,8 +879,59 @@ WHERE 1=1';
 
         v_start_event.name := 'START_ARRAY';
         v_end_event.name := 'END_ARRAY';
+        
+        RETURN json_parser.t_parse_events(v_start_event, v_end_event);
+        
+    END;
 
-        RETURN create_json(t_numbers(NULL), NULL, json_parser.t_parse_events(v_start_event, v_end_event))(1);
+    FUNCTION create_string
+        (p_value IN VARCHAR2)
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN create_json(t_numbers(NULL), NULL, string_events(p_value))(1);
+
+    END;
+
+    FUNCTION create_number
+        (p_value IN NUMBER)
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN create_json(t_numbers(NULL), NULL, number_events(p_value))(1);
+
+    END;
+
+    FUNCTION create_boolean
+        (p_value IN BOOLEAN)
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN create_json(t_numbers(NULL), NULL, boolean_events(p_value))(1);
+
+    END;
+
+    FUNCTION create_null
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN create_json(t_numbers(NULL), NULL, null_events)(1);
+
+    END;
+
+    FUNCTION create_object
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN create_json(t_numbers(NULL), NULL, object_events)(1);
+
+    END;
+
+    FUNCTION create_array
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN create_json(t_numbers(NULL), NULL, array_events)(1);
 
     END;
 
@@ -858,6 +948,10 @@ WHERE 1=1';
 
         v_existing_ids t_numbers;
         v_parent_ids t_numbers;
+        
+        v_index NUMBER;
+        v_length NUMBER;
+        v_gap_values t_json_values;
 
     BEGIN
 
@@ -877,7 +971,11 @@ WHERE 1=1';
             error$.raise('JSON-00007', p_path);
         END IF;
 
+        v_index := to_index(v_path_elements(v_path_elements.COUNT).value);
+        
         v_existing_ids := t_numbers();
+        v_gap_values := t_json_values();
+        
         v_parent_ids := t_numbers();
 
         FOR v_i IN 1..v_properties.COUNT LOOP
@@ -894,6 +992,31 @@ WHERE 1=1';
 
             v_parent_ids.EXTEND(1);
             v_parent_ids(v_parent_ids.COUNT) := v_properties(v_i).parent_id;
+            
+            IF v_properties(v_i).parent_type = 'A' THEN
+                
+                IF v_index IS NULL THEN
+                    -- Array element index must be a non-negative integer!
+                    error$.raise('JDOC-00013', v_path_elements(v_path_elements.COUNT).value);
+                END IF;
+                
+                v_length := get_length(v_properties(v_i).parent_id);
+                
+                IF v_index > v_length THEN
+                    
+                    FOR v_j IN v_length..v_index - 1 LOOP
+                    
+                        v_gap_values.EXTEND(1);
+                        
+                        v_gap_values(v_gap_values.COUNT).parent_id := v_properties(v_i).parent_id;
+                        v_gap_values(v_gap_values.COUNT).type := 'E';
+                        v_gap_values(v_gap_values.COUNT).name := v_j;
+                    
+                    END LOOP;
+                
+                END IF;
+            
+            END IF;
 
         END LOOP;
 
@@ -904,10 +1027,21 @@ WHERE 1=1';
                 WHERE id = v_existing_ids(v_i);
 
         END IF;
+        
+        IF v_gap_values.COUNT > 0 THEN
+        
+            FORALL v_i IN 1..v_gap_values.COUNT
+                INSERT INTO json_values(id, parent_id, type, name)
+                VALUES(jsvl_id.NEXTVAL, v_gap_values(v_i).parent_id, 'E', v_gap_values(v_i).name);
+        
+        END IF;
 
         IF v_path_elements(v_path_elements.COUNT).type = 'N' THEN
           
-            RETURN create_json(v_parent_ids, v_path_elements(v_path_elements.COUNT).value, p_content_parse_events);
+            RETURN create_json
+                (v_parent_ids
+                ,v_path_elements(v_path_elements.COUNT).value
+                ,p_content_parse_events);
             
         ELSE
           
@@ -941,15 +1075,21 @@ WHERE 1=1';
         (p_path IN VARCHAR2
         ,p_value IN VARCHAR2)
     RETURN NUMBER IS
-
-        v_parse_event json_parser.t_parse_event;
-
     BEGIN
 
-        v_parse_event.name := 'STRING';
-        v_parse_event.value := p_value;
+        RETURN set_property(p_path, string_events(p_value))(1);
 
-        RETURN set_property(p_path, json_parser.t_parse_events(v_parse_event))(1);
+    END;
+    
+    PROCEDURE set_string
+        (p_path IN VARCHAR2
+        ,p_value IN VARCHAR2) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+
+        v_dummy := set_string(p_path, p_value);
 
     END;
 
@@ -957,15 +1097,21 @@ WHERE 1=1';
         (p_path IN VARCHAR2
         ,p_value IN NUMBER)
     RETURN NUMBER IS
-
-        v_parse_event json_parser.t_parse_event;
-
     BEGIN
 
-        v_parse_event.name := 'NUMBER';
-        v_parse_event.value := p_value;
+        RETURN set_property(p_path, number_events(p_value))(1);
 
-        RETURN set_property(p_path, json_parser.t_parse_events(v_parse_event))(1);
+    END;
+    
+    PROCEDURE set_number
+        (p_path IN VARCHAR2
+        ,p_value IN NUMBER) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+
+        v_dummy := set_number(p_path, p_value);
 
     END;
 
@@ -973,61 +1119,66 @@ WHERE 1=1';
         (p_path IN VARCHAR2
         ,p_value IN BOOLEAN)
     RETURN NUMBER IS
-
-        v_parse_event json_parser.t_parse_event;
-
     BEGIN
 
-        v_parse_event.name := 'BOOLEAN';
-        v_parse_event.value := CASE WHEN p_value THEN 'true' ELSE 'false' END;
+        RETURN set_property(p_path, boolean_events(p_value))(1);
 
-        RETURN set_property(p_path, json_parser.t_parse_events(v_parse_event))(1);
+    END;
+    
+    PROCEDURE set_boolean
+        (p_path IN VARCHAR2
+        ,p_value IN BOOLEAN) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+
+        v_dummy := set_boolean(p_path, p_value);
 
     END;
 
     FUNCTION set_null
         (p_path IN VARCHAR2)
     RETURN NUMBER IS
-
-        v_parse_event json_parser.t_parse_event;
-
     BEGIN
 
-        v_parse_event.name := 'NULL';
+        RETURN set_property(p_path, null_events)(1);
 
-        RETURN set_property(p_path, json_parser.t_parse_events(v_parse_event))(1);
-
+    END;
+    
+    PROCEDURE set_null
+        (p_path IN VARCHAR2) IS
+    
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := set_null(p_path);
     END;
 
     FUNCTION set_object
         (p_path IN VARCHAR2)
     RETURN NUMBER IS
-
-        v_start_event json_parser.t_parse_event;
-        v_end_event json_parser.t_parse_event;
-
     BEGIN
 
-        v_start_event.name := 'START_OBJECT';
-        v_end_event.name := 'END_OBJECT';
+        RETURN set_property(p_path, object_events)(1);
 
-        RETURN set_property(p_path, json_parser.t_parse_events(v_start_event, v_end_event))(1);
-
+    END;
+    
+    PROCEDURE set_object
+        (p_path IN VARCHAR2) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := set_property(p_path, object_events)(1);
     END;
 
     FUNCTION set_array
         (p_path IN VARCHAR2)
     RETURN NUMBER IS
-
-        v_start_event json_parser.t_parse_event;
-        v_end_event json_parser.t_parse_event;
-
     BEGIN
 
-        v_start_event.name := 'START_ARRAY';
-        v_end_event.name := 'END_ARRAY';
-
-        RETURN set_property(p_path, json_parser.t_parse_events(v_start_event, v_end_event))(1);
+        RETURN set_property(p_path, array_events)(1);
 
     END;
     
@@ -1327,7 +1478,10 @@ WHERE 1=1';
                  WHERE jsvl.parent_id = parent_jsvl.id
                  ORDER BY 6)
             SEARCH DEPTH FIRST BY ord SET dummy
-            SELECT *
+            SELECT type
+                  ,name
+                  ,value
+                  ,lvl
             FROM parent_jsvl;
 
         v_value VARCHAR2(4000);
@@ -1517,6 +1671,509 @@ WHERE 1=1';
         serialize_value(v_value.id, v_json, v_json_clob);
         
         RETURN v_json_clob;
+    
+    END;
+    
+    PROCEDURE apply_value
+        (p_value_row IN json_values%ROWTYPE
+        ,p_content_parse_events IN json_parser.t_parse_events
+        ,p_event_i IN OUT NOCOPY PLS_INTEGER
+        ,p_check_types IN BOOLEAN) IS
+        
+        v_event json_parser.t_parse_event;
+        v_created_ids t_numbers;
+        
+        v_child_value_name VARCHAR2(4000);
+        v_child_value_row json_values%ROWTYPE;
+        
+        v_item_i PLS_INTEGER;
+        
+    BEGIN
+    
+        v_event := p_content_parse_events(p_event_i);
+        
+        IF p_value_row.type = 'R' AND v_event.name != 'START_OBJECT' THEN
+        
+            -- Property :1 type mismatch!
+            error$.raise('JDOC-00011', p_value_row.name);
+        
+        ELSIF (p_value_row.type = 'S' AND v_event.name != 'STRING')
+           OR (p_value_row.type = 'N' AND v_event.name != 'NUMBER')
+           OR (p_value_row.type = 'B' AND v_event.name != 'BOOLEAN')
+           OR (p_value_row.type = 'E' AND v_event.name != 'NULL')
+           OR (p_value_row.type = 'O' AND v_event.name != 'START_OBJECT')
+           OR (p_value_row.type = 'A' AND v_event.name != 'START_ARRAY') THEN
+           
+           IF p_check_types AND p_value_row.type != 'E' AND v_event.name != 'NULL' THEN
+               -- Property :1 type mismatch!
+               error$.raise('JDOC-00011', p_value_row.name);
+           END IF;
+           
+           DELETE FROM json_values
+           WHERE id = p_value_row.id;
+        
+           create_json(t_numbers(p_value_row.parent_id), p_value_row.name, p_content_parse_events, p_event_i, v_created_ids);
+        
+        ELSIF p_value_row.type IN ('S', 'N', 'B') AND p_value_row.value != v_event.value THEN
+            
+            UPDATE json_values
+            SET value = v_event.value
+            WHERE id = p_value_row.id;
+        
+        ELSIF p_value_row.type = 'R' THEN
+        
+            p_event_i := p_event_i + 1;
+            
+            WHILE p_content_parse_events(p_event_i).name != 'END_OBJECT' LOOP
+            
+                v_child_value_name := p_content_parse_events(p_event_i).value;
+            
+                BEGIN
+                
+                    SELECT *
+                    INTO v_child_value_row
+                    FROM json_values
+                    WHERE parent_id IS NULL
+                          AND name = v_child_value_name;
+                
+                    p_event_i := p_event_i + 1;
+                    
+                    apply_value(v_child_value_row, p_content_parse_events, p_event_i, p_check_types);               
+                
+                EXCEPTION
+                    WHEN NO_DATA_FOUND THEN
+                    
+                        p_event_i := p_event_i + 1;
+                        
+                        create_json(t_numbers(NULL), v_child_value_name, p_content_parse_events, p_event_i, v_created_ids);
+                
+                END;
+            
+                p_event_i := p_event_i + 1;
+            
+            END LOOP;
+        
+        ELSIF p_value_row.type = 'O' THEN
+        
+            p_event_i := p_event_i + 1;
+            
+            WHILE p_content_parse_events(p_event_i).name != 'END_OBJECT' LOOP
+            
+                v_child_value_name := p_content_parse_events(p_event_i).value;
+            
+                BEGIN
+                
+                    SELECT *
+                    INTO v_child_value_row
+                    FROM json_values
+                    WHERE parent_id = p_value_row.id
+                          AND name = v_child_value_name;
+                
+                    p_event_i := p_event_i + 1;
+                    
+                    apply_value(v_child_value_row, p_content_parse_events, p_event_i, p_check_types);               
+                
+                EXCEPTION
+                    WHEN NO_DATA_FOUND THEN
+                    
+                        p_event_i := p_event_i + 1;
+                        
+                        create_json(t_numbers(p_value_row.id), v_child_value_name, p_content_parse_events, p_event_i, v_created_ids);
+                
+                END;
+            
+                p_event_i := p_event_i + 1;
+            
+            END LOOP;
+        
+        ELSIF p_value_row.type = 'A' THEN
+       
+            v_item_i := 0;
+            p_event_i := p_event_i + 1;
+            
+            WHILE p_content_parse_events(p_event_i).name != 'END_ARRAY' LOOP
+            
+                BEGIN
+                
+                    SELECT *
+                    INTO v_child_value_row
+                    FROM json_values
+                    WHERE parent_id = p_value_row.id
+                          AND name = v_item_i;
+                    
+                    apply_value(v_child_value_row, p_content_parse_events, p_event_i, p_check_types);               
+                
+                EXCEPTION
+                    WHEN NO_DATA_FOUND THEN
+                    
+                        create_json(t_numbers(p_value_row.id), v_item_i, p_content_parse_events, p_event_i, v_created_ids);
+                
+                END;
+            
+                p_event_i := p_event_i + 1;
+                v_item_i := v_item_i + 1;
+            
+            END LOOP;
+    
+        END IF;
+        
+    
+    END;
+    
+    PROCEDURE apply_json
+        (p_path IN VARCHAR2
+        ,p_content_parse_events json_parser.t_parse_events
+        ,p_check_types IN BOOLEAN) IS
+        
+        c_values SYS_REFCURSOR;
+        v_values t_values;
+        
+        v_value_row json_values%ROWTYPE;
+        
+        v_event_i PLS_INTEGER;
+    
+    BEGIN
+
+        request_values(p_path, c_values);
+        
+        FETCH c_values
+        BULK COLLECT INTO v_values;
+        
+        CLOSE c_values;
+        
+        IF v_values.COUNT = 0 THEN
+            -- Value :1 does not exist!
+            error$.raise('JDOC-00009', p_path);
+        END IF;
+        
+        FOR v_i IN 1..v_values.COUNT LOOP
+        
+            IF v_values(v_i).type = 'R' THEN
+            
+                v_value_row := NULL;
+                v_value_row.type := 'R';
+                v_value_row.name := '$';
+                
+            ELSE
+            
+                SELECT *
+                INTO v_value_row
+                FROM json_values
+                WHERE id = v_values(v_i).id;
+                
+            END IF;
+            
+            v_event_i := 1;
+        
+            apply_value(v_value_row, p_content_parse_events, v_event_i, p_check_types);
+            
+        END LOOP;
+    
+    END;
+    
+    PROCEDURE apply_json
+        (p_path IN VARCHAR2,
+         -- @json
+         p_content IN VARCHAR2
+        ,p_check_types IN BOOLEAN := FALSE) IS
+    BEGIN
+        apply_json(p_path, json_parser.parse(p_content), p_check_types);
+    END;
+        
+    PROCEDURE apply_json_clob
+        (p_path IN VARCHAR2,
+         -- @json
+         p_content IN VARCHAR2
+        ,p_check_types IN BOOLEAN := FALSE) IS
+    BEGIN
+        apply_json(p_path, json_parser.parse(p_content), p_check_types);
+    END;
+    
+    FUNCTION get_length
+        (p_array_id IN NUMBER)
+    RETURN NUMBER IS
+    
+        v_length NUMBER;
+    
+    BEGIN
+    
+        SELECT MAX(to_index(name))
+        INTO v_length
+        FROM json_values
+        WHERE parent_id = p_array_id;
+        
+        RETURN v_length + 1;
+    
+    END; 
+        
+    
+    FUNCTION get_length
+        (p_path IN VARCHAR2)
+    RETURN NUMBER IS
+    
+        v_array t_value;
+                
+    BEGIN
+    
+        v_array := request_value(p_path);
+        
+        IF v_array.type != 'A' THEN
+            -- :1 is not an array!
+            error$.raise('JDOC-00012', p_path);
+        END IF;
+        
+        RETURN get_length(v_array.id);
+    
+    END;
+    
+    
+    FUNCTION push_property
+        (p_path IN VARCHAR2
+        ,p_content_parse_events IN json_parser.t_parse_events
+        ,p_exact IN BOOLEAN := TRUE)
+    RETURN t_numbers IS
+    
+        c_values SYS_REFCURSOR;
+        v_values t_values;
+        
+        v_ids t_numbers;
+        v_all_ids t_numbers;
+    
+    BEGIN
+    
+        request_values(p_path, c_values);
+    
+        FETCH c_values
+        BULK COLLECT INTO v_values;
+        
+        CLOSE c_values;
+        
+        IF p_exact AND v_values.COUNT > 1 THEN
+            -- Multiple values found at the path :1!
+            error$.raise('JDOC-00004', p_path);
+        ELSIF v_values.COUNT = 0 THEN
+            -- Value :1 does not exist
+            error$.raise('JDOC-00009', p_path);
+        END IF;
+    
+        v_all_ids := t_numbers();
+        
+        FOR v_i IN 1..v_values.COUNT LOOP
+            
+            IF v_values(v_i).type != 'A' THEN
+                -- Requested target is not an array!
+                error$.raise('JDOC-00014');
+            END IF;
+            
+            v_ids := create_json(
+                t_numbers(v_values(v_i).id)
+               ,get_length(v_values(v_i).id) 
+               ,p_content_parse_events);
+            
+            FOR v_i IN 1..v_ids.COUNT LOOP
+                v_all_ids.EXTEND(1);
+                v_all_ids(v_all_ids.COUNT) := v_ids(v_i);
+            END LOOP;
+        
+        END LOOP;
+    
+        RETURN v_all_ids;
+        
+    END;
+    
+    FUNCTION push_string
+        (p_path IN VARCHAR2
+        ,p_value IN VARCHAR2)
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN push_property(p_path, string_events(p_value))(1);
+
+    END;
+    
+    PROCEDURE push_string
+        (p_path IN VARCHAR2
+        ,p_value IN VARCHAR2) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := push_string(p_path, p_value);
+    END;
+   
+    FUNCTION push_number
+        (p_path IN VARCHAR2
+        ,p_value IN NUMBER)
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN push_property(p_path, number_events(p_value))(1);
+
+    END;
+    
+    PROCEDURE push_number
+        (p_path IN VARCHAR2
+        ,p_value IN NUMBER) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := push_number(p_path, p_value);
+    END;
+    
+    FUNCTION push_boolean
+        (p_path IN VARCHAR2
+        ,p_value IN BOOLEAN)
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN push_property(p_path, boolean_events(p_value))(1);
+
+    END;
+    
+    PROCEDURE push_boolean
+        (p_path IN VARCHAR2
+        ,p_value IN BOOLEAN) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := push_boolean(p_path, p_value);
+    END;
+    
+    FUNCTION push_null
+        (p_path IN VARCHAR2)
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN push_property(p_path, null_events)(1);
+
+    END;
+        
+    PROCEDURE push_null
+        (p_path IN VARCHAR2) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := push_null(p_path);
+    END;
+    
+    FUNCTION push_object
+        (p_path IN VARCHAR2)
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN push_property(p_path, object_events)(1);
+
+    END;
+        
+    PROCEDURE push_object
+        (p_path IN VARCHAR2) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := push_object(p_path);
+    END;
+        
+    FUNCTION push_array
+        (p_path IN VARCHAR2)
+    RETURN NUMBER IS
+    BEGIN
+
+        RETURN push_property(p_path, array_events)(1);
+
+    END;
+        
+    PROCEDURE push_array
+        (p_path IN VARCHAR2) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := push_array(p_path);
+    END;
+        
+    FUNCTION push_json
+        (p_path IN VARCHAR2
+        ,p_content IN VARCHAR2)
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN push_property(p_path, json_parser.parse(p_content))(1);
+    
+    END;
+        
+    PROCEDURE push_json
+        (p_path IN VARCHAR2
+        ,p_content IN VARCHAR2) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := push_json(p_path, p_content);
+    END;
+        
+    FUNCTION push_json_clob
+        (p_path IN VARCHAR2
+        ,p_content IN CLOB)
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN push_property(p_path, json_parser.parse(p_content))(1);
+    
+    END;
+        
+    PROCEDURE push_json_clob
+        (p_path IN VARCHAR2
+        ,p_content IN CLOB) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := push_json(p_path, p_content);
+    END;
+    
+    PROCEDURE delete_value
+        (p_path IN VARCHAR2) IS
+        
+        c_properties SYS_REFCURSOR;
+        v_properties t_properties;
+        
+        v_value t_value;
+        
+    BEGIN
+    
+        request_properties(p_path, c_properties);
+        
+        FETCH c_properties
+        BULK COLLECT INTO v_properties;
+        
+        CLOSE c_properties;
+        
+        IF v_properties.COUNT > 1 THEN
+            -- Multiple values found at the path :1!
+            error$.raise('JDOC-00004', p_path);
+        ELSIF v_properties.COUNT = 0 OR v_properties(v_properties.COUNT).property_id IS NULL THEN
+            -- Value :1 does not exist!
+            error$.raise('JDOC-00009', p_path);
+        END IF;
+        
+        FOR v_i IN 1..v_properties.COUNT LOOP
+            
+            DELETE FROM json_values
+            WHERE id = v_properties(v_i).property_id;
+        
+            IF v_properties(v_i).parent_type = 'A' THEN
+            
+                INSERT INTO json_values(id, parent_id, type, name)
+                VALUES(jsvl_id.NEXTVAL, v_properties(v_i).parent_id, 'E', v_properties(v_i).property_name);
+            
+            END IF;
+        
+        END LOOP;
+
     
     END;
 

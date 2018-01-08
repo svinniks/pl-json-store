@@ -20,8 +20,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
 
     PROCEDURE register_messages IS
     BEGIN
-        log$.register_message('JSON-00001', 'Unexpected character ":1"!');
-        log$.register_message('JSON-00002', 'Unexpected end of the input!');
+        default_message_resolver.register_message('JSON-00001', 'Unexpected character ":1"!');
+        default_message_resolver.register_message('JSON-00002', 'Unexpected end of the input!');
     END;
 
     FUNCTION parse

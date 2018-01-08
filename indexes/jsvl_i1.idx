@@ -14,4 +14,4 @@
     limitations under the License.
 */
 
-CREATE INDEX jsvl_i1 ON json_values(parent_id)
+CREATE INDEX jsvl_i1 ON json_values(parent_id, to_index(name))

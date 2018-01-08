@@ -19,8 +19,10 @@ DROP PACKAGE json_store
 DROP PACKAGE json_parser
 /
 
-
 DROP TABLE json_values
+/
+
+DROP FUNCTION to_index
 /
 
 DROP SEQUENCE jsvl_id

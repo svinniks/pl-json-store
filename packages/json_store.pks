@@ -258,4 +258,3 @@ CREATE OR REPLACE PACKAGE json_store IS
         (p_path IN VARCHAR2);
     
 END;
-/

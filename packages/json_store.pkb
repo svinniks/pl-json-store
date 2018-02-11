@@ -2180,4 +2180,3 @@ WHERE 1=1';
 BEGIN
     register_messages;
 END;
-/

@@ -574,7 +574,8 @@ WHERE 1=1';
         FUNCTION next_id
         RETURN NUMBER IS
         BEGIN
-            v_id := v_id + 1;
+            -- Local "artifitial" identifiers must be negative to not overlap with the existing ones!
+            v_id := v_id - 1;
             RETURN v_id;
         END;
 
@@ -585,7 +586,7 @@ WHERE 1=1';
 
         BEGIN
 
-            v_id_count := v_id - NVL(v_id_map.LAST, 0);
+            v_id_count := NVL(v_id_map.FIRST, 0) - v_id;
 
             SELECT jsvl_id.NEXTVAL
             BULK COLLECT INTO v_ids
@@ -593,7 +594,7 @@ WHERE 1=1';
             CONNECT BY LEVEL <= v_id_count;
 
             FOR v_i IN 1..v_ids.COUNT LOOP
-                v_id_map(NVL(v_id_map.LAST, 0) + 1) := v_ids(v_i);
+                v_id_map(NVL(v_id_map.FIRST, 0) - 1) := v_ids(v_i);
             END LOOP;
 
             FOR v_i IN 1..v_json_values.COUNT LOOP

@@ -87,11 +87,21 @@ CREATE OR REPLACE PACKAGE json_store IS
          p_content IN VARCHAR2)
     RETURN NUMBER;
     
+    PROCEDURE set_json
+        (p_path IN VARCHAR2
+        ,-- @json
+         p_content IN VARCHAR2);
+    
     FUNCTION set_json_clob
         (p_path IN VARCHAR2
         ,-- @json
          p_content IN CLOB)
     RETURN NUMBER;
+    
+    PROCEDURE set_json_clob
+        (p_path IN VARCHAR2
+        ,-- @json
+         p_content IN CLOB);
     
     FUNCTION set_string
         (p_path IN VARCHAR2

@@ -1064,12 +1064,36 @@ WHERE 1=1';
         RETURN set_property(p_path, json_parser.parse(p_content))(1);
     END;
     
+    PROCEDURE set_json
+        (p_path IN VARCHAR2
+        ,p_content IN VARCHAR2) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+    
+        v_dummy := set_json(p_path, p_content);
+    
+    END;
+    
     FUNCTION set_json_clob
         (p_path IN VARCHAR2
         ,p_content IN CLOB)
     RETURN NUMBER IS
     BEGIN
         RETURN set_property(p_path, json_parser.parse(p_content))(1);
+    END;
+
+    PROCEDURE set_json_clob
+        (p_path IN VARCHAR2
+        ,p_content IN CLOB) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+    
+        v_dummy := set_json_clob(p_path, p_content); 
+    
     END;
 
     FUNCTION set_string

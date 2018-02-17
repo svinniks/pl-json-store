@@ -2234,6 +2234,438 @@ WHERE 1=1';
         RETURN v_events;
     
     END;
+    
+    PROCEDURE get_json_table
+        (p_paths IN t_varchars
+        ,p_rows IN OUT NOCOPY t_t_varchars) IS
+    BEGIN
+    
+        p_rows := t_t_varchars();
+    
+    END;
+    
+    FUNCTION get_json_table
+        (p_paths IN t_varchars)
+    RETURN t_t_varchars PIPELINED IS
+    
+        v_rows t_t_varchars;
+    
+    BEGIN
+    
+        get_json_table(p_paths, v_rows);
+    
+        FOR v_i IN 1..v_rows.COUNT LOOP
+            PIPE ROW(v_rows(v_i));
+        END LOOP;
+        
+        RETURN;
+    
+    END;     
+
+    FUNCTION get_json_table
+        (p_path IN VARCHAR2)
+    RETURN t_varchars PIPELINED IS
+    
+        v_rows t_t_varchars;
+    
+    BEGIN
+    
+        get_json_table(t_varchars(p_path), v_rows);
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+            PIPE ROW(v_rows(v_i)(1));
+        END LOOP;
+        
+        RETURN;
+    
+    END;
+    
+    FUNCTION get_json_table
+        (p_path_1 IN VARCHAR2
+        ,p_path_2 IN VARCHAR2)
+    RETURN t_json_table_2 PIPELINED IS
+    
+        v_rows t_t_varchars;
+        v_row t_json_table_row_2;
+    
+    BEGIN
+    
+        get_json_table(
+            t_varchars(
+                p_path_1
+               ,p_path_2
+            )
+           ,v_rows
+        );
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+        
+            v_row.column_1_value := v_rows(v_i)(1); 
+            v_row.column_2_value := v_rows(v_i)(2);
+        
+            PIPE ROW(v_row);
+            
+        END LOOP;
+        
+        RETURN;
+    
+    END;
+    
+    FUNCTION get_json_table
+        (p_path_1 IN VARCHAR2
+        ,p_path_2 IN VARCHAR2
+        ,p_path_3 IN VARCHAR2)
+    RETURN t_json_table_3 PIPELINED IS
+    
+        v_rows t_t_varchars;
+        v_row t_json_table_row_3;
+    
+    BEGIN
+    
+        get_json_table(
+            t_varchars(
+                p_path_1
+               ,p_path_2
+               ,p_path_3
+            )
+           ,v_rows
+        );
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+        
+            v_row.column_1_value := v_rows(v_i)(1); 
+            v_row.column_2_value := v_rows(v_i)(2);
+            v_row.column_3_value := v_rows(v_i)(3);
+        
+            PIPE ROW(v_row);
+            
+        END LOOP;
+        
+        RETURN;
+    
+    END;
+    
+    FUNCTION get_json_table
+        (p_path_1 IN VARCHAR2
+        ,p_path_2 IN VARCHAR2
+        ,p_path_3 IN VARCHAR2
+        ,p_path_4 IN VARCHAR2)
+    RETURN t_json_table_4 PIPELINED IS
+    
+        v_rows t_t_varchars;
+        v_row t_json_table_row_4;
+    
+    BEGIN
+    
+        get_json_table(
+            t_varchars(
+                p_path_1
+               ,p_path_2
+               ,p_path_3
+               ,p_path_4
+            )
+           ,v_rows
+        );
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+        
+            v_row.column_1_value := v_rows(v_i)(1); 
+            v_row.column_2_value := v_rows(v_i)(2);
+            v_row.column_3_value := v_rows(v_i)(3);
+            v_row.column_4_value := v_rows(v_i)(4);
+        
+            PIPE ROW(v_row);
+            
+        END LOOP;
+        
+        RETURN;
+    
+    END;
+    
+    FUNCTION get_json_table
+        (p_path_1 IN VARCHAR2
+        ,p_path_2 IN VARCHAR2
+        ,p_path_3 IN VARCHAR2
+        ,p_path_4 IN VARCHAR2
+        ,p_path_5 IN VARCHAR2)
+    RETURN t_json_table_5 PIPELINED IS
+    
+        v_rows t_t_varchars;
+        v_row t_json_table_row_5;
+    
+    BEGIN
+    
+        get_json_table(
+            t_varchars(
+                p_path_1
+               ,p_path_2
+               ,p_path_3
+               ,p_path_4
+               ,p_path_5
+            )
+           ,v_rows
+        );
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+        
+            v_row.column_1_value := v_rows(v_i)(1); 
+            v_row.column_2_value := v_rows(v_i)(2);
+            v_row.column_3_value := v_rows(v_i)(3);
+            v_row.column_4_value := v_rows(v_i)(4);
+            v_row.column_5_value := v_rows(v_i)(5);
+        
+            PIPE ROW(v_row);
+            
+        END LOOP;
+        
+        RETURN;
+    
+    END;
+    
+    FUNCTION get_json_table
+        (p_path_1 IN VARCHAR2
+        ,p_path_2 IN VARCHAR2
+        ,p_path_3 IN VARCHAR2
+        ,p_path_4 IN VARCHAR2
+        ,p_path_5 IN VARCHAR2
+        ,p_path_6 IN VARCHAR2)
+    RETURN t_json_table_6 PIPELINED IS
+    
+        v_rows t_t_varchars;
+        v_row t_json_table_row_6;
+    
+    BEGIN
+    
+        get_json_table(
+            t_varchars(
+                p_path_1
+               ,p_path_2
+               ,p_path_3
+               ,p_path_4
+               ,p_path_5
+               ,p_path_6
+            )
+           ,v_rows
+        );
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+        
+            v_row.column_1_value := v_rows(v_i)(1); 
+            v_row.column_2_value := v_rows(v_i)(2);
+            v_row.column_3_value := v_rows(v_i)(3);
+            v_row.column_4_value := v_rows(v_i)(4);
+            v_row.column_5_value := v_rows(v_i)(5);
+            v_row.column_6_value := v_rows(v_i)(6);
+        
+            PIPE ROW(v_row);
+            
+        END LOOP;
+        
+        RETURN;
+    
+    END;
+    
+    FUNCTION get_json_table
+        (p_path_1 IN VARCHAR2
+        ,p_path_2 IN VARCHAR2
+        ,p_path_3 IN VARCHAR2
+        ,p_path_4 IN VARCHAR2
+        ,p_path_5 IN VARCHAR2
+        ,p_path_6 IN VARCHAR2
+        ,p_path_7 IN VARCHAR2)
+    RETURN t_json_table_7 PIPELINED IS
+    
+        v_rows t_t_varchars;
+        v_row t_json_table_row_7;
+    
+    BEGIN
+    
+        get_json_table(
+            t_varchars(
+                p_path_1
+               ,p_path_2
+               ,p_path_3
+               ,p_path_4
+               ,p_path_5
+               ,p_path_6
+               ,p_path_7
+            )
+           ,v_rows
+        );
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+        
+            v_row.column_1_value := v_rows(v_i)(1); 
+            v_row.column_2_value := v_rows(v_i)(2);
+            v_row.column_3_value := v_rows(v_i)(3);
+            v_row.column_4_value := v_rows(v_i)(4);
+            v_row.column_5_value := v_rows(v_i)(5);
+            v_row.column_6_value := v_rows(v_i)(6);
+            v_row.column_7_value := v_rows(v_i)(7);
+        
+            PIPE ROW(v_row);
+            
+        END LOOP;
+        
+        RETURN;
+        
+    END;
+    
+    FUNCTION get_json_table
+        (p_path_1 IN VARCHAR2
+        ,p_path_2 IN VARCHAR2
+        ,p_path_3 IN VARCHAR2
+        ,p_path_4 IN VARCHAR2
+        ,p_path_5 IN VARCHAR2
+        ,p_path_6 IN VARCHAR2
+        ,p_path_7 IN VARCHAR2
+        ,p_path_8 IN VARCHAR2)
+    RETURN t_json_table_8 PIPELINED IS
+    
+        v_rows t_t_varchars;
+        v_row t_json_table_row_8;
+    
+    BEGIN
+    
+        get_json_table(
+            t_varchars(
+                p_path_1
+               ,p_path_2
+               ,p_path_3
+               ,p_path_4
+               ,p_path_5
+               ,p_path_6
+               ,p_path_7
+               ,p_path_8
+            )
+           ,v_rows
+        );
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+        
+            v_row.column_1_value := v_rows(v_i)(1); 
+            v_row.column_2_value := v_rows(v_i)(2);
+            v_row.column_3_value := v_rows(v_i)(3);
+            v_row.column_4_value := v_rows(v_i)(4);
+            v_row.column_5_value := v_rows(v_i)(5);
+            v_row.column_6_value := v_rows(v_i)(6);
+            v_row.column_7_value := v_rows(v_i)(7);
+            v_row.column_8_value := v_rows(v_i)(8);
+        
+            PIPE ROW(v_row);
+            
+        END LOOP;
+        
+        RETURN;
+        
+    END;
+    
+    FUNCTION get_json_table
+        (p_path_1 IN VARCHAR2
+        ,p_path_2 IN VARCHAR2
+        ,p_path_3 IN VARCHAR2
+        ,p_path_4 IN VARCHAR2
+        ,p_path_5 IN VARCHAR2
+        ,p_path_6 IN VARCHAR2
+        ,p_path_7 IN VARCHAR2
+        ,p_path_8 IN VARCHAR2
+        ,p_path_9 IN VARCHAR2)
+    RETURN t_json_table_9 PIPELINED IS
+    
+        v_rows t_t_varchars;
+        v_row t_json_table_row_9;
+    
+    BEGIN
+    
+        get_json_table(
+            t_varchars(
+                p_path_1
+               ,p_path_2
+               ,p_path_3
+               ,p_path_4
+               ,p_path_5
+               ,p_path_6
+               ,p_path_7
+               ,p_path_8
+               ,p_path_9
+            )
+           ,v_rows
+        );
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+        
+            v_row.column_1_value := v_rows(v_i)(1); 
+            v_row.column_2_value := v_rows(v_i)(2);
+            v_row.column_3_value := v_rows(v_i)(3);
+            v_row.column_4_value := v_rows(v_i)(4);
+            v_row.column_5_value := v_rows(v_i)(5);
+            v_row.column_6_value := v_rows(v_i)(6);
+            v_row.column_7_value := v_rows(v_i)(7);
+            v_row.column_8_value := v_rows(v_i)(8);
+            v_row.column_9_value := v_rows(v_i)(9);
+        
+            PIPE ROW(v_row);
+            
+        END LOOP;
+        
+        RETURN;
+        
+    END;
+    
+    FUNCTION get_json_table
+        (p_path_1 IN VARCHAR2
+        ,p_path_2 IN VARCHAR2
+        ,p_path_3 IN VARCHAR2
+        ,p_path_4 IN VARCHAR2
+        ,p_path_5 IN VARCHAR2
+        ,p_path_6 IN VARCHAR2
+        ,p_path_7 IN VARCHAR2
+        ,p_path_8 IN VARCHAR2
+        ,p_path_9 IN VARCHAR2
+        ,p_path_10 IN VARCHAR2)
+    RETURN t_json_table_10 PIPELINED IS
+    
+        v_rows t_t_varchars;
+        v_row t_json_table_row_10;
+    
+    BEGIN
+    
+        get_json_table(
+            t_varchars(
+                p_path_1
+               ,p_path_2
+               ,p_path_3
+               ,p_path_4
+               ,p_path_5
+               ,p_path_6
+               ,p_path_7
+               ,p_path_8
+               ,p_path_9
+               ,p_path_10
+            )
+           ,v_rows
+        );
+        
+        FOR v_i IN 1..v_rows.COUNT LOOP
+        
+            v_row.column_1_value := v_rows(v_i)(1); 
+            v_row.column_2_value := v_rows(v_i)(2);
+            v_row.column_3_value := v_rows(v_i)(3);
+            v_row.column_4_value := v_rows(v_i)(4);
+            v_row.column_5_value := v_rows(v_i)(5);
+            v_row.column_6_value := v_rows(v_i)(6);
+            v_row.column_7_value := v_rows(v_i)(7);
+            v_row.column_8_value := v_rows(v_i)(8);
+            v_row.column_9_value := v_rows(v_i)(9);
+            v_row.column_10_value := v_rows(v_i)(10);
+        
+            PIPE ROW(v_row);
+            
+        END LOOP;
+        
+        RETURN;
+        
+    END;
 
 BEGIN
     register_messages;

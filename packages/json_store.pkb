@@ -1472,185 +1472,99 @@ WHERE 1=1';
     END;
     
     PROCEDURE serialize_value
-        (p_id IN NUMBER
+        (p_parse_events IN json_parser.t_parse_events
         ,p_json IN OUT NOCOPY VARCHAR2
         ,p_json_clob IN OUT NOCOPY CLOB) IS
         
-        CURSOR c_values (p_root_id IN NUMBER) IS
-            WITH parent_jsvl(id, type, name, value, lvl, ord) AS
-                (SELECT id
-                       ,type
-                       ,name
-                       ,value
-                       ,1 AS lvl
-                       ,0
-                 FROM json_values
-                 WHERE id = p_root_id
-                 UNION ALL
-                 SELECT jsvl.id
-                       ,jsvl.type
-                       ,jsvl.name
-                       ,jsvl.value
-                       ,parent_jsvl.lvl + 1
-                       ,CASE parent_jsvl.type
-                            WHEN 'A' THEN
-                                TO_NUMBER(jsvl.name)
-                            ELSE
-                                jsvl.id
-                        END
-                 FROM parent_jsvl
-                     ,json_values jsvl
-                 WHERE jsvl.parent_id = parent_jsvl.id
-                 ORDER BY 6)
-            SEARCH DEPTH FIRST BY ord SET dummy
-            SELECT type
-                  ,name
-                  ,value
-                  ,lvl
-            FROM parent_jsvl;
-
         v_value VARCHAR2(4000);
         v_length PLS_INTEGER;
 
-        TYPE t_values IS TABLE OF c_values%ROWTYPE;
-        v_values t_values;
-        c_fetch_limit CONSTANT PLS_INTEGER := 1000;
-        
-        TYPE t_chars IS TABLE OF CHAR;
-        v_json_stack t_chars;
-        v_element_count_stack t_numbers;
-        
-        v_last_lvl PLS_INTEGER;
-        
+        TYPE t_booleans IS TABLE OF BOOLEAN;
+        v_comma_stack t_booleans;
+                
     BEGIN
       
-        v_json_stack := t_chars();
-        v_element_count_stack := t_numbers(1);
-        v_last_lvl := 0;
+        v_comma_stack := t_booleans(FALSE);
         v_length := 0;
-    
-        OPEN c_values(p_id);
-      
-        LOOP
+
+        FOR v_i IN 1..p_parse_events.COUNT LOOP
         
-            v_values := t_values();
-            
-            FETCH c_values
-            BULK COLLECT INTO v_values
-            LIMIT c_fetch_limit;
-            
-            FOR v_i IN 1..v_values.COUNT LOOP
+            IF p_parse_events(v_i).name IN ('END_OBJECT', 'END_ARRAY') THEN
+               
+                p_json := p_json || CASE p_parse_events(v_i).name WHEN 'END_OBJECT' THEN '}' ELSE ']' END;
                 
-                FOR v_j IN v_values(v_i).lvl..v_last_lvl LOOP
-                  
-                    IF v_json_stack(v_json_stack.COUNT) = 'O' THEN
-                        p_json := p_json || '}';
-                        v_length := v_length + 1;    
-                    ELSIF v_json_stack(v_json_stack.COUNT) = 'A' THEN
-                        p_json := p_json || ']';
-                        v_length := v_length + 1;
-                    END IF;
-                    
-                    v_json_stack.TRIM(1);   
-                    v_element_count_stack.TRIM(1);   
-                    
-                END LOOP;
+                v_length := v_length + 1;
+                v_comma_stack.TRIM(1);
+                
+            ELSE
             
-                IF v_element_count_stack(v_element_count_stack.COUNT) > 1 THEN
+                IF v_comma_stack(v_comma_stack.COUNT) THEN
                     p_json := p_json || ',';
                     v_length := v_length + 1;
                 END IF;
+                
+                v_comma_stack(v_comma_stack.COUNT) := TRUE;
             
-                IF v_values(v_i).name IS NOT NULL 
-                   AND v_json_stack.COUNT > 0
-                   AND v_json_stack(v_json_stack.COUNT) = 'O' THEN
-                   
-                    IF REGEXP_LIKE(LOWER(v_values(v_i).name), '^[a-z][a-z0-9_\&]*$') THEN
+                IF p_parse_events(v_i).name IN ('START_OBJECT', 'START_ARRAY') THEN
+                
+                    p_json:= p_json || CASE p_parse_events(v_i).name WHEN 'START_OBJECT' THEN '{' ELSE '[' END;
+                
+                    v_length := v_length + 1;
+                                        
+                    v_comma_stack.EXTEND(1);
+                    v_comma_stack(v_comma_stack.COUNT) := FALSE;
+                
+                ELSE
+                
+                    CASE p_parse_events(v_i).name
                     
-                        p_json := p_json || '"' || v_values(v_i).name || '":';
-                        v_length := v_length + 3 + LENGTH(v_values(v_i).name);
+                        WHEN 'NAME' THEN
                         
-                    ELSE
+                            v_value := escape_string(p_parse_events(v_i).value);
+                        
+                            p_json := p_json || '"' || v_value || '":';
+                            v_length := v_length + 3 + LENGTH(v_value);
+                            
+                            v_comma_stack(v_comma_stack.COUNT) := FALSE;
+                            
+                        WHEN 'STRING' THEN
+                      
+                            v_value := escape_string(p_parse_events(v_i).value);
+                                
+                            p_json := p_json || '"' || v_value || '"';
+                            v_length := v_length + 2 + LENGTH(v_value);
+                                
+                        WHEN 'NUMBER' THEN
+                              
+                            p_json := p_json || p_parse_events(v_i).value;
+                            v_length := v_length + 2 + LENGTH(p_parse_events(v_i).value);
+                                
+                        WHEN 'BOOLEAN' THEN
+                              
+                            p_json := p_json || p_parse_events(v_i).value;
+                            v_length := v_length + LENGTH(p_parse_events(v_i).value);
+                                
+                        WHEN 'NULL' THEN
+                              
+                            p_json := p_json || 'null';  
+                            v_length := v_length + 4;
                     
-                        v_value := escape_string(v_values(v_i).name);
-                        
-                        p_json := p_json || '"' || v_value || '":';
-                        v_length := v_length + LENGTH(v_value);
-                        
-                    END IF;
-                    
+                    END CASE;
+                
                 END IF;
+                
+            END IF;
             
-                CASE v_values(v_i).type
-                  
-                    WHEN 'S' THEN
-                      
-                        v_value := escape_string(v_values(v_i).value);
-                        
-                        p_json := p_json || '"' || v_value || '"';
-                        v_length := v_length + 2 + LENGTH(v_value);
-                        
-                    WHEN 'N' THEN
-                      
-                        p_json := p_json || v_values(v_i).value;
-                        v_length := v_length + 2 + LENGTH(v_values(v_i).value);
-                        
-                    WHEN 'B' THEN
-                      
-                        p_json := p_json || v_values(v_i).value;
-                        v_length := v_length + 2 + LENGTH(v_values(v_i).value);
-                        
-                    WHEN 'E' THEN
-                      
-                        p_json := p_json || 'null';  
-                        v_length := v_length + 4;
-                        
-                    WHEN 'O' THEN
-                      
-                        p_json := p_json || '{';
-                        v_length := v_length + 1;
-                        
-                    WHEN 'A' THEN
-                      
-                        p_json := p_json || '[';
-                        v_length := v_length + 1;
+            
+            IF p_json_clob IS NOT NULL AND v_length >= 25000 THEN
                 
-                END CASE;
-                
-                v_element_count_stack(v_element_count_stack.COUNT) := v_element_count_stack(v_element_count_stack.COUNT) + 1;
-                
-                v_json_stack.EXTEND(1);
-                v_json_stack(v_json_stack.COUNT) := v_values(v_i).type;
-                
-                v_element_count_stack.EXTEND(1);
-                v_element_count_stack(v_element_count_stack.COUNT) := 1;
-                
-                v_last_lvl := v_values(v_i).lvl;
-                
-                IF p_json_clob IS NOT NULL AND v_length >= 25000 THEN
-                
-                    dbms_lob.append(p_json_clob, p_json);
+                dbms_lob.append(p_json_clob, p_json);
                     
-                    p_json := NULL;
-                    v_length := 0;
+                p_json := NULL;
+                v_length := 0;
                     
-                END IF;
+            END IF;
             
-            END LOOP;
-            
-            EXIT WHEN v_values.COUNT < c_fetch_limit;  
-        
-        END LOOP;
-        
-        CLOSE c_values;
-        
-        FOR v_i IN REVERSE 1..v_json_stack.COUNT LOOP
-          
-             IF v_json_stack(v_i) = 'O' THEN
-                 p_json := p_json || '}';    
-             ELSIF v_json_stack(v_i) = 'A' THEN
-                 p_json := p_json || ']';
-             END IF;
         
         END LOOP;
         
@@ -1665,16 +1579,12 @@ WHERE 1=1';
         (p_path IN VARCHAR2)
     RETURN VARCHAR2 IS
     
-        v_value t_value;
-        
         v_json VARCHAR2(32000);
         v_json_clob CLOB;
     
     BEGIN
       
-        v_value := request_value(p_path);
-        
-        serialize_value(v_value.id, v_json, v_json_clob);
+        serialize_value(get_parse_events(p_path), v_json, v_json_clob);
         
         RETURN v_json;
     
@@ -1683,17 +1593,15 @@ WHERE 1=1';
     FUNCTION get_json_clob
         (p_path IN VARCHAR2)
     RETURN CLOB IS
-    
-        v_value t_value;
+        
         v_json VARCHAR2(32000);
         v_json_clob CLOB;
     
     BEGIN
       
-        v_value := request_value(p_path);
         
         dbms_lob.createtemporary(v_json_clob, TRUE);
-        serialize_value(v_value.id, v_json, v_json_clob);
+        serialize_value(get_parse_events(p_path), v_json, v_json_clob);
         
         RETURN v_json_clob;
     
@@ -2201,7 +2109,133 @@ WHERE 1=1';
 
     
     END;
+    
+    FUNCTION get_parse_events
+        (p_path IN VARCHAR2)
+    RETURN json_parser.t_parse_events IS
+    
+        v_path_value t_value;
+        
+        TYPE t_chars IS TABLE OF CHAR;
+        v_json_stack t_chars;
+        
+        v_last_lvl PLS_INTEGER;
+        
+        v_events json_parser.t_parse_events;
+    
+        CURSOR c_values (p_root_id IN NUMBER) IS
+            WITH parent_jsvl(id, type, name, value, lvl, ord) AS
+                (SELECT id
+                       ,type
+                       ,name
+                       ,value
+                       ,1 AS lvl
+                       ,0
+                 FROM json_values
+                 WHERE id = p_root_id
+                 UNION ALL
+                 SELECT jsvl.id
+                       ,jsvl.type
+                       ,jsvl.name
+                       ,jsvl.value
+                       ,parent_jsvl.lvl + 1
+                       ,CASE parent_jsvl.type
+                            WHEN 'A' THEN
+                                TO_NUMBER(jsvl.name)
+                            ELSE
+                                jsvl.id
+                        END
+                 FROM parent_jsvl
+                     ,json_values jsvl
+                 WHERE jsvl.parent_id = parent_jsvl.id
+                 ORDER BY 6)
+            SEARCH DEPTH FIRST BY ord SET dummy
+            SELECT type
+                  ,name
+                  ,value
+                  ,lvl
+            FROM parent_jsvl;
+            
+        PROCEDURE add_event
+            (p_name IN VARCHAR2
+            ,p_value IN VARCHAR2 := NULL) IS
+        BEGIN
+        
+            v_events.EXTEND(1);
+            
+            v_events(v_events.COUNT).name := p_name;
+            v_events(v_events.COUNT).value := p_value;        
+        END;
+                
+    BEGIN
+        
+        v_path_value := request_value(p_path);
+    
+        v_events := json_parser.t_parse_events();
+        v_json_stack := t_chars();
+        v_last_lvl := 0;
+    
+        FOR v_value IN c_values(v_path_value.id) LOOP
+        
+            FOR v_i IN v_value.lvl..v_last_lvl LOOP
+                  
+                IF v_json_stack(v_json_stack.COUNT) = 'O' THEN
+                    add_event('END_OBJECT');                        
+                ELSIF v_json_stack(v_json_stack.COUNT) = 'A' THEN
+                    add_event('END_ARRAY');
+                END IF;
+                    
+                v_json_stack.TRIM(1);   
+                    
+            END LOOP;
+            
+            IF v_value.name IS NOT NULL 
+               AND v_json_stack.COUNT > 0
+               AND v_json_stack(v_json_stack.COUNT) = 'O' THEN
+
+                add_event('NAME', v_value.name);
+                   
+            END IF;
+            
+            CASE v_value.type
+                  
+                WHEN 'S' THEN
+                    add_event('STRING', v_value.value);  
+                WHEN 'N' THEN
+                    add_event('NUMBER', v_value.value);  
+                WHEN 'B' THEN
+                    add_event('BOOLEAN', v_value.value);
+                WHEN 'E' THEN
+                    add_event('NULL');
+                WHEN 'O' THEN
+                    add_event('START_OBJECT');
+                WHEN 'A' THEN
+                    add_event('START_ARRAY');
+                
+            END CASE;
+            
+            v_json_stack.EXTEND(1);
+            v_json_stack(v_json_stack.COUNT) := v_value.type;
+                
+            v_last_lvl := v_value.lvl;
+        
+        END LOOP;
+        
+        FOR v_i IN REVERSE 1..v_json_stack.COUNT LOOP
+          
+             IF v_json_stack(v_i) = 'O' THEN
+                 add_event('END_OBJECT');    
+             ELSIF v_json_stack(v_i) = 'A' THEN
+                 add_event('END_ARRAY');
+             END IF;
+        
+        END LOOP;
+    
+        RETURN v_events;
+    
+    END;
 
 BEGIN
     register_messages;
 END;
+

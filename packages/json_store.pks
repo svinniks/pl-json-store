@@ -1,7 +1,7 @@
 CREATE OR REPLACE PACKAGE json_store IS
 
     /* 
-        Copyright 2017 Sergejs Vinniks
+        Copyright 2018 Sergejs Vinniks
 
         Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -14,6 +14,14 @@ CREATE OR REPLACE PACKAGE json_store IS
         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
         See the License for the specific language governing permissions and
         limitations under the License.
+    */
+
+    /**
+        Methods for maintaining the store of JSON values.
+        
+        The whole store is one big JSON object named $ (or "root").
+       
+        
     */
 
     TYPE t_path_element IS RECORD
@@ -266,5 +274,9 @@ CREATE OR REPLACE PACKAGE json_store IS
          
     PROCEDURE delete_value
         (p_path IN VARCHAR2);
+
+    FUNCTION get_parse_events
+        (p_path IN VARCHAR2)
+    RETURN json_parser.t_parse_events;
     
 END;

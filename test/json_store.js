@@ -2604,6 +2604,19 @@ suite("JSON store management tests", function() {
             
             });
 
+            test("Retrieve length of an empty array", function() {
+            
+                var id = database.call("json_store.create_array");
+            
+                var length = database.call("json_store.get_length", {
+                    p_path: `#${id}`
+                });
+
+                expect(length).to.be(0);
+
+            });
+            
+
             test("Retrieve array length", function() {
 
                 var length = database.call("json_store.get_length", {

@@ -1839,7 +1839,7 @@ WHERE 1=1';
     
     BEGIN
     
-        SELECT MAX(to_index(name))
+        SELECT NVL(MAX(to_index(name)), -1)
         INTO v_length
         FROM json_values
         WHERE parent_id = p_array_id;

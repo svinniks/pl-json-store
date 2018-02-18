@@ -1207,6 +1207,15 @@ WHERE 1=1';
 
     END;
     
+    PROCEDURE set_array
+        (p_path IN VARCHAR2) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+        v_dummy := set_property(p_path, array_events)(1);
+    END;
+    
     PROCEDURE request_values
         (p_path_elements IN t_path_elements
         ,p_values OUT SYS_REFCURSOR) IS

@@ -256,6 +256,9 @@ CREATE OR REPLACE PACKAGE json_store IS
     FUNCTION set_array
         (p_path IN VARCHAR2)
     RETURN NUMBER;
+    
+    PROCEDURE set_array
+        (p_path IN VARCHAR2);
 
     PROCEDURE request_values
         (p_path IN VARCHAR2

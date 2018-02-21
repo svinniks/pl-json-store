@@ -506,4 +506,8 @@ CREATE OR REPLACE PACKAGE json_store IS
         ,p_path_10 IN VARCHAR2)
     RETURN t_json_table_10 PIPELINED;
     
+    FUNCTION get_value_table
+        (p_query IN VARCHAR2)
+    RETURN anydataset PIPELINED USING t_json_query;
+    
 END;

@@ -1172,29 +1172,182 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         (p_query_elements IN t_query_elements) 
     RETURN DBMS_SQL.VARCHAR2A IS
     
-        v_lines  DBMS_SQL.VARCHAR2A;
+        v_lines DBMS_SQL.VARCHAR2A;
+        v_line VARCHAR2(32000);
+        
         v_table_instance_counter PLS_INTEGER;
+        v_comma CHAR;
+        v_and VARCHAR2(5);
     
-        PROCEDURE add_line
-            (p_line IN VARCHAR2
+        PROCEDURE add_text
+            (p_text IN VARCHAR2
             ,p_parent_instance IN PLS_INTEGER := NULL) IS
         BEGIN
-            v_lines(v_lines.COUNT + 1) := p_line;
+            
+            IF LENGTH(v_line) + LENGTH(p_text) > 32000 THEN
+                v_lines(v_lines.COUNT + 1) := v_line;
+                v_line := NULL;
+            END IF;
+            
+            v_line := v_line || p_text;
+        
         END;
     
-        PROCEDURE visit_element
+        PROCEDURE select_list_visit
             (p_i PLS_INTEGER) IS
+            
+            v_table_instance PLS_INTEGER;
+            v_child_i PLS_INTEGER;
+            
         BEGIN
         
-            NULL;
+            IF p_query_elements(p_i).type != 'R' THEN
+                v_table_instance_counter := v_table_instance_counter + 1;
+                v_table_instance := v_table_instance_counter;
+            END IF;
         
+            v_child_i := p_query_elements(p_i).first_child_i;
+        
+            IF v_child_i IS NOT NULL THEN
+            
+                WHILE v_child_i IS NOT NULL LOOP
+                    select_list_visit(v_child_i);
+                    v_child_i := p_query_elements(v_child_i).next_sibling_i;
+                END LOOP;
+                
+            ELSIF p_query_elements(p_i).type != 'R' THEN
+            
+                add_text(v_comma || 'j' || v_table_instance || '.value');
+                v_comma := ',';
+                
+            ELSE
+            
+                add_text(v_comma || 'NULL');
+                v_comma := ',';
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE from_list_visit
+            (p_i PLS_INTEGER) IS
+            
+            v_table_instance PLS_INTEGER;
+            v_child_i PLS_INTEGER;
+            
+        BEGIN
+        
+            IF p_query_elements(p_i).type != 'R' THEN
+            
+                v_table_instance_counter := v_table_instance_counter + 1;
+                v_table_instance := v_table_instance_counter;
+                
+                add_text(v_comma || 'json_values j' || v_table_instance);
+                v_comma := ',';
+                
+            END IF;
+        
+            v_child_i := p_query_elements(p_i).first_child_i;
+        
+            WHILE v_child_i IS NOT NULL LOOP
+                from_list_visit(v_child_i);
+                v_child_i := p_query_elements(v_child_i).next_sibling_i;
+            END LOOP;
+        
+        END;
+        
+        PROCEDURE where_list_visit
+            (p_i PLS_INTEGER
+            ,p_parent_i IN PLS_INTEGER
+            ,p_parent_table_instance IN PLS_INTEGER) IS
+            
+            v_table_instance PLS_INTEGER;
+            v_child_i PLS_INTEGER;
+            
+        BEGIN
+        
+            IF p_query_elements(p_i).type != 'R' THEN
+            
+                v_table_instance_counter := v_table_instance_counter + 1;
+                v_table_instance := v_table_instance_counter;
+                
+            END IF;
+            
+            IF p_parent_table_instance IS NOT NULL THEN
+            
+                add_text(v_and || 'j' || v_table_instance || '.parent_id');
+                
+                IF p_query_elements(p_i).optional THEN
+                    add_text('(+)');
+                END IF;
+                
+                add_text('=j' || p_parent_table_instance || '.id');
+                
+                v_and := ' AND ';
+                
+            ELSIF p_parent_i IS NOT NULL AND p_query_elements(p_parent_i).type = 'R' THEN
+            
+                add_text(v_and || 'j' || v_table_instance || '.parent_id IS NULL');
+                
+                v_and := ' AND ';
+            
+            END IF;
+            
+            IF p_query_elements(p_i).type = 'N' THEN
+            
+                add_text(v_and || 'j' || v_table_instance || '.name');
+                
+                IF p_query_elements(p_i).optional THEN
+                    add_text('(+)');
+                END IF;
+                
+                add_text('=''' || p_query_elements(p_i).value || '''');
+                
+                v_and := ' AND ';
+                
+            ELSIF p_query_elements(p_i).type = 'I' THEN
+            
+                add_text(v_and || 'j' || v_table_instance || '.id');
+                
+                IF p_query_elements(p_i).optional THEN
+                    add_text('(+)');
+                END IF;
+                
+                add_text('=' || p_query_elements(p_i).value);
+                
+                v_and := ' AND ';
+                
+            END IF;
+        
+            v_child_i := p_query_elements(p_i).first_child_i;
+        
+            WHILE v_child_i IS NOT NULL LOOP
+                where_list_visit(v_child_i, p_i, v_table_instance);
+                v_child_i := p_query_elements(v_child_i).next_sibling_i;
+            END LOOP;
+                
         END;
     
     BEGIN
     
         v_table_instance_counter := 0;
-    
-        visit_element(1);
+        v_comma := NULL; 
+        add_text('SELECT ');
+        select_list_visit(1);
+        
+        v_table_instance_counter := 0;
+        v_comma := NULL; 
+        add_text(' FROM ');
+        from_list_visit(1);
+        
+        v_table_instance_counter := 0;
+        v_and := NULL; 
+        add_text(' WHERE ');
+        where_list_visit(1, NULL, NULL);
+        
+        IF v_line IS NOT NULL THEN
+            v_lines(v_lines.COUNT + 1) := v_line;
+        END IF;
         
         RETURN v_lines;
     

@@ -40,6 +40,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00012', ':1 is not an array!');
         default_message_resolver.register_message('JDOC-00013', 'Invalid array element index :1!');
         default_message_resolver.register_message('JDOC-00014', 'Requested target is not an array!');
+        default_message_resolver.register_message('JDOC-00015', 'Unexpected comma in a non-branching query!');
     END;
     
     FUNCTION get_length
@@ -383,6 +384,505 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
         RETURN p_path_elements;
 
+    END;
+    
+    FUNCTION parse_query
+        (p_query IN VARCHAR2)
+    RETURN t_query_elements IS
+    
+        v_query_elements t_query_elements;
+        
+        v_char CHAR;
+        v_state VARCHAR2(30);
+        
+        TYPE t_stack_node IS RECORD (
+            element_i PLS_INTEGER
+           ,last_child_i PLS_INTEGER 
+           ,branching BOOLEAN
+        );
+        
+        TYPE t_stack IS TABLE OF t_stack_node;
+        
+        v_stack t_stack;
+        
+        v_value VARCHAR2(4000);
+        
+        PROCEDURE init_stack IS
+        BEGIN
+        
+            v_stack := t_stack();
+            
+            v_stack.EXTEND(1);
+            v_stack(1).branching := FALSE;
+            
+        END;
+        
+        PROCEDURE push
+            (p_type IN CHAR
+            ,p_value IN VARCHAR2 := NULL) IS
+            
+            v_element_i PLS_INTEGER;
+            
+        BEGIN
+        
+            v_query_elements.EXTEND(1);
+            v_element_i := v_query_elements.COUNT;
+            
+            v_query_elements(v_element_i).type := p_type;
+            v_query_elements(v_element_i).value := p_value;
+            v_query_elements(v_element_i).optional := FALSE;
+        
+            IF v_stack(v_stack.COUNT).element_i IS NOT NULL
+               AND v_query_elements(v_stack(v_stack.COUNT).element_i).first_child_i IS NULL THEN
+               
+                v_query_elements(v_stack(v_stack.COUNT).element_i).first_child_i := v_element_i;
+               
+            END IF;
+        
+            IF v_stack(v_stack.COUNT).last_child_i IS NOT NULL THEN
+            
+                v_query_elements(v_stack(v_stack.COUNT).last_child_i).next_sibling_i := v_element_i;
+                
+            END IF;
+            
+            v_stack(v_stack.COUNT).last_child_i := v_element_i;
+        
+            v_stack.EXTEND(1);
+            v_stack(v_stack.COUNT).element_i := v_element_i;
+            v_stack(v_stack.COUNT).branching := FALSE;
+            
+        END;
+        
+        PROCEDURE push_name
+            (p_value IN VARCHAR2) IS
+        BEGIN
+        
+            IF p_value = '$' THEN
+            
+                IF v_stack.COUNT > 1 THEN
+                    -- 'Root requested as a property!'
+                    error$.raise('JDOC-00006');
+                END IF;
+                
+                push('R');
+            
+            ELSE
+            
+                push('N', p_value);
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE pop_sibling IS
+        BEGIN
+        
+            LOOP
+            
+                v_stack.TRIM(1);
+                
+                IF v_stack.COUNT = 0 THEN
+                    -- 'Unexpected comma in a non-branching query!'
+                    error$.raise('JDOC-00015');
+                END IF;
+                
+                EXIT WHEN v_stack(v_stack.COUNT).branching;
+            
+            END LOOP;
+        
+        END;
+        
+        PROCEDURE branch IS
+        BEGIN
+            v_stack(v_stack.COUNT).branching := TRUE;
+        END;
+        
+        FUNCTION branching
+        RETURN BOOLEAN IS
+        BEGIN
+            RETURN v_stack(v_stack.COUNT).branching;
+        END;
+            
+        FUNCTION space 
+        RETURN BOOLEAN IS
+        BEGIN
+            RETURN v_char IN (' ', CHR(9), CHR(10), CHR(13));
+        END;
+        
+        PROCEDURE lf_element IS
+        BEGIN
+        
+            IF INSTR('qwertyuioplkjhgfdsazxcvbnm$_', LOWER(v_char)) > 0 THEN
+            
+                v_value := v_char;
+                v_state := 'r_name';
+                
+            ELSIF v_char = '#' THEN
+            
+                v_value := NULL;
+                v_state := 'lf_id';    
+                            
+            ELSIF NOT space THEN
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+                
+            END IF;
+        
+        END;
+        
+        PROCEDURE lf_root IS
+        BEGIN
+        
+            IF v_char = '(' THEN
+            
+                branch;
+                v_state := 'lf_element';
+                
+            ELSIF v_char = '[' THEN
+            
+                v_state := 'lf_array_element';
+                
+            ELSE
+            
+                lf_element;
+                
+            END IF;
+        
+        END;
+        
+        PROCEDURE lf_child IS
+        BEGIN
+        
+            IF v_char = '.' THEN
+            
+                v_state := 'lf_element';
+                
+            ELSIF v_char = '[' THEN
+            
+                v_state := 'lf_array_element';
+                
+            ELSIF NOT space THEN
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE r_name IS
+        BEGIN
+        
+            IF INSTR('qwertyuioplkjhgfdsazxcvbnm1234567890$_', LOWER(v_char)) > 0 THEN
+            
+                v_value := v_value || v_char;
+                
+            ELSIF v_char = '.' THEN
+            
+                push_name(v_value);
+                v_state := 'lf_element';
+                
+            ELSIF v_char = ',' THEN
+            
+                push_name(v_value);
+                pop_sibling;
+                
+                IF (v_stack.COUNT = 1) THEN
+                    v_state := 'lf_element';
+                ELSE
+                    v_state := 'lf_child';
+                END IF;
+                
+            ELSIF v_char = ')' THEN
+            
+                push_name(v_value);
+                pop_sibling;
+                v_state := 'lf_comma';
+                
+            ELSIF v_char = '[' THEN
+               
+                push_name(v_value);
+                v_state := 'lf_array_element';    
+                
+            ELSIF v_char = '(' THEN
+            
+                push_name(v_value);
+                branch;
+                v_state := 'lf_child';
+                
+            ELSIF space THEN
+            
+                push_name(v_value);
+                v_state := 'lf_separator';
+                
+            ELSE
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+                
+            END IF;
+        
+        END;
+        
+        PROCEDURE lf_comma IS
+        BEGIN
+        
+            IF v_char = ',' THEN
+            
+                pop_sibling;
+                
+                IF (v_stack.COUNT = 1) THEN
+                    v_state := 'lf_element';
+                ELSE
+                    v_state := 'lf_child';
+                END IF;
+                
+            ELSIF v_char = ')' THEN
+            
+                pop_sibling;
+                
+            ELSIF NOT space THEN
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+                
+            END IF;
+            
+        END;
+        
+        PROCEDURE lf_separator IS
+        BEGIN
+        
+            IF v_char = ')' THEN
+              
+                pop_sibling;
+                v_state := 'lf_comma';
+                
+            ELSIF v_char = ',' THEN
+            
+                pop_sibling;
+                
+                IF (v_stack.COUNT = 1) THEN
+                    v_state := 'lf_element';
+                ELSE
+                    v_state := 'lf_child';
+                END IF;
+                
+                
+            ELSIF v_char = '(' THEN
+            
+                branch;
+                v_state := 'lf_child';    
+                
+            ELSE
+            
+                lf_child;
+                
+            END IF;
+        
+        END;
+        
+        PROCEDURE lf_id IS
+        BEGIN
+        
+            IF INSTR('1234567890', v_char) > 0 THEN
+            
+                v_value := v_char;
+                v_state := 'r_id';
+                
+            ELSIF NOT space THEN
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+                
+            END IF;
+        
+        END;
+        
+        PROCEDURE r_id IS
+        BEGIN
+        
+            IF INSTR('1234567890', v_char) > 0 THEN
+            
+                v_value := v_value || v_char;
+                
+            ELSIF v_char = '.' THEN
+            
+                push('I', v_value);
+                v_state := 'lf_element';
+                
+            ELSIF v_char = ',' THEN
+            
+                push('I', v_value);
+                pop_sibling;
+                
+                IF (v_stack.COUNT = 1) THEN
+                    v_state := 'lf_element';
+                ELSE
+                    v_state := 'lf_child';
+                END IF;
+                
+            ELSIF v_char = ')' THEN
+            
+                push('I', v_value);
+                pop_sibling;
+                v_state := 'lf_comma';
+                
+            ELSIF v_char = '[' THEN
+            
+                push('I', v_value);
+                v_state := 'lf_array_element'; 
+                
+            ELSIF v_char = '(' THEN
+            
+                push('I', v_value);
+                branch;
+                v_state := 'lf_child'; 
+                
+            ELSIF space THEN
+            
+                push('I', v_value);
+                v_state := 'lf_separator';
+                
+            ELSE
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+                
+            END IF;
+                    
+        END;
+        
+        PROCEDURE lf_array_element IS
+        BEGIN
+        
+            IF INSTR('1234567890', v_char) > 0 THEN
+            
+                v_value := v_char;
+                v_state := 'r_array_element';
+                
+            ELSIF v_char = '"' THEN
+            
+                v_value := NULL;
+                v_state := 'r_quoted_name';
+                
+            ELSIF NOT space THEN
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE r_array_element IS
+        BEGIN
+        
+            IF INSTR('1234567890', v_char) > 0 THEN
+            
+                v_value := v_value || v_char;
+                
+            ELSIF v_char = ']' THEN
+            
+                push_name(v_value);
+                v_state := 'lf_separator';
+            
+            ELSIF space THEN
+            
+                push_name(v_value);
+                v_state := 'lf_array_element_end';
+                
+            ELSE
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+            
+            END IF;    
+        
+        END;
+        
+        PROCEDURE lf_array_element_end IS
+        BEGIN
+        
+            IF v_char = ']' THEN
+            
+                v_state := 'lf_separator';
+                
+            ELSIF NOT space THEN
+           
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE r_quoted_name IS
+        BEGIN
+        
+            IF v_char = '"' THEN
+            
+                push_name(v_value);
+                v_state := 'lf_array_element_end';
+                
+            ELSIF v_char = '\' THEN
+            
+                v_state := 'r_escaped';
+                
+            ELSE
+            
+                v_value := v_value || v_char;
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE r_escaped IS
+        BEGIN
+        
+            v_value := v_value || v_char;
+            v_state := 'r_quoted_name';
+        
+        END;
+        
+    BEGIN
+    
+        v_query_elements := t_query_elements();
+        init_stack;
+        
+        v_state := 'lf_root';
+        
+        FOR v_i IN 1..NVL(LENGTH(p_query), 0) LOOP
+        
+            v_char := SUBSTR(p_query, v_i, 1);
+            
+            CASE v_state
+                WHEN 'lf_root' THEN lf_root;
+                WHEN 'lf_child' THEN lf_child;
+                WHEN 'lf_element' THEN lf_element;
+                WHEN 'r_name' THEN r_name;
+                WHEN 'lf_comma' THEN lf_comma;
+                WHEN 'lf_separator' THEN lf_separator;
+                WHEN 'lf_id' THEN lf_id;
+                WHEN 'r_id' THEN r_id;
+                WHEN 'lf_array_element' THEN lf_array_element;
+                WHEN 'r_array_element' THEN r_array_element;
+                WHEN 'lf_array_element_end' THEN lf_array_element_end;
+                WHEN 'r_quoted_name' THEN r_quoted_name;
+                WHEN 'r_escaped' THEN r_escaped;
+            END CASE;
+        
+        END LOOP;
+        
+        IF v_state = 'r_name' THEN
+            push_name(v_value);
+        ELSIF v_state = 'r_id' THEN
+            push('I', v_value);
+        END IF;
+        
+        RETURN v_query_elements;
+    
     END;
 
     PROCEDURE request_properties

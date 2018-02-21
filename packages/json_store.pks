@@ -24,25 +24,39 @@ CREATE OR REPLACE PACKAGE json_store IS
         
     */
 
-    TYPE t_path_element IS RECORD
-        (type CHAR
-        ,value VARCHAR2(4000));
+    TYPE t_path_element IS RECORD (
+        type CHAR
+       ,value VARCHAR2(4000)
+    );
         
     TYPE t_path_elements IS TABLE OF t_path_element;
     
-    TYPE t_property IS RECORD
-        (parent_id NUMBER
-        ,parent_type CHAR
-        ,property_id NUMBER
-        ,property_type CHAR
-        ,property_name VARCHAR2(4000));
+    TYPE t_query_element IS RECORD (
+        type CHAR
+       ,value VARCHAR2(4000)
+       ,optional BOOLEAN
+       ,alias VARCHAR2(4000)
+       ,first_child_i PLS_INTEGER
+       ,next_sibling_i PLS_INTEGER
+    );
         
+    TYPE t_query_elements IS TABLE OF t_query_element;
+    
+    TYPE t_property IS RECORD (
+        parent_id NUMBER
+       ,parent_type CHAR
+       ,property_id NUMBER
+       ,property_type CHAR
+       ,property_name VARCHAR2(4000)
+    );
+       
     TYPE t_properties IS TABLE OF t_property;
     
-    TYPE t_value IS RECORD
-        (id NUMBER
-        ,type CHAR
-        ,value VARCHAR2(4000));
+    TYPE t_value IS RECORD (
+        id NUMBER
+       ,type CHAR
+       ,value VARCHAR2(4000)
+    );
         
     TYPE t_values IS TABLE OF t_value;
     
@@ -150,6 +164,10 @@ CREATE OR REPLACE PACKAGE json_store IS
     FUNCTION parse_path
         (p_path IN VARCHAR2)
     RETURN t_path_elements;
+    
+    FUNCTION parse_query
+        (p_query IN VARCHAR2)
+    RETURN t_query_elements;
     
     PROCEDURE request_properties
         (p_path IN VARCHAR2

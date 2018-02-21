@@ -41,8 +41,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00013', 'Invalid array element index :1!');
         default_message_resolver.register_message('JDOC-00014', 'Requested target is not an array!');
         default_message_resolver.register_message('JDOC-00015', 'Unexpected comma in a non-branching query!');
-        default_message_resolver.register_message('JDOC-00016', 'Duplicate alias :1!');
+        default_message_resolver.register_message('JDOC-00016', 'Duplicate property/alias :1!');
         default_message_resolver.register_message('JDOC-00017', 'Alias too long!');
+        default_message_resolver.register_message('JDOC-00018', 'Property name :1 is too long to be a column name!');
+        default_message_resolver.register_message('JDOC-00019', 'Alias not specified for a leaf wildcard property!');
     END;
     
     FUNCTION get_length
@@ -502,10 +504,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             (p_alias IN VARCHAR2) IS
         BEGIN
         
-            IF v_aliases.EXISTS(p_alias) THEN
+            /*IF v_aliases.EXISTS(p_alias) THEN
                 -- Duplicate alias :1!
                 error$.raise('JDOC-00016', p_alias);
-            END IF;
+            END IF;*/
             
             v_query_elements(v_stack(v_stack.COUNT).element_i).alias := p_alias;
             v_aliases(p_alias) := TRUE;
@@ -1083,6 +1085,118 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         END IF;
         
         RETURN v_query_elements;
+    
+    END;
+    
+    FUNCTION get_query_column_names
+        (p_query_elements IN t_query_elements)
+    RETURN t_varchars IS
+    
+        TYPE t_unique_column_names IS TABLE OF BOOLEAN INDEX BY VARCHAR2(30);
+        v_unique_column_names t_unique_column_names;
+        
+        v_column_names t_varchars;
+        
+        PROCEDURE add_column_name
+            (p_name IN VARCHAR2) IS
+        BEGIN
+            
+            IF LENGTH(p_name) > 30 THEN
+                -- Property name :1 is too long to be a column name!
+                error$.raise('JDOC-00018');
+            END IF;
+            
+            IF v_unique_column_names.EXISTS(p_name) THEN
+                -- Duplicate property/alias :1!
+                error$.raise('JDOC-00016');
+            END IF;
+            
+            v_column_names.EXTEND(1);
+            v_column_names(v_column_names.COUNT) := p_name;
+            
+            v_unique_column_names(p_name) := TRUE;
+        
+        END;
+        
+        PROCEDURE visit_element
+            (p_i IN PLS_INTEGER) IS
+            
+            v_child_i PLS_INTEGER;
+            
+        BEGIN
+        
+            v_child_i := p_query_elements(p_i).first_child_i;
+        
+            IF v_child_i IS NOT NULL THEN
+            
+                WHILE v_child_i IS NOT NULL LOOP
+                    visit_element(v_child_i);
+                    v_child_i := p_query_elements(v_child_i).next_sibling_i;
+                END LOOP;
+                
+            ELSE
+            
+                IF p_query_elements(p_i).alias IS NOT NULL THEN
+                
+                    add_column_name(p_query_elements(p_i).alias);
+                    
+                ELSIF p_query_elements(p_i).type = 'N' THEN
+                
+                    add_column_name(p_query_elements(p_i).value);
+                    
+                ELSIF p_query_elements(p_i).type = 'I' THEN
+                
+                    add_column_name('#' || p_query_elements(p_i).value);
+                    
+                ELSIF p_query_elements(p_i).type = 'W' THEN
+                
+                    add_column_name(p_query_elements(p_i).value);
+                    
+                END IF; 
+            
+            END IF;
+        
+        END;
+            
+    BEGIN
+    
+        v_column_names := t_varchars();
+        
+        visit_element(1);
+        
+        RETURN v_column_names;
+    
+    END;
+    
+    FUNCTION generate_query_statement
+        (p_query_elements IN t_query_elements) 
+    RETURN DBMS_SQL.VARCHAR2A IS
+    
+        v_lines  DBMS_SQL.VARCHAR2A;
+        v_table_instance_counter PLS_INTEGER;
+    
+        PROCEDURE add_line
+            (p_line IN VARCHAR2
+            ,p_parent_instance IN PLS_INTEGER := NULL) IS
+        BEGIN
+            v_lines(v_lines.COUNT + 1) := p_line;
+        END;
+    
+        PROCEDURE visit_element
+            (p_i PLS_INTEGER) IS
+        BEGIN
+        
+            NULL;
+        
+        END;
+    
+    BEGIN
+    
+        v_table_instance_counter := 0;
+    
+        visit_element(1);
+        
+        RETURN v_lines;
     
     END;
 

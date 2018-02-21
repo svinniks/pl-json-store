@@ -169,6 +169,18 @@ CREATE OR REPLACE PACKAGE json_store IS
         (p_query IN VARCHAR2)
     RETURN t_query_elements;
     
+    FUNCTION get_query_column_names
+        (p_query_elements IN t_query_elements)
+    RETURN t_varchars;
+    
+    FUNCTION generate_query_statement
+        (p_query_elements IN t_query_elements) 
+    RETURN DBMS_SQL.VARCHAR2A;
+    
+    /*FUNCTION generate_query_statement
+        (p_query_elements IN t_query_elements)
+    RETURN*/ 
+    
     PROCEDURE request_properties
         (p_path IN VARCHAR2
         ,p_properties OUT SYS_REFCURSOR);

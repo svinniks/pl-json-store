@@ -23,6 +23,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     v_property_request_sqls t_varchar_indexed_varchars;
     v_value_request_sqls t_varchar_indexed_varchars;
+        
+    TYPE t_prepared_queries IS TABLE OF t_prepared_query INDEX BY VARCHAR2(32000);
+    
+    v_prepared_query_cache t_prepared_queries;
     
     PROCEDURE register_messages IS
     BEGIN
@@ -1168,11 +1172,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    FUNCTION generate_query_statement
-        (p_query_elements IN t_query_elements) 
-    RETURN DBMS_SQL.VARCHAR2A IS
+    PROCEDURE generate_query_statement
+        (p_query_elements IN t_query_elements
+        ,p_statement OUT VARCHAR2
+        ,p_statement_clob OUT CLOB) IS
     
-        v_lines DBMS_SQL.VARCHAR2A;
         v_line VARCHAR2(32000);
         
         v_table_instance_counter PLS_INTEGER;
@@ -1185,8 +1189,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         BEGIN
             
             IF LENGTH(v_line) + LENGTH(p_text) > 32000 THEN
-                v_lines(v_lines.COUNT + 1) := v_line;
+            
+                IF p_statement_clob IS NULL THEN
+                    DBMS_LOB.CREATETEMPORARY(p_statement_clob, TRUE);
+                END IF;
+            
+                DBMS_LOB.APPEND(p_statement_clob, v_line);
+            
                 v_line := NULL;
+                
             END IF;
             
             v_line := v_line || p_text;
@@ -1330,6 +1341,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
+        p_statement := NULL;
+        p_statement_clob := NULL;
+    
         v_table_instance_counter := 0;
         v_comma := NULL; 
         add_text('SELECT ');
@@ -1345,11 +1359,45 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         add_text(' WHERE ');
         where_list_visit(1, NULL, NULL);
         
-        IF v_line IS NOT NULL THEN
-            v_lines(v_lines.COUNT + 1) := v_line;
+        IF v_line IS NOT NULL AND p_statement_clob IS NOT NULL THEN
+            DBMS_LOB.APPEND(p_statement_clob, v_line);
         END IF;
         
-        RETURN v_lines;
+        IF p_statement_clob IS NULL THEN
+            p_statement := v_line;
+        END IF;
+    
+    END;
+    
+    FUNCTION prepare_query
+        (p_query IN VARCHAR2)
+    RETURN t_prepared_query IS
+    
+        v_prepared_query t_prepared_query;
+        
+        v_query_elements t_query_elements;
+        v_column_names t_varchars;
+        
+        v_statement VARCHAR2(32000);
+        v_statement_clob CLOB;
+    
+    BEGIN
+    
+        IF v_prepared_query_cache.EXISTS(p_query) THEN
+        
+            v_prepared_query := v_prepared_query_cache(p_query);
+            
+        ELSE    
+
+            v_query_elements := parse_query(p_query);
+            v_prepared_query.column_names := get_query_column_names(v_query_elements);
+            generate_query_statement(v_query_elements, v_prepared_query.statement, v_prepared_query.statement_clob);
+            
+            v_prepared_query_cache(p_query) := v_prepared_query;
+            
+        END IF;
+        
+        RETURN v_prepared_query;
     
     END;
 
@@ -3212,435 +3260,406 @@ WHERE 1=1';
     
     END;
     
-    PROCEDURE get_json_table
-        (p_paths IN t_varchars
-        ,p_rows IN OUT NOCOPY t_t_varchars) IS
-    BEGIN
+    FUNCTION get_1_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_1_value_table PIPELINED IS
     
-        p_rows := t_t_varchars();
+        v_dummy NUMBER;
     
-    END;
-    
-    FUNCTION get_json_table
-        (p_paths IN t_varchars)
-    RETURN t_t_varchars PIPELINED IS
-    
-        v_rows t_t_varchars;
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_1_value_row;
     
     BEGIN
     
-        get_json_table(p_paths, v_rows);
-    
-        FOR v_i IN 1..v_rows.COUNT LOOP
-            PIPE ROW(v_rows(v_i));
-        END LOOP;
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
         
-        RETURN;
+        v_row := t_varchars();
+        v_row.extend(1);
     
-    END;     
-
-    FUNCTION get_json_table
-        (p_path IN VARCHAR2)
-    RETURN t_varchars PIPELINED IS
-    
-        v_rows t_t_varchars;
-    
-    BEGIN
-    
-        get_json_table(t_varchars(p_path), v_rows);
+        WHILE v_query.fetch_row(v_row) LOOP
         
-        FOR v_i IN 1..v_rows.COUNT LOOP
-            PIPE ROW(v_rows(v_i)(1));
-        END LOOP;
-        
-        RETURN;
-    
-    END;
-    
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2)
-    RETURN t_json_table_2 PIPELINED IS
-    
-        v_rows t_t_varchars;
-        v_row t_json_table_row_2;
-    
-    BEGIN
-    
-        get_json_table(
-            t_varchars(
-                p_path_1
-               ,p_path_2
-            )
-           ,v_rows
-        );
-        
-        FOR v_i IN 1..v_rows.COUNT LOOP
-        
-            v_row.column_1_value := v_rows(v_i)(1); 
-            v_row.column_2_value := v_rows(v_i)(2);
-        
-            PIPE ROW(v_row);
+            v_value_row.value_1 := v_row(1);
             
-        END LOOP;
+            PIPE ROW(v_value_row);
         
+        END LOOP;
+    
+        v_dummy := v_query.odcitableclose;
+    
         RETURN;
     
     END;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2)
-    RETURN t_json_table_3 PIPELINED IS
+    FUNCTION get_2_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_2_value_table PIPELINED IS
     
-        v_rows t_t_varchars;
-        v_row t_json_table_row_3;
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_2_value_row;
     
     BEGIN
     
-        get_json_table(
-            t_varchars(
-                p_path_1
-               ,p_path_2
-               ,p_path_3
-            )
-           ,v_rows
-        );
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
         
-        FOR v_i IN 1..v_rows.COUNT LOOP
+        v_row := t_varchars();
+        v_row.extend(2);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
         
-            v_row.column_1_value := v_rows(v_i)(1); 
-            v_row.column_2_value := v_rows(v_i)(2);
-            v_row.column_3_value := v_rows(v_i)(3);
-        
-            PIPE ROW(v_row);
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
             
-        END LOOP;
+            PIPE ROW(v_value_row);
         
+        END LOOP;
+    
+        v_dummy := v_query.odcitableclose;
+    
         RETURN;
     
     END;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2)
-    RETURN t_json_table_4 PIPELINED IS
+    FUNCTION get_3_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_3_value_table PIPELINED IS
     
-        v_rows t_t_varchars;
-        v_row t_json_table_row_4;
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_3_value_row;
     
     BEGIN
     
-        get_json_table(
-            t_varchars(
-                p_path_1
-               ,p_path_2
-               ,p_path_3
-               ,p_path_4
-            )
-           ,v_rows
-        );
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
         
-        FOR v_i IN 1..v_rows.COUNT LOOP
+        v_row := t_varchars();
+        v_row.extend(3);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
         
-            v_row.column_1_value := v_rows(v_i)(1); 
-            v_row.column_2_value := v_rows(v_i)(2);
-            v_row.column_3_value := v_rows(v_i)(3);
-            v_row.column_4_value := v_rows(v_i)(4);
-        
-            PIPE ROW(v_row);
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
             
-        END LOOP;
+            
+            PIPE ROW(v_value_row);
         
+        END LOOP;
+    
+        v_dummy := v_query.odcitableclose;
+    
         RETURN;
     
     END;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2)
-    RETURN t_json_table_5 PIPELINED IS
+    FUNCTION get_4_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_4_value_table PIPELINED IS
     
-        v_rows t_t_varchars;
-        v_row t_json_table_row_5;
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_4_value_row;
     
     BEGIN
     
-        get_json_table(
-            t_varchars(
-                p_path_1
-               ,p_path_2
-               ,p_path_3
-               ,p_path_4
-               ,p_path_5
-            )
-           ,v_rows
-        );
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
         
-        FOR v_i IN 1..v_rows.COUNT LOOP
+        v_row := t_varchars();
+        v_row.extend(4);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
         
-            v_row.column_1_value := v_rows(v_i)(1); 
-            v_row.column_2_value := v_rows(v_i)(2);
-            v_row.column_3_value := v_rows(v_i)(3);
-            v_row.column_4_value := v_rows(v_i)(4);
-            v_row.column_5_value := v_rows(v_i)(5);
-        
-            PIPE ROW(v_row);
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
+            v_value_row.value_4 := v_row(4);
             
-        END LOOP;
+            
+            PIPE ROW(v_value_row);
         
+        END LOOP;
+    
+        v_dummy := v_query.odcitableclose;
+    
         RETURN;
     
     END;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2)
-    RETURN t_json_table_6 PIPELINED IS
+    FUNCTION get_5_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_5_value_table PIPELINED IS
     
-        v_rows t_t_varchars;
-        v_row t_json_table_row_6;
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_5_value_row;
     
     BEGIN
     
-        get_json_table(
-            t_varchars(
-                p_path_1
-               ,p_path_2
-               ,p_path_3
-               ,p_path_4
-               ,p_path_5
-               ,p_path_6
-            )
-           ,v_rows
-        );
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
         
-        FOR v_i IN 1..v_rows.COUNT LOOP
+        v_row := t_varchars();
+        v_row.extend(5);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
         
-            v_row.column_1_value := v_rows(v_i)(1); 
-            v_row.column_2_value := v_rows(v_i)(2);
-            v_row.column_3_value := v_rows(v_i)(3);
-            v_row.column_4_value := v_rows(v_i)(4);
-            v_row.column_5_value := v_rows(v_i)(5);
-            v_row.column_6_value := v_rows(v_i)(6);
-        
-            PIPE ROW(v_row);
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
+            v_value_row.value_4 := v_row(4);
+            v_value_row.value_5 := v_row(5);
             
-        END LOOP;
+            
+            PIPE ROW(v_value_row);
         
+        END LOOP;
+    
+        v_dummy := v_query.odcitableclose;
+    
         RETURN;
     
     END;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2
-        ,p_path_7 IN VARCHAR2)
-    RETURN t_json_table_7 PIPELINED IS
+    FUNCTION get_6_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_6_value_table PIPELINED IS
     
-        v_rows t_t_varchars;
-        v_row t_json_table_row_7;
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_6_value_row;
     
     BEGIN
     
-        get_json_table(
-            t_varchars(
-                p_path_1
-               ,p_path_2
-               ,p_path_3
-               ,p_path_4
-               ,p_path_5
-               ,p_path_6
-               ,p_path_7
-            )
-           ,v_rows
-        );
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
         
-        FOR v_i IN 1..v_rows.COUNT LOOP
+        v_row := t_varchars();
+        v_row.extend(6);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
         
-            v_row.column_1_value := v_rows(v_i)(1); 
-            v_row.column_2_value := v_rows(v_i)(2);
-            v_row.column_3_value := v_rows(v_i)(3);
-            v_row.column_4_value := v_rows(v_i)(4);
-            v_row.column_5_value := v_rows(v_i)(5);
-            v_row.column_6_value := v_rows(v_i)(6);
-            v_row.column_7_value := v_rows(v_i)(7);
-        
-            PIPE ROW(v_row);
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
+            v_value_row.value_4 := v_row(4);
+            v_value_row.value_5 := v_row(5);
+            v_value_row.value_6 := v_row(6);
             
+            PIPE ROW(v_value_row);
+        
         END LOOP;
-        
+    
+        v_dummy := v_query.odcitableclose;
+    
         RETURN;
-        
+    
     END;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2
-        ,p_path_7 IN VARCHAR2
-        ,p_path_8 IN VARCHAR2)
-    RETURN t_json_table_8 PIPELINED IS
+    FUNCTION get_7_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_7_value_table PIPELINED IS
     
-        v_rows t_t_varchars;
-        v_row t_json_table_row_8;
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_7_value_row;
     
     BEGIN
     
-        get_json_table(
-            t_varchars(
-                p_path_1
-               ,p_path_2
-               ,p_path_3
-               ,p_path_4
-               ,p_path_5
-               ,p_path_6
-               ,p_path_7
-               ,p_path_8
-            )
-           ,v_rows
-        );
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
         
-        FOR v_i IN 1..v_rows.COUNT LOOP
+        v_row := t_varchars();
+        v_row.extend(7);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
         
-            v_row.column_1_value := v_rows(v_i)(1); 
-            v_row.column_2_value := v_rows(v_i)(2);
-            v_row.column_3_value := v_rows(v_i)(3);
-            v_row.column_4_value := v_rows(v_i)(4);
-            v_row.column_5_value := v_rows(v_i)(5);
-            v_row.column_6_value := v_rows(v_i)(6);
-            v_row.column_7_value := v_rows(v_i)(7);
-            v_row.column_8_value := v_rows(v_i)(8);
-        
-            PIPE ROW(v_row);
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
+            v_value_row.value_4 := v_row(4);
+            v_value_row.value_5 := v_row(5);
+            v_value_row.value_6 := v_row(6);
+            v_value_row.value_7 := v_row(7);
             
+            PIPE ROW(v_value_row);
+        
         END LOOP;
-        
+    
+        v_dummy := v_query.odcitableclose;
+    
         RETURN;
-        
+    
     END;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2
-        ,p_path_7 IN VARCHAR2
-        ,p_path_8 IN VARCHAR2
-        ,p_path_9 IN VARCHAR2)
-    RETURN t_json_table_9 PIPELINED IS
+    FUNCTION get_8_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_8_value_table PIPELINED IS
     
-        v_rows t_t_varchars;
-        v_row t_json_table_row_9;
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_8_value_row;
     
     BEGIN
     
-        get_json_table(
-            t_varchars(
-                p_path_1
-               ,p_path_2
-               ,p_path_3
-               ,p_path_4
-               ,p_path_5
-               ,p_path_6
-               ,p_path_7
-               ,p_path_8
-               ,p_path_9
-            )
-           ,v_rows
-        );
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
         
-        FOR v_i IN 1..v_rows.COUNT LOOP
+        v_row := t_varchars();
+        v_row.extend(8);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
         
-            v_row.column_1_value := v_rows(v_i)(1); 
-            v_row.column_2_value := v_rows(v_i)(2);
-            v_row.column_3_value := v_rows(v_i)(3);
-            v_row.column_4_value := v_rows(v_i)(4);
-            v_row.column_5_value := v_rows(v_i)(5);
-            v_row.column_6_value := v_rows(v_i)(6);
-            v_row.column_7_value := v_rows(v_i)(7);
-            v_row.column_8_value := v_rows(v_i)(8);
-            v_row.column_9_value := v_rows(v_i)(9);
-        
-            PIPE ROW(v_row);
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
+            v_value_row.value_4 := v_row(4);
+            v_value_row.value_5 := v_row(5);
+            v_value_row.value_6 := v_row(6);
+            v_value_row.value_7 := v_row(7);
+            v_value_row.value_8 := v_row(8);
             
+            PIPE ROW(v_value_row);
+        
         END LOOP;
-        
+    
+        v_dummy := v_query.odcitableclose;
+    
         RETURN;
-        
+    
     END;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2
-        ,p_path_7 IN VARCHAR2
-        ,p_path_8 IN VARCHAR2
-        ,p_path_9 IN VARCHAR2
-        ,p_path_10 IN VARCHAR2)
-    RETURN t_json_table_10 PIPELINED IS
+    FUNCTION get_9_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_9_value_table PIPELINED IS
     
-        v_rows t_t_varchars;
-        v_row t_json_table_row_10;
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_9_value_row;
     
     BEGIN
     
-        get_json_table(
-            t_varchars(
-                p_path_1
-               ,p_path_2
-               ,p_path_3
-               ,p_path_4
-               ,p_path_5
-               ,p_path_6
-               ,p_path_7
-               ,p_path_8
-               ,p_path_9
-               ,p_path_10
-            )
-           ,v_rows
-        );
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
         
-        FOR v_i IN 1..v_rows.COUNT LOOP
+        v_row := t_varchars();
+        v_row.extend(9);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
         
-            v_row.column_1_value := v_rows(v_i)(1); 
-            v_row.column_2_value := v_rows(v_i)(2);
-            v_row.column_3_value := v_rows(v_i)(3);
-            v_row.column_4_value := v_rows(v_i)(4);
-            v_row.column_5_value := v_rows(v_i)(5);
-            v_row.column_6_value := v_rows(v_i)(6);
-            v_row.column_7_value := v_rows(v_i)(7);
-            v_row.column_8_value := v_rows(v_i)(8);
-            v_row.column_9_value := v_rows(v_i)(9);
-            v_row.column_10_value := v_rows(v_i)(10);
-        
-            PIPE ROW(v_row);
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
+            v_value_row.value_4 := v_row(4);
+            v_value_row.value_5 := v_row(5);
+            v_value_row.value_6 := v_row(6);
+            v_value_row.value_7 := v_row(7);
+            v_value_row.value_8 := v_row(8);
+            v_value_row.value_9 := v_row(9);
             
-        END LOOP;
+            PIPE ROW(v_value_row);
         
+        END LOOP;
+    
+        v_dummy := v_query.odcitableclose;
+    
         RETURN;
+    
+    END;
+    
+    FUNCTION get_10_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_10_value_table PIPELINED IS
+    
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_10_value_row;
+    
+    BEGIN
+    
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
+        
+        v_row := t_varchars();
+        v_row.extend(10);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
+        
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
+            v_value_row.value_4 := v_row(4);
+            v_value_row.value_5 := v_row(5);
+            v_value_row.value_6 := v_row(6);
+            v_value_row.value_7 := v_row(7);
+            v_value_row.value_8 := v_row(8);
+            v_value_row.value_9 := v_row(9);
+            v_value_row.value_10 := v_row(10);
+            
+            PIPE ROW(v_value_row);
+        
+        END LOOP;
+    
+        v_dummy := v_query.odcitableclose;
+    
+        RETURN;
+    
+    END;
+    
+    FUNCTION get_value_table_cursor
+        (p_query IN VARCHAR2)
+    RETURN SYS_REFCURSOR IS 
+    
+        v_prepared_query t_prepared_query;
+        v_cursor SYS_REFCURSOR;
+    
+    BEGIN
+    
+        v_prepared_query := prepare_query(p_query);
+        
+        IF v_prepared_query.statement_clob IS NOT NULL THEN
+        
+            OPEN v_cursor FOR v_prepared_query.statement_clob;
+            
+        ELSE
+        
+            OPEN v_cursor FOR v_prepared_query.statement;
+            
+        END IF;
+        
+        RETURN v_cursor;
         
     END;
 

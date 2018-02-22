@@ -23,7 +23,7 @@ CREATE OR REPLACE PACKAGE json_store IS
        
         
     */
-
+    
     TYPE t_path_element IS RECORD (
         type CHAR
        ,value VARCHAR2(4000)
@@ -41,6 +41,8 @@ CREATE OR REPLACE PACKAGE json_store IS
     );
         
     TYPE t_query_elements IS TABLE OF t_query_element;
+    
+    c_query_row_buffer_size CONSTANT PLS_INTEGER := 100;
     
     TYPE t_property IS RECORD (
         parent_id NUMBER
@@ -60,106 +62,118 @@ CREATE OR REPLACE PACKAGE json_store IS
         
     TYPE t_values IS TABLE OF t_value;
     
+    TYPE t_prepared_query IS RECORD (
+        statement VARCHAR2(32000),
+        statement_clob CLOB,
+        column_names t_varchars
+    ); 
+    
     TYPE t_t_varchars IS TABLE OF t_varchars;
     
-    TYPE t_json_table_row_2 IS RECORD (
-        column_1_value VARCHAR2(4000)
-       ,column_2_value VARCHAR2(4000)
+    TYPE t_1_value_row IS RECORD (
+        value_1 VARCHAR2(4000)
     );
     
-    TYPE t_json_table_2 IS TABLE OF t_json_table_row_2;
+    TYPE t_1_value_table IS TABLE OF t_1_value_row;
     
-    TYPE t_json_table_row_3 IS RECORD (
-        column_1_value VARCHAR2(4000)
-       ,column_2_value VARCHAR2(4000)
-       ,column_3_value VARCHAR2(4000)
+    TYPE t_2_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000)
     );
     
-    TYPE t_json_table_3 IS TABLE OF t_json_table_row_3;
-   
-    TYPE t_json_table_row_4 IS RECORD (
-        column_1_value VARCHAR2(4000)
-       ,column_2_value VARCHAR2(4000)
-       ,column_3_value VARCHAR2(4000)
-       ,column_4_value VARCHAR2(4000)
+    TYPE t_2_value_table IS TABLE OF t_2_value_row;
+    
+    TYPE t_3_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000)
     );
     
-    TYPE t_json_table_4 IS TABLE OF t_json_table_row_4;
+    TYPE t_3_value_table IS TABLE OF t_3_value_row;
     
-    TYPE t_json_table_row_5 IS RECORD (
-        column_1_value VARCHAR2(4000)
-       ,column_2_value VARCHAR2(4000)
-       ,column_3_value VARCHAR2(4000)
-       ,column_4_value VARCHAR2(4000)
-       ,column_5_value VARCHAR2(4000)
+    TYPE t_4_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000),
+        value_4 VARCHAR2(4000)
     );
     
-    TYPE t_json_table_5 IS TABLE OF t_json_table_row_5;
+    TYPE t_4_value_table IS TABLE OF t_4_value_row;
     
-    TYPE t_json_table_row_6 IS RECORD (
-        column_1_value VARCHAR2(4000)
-       ,column_2_value VARCHAR2(4000)
-       ,column_3_value VARCHAR2(4000)
-       ,column_4_value VARCHAR2(4000)
-       ,column_5_value VARCHAR2(4000)
-       ,column_6_value VARCHAR2(4000)
+    TYPE t_5_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000),
+        value_4 VARCHAR2(4000),
+        value_5 VARCHAR2(4000)
     );
     
-    TYPE t_json_table_6 IS TABLE OF t_json_table_row_6;
+    TYPE t_5_value_table IS TABLE OF t_5_value_row;
     
-    TYPE t_json_table_row_7 IS RECORD (
-        column_1_value VARCHAR2(4000)
-       ,column_2_value VARCHAR2(4000)
-       ,column_3_value VARCHAR2(4000)
-       ,column_4_value VARCHAR2(4000)
-       ,column_5_value VARCHAR2(4000)
-       ,column_6_value VARCHAR2(4000)
-       ,column_7_value VARCHAR2(4000)
+    TYPE t_6_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000),
+        value_4 VARCHAR2(4000),
+        value_5 VARCHAR2(4000),
+        value_6 VARCHAR2(4000)
     );
     
-    TYPE t_json_table_7 IS TABLE OF t_json_table_row_7;
+    TYPE t_6_value_table IS TABLE OF t_6_value_row;
     
-    TYPE t_json_table_row_8 IS RECORD (
-        column_1_value VARCHAR2(4000)
-       ,column_2_value VARCHAR2(4000)
-       ,column_3_value VARCHAR2(4000)
-       ,column_4_value VARCHAR2(4000)
-       ,column_5_value VARCHAR2(4000)
-       ,column_6_value VARCHAR2(4000)
-       ,column_7_value VARCHAR2(4000)
-       ,column_8_value VARCHAR2(4000)
+    TYPE t_7_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000),
+        value_4 VARCHAR2(4000),
+        value_5 VARCHAR2(4000),
+        value_6 VARCHAR2(4000),
+        value_7 VARCHAR2(4000)
     );
     
-    TYPE t_json_table_8 IS TABLE OF t_json_table_row_8;
+    TYPE t_7_value_table IS TABLE OF t_7_value_row;
     
-    TYPE t_json_table_row_9 IS RECORD (
-        column_1_value VARCHAR2(4000)
-       ,column_2_value VARCHAR2(4000)
-       ,column_3_value VARCHAR2(4000)
-       ,column_4_value VARCHAR2(4000)
-       ,column_5_value VARCHAR2(4000)
-       ,column_6_value VARCHAR2(4000)
-       ,column_7_value VARCHAR2(4000)
-       ,column_8_value VARCHAR2(4000)
-       ,column_9_value VARCHAR2(4000)
+    TYPE t_8_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000),
+        value_4 VARCHAR2(4000),
+        value_5 VARCHAR2(4000),
+        value_6 VARCHAR2(4000),
+        value_7 VARCHAR2(4000),
+        value_8 VARCHAR2(4000)
     );
     
-    TYPE t_json_table_9 IS TABLE OF t_json_table_row_9;
+    TYPE t_8_value_table IS TABLE OF t_8_value_row;
     
-    TYPE t_json_table_row_10 IS RECORD (
-        column_1_value VARCHAR2(4000)
-       ,column_2_value VARCHAR2(4000)
-       ,column_3_value VARCHAR2(4000)
-       ,column_4_value VARCHAR2(4000)
-       ,column_5_value VARCHAR2(4000)
-       ,column_6_value VARCHAR2(4000)
-       ,column_7_value VARCHAR2(4000)
-       ,column_8_value VARCHAR2(4000)
-       ,column_9_value VARCHAR2(4000)
-       ,column_10_value VARCHAR2(4000)
+    TYPE t_9_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000),
+        value_4 VARCHAR2(4000),
+        value_5 VARCHAR2(4000),
+        value_6 VARCHAR2(4000),
+        value_7 VARCHAR2(4000),
+        value_8 VARCHAR2(4000),
+        value_9 VARCHAR2(4000)
     );
     
-    TYPE t_json_table_10 IS TABLE OF t_json_table_row_10;
+    TYPE t_9_value_table IS TABLE OF t_9_value_row;
+    
+    TYPE t_10_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000),
+        value_4 VARCHAR2(4000),
+        value_5 VARCHAR2(4000),
+        value_6 VARCHAR2(4000),
+        value_7 VARCHAR2(4000),
+        value_8 VARCHAR2(4000),
+        value_9 VARCHAR2(4000),
+        value_10 VARCHAR2(4000)
+    );
+    
+    TYPE t_10_value_table IS TABLE OF t_10_value_row;
 
     FUNCTION parse_path
         (p_path IN VARCHAR2)
@@ -173,9 +187,14 @@ CREATE OR REPLACE PACKAGE json_store IS
         (p_query_elements IN t_query_elements)
     RETURN t_varchars;
     
-    FUNCTION generate_query_statement
-        (p_query_elements IN t_query_elements) 
-    RETURN DBMS_SQL.VARCHAR2A;
+    PROCEDURE generate_query_statement
+        (p_query_elements IN t_query_elements
+        ,p_statement OUT VARCHAR2
+        ,p_statement_clob OUT CLOB);
+    
+    FUNCTION prepare_query
+        (p_query IN VARCHAR2)
+    RETURN t_prepared_query;
     
     /*FUNCTION generate_query_statement
         (p_query_elements IN t_query_elements)
@@ -413,101 +432,52 @@ CREATE OR REPLACE PACKAGE json_store IS
         (p_path IN VARCHAR2)
     RETURN json_parser.t_parse_events;
     
-    PROCEDURE get_json_table
-        (p_paths IN t_varchars
-        ,p_rows IN OUT NOCOPY t_t_varchars);
+    FUNCTION get_1_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_1_value_table PIPELINED;
     
-    FUNCTION get_json_table
-        (p_paths IN t_varchars)
-    RETURN t_t_varchars PIPELINED;     
-
-    FUNCTION get_json_table
-        (p_path IN VARCHAR2)
-    RETURN t_varchars PIPELINED;
+    FUNCTION get_2_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_2_value_table PIPELINED;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2)
-    RETURN t_json_table_2 PIPELINED;
+    FUNCTION get_3_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_3_value_table PIPELINED;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2)
-    RETURN t_json_table_3 PIPELINED;
+    FUNCTION get_4_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_4_value_table PIPELINED;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2)
-    RETURN t_json_table_4 PIPELINED;
+    FUNCTION get_5_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_5_value_table PIPELINED;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2)
-    RETURN t_json_table_5 PIPELINED;
+    FUNCTION get_6_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_6_value_table PIPELINED;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2)
-    RETURN t_json_table_6 PIPELINED;
+    FUNCTION get_7_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_7_value_table PIPELINED;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2
-        ,p_path_7 IN VARCHAR2)
-    RETURN t_json_table_7 PIPELINED;
+    FUNCTION get_8_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_8_value_table PIPELINED;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2
-        ,p_path_7 IN VARCHAR2
-        ,p_path_8 IN VARCHAR2)
-    RETURN t_json_table_8 PIPELINED;
+    FUNCTION get_9_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_9_value_table PIPELINED;
     
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2
-        ,p_path_7 IN VARCHAR2
-        ,p_path_8 IN VARCHAR2
-        ,p_path_9 IN VARCHAR2)
-    RETURN t_json_table_9 PIPELINED;
-    
-    FUNCTION get_json_table
-        (p_path_1 IN VARCHAR2
-        ,p_path_2 IN VARCHAR2
-        ,p_path_3 IN VARCHAR2
-        ,p_path_4 IN VARCHAR2
-        ,p_path_5 IN VARCHAR2
-        ,p_path_6 IN VARCHAR2
-        ,p_path_7 IN VARCHAR2
-        ,p_path_8 IN VARCHAR2
-        ,p_path_9 IN VARCHAR2
-        ,p_path_10 IN VARCHAR2)
-    RETURN t_json_table_10 PIPELINED;
+    FUNCTION get_10_value_table
+        (p_query IN VARCHAR2)
+    RETURN t_10_value_table PIPELINED;
     
     FUNCTION get_value_table
         (p_query IN VARCHAR2)
-    RETURN anydataset PIPELINED USING t_json_query;
+    RETURN ANYDATASET PIPELINED USING t_json_query;
+    
+    FUNCTION get_value_table_cursor
+        (p_query IN VARCHAR2)
+    RETURN SYS_REFCURSOR;
     
 END;

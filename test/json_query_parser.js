@@ -1,8 +1,8 @@
-suite("Invalid query parser", function() {
+suite("Invalid query tests", function() {
 
 });
 
-suite("Valid query parser", function() {
+suite("Valid query tests", function() {
 
     test("One simple name", function() {
     
@@ -2260,6 +2260,325 @@ suite("Valid query parser", function() {
                 first_child_i: null,
                 next_sibling_i: null,
                 alias: "PERSON_PROPERTY"
+            }
+        ]);
+    
+    });
+
+    test("Single variable", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: ':1'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "1",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Single variable, spaces before :", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: '   :1'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "1",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Single variable, spaces after", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: ':1  '
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "1",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Single optional variable", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: ':1?'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "1",
+                optional: true,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Single optional variable, spaces before ?", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: ':1 ?'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "1",
+                optional: true,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Single :10 variable", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: ':10'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "10",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Variable as a property", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons.:5'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "5",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Variable as a property, spaces after the dot", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons. :5'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "5",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Variable as an array element", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons[:5]'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "5",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Variable as an array element, spaces after [", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons[   :5]'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "5",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Variable as an array element, spaces before ]", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons[   :5]'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "5",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Property of a variable", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons.:5.name'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "5",
+                optional: false,
+                first_child_i: 3,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "name",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Property of a variable, spaces after the variable", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons.:5   .name'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "5",
+                optional: false,
+                first_child_i: 3,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "name",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
             }
         ]);
     

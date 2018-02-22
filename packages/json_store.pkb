@@ -49,6 +49,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00017', 'Alias too long!');
         default_message_resolver.register_message('JDOC-00018', 'Property name :1 is too long to be a column name!');
         default_message_resolver.register_message('JDOC-00019', 'Alias not specified for a leaf wildcard property!');
+        default_message_resolver.register_message('JDOC-00020', 'Variable name is not a valid number!');
+        default_message_resolver.register_message('JDOC-00021', 'Only variables with names 1 .. :1 are supported!');
     END;
     
     FUNCTION get_length
@@ -486,6 +488,30 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         END;
         
+        PROCEDURE push_variable
+            (p_value IN VARCHAR2) IS
+            
+            v_variable NUMBER;
+            
+        BEGIN
+        
+            BEGIN
+                v_variable := TO_NUMBER(p_value);
+            EXCEPTION
+                WHEN OTHERS THEN
+                    -- Variable name is not a valid number!
+                    error$.raise('JDOC-00020');
+            END;
+
+            IF v_variable > 10 THEN
+                -- Only variables with names 1 .. :1 are supported!
+                error$.raise('JDOC-00021', 10);
+            END IF;
+            
+            push('V', p_value);
+        
+        END;
+        
         PROCEDURE pop_sibling IS
         BEGIN
         
@@ -508,11 +534,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             (p_alias IN VARCHAR2) IS
         BEGIN
         
-            /*IF v_aliases.EXISTS(p_alias) THEN
-                -- Duplicate alias :1!
-                error$.raise('JDOC-00016', p_alias);
-            END IF;*/
-            
             v_query_elements(v_stack(v_stack.COUNT).element_i).alias := p_alias;
             v_aliases(p_alias) := TRUE;
         
@@ -566,7 +587,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSIF v_char = '*' THEN
             
                 push('W');
-                v_state := 'lf_separator';  
+                v_state := 'lf_separator';
+                
+            ELSIF v_char = ':' THEN
+            
+                v_value := NULL;
+                v_state := 'lf_variable';
                             
             ELSIF NOT space THEN
             
@@ -1045,6 +1071,82 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         END;
         
+        PROCEDURE lf_variable IS
+        BEGIN
+        
+            IF INSTR('123456789', v_char) > 0 THEN
+            
+                v_value := v_char;
+                v_state := 'r_variable';
+                
+            ELSE
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE r_variable IS
+        BEGIN
+        
+            IF INSTR('1234567890', v_char) > 0 THEN
+            
+                v_value := v_value || v_char;
+                
+            ELSIF v_char = '.' THEN
+            
+                push_variable(v_value);
+                v_state := 'lf_element';
+                
+            ELSIF v_char = ',' THEN
+            
+                push_variable(v_value);
+                pop_sibling;
+                
+                IF (v_stack.COUNT = 1) THEN
+                    v_state := 'lf_element';
+                ELSE
+                    v_state := 'lf_child';
+                END IF;
+                
+            ELSIF v_char = ')' THEN
+            
+                push_variable(v_value);
+                pop_sibling;
+                v_state := 'lf_comma';
+                
+            ELSIF v_char = '[' THEN
+            
+                push_variable(v_value);
+                v_state := 'lf_array_element'; 
+                
+            ELSIF v_char = '(' THEN
+            
+                push_variable(v_value);
+                branch;
+                v_state := 'lf_child'; 
+                
+            ELSIF space THEN
+            
+                push_variable(v_value);
+                v_state := 'lf_separator';
+                
+            ELSIF v_char = '?' THEN
+            
+                push_variable(v_value);
+                set_optional;
+                v_state := 'lf_separator';
+                
+            ELSE
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+                
+            END IF;
+        
+        END;
         
     BEGIN
     
@@ -1076,6 +1178,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 WHEN 'lf_alias' THEN lf_alias;
                 WHEN 'r_alias' THEN r_alias;
                 WHEN 'r_quoted_alias' THEN r_quoted_alias;
+                WHEN 'lf_variable' THEN lf_variable;
+                WHEN 'r_variable' THEN r_variable;
             END CASE;
         
         END LOOP;
@@ -1086,6 +1190,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             push('I', v_value);
         ELSIF v_state = 'r_alias' THEN
             set_alias(UPPER(v_value));
+        ELSIF v_state = 'r_variable' THEN
+            push_variable(v_value);
         END IF;
         
         RETURN v_query_elements;

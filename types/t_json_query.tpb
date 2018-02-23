@@ -1,4 +1,20 @@
 CREATE OR REPLACE TYPE BODY t_json_query IS
+
+    /* 
+        Copyright 2018 Sergejs Vinniks
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+     
+          http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    */
     
     CONSTRUCTOR FUNCTION t_json_query (
         p_row_type ANYTYPE
@@ -10,12 +26,30 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     
     END;
 
-    STATIC FUNCTION odcitablestart 
-        (p_context IN OUT t_json_query
-        ,p_query IN VARCHAR2
-        ,p_variable_1 IN VARCHAR2 := NULL
-        ,p_variable_2 IN VARCHAR2 := NULL
-        ,p_variable_3 IN VARCHAR2 := NULL) RETURN PLS_INTEGER IS
+    STATIC FUNCTION odcitablestart ( 
+        p_context IN OUT t_json_query,
+        p_query IN VARCHAR2,
+        p_variable_1 IN VARCHAR2 := NULL,
+        p_variable_2 IN VARCHAR2 := NULL,
+        p_variable_3 IN VARCHAR2 := NULL,
+        p_variable_4 IN VARCHAR2 := NULL,
+        p_variable_5 IN VARCHAR2 := NULL,
+        p_variable_6 IN VARCHAR2 := NULL,
+        p_variable_7 IN VARCHAR2 := NULL,
+        p_variable_8 IN VARCHAR2 := NULL,
+        p_variable_9 IN VARCHAR2 := NULL,
+        p_variable_10 IN VARCHAR2 := NULL,
+        p_variable_11 IN VARCHAR2 := NULL,
+        p_variable_12 IN VARCHAR2 := NULL,
+        p_variable_13 IN VARCHAR2 := NULL,
+        p_variable_14 IN VARCHAR2 := NULL,
+        p_variable_15 IN VARCHAR2 := NULL,
+        p_variable_16 IN VARCHAR2 := NULL,
+        p_variable_17 IN VARCHAR2 := NULL,
+        p_variable_18 IN VARCHAR2 := NULL,
+        p_variable_19 IN VARCHAR2 := NULL,
+        p_variable_20 IN VARCHAR2 := NULL
+    ) RETURN PLS_INTEGER IS
         
         v_prepared_query json_store.t_prepared_query;
         v_cursor_id INTEGER;
@@ -39,9 +73,26 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         END IF;
         
         v_variable_values := t_varchars (
-            p_variable_1
-           ,p_variable_2
-           ,p_variable_3
+            p_variable_1,
+            p_variable_2,
+            p_variable_3,
+            p_variable_4,
+            p_variable_5,
+            p_variable_6,
+            p_variable_7,
+            p_variable_8,
+            p_variable_9,
+            p_variable_10,
+            p_variable_11,
+            p_variable_12,
+            p_variable_13,
+            p_variable_14,
+            p_variable_15,
+            p_variable_16,
+            p_variable_17,
+            p_variable_18,
+            p_variable_19,
+            p_variable_20
         );
                 
         FOR v_i IN 1..v_prepared_query.variable_names.COUNT LOOP
@@ -68,12 +119,30 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     
     END;
     
-    STATIC FUNCTION odcitabledescribe
-        (p_return_type OUT ANYTYPE
-        ,p_query IN VARCHAR2
-        ,p_variable_1 IN VARCHAR2 := NULL
-        ,p_variable_2 IN VARCHAR2 := NULL
-        ,p_variable_3 IN VARCHAR2 := NULL) RETURN PLS_INTEGER IS
+    STATIC FUNCTION odcitabledescribe (
+        p_return_type OUT ANYTYPE,
+        p_query IN VARCHAR2,
+        p_variable_1 IN VARCHAR2 := NULL,
+        p_variable_2 IN VARCHAR2 := NULL,
+        p_variable_3 IN VARCHAR2 := NULL,
+        p_variable_4 IN VARCHAR2 := NULL,
+        p_variable_5 IN VARCHAR2 := NULL,
+        p_variable_6 IN VARCHAR2 := NULL,
+        p_variable_7 IN VARCHAR2 := NULL,
+        p_variable_8 IN VARCHAR2 := NULL,
+        p_variable_9 IN VARCHAR2 := NULL,
+        p_variable_10 IN VARCHAR2 := NULL,
+        p_variable_11 IN VARCHAR2 := NULL,
+        p_variable_12 IN VARCHAR2 := NULL,
+        p_variable_13 IN VARCHAR2 := NULL,
+        p_variable_14 IN VARCHAR2 := NULL,
+        p_variable_15 IN VARCHAR2 := NULL,
+        p_variable_16 IN VARCHAR2 := NULL,
+        p_variable_17 IN VARCHAR2 := NULL,
+        p_variable_18 IN VARCHAR2 := NULL,
+        p_variable_19 IN VARCHAR2 := NULL,
+        p_variable_20 IN VARCHAR2 := NULL
+    ) RETURN PLS_INTEGER IS
         
         v_prepared_query json_store.t_prepared_query;
         
@@ -100,12 +169,29 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     END;
     
     STATIC FUNCTION odcitableprepare (
-        p_context OUT t_json_query
-       ,p_table_function_info IN sys.odcitabfuncinfo
-       ,p_query IN VARCHAR2
-       ,p_variable_1 IN VARCHAR2 := NULL
-       ,p_variable_2 IN VARCHAR2 := NULL
-       ,p_variable_3 IN VARCHAR2 := NULL
+        p_context OUT t_json_query,
+        p_table_function_info IN sys.odcitabfuncinfo,
+        p_query IN VARCHAR2,
+        p_variable_1 IN VARCHAR2 := NULL,
+        p_variable_2 IN VARCHAR2 := NULL,
+        p_variable_3 IN VARCHAR2 := NULL,
+        p_variable_4 IN VARCHAR2 := NULL,
+        p_variable_5 IN VARCHAR2 := NULL,
+        p_variable_6 IN VARCHAR2 := NULL,
+        p_variable_7 IN VARCHAR2 := NULL,
+        p_variable_8 IN VARCHAR2 := NULL,
+        p_variable_9 IN VARCHAR2 := NULL,
+        p_variable_10 IN VARCHAR2 := NULL,
+        p_variable_11 IN VARCHAR2 := NULL,
+        p_variable_12 IN VARCHAR2 := NULL,
+        p_variable_13 IN VARCHAR2 := NULL,
+        p_variable_14 IN VARCHAR2 := NULL,
+        p_variable_15 IN VARCHAR2 := NULL,
+        p_variable_16 IN VARCHAR2 := NULL,
+        p_variable_17 IN VARCHAR2 := NULL,
+        p_variable_18 IN VARCHAR2 := NULL,
+        p_variable_19 IN VARCHAR2 := NULL,
+        p_variable_20 IN VARCHAR2 := NULL
     ) RETURN PLS_INTEGER IS
     
         v_return NUMBER;
@@ -136,9 +222,10 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     
     END;
              
-    MEMBER FUNCTION fetch_row
-        (self IN OUT NOCOPY t_json_query
-        ,p_row IN OUT NOCOPY t_varchars) RETURN BOOLEAN IS
+    MEMBER FUNCTION fetch_row(
+        self IN OUT NOCOPY t_json_query,
+        p_row IN OUT NOCOPY t_varchars
+    ) RETURN BOOLEAN IS
         
         v_column_values DBMS_SQL.VARCHAR2_TABLE;
         
@@ -186,10 +273,11 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     END;
     
     
-    MEMBER FUNCTION odcitablefetch
-        (self IN OUT NOCOPY t_json_query
-        ,p_row_count IN NUMBER
-        ,p_dataset OUT ANYDATASET) RETURN PLS_INTEGER IS
+    MEMBER FUNCTION odcitablefetch (
+        self IN OUT NOCOPY t_json_query,
+        p_row_count IN NUMBER,
+        p_dataset OUT ANYDATASET
+    ) RETURN PLS_INTEGER IS
         
         v_row t_varchars;
         v_cursor_id INTEGER;
@@ -237,8 +325,10 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     
     END;
     
-    MEMBER FUNCTION odcitableclose
-        (self IN t_json_query) RETURN PLS_INTEGER IS
+    MEMBER FUNCTION odcitableclose (
+        self IN t_json_query
+    ) 
+    RETURN PLS_INTEGER IS
     BEGIN
     
         RETURN odciconst.success;

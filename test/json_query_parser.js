@@ -2584,6 +2584,181 @@ suite("Valid query tests", function() {
     
     });
 
+    test("Variable property in a branch", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons(.:2,.:3)'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "2",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 3,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "3",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Variable property in a branch, spaces after (", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons(   .:2,.:3)'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "2",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 3,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "3",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Variable property in a branch, spaces before the comma", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons(.:2   ,.:3)'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "2",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 3,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "3",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Variable property in a branch, spaces after the comma", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons(.:2,   .:3)'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "2",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 3,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "3",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Variable property in a branch, spaces before )", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: 'persons(.:2,.:3   )'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "2",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 3,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "3",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
 });
 
 suite("Column name retrieval tests", function() {

@@ -16,15 +16,23 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         limitations under the License.
     */
 
-    TYPE t_json_values IS TABLE OF json_values%ROWTYPE;
+    TYPE t_json_values IS 
+        TABLE OF json_values%ROWTYPE;
 
-    TYPE t_integer_indexed_numbers IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
-    TYPE t_varchar_indexed_varchars IS TABLE OF VARCHAR2(32000) INDEX BY VARCHAR2(32000);
+    TYPE t_integer_indexed_numbers IS 
+        TABLE OF NUMBER 
+        INDEX BY PLS_INTEGER;
+        
+    TYPE t_varchar_indexed_varchars IS 
+        TABLE OF VARCHAR2(32000) 
+        INDEX BY VARCHAR2(32000);
 
     v_property_request_sqls t_varchar_indexed_varchars;
     v_value_request_sqls t_varchar_indexed_varchars;
         
-    TYPE t_prepared_queries IS TABLE OF t_prepared_query INDEX BY VARCHAR2(32000);
+    TYPE t_prepared_queries IS 
+        TABLE OF t_prepared_query 
+        INDEX BY VARCHAR2(32000);
     
     v_prepared_query_cache t_prepared_queries;
     
@@ -53,12 +61,14 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00021', 'Only variables with names 1 .. :1 are supported!');
     END;
     
-    FUNCTION get_length
-        (p_array_id IN NUMBER)
+    FUNCTION get_length (
+        p_array_id IN NUMBER
+    )
     RETURN NUMBER;
 
-    FUNCTION parse_path
-        (p_path IN VARCHAR2)
+    FUNCTION parse_path (
+        p_path IN VARCHAR2
+    )
     RETURN t_path_elements IS
 
         v_state VARCHAR2(30);
@@ -396,8 +406,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     END;
     
-    FUNCTION parse_query
-        (p_query IN VARCHAR2)
+    FUNCTION parse_query (
+        p_query IN VARCHAR2
+    )
     RETURN t_query_elements IS
     
         v_query_elements t_query_elements;
@@ -503,9 +514,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                     error$.raise('JDOC-00020');
             END;
 
-            IF v_variable > 10 THEN
+            IF v_variable > 20 THEN
                 -- Only variables with names 1 .. :1 are supported!
-                error$.raise('JDOC-00021', 10);
+                error$.raise('JDOC-00021', 20);
             END IF;
             
             push('V', p_value);
@@ -1248,19 +1259,24 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    PROCEDURE get_query_details
-        (p_query_elements IN t_query_elements
-        ,p_column_names IN OUT NOCOPY t_varchars
-        ,p_variable_names IN OUT NOCOPY t_varchars) IS
+    PROCEDURE get_query_details (
+        p_query_elements IN t_query_elements,
+        p_column_names IN OUT NOCOPY t_varchars,
+        p_variable_names IN OUT NOCOPY t_varchars
+    ) IS
     
-        TYPE t_unique_names IS TABLE OF BOOLEAN INDEX BY VARCHAR2(30);
+        TYPE t_unique_names IS 
+            TABLE OF BOOLEAN 
+            INDEX BY VARCHAR2(30);
+            
         v_unique_column_names t_unique_names;
         v_variable_names t_unique_names;
         
         v_variable_name VARCHAR2(30);
         
-        PROCEDURE add_column_name
-            (p_name IN VARCHAR2) IS
+        PROCEDURE add_column_name (
+            p_name IN VARCHAR2
+        ) IS
         BEGIN
             
             IF LENGTH(p_name) > 30 THEN
@@ -1280,8 +1296,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         END;
         
-        PROCEDURE visit_element
-            (p_i IN PLS_INTEGER) IS
+        PROCEDURE visit_element (
+            p_i IN PLS_INTEGER
+        ) IS
             
             v_child_i PLS_INTEGER;
             
@@ -1350,10 +1367,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    PROCEDURE generate_query_statement
-        (p_query_elements IN t_query_elements
-        ,p_statement OUT VARCHAR2
-        ,p_statement_clob OUT CLOB) IS
+    PROCEDURE generate_query_statement (
+        p_query_elements IN t_query_elements,
+        p_statement OUT VARCHAR2,
+        p_statement_clob OUT CLOB
+    ) IS
     
         v_line VARCHAR2(32000);
         
@@ -1361,9 +1379,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         v_comma CHAR;
         v_and VARCHAR2(5);
     
-        PROCEDURE add_text
-            (p_text IN VARCHAR2
-            ,p_parent_instance IN PLS_INTEGER := NULL) IS
+        PROCEDURE add_text (
+            p_text IN VARCHAR2,
+            p_parent_instance IN PLS_INTEGER := NULL
+        ) IS
         BEGIN
             
             IF LENGTH(v_line) + LENGTH(p_text) > 32000 THEN
@@ -1382,8 +1401,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         END;
     
-        PROCEDURE select_list_visit
-            (p_i PLS_INTEGER) IS
+        PROCEDURE select_list_visit (
+            p_i PLS_INTEGER
+        ) IS
             
             v_table_instance PLS_INTEGER;
             v_child_i PLS_INTEGER;
@@ -1418,8 +1438,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         END;
         
-        PROCEDURE from_list_visit
-            (p_i PLS_INTEGER) IS
+        PROCEDURE from_list_visit (
+            p_i PLS_INTEGER
+        ) IS
             
             v_table_instance PLS_INTEGER;
             v_child_i PLS_INTEGER;
@@ -1445,10 +1466,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         END;
         
-        PROCEDURE where_list_visit
-            (p_i PLS_INTEGER
-            ,p_parent_i IN PLS_INTEGER
-            ,p_parent_table_instance IN PLS_INTEGER) IS
+        PROCEDURE where_list_visit (
+            p_i PLS_INTEGER,
+            p_parent_i IN PLS_INTEGER,
+            p_parent_table_instance IN PLS_INTEGER
+        ) IS
             
             v_table_instance PLS_INTEGER;
             v_child_i PLS_INTEGER;
@@ -1559,8 +1581,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    FUNCTION prepare_query
-        (p_query IN VARCHAR2)
+    FUNCTION prepare_query (
+        p_query IN VARCHAR2
+    )
     RETURN t_prepared_query IS
     
         v_prepared_query t_prepared_query;
@@ -1591,9 +1614,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
 
-    PROCEDURE request_properties
-        (p_path_elements IN t_path_elements
-        ,p_properties OUT SYS_REFCURSOR) IS
+    PROCEDURE request_properties (
+        p_path_elements IN t_path_elements,
+        p_properties OUT SYS_REFCURSOR
+    ) IS
 
         v_path_signature VARCHAR2(4000);
 
@@ -1602,8 +1626,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
         v_path_values t_varchars;
 
-        FUNCTION field
-            (p_i IN PLS_INTEGER)
+        FUNCTION field (
+            p_i IN PLS_INTEGER
+        )
         RETURN VARCHAR2 IS
         BEGIN
             RETURN CASE p_path_elements(p_i).type
@@ -1716,19 +1741,23 @@ WHERE 1=1';
 
         OPEN p_properties
         FOR v_sql
-        USING IN v_path_values, p_path_elements(p_path_elements.COUNT).value;
+        USING  
+            IN v_path_values, 
+            IN p_path_elements(p_path_elements.COUNT).value;
 
     END;
 
-    PROCEDURE request_properties
-        (p_path IN VARCHAR2
-        ,p_properties OUT SYS_REFCURSOR) IS
+    PROCEDURE request_properties (
+        p_path IN VARCHAR2,
+        p_properties OUT SYS_REFCURSOR
+    ) IS
     BEGIN
         request_properties(parse_path(p_path), p_properties);
     END;
 
-    FUNCTION request_properties
-        (p_path IN VARCHAR2)
+    FUNCTION request_properties (
+        p_path IN VARCHAR2
+    )
     RETURN t_properties PIPELINED IS
 
         c_properties SYS_REFCURSOR;
@@ -1762,14 +1791,15 @@ WHERE 1=1';
 
     END;
 
-    PROCEDURE create_json
-        (p_parent_ids IN t_numbers
-        ,p_name IN VARCHAR2
-        ,p_content_parse_events IN json_parser.t_parse_events
-        ,p_event_i IN OUT NOCOPY PLS_INTEGER
-        ,p_created_ids IN OUT NOCOPY t_numbers
-        ,p_id IN NUMBER := NULL) IS
-
+    PROCEDURE create_json (
+        p_parent_ids IN t_numbers,
+        p_name IN VARCHAR2,
+        p_content_parse_events IN json_parser.t_parse_events,
+        p_event_i IN OUT NOCOPY PLS_INTEGER,
+        p_created_ids IN OUT NOCOPY t_numbers,
+        p_id IN NUMBER := NULL
+    ) IS
+    
         v_json_values t_json_values;
 
         v_event_i PLS_INTEGER;
@@ -1823,8 +1853,9 @@ WHERE 1=1';
 
         END;
 
-        PROCEDURE insert_value
-            (p_value json_values%ROWTYPE) IS
+        PROCEDURE insert_value (
+            p_value json_values%ROWTYPE
+        ) IS
 
             c_flush_amount CONSTANT PLS_INTEGER := 200;
 
@@ -1839,10 +1870,11 @@ WHERE 1=1';
 
         END;
 
-        FUNCTION create_value
-            (p_parent_id IN NUMBER
-            ,p_name IN VARCHAR2
-            ,p_id IN NUMBER := NULL)
+        FUNCTION create_value (
+            p_parent_id IN NUMBER,
+            p_name IN VARCHAR2,
+            p_id IN NUMBER := NULL
+        )
         RETURN NUMBER IS
 
             v_value json_values%ROWTYPE;
@@ -1957,11 +1989,12 @@ WHERE 1=1';
 
     END;
 
-    FUNCTION create_json
-        (p_parent_ids IN t_numbers
-        ,p_name IN VARCHAR2
-        ,p_content_parse_events IN json_parser.t_parse_events
-        ,p_id IN NUMBER := NULL) 
+    FUNCTION create_json (
+        p_parent_ids IN t_numbers,
+        p_name IN VARCHAR2,
+        p_content_parse_events IN json_parser.t_parse_events,
+        p_id IN NUMBER := NULL
+    ) 
     RETURN t_numbers IS
     
         v_event_i PLS_INTEGER;
@@ -1976,23 +2009,26 @@ WHERE 1=1';
     
     END;
 
-    FUNCTION create_json
-        (p_content IN VARCHAR2)
+    FUNCTION create_json (
+        p_content IN VARCHAR2
+    )
     RETURN NUMBER IS
         v_created_ids t_numbers;
     BEGIN
         RETURN create_json(t_numbers(NULL), NULL, json_parser.parse(p_content))(1);
     END;
     
-    FUNCTION create_json_clob
-        (p_content IN CLOB)
+    FUNCTION create_json_clob (
+        p_content IN CLOB
+    )
     RETURN NUMBER IS
     BEGIN
         RETURN create_json(t_numbers(NULL), NULL, json_parser.parse(p_content))(1);
     END;
 
-    FUNCTION string_events
-        (p_value IN VARCHAR2)
+    FUNCTION string_events (
+        p_value IN VARCHAR2
+    )
     RETURN json_parser.t_parse_events IS
     
         v_parse_event json_parser.t_parse_event;
@@ -2010,8 +2046,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION number_events
-        (p_value IN NUMBER)
+    FUNCTION number_events (
+        p_value IN NUMBER
+    )
     RETURN json_parser.t_parse_events IS
     
         v_parse_event json_parser.t_parse_event;
@@ -2029,8 +2066,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION boolean_events
-        (p_value IN BOOLEAN)
+    FUNCTION boolean_events (
+        p_value IN BOOLEAN
+    )
     RETURN json_parser.t_parse_events IS
     
         v_parse_event json_parser.t_parse_event;
@@ -2091,8 +2129,9 @@ WHERE 1=1';
         
     END;
 
-    FUNCTION create_string
-        (p_value IN VARCHAR2)
+    FUNCTION create_string (
+        p_value IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -2100,8 +2139,9 @@ WHERE 1=1';
 
     END;
 
-    FUNCTION create_number
-        (p_value IN NUMBER)
+    FUNCTION create_number (
+        p_value IN NUMBER
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -2109,8 +2149,9 @@ WHERE 1=1';
 
     END;
 
-    FUNCTION create_boolean
-        (p_value IN BOOLEAN)
+    FUNCTION create_boolean (
+        p_value IN BOOLEAN
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -2142,10 +2183,11 @@ WHERE 1=1';
 
     END;
 
-    FUNCTION set_property
-        (p_path IN VARCHAR2
-        ,p_content_parse_events IN json_parser.t_parse_events
-        ,p_exact IN BOOLEAN := TRUE)
+    FUNCTION set_property (
+        p_path IN VARCHAR2,
+        p_content_parse_events IN json_parser.t_parse_events,
+        p_exact IN BOOLEAN := TRUE
+    )
     RETURN t_numbers IS
 
         v_path_elements t_path_elements;
@@ -2262,17 +2304,19 @@ WHERE 1=1';
 
     END;
 
-    FUNCTION set_json
-        (p_path IN VARCHAR2
-        ,p_content IN VARCHAR2)
+    FUNCTION set_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
         RETURN set_property(p_path, json_parser.parse(p_content))(1);
     END;
     
-    PROCEDURE set_json
-        (p_path IN VARCHAR2
-        ,p_content IN VARCHAR2) IS
+    PROCEDURE set_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2
+    ) IS
         
         v_dummy NUMBER;
         
@@ -2282,17 +2326,19 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION set_json_clob
-        (p_path IN VARCHAR2
-        ,p_content IN CLOB)
+    FUNCTION set_json_clob (
+        p_path IN VARCHAR2,
+        p_content IN CLOB
+    )
     RETURN NUMBER IS
     BEGIN
         RETURN set_property(p_path, json_parser.parse(p_content))(1);
     END;
 
-    PROCEDURE set_json_clob
-        (p_path IN VARCHAR2
-        ,p_content IN CLOB) IS
+    PROCEDURE set_json_clob (
+        p_path IN VARCHAR2,
+        p_content IN CLOB
+    ) IS
         
         v_dummy NUMBER;
         
@@ -2302,9 +2348,10 @@ WHERE 1=1';
     
     END;
 
-    FUNCTION set_string
-        (p_path IN VARCHAR2
-        ,p_value IN VARCHAR2)
+    FUNCTION set_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -2312,9 +2359,10 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE set_string
-        (p_path IN VARCHAR2
-        ,p_value IN VARCHAR2) IS
+    PROCEDURE set_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2
+    ) IS
         
         v_dummy NUMBER;
         
@@ -2324,9 +2372,10 @@ WHERE 1=1';
 
     END;
 
-    FUNCTION set_number
-        (p_path IN VARCHAR2
-        ,p_value IN NUMBER)
+    FUNCTION set_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -2334,9 +2383,10 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE set_number
-        (p_path IN VARCHAR2
-        ,p_value IN NUMBER) IS
+    PROCEDURE set_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER
+    ) IS
         
         v_dummy NUMBER;
         
@@ -2346,9 +2396,10 @@ WHERE 1=1';
 
     END;
 
-    FUNCTION set_boolean
-        (p_path IN VARCHAR2
-        ,p_value IN BOOLEAN)
+    FUNCTION set_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -2356,9 +2407,10 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE set_boolean
-        (p_path IN VARCHAR2
-        ,p_value IN BOOLEAN) IS
+    PROCEDURE set_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN
+    ) IS
         
         v_dummy NUMBER;
         
@@ -2368,8 +2420,9 @@ WHERE 1=1';
 
     END;
 
-    FUNCTION set_null
-        (p_path IN VARCHAR2)
+    FUNCTION set_null (
+        p_path IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -2377,8 +2430,9 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE set_null
-        (p_path IN VARCHAR2) IS
+    PROCEDURE set_null (
+        p_path IN VARCHAR2
+    ) IS
     
         v_dummy NUMBER;
         
@@ -2386,8 +2440,9 @@ WHERE 1=1';
         v_dummy := set_null(p_path);
     END;
 
-    FUNCTION set_object
-        (p_path IN VARCHAR2)
+    FUNCTION set_object (
+        p_path IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -2395,8 +2450,9 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE set_object
-        (p_path IN VARCHAR2) IS
+    PROCEDURE set_object (
+        p_path IN VARCHAR2
+    ) IS
         
         v_dummy NUMBER;
         
@@ -2404,8 +2460,9 @@ WHERE 1=1';
         v_dummy := set_property(p_path, object_events)(1);
     END;
 
-    FUNCTION set_array
-        (p_path IN VARCHAR2)
+    FUNCTION set_array (
+        p_path IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -2413,8 +2470,9 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE set_array
-        (p_path IN VARCHAR2) IS
+    PROCEDURE set_array (
+        p_path IN VARCHAR2
+    ) IS
         
         v_dummy NUMBER;
         
@@ -2422,9 +2480,10 @@ WHERE 1=1';
         v_dummy := set_property(p_path, array_events)(1);
     END;
     
-    PROCEDURE request_values
-        (p_path_elements IN t_path_elements
-        ,p_values OUT SYS_REFCURSOR) IS
+    PROCEDURE request_values (
+        p_path_elements IN t_path_elements,
+        p_values OUT SYS_REFCURSOR
+    ) IS
         
         v_path_signature VARCHAR2(4000);
 
@@ -2526,15 +2585,17 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE request_values
-        (p_path IN VARCHAR2
-        ,p_values OUT SYS_REFCURSOR) IS
+    PROCEDURE request_values (
+        p_path IN VARCHAR2,
+        p_values OUT SYS_REFCURSOR
+    ) IS
     BEGIN
         request_values(parse_path(p_path), p_values);
     END;
         
-    FUNCTION request_values
-        (p_path IN VARCHAR2)
+    FUNCTION request_values (
+        p_path IN VARCHAR2
+    )
     RETURN t_values PIPELINED IS
     
         c_values SYS_REFCURSOR;
@@ -2566,8 +2627,9 @@ WHERE 1=1';
 
     END;
     
-    FUNCTION request_value
-        (p_path IN VARCHAR2)
+    FUNCTION request_value (
+        p_path IN VARCHAR2
+    ) 
     RETURN t_value IS
     
         c_values SYS_REFCURSOR;
@@ -2594,8 +2656,9 @@ WHERE 1=1';
 
     END;
     
-    FUNCTION get_string
-        (p_path IN VARCHAR2)
+    FUNCTION get_string (
+        p_path IN VARCHAR2
+    )
     RETURN VARCHAR2 IS
 
         v_value t_value;
@@ -2613,8 +2676,9 @@ WHERE 1=1';
 
     END;
     
-    FUNCTION get_number
-        (p_path IN VARCHAR2)
+    FUNCTION get_number (
+        p_path IN VARCHAR2
+    )
     RETURN NUMBER IS
     
         v_value t_value;
@@ -2646,8 +2710,9 @@ WHERE 1=1';
 
     END;
     
-    FUNCTION get_boolean
-        (p_path IN VARCHAR2)
+    FUNCTION get_boolean (
+        p_path IN VARCHAR2
+    )
     RETURN BOOLEAN IS
     
         v_value t_value;
@@ -2665,8 +2730,9 @@ WHERE 1=1';
 
     END;
     
-    FUNCTION escape_string
-        (p_string IN VARCHAR2)
+    FUNCTION escape_string (
+        p_string IN VARCHAR2
+    )
     RETURN VARCHAR2 IS
 
         v_result VARCHAR2(4000);
@@ -2686,15 +2752,18 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE serialize_value
-        (p_parse_events IN json_parser.t_parse_events
-        ,p_json IN OUT NOCOPY VARCHAR2
-        ,p_json_clob IN OUT NOCOPY CLOB) IS
+    PROCEDURE serialize_value (
+        p_parse_events IN json_parser.t_parse_events,
+        p_json IN OUT NOCOPY VARCHAR2,
+        p_json_clob IN OUT NOCOPY CLOB
+    ) IS
         
         v_value VARCHAR2(4000);
         v_length PLS_INTEGER;
 
-        TYPE t_booleans IS TABLE OF BOOLEAN;
+        TYPE t_booleans IS 
+            TABLE OF BOOLEAN;
+            
         v_comma_stack t_booleans;
                 
     BEGIN
@@ -2790,8 +2859,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_json
-        (p_path IN VARCHAR2)
+    FUNCTION get_json (
+        p_path IN VARCHAR2
+    )
     RETURN VARCHAR2 IS
     
         v_json VARCHAR2(32000);
@@ -2805,8 +2875,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_json_clob
-        (p_path IN VARCHAR2)
+    FUNCTION get_json_clob (
+        p_path IN VARCHAR2
+    )
     RETURN CLOB IS
         
         v_json VARCHAR2(32000);
@@ -2822,11 +2893,12 @@ WHERE 1=1';
     
     END;
     
-    PROCEDURE apply_value
-        (p_value_row IN json_values%ROWTYPE
-        ,p_content_parse_events IN json_parser.t_parse_events
-        ,p_event_i IN OUT NOCOPY PLS_INTEGER
-        ,p_check_types IN BOOLEAN) IS
+    PROCEDURE apply_value (
+        p_value_row IN json_values%ROWTYPE,
+        p_content_parse_events IN json_parser.t_parse_events,
+        p_event_i IN OUT NOCOPY PLS_INTEGER,
+        p_check_types IN BOOLEAN
+    ) IS
         
         v_event json_parser.t_parse_event;
         v_created_ids t_numbers;
@@ -2968,10 +3040,11 @@ WHERE 1=1';
     
     END;
     
-    PROCEDURE apply_json
-        (p_path IN VARCHAR2
-        ,p_content_parse_events json_parser.t_parse_events
-        ,p_check_types IN BOOLEAN) IS
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        p_content_parse_events json_parser.t_parse_events,
+        p_check_types IN BOOLEAN
+    ) IS
         
         c_values SYS_REFCURSOR;
         v_values t_values;
@@ -3019,26 +3092,29 @@ WHERE 1=1';
     
     END;
     
-    PROCEDURE apply_json
-        (p_path IN VARCHAR2,
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
          -- @json
-         p_content IN VARCHAR2
-        ,p_check_types IN BOOLEAN := FALSE) IS
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN := FALSE
+    ) IS
     BEGIN
         apply_json(p_path, json_parser.parse(p_content), p_check_types);
     END;
         
-    PROCEDURE apply_json_clob
-        (p_path IN VARCHAR2,
-         -- @json
-         p_content IN VARCHAR2
-        ,p_check_types IN BOOLEAN := FALSE) IS
+    PROCEDURE apply_json_clob (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN := FALSE
+    ) IS
     BEGIN
         apply_json(p_path, json_parser.parse(p_content), p_check_types);
     END;
     
-    FUNCTION get_length
-        (p_array_id IN NUMBER)
+    FUNCTION get_length (
+        p_array_id IN NUMBER
+    )
     RETURN NUMBER IS
     
         v_length NUMBER;
@@ -3055,8 +3131,9 @@ WHERE 1=1';
     END; 
         
     
-    FUNCTION get_length
-        (p_path IN VARCHAR2)
+    FUNCTION get_length (
+        p_path IN VARCHAR2
+    )
     RETURN NUMBER IS
     
         v_array t_value;
@@ -3075,10 +3152,11 @@ WHERE 1=1';
     END;
     
     
-    FUNCTION push_property
-        (p_path IN VARCHAR2
-        ,p_content_parse_events IN json_parser.t_parse_events
-        ,p_exact IN BOOLEAN := TRUE)
+    FUNCTION push_property (
+        p_path IN VARCHAR2,
+        p_content_parse_events IN json_parser.t_parse_events,
+        p_exact IN BOOLEAN := TRUE
+    )
     RETURN t_numbers IS
     
         c_values SYS_REFCURSOR;
@@ -3129,9 +3207,10 @@ WHERE 1=1';
         
     END;
     
-    FUNCTION push_string
-        (p_path IN VARCHAR2
-        ,p_value IN VARCHAR2)
+    FUNCTION push_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -3139,9 +3218,10 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE push_string
-        (p_path IN VARCHAR2
-        ,p_value IN VARCHAR2) IS
+    PROCEDURE push_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2
+    ) IS
         
         v_dummy NUMBER;
         
@@ -3149,9 +3229,10 @@ WHERE 1=1';
         v_dummy := push_string(p_path, p_value);
     END;
    
-    FUNCTION push_number
-        (p_path IN VARCHAR2
-        ,p_value IN NUMBER)
+    FUNCTION push_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -3159,9 +3240,10 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE push_number
-        (p_path IN VARCHAR2
-        ,p_value IN NUMBER) IS
+    PROCEDURE push_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER
+    ) IS
         
         v_dummy NUMBER;
         
@@ -3169,9 +3251,10 @@ WHERE 1=1';
         v_dummy := push_number(p_path, p_value);
     END;
     
-    FUNCTION push_boolean
-        (p_path IN VARCHAR2
-        ,p_value IN BOOLEAN)
+    FUNCTION push_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -3179,9 +3262,10 @@ WHERE 1=1';
 
     END;
     
-    PROCEDURE push_boolean
-        (p_path IN VARCHAR2
-        ,p_value IN BOOLEAN) IS
+    PROCEDURE push_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN
+    ) IS
         
         v_dummy NUMBER;
         
@@ -3189,8 +3273,9 @@ WHERE 1=1';
         v_dummy := push_boolean(p_path, p_value);
     END;
     
-    FUNCTION push_null
-        (p_path IN VARCHAR2)
+    FUNCTION push_null (
+        p_path IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -3198,8 +3283,9 @@ WHERE 1=1';
 
     END;
         
-    PROCEDURE push_null
-        (p_path IN VARCHAR2) IS
+    PROCEDURE push_null (
+        p_path IN VARCHAR2
+    ) IS
         
         v_dummy NUMBER;
         
@@ -3207,8 +3293,9 @@ WHERE 1=1';
         v_dummy := push_null(p_path);
     END;
     
-    FUNCTION push_object
-        (p_path IN VARCHAR2)
+    FUNCTION push_object (
+        p_path IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -3216,8 +3303,9 @@ WHERE 1=1';
 
     END;
         
-    PROCEDURE push_object
-        (p_path IN VARCHAR2) IS
+    PROCEDURE push_object (
+        p_path IN VARCHAR2
+    ) IS
         
         v_dummy NUMBER;
         
@@ -3225,8 +3313,9 @@ WHERE 1=1';
         v_dummy := push_object(p_path);
     END;
         
-    FUNCTION push_array
-        (p_path IN VARCHAR2)
+    FUNCTION push_array (
+        p_path IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
 
@@ -3234,8 +3323,9 @@ WHERE 1=1';
 
     END;
         
-    PROCEDURE push_array
-        (p_path IN VARCHAR2) IS
+    PROCEDURE push_array (
+        p_path IN VARCHAR2
+    ) IS
         
         v_dummy NUMBER;
         
@@ -3243,9 +3333,10 @@ WHERE 1=1';
         v_dummy := push_array(p_path);
     END;
         
-    FUNCTION push_json
-        (p_path IN VARCHAR2
-        ,p_content IN VARCHAR2)
+    FUNCTION push_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2
+    )
     RETURN NUMBER IS
     BEGIN
     
@@ -3253,9 +3344,10 @@ WHERE 1=1';
     
     END;
         
-    PROCEDURE push_json
-        (p_path IN VARCHAR2
-        ,p_content IN VARCHAR2) IS
+    PROCEDURE push_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2
+    ) IS
         
         v_dummy NUMBER;
         
@@ -3263,9 +3355,10 @@ WHERE 1=1';
         v_dummy := push_json(p_path, p_content);
     END;
         
-    FUNCTION push_json_clob
-        (p_path IN VARCHAR2
-        ,p_content IN CLOB)
+    FUNCTION push_json_clob (
+        p_path IN VARCHAR2,
+        p_content IN CLOB
+    )
     RETURN NUMBER IS
     BEGIN
     
@@ -3273,9 +3366,10 @@ WHERE 1=1';
     
     END;
         
-    PROCEDURE push_json_clob
-        (p_path IN VARCHAR2
-        ,p_content IN CLOB) IS
+    PROCEDURE push_json_clob (
+        p_path IN VARCHAR2,
+        p_content IN CLOB
+    ) IS
         
         v_dummy NUMBER;
         
@@ -3283,8 +3377,9 @@ WHERE 1=1';
         v_dummy := push_json(p_path, p_content);
     END;
     
-    PROCEDURE delete_value
-        (p_path IN VARCHAR2) IS
+    PROCEDURE delete_value (
+        p_path IN VARCHAR2
+    ) IS
         
         c_properties SYS_REFCURSOR;
         v_properties t_properties;
@@ -3325,13 +3420,16 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_parse_events
-        (p_path IN VARCHAR2)
+    FUNCTION get_parse_events (
+        p_path IN VARCHAR2
+    )
     RETURN json_parser.t_parse_events IS
     
         v_path_value t_value;
         
-        TYPE t_chars IS TABLE OF CHAR;
+        TYPE t_chars IS 
+            TABLE OF CHAR;
+            
         v_json_stack t_chars;
         
         v_last_lvl PLS_INTEGER;
@@ -3371,9 +3469,10 @@ WHERE 1=1';
                   ,lvl
             FROM parent_jsvl;
             
-        PROCEDURE add_event
-            (p_name IN VARCHAR2
-            ,p_value IN VARCHAR2 := NULL) IS
+        PROCEDURE add_event (
+            p_name IN VARCHAR2,
+            p_value IN VARCHAR2 := NULL
+        ) IS
         BEGIN
         
             v_events.EXTEND(1);
@@ -3450,8 +3549,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_1_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_1_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_1_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3483,8 +3583,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_2_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_2_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_2_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3517,8 +3618,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_3_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_3_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_3_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3553,8 +3655,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_4_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_4_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_4_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3590,8 +3693,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_5_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_5_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_5_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3628,8 +3732,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_6_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_6_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_6_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3666,8 +3771,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_7_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_7_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_7_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3705,8 +3811,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_8_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_8_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_8_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3745,8 +3852,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_9_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_9_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_9_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3786,8 +3894,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_10_value_table
-        (p_query IN VARCHAR2)
+    FUNCTION get_10_value_table (
+        p_query IN VARCHAR2
+    )
     RETURN t_10_value_table PIPELINED IS
     
         v_dummy NUMBER;
@@ -3828,8 +3937,9 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_value_table_cursor
-        (p_query IN VARCHAR2)
+    FUNCTION get_value_table_cursor (
+        p_query IN VARCHAR2
+    )
     RETURN SYS_REFCURSOR IS 
     
         v_prepared_query t_prepared_query;

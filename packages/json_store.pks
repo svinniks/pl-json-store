@@ -566,4 +566,11 @@ CREATE OR REPLACE PACKAGE json_store IS
     )
     RETURN SYS_REFCURSOR;
     
+    FUNCTION open_cursor 
+    RETURN INTEGER;
+    
+    PROCEDURE close_cursor (
+        p_cursor_id IN INTEGER
+    );
+    
 END;

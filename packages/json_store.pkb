@@ -35,6 +35,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         INDEX BY VARCHAR2(32000);
     
     v_prepared_query_cache t_prepared_queries;
+    v_open_cursors t_integer_indexed_numbers;
     
     PROCEDURE register_messages IS
     BEGIN
@@ -3961,6 +3962,39 @@ WHERE 1=1';
         
         RETURN v_cursor;
         
+    END;
+
+    FUNCTION open_cursor 
+    RETURN INTEGER IS
+    
+        v_cursor INTEGER;
+    
+    BEGIN
+    
+        v_cursor := DBMS_SQL.OPEN_CURSOR;
+        v_open_cursors(v_cursor) := NULL;
+        
+        RETURN v_cursor;
+    
+    END;
+    
+    PROCEDURE close_cursor (
+        p_cursor_id IN INTEGER
+    ) IS
+    
+        v_cursor_id INTEGER;
+    
+    BEGIN
+    
+        IF v_open_cursors.EXISTS(p_cursor_id) THEN
+        
+            v_cursor_id := p_cursor_id;
+            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+            
+            v_open_cursors.DELETE(p_cursor_id);
+          
+        END IF;
+    
     END;
 
 BEGIN

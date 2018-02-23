@@ -280,14 +280,32 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     ) RETURN PLS_INTEGER IS
         
         v_row t_varchars;
-        v_cursor_id INTEGER;
         
     BEGIN
     
+        --v_row := t_varchars('Sergejs', 'Vinniks');
         v_row := t_varchars();
         v_row.extend(column_count);
         
         FOR v_i IN 1..p_row_count LOOP
+        
+           /* if a = 0 then
+                exit;
+            end if;
+            
+        IF p_dataset IS NULL THEN
+                    ANYDATASET.begincreate(DBMS_TYPES.TYPECODE_OBJECT, row_type, p_dataset);
+                END IF;         
+            
+                p_dataset.addinstance;          
+                p_dataset.piecewise;
+                
+                FOR v_i IN 1..column_count LOOP
+                    p_dataset.setvarchar2(v_row(v_i), v_i = column_count);
+                END LOOP;
+                
+            a := a -1;*/
+        
         
             IF fetch_row(v_row) THEN
             
@@ -316,8 +334,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
             
         ELSE 
         
-            v_cursor_id := cursor_id;
-            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+            DBMS_SQL.CLOSE_CURSOR(cursor_id);
             
         END IF;
         
@@ -329,8 +346,16 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         self IN t_json_query
     ) 
     RETURN PLS_INTEGER IS
-    BEGIN
     
+        v_cursor_id INTEGER;
+    
+    BEGIN
+
+        IF cursor_id IS NOT NULL THEN
+            v_cursor_id := cursor_id;
+            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+        END IF;
+
         RETURN odciconst.success;
     
     END;

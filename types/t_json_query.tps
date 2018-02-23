@@ -13,18 +13,27 @@ CREATE OR REPLACE TYPE t_json_query AUTHID CURRENT_USER AS OBJECT (
     
    ,STATIC FUNCTION odcitablestart (
         p_context IN OUT t_json_query
-       ,p_query IN VARCHAR2                                        
+       ,p_query IN VARCHAR2
+       ,p_variable_1 IN VARCHAR2 := NULL
+       ,p_variable_2 IN VARCHAR2 := NULL
+       ,p_variable_3 IN VARCHAR2 := NULL                                        
     ) RETURN PLS_INTEGER
     
    ,STATIC FUNCTION odcitableprepare (
         p_context OUT t_json_query
        ,p_table_function_info IN sys.odcitabfuncinfo
        ,p_query IN VARCHAR2
+       ,p_variable_1 IN VARCHAR2 := NULL
+       ,p_variable_2 IN VARCHAR2 := NULL
+       ,p_variable_3 IN VARCHAR2 := NULL
     ) RETURN PLS_INTEGER
     
    ,STATIC FUNCTION odcitabledescribe (
         p_return_type OUT ANYTYPE
        ,p_query IN VARCHAR2
+       ,p_variable_1 IN VARCHAR2 := NULL
+       ,p_variable_2 IN VARCHAR2 := NULL
+       ,p_variable_3 IN VARCHAR2 := NULL
     ) RETURN PLS_INTEGER
              
    ,MEMBER FUNCTION fetch_row (

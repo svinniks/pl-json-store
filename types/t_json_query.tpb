@@ -12,13 +12,19 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
 
     STATIC FUNCTION odcitablestart 
         (p_context IN OUT t_json_query
-        ,p_query IN VARCHAR2) RETURN PLS_INTEGER IS
+        ,p_query IN VARCHAR2
+        ,p_variable_1 IN VARCHAR2 := NULL
+        ,p_variable_2 IN VARCHAR2 := NULL
+        ,p_variable_3 IN VARCHAR2 := NULL) RETURN PLS_INTEGER IS
         
         v_prepared_query json_store.t_prepared_query;
         v_cursor_id INTEGER;
         
         v_dummy DBMS_SQL.VARCHAR2_TABLE;
         v_result INTEGER;
+        
+        v_variable_values t_varchars;
+        v_variable NUMBER;
         
     BEGIN
     
@@ -32,10 +38,27 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
             DBMS_SQL.PARSE(v_cursor_id, v_prepared_query.statement, DBMS_SQL.NATIVE);
         END IF;
         
+        v_variable_values := t_varchars (
+            p_variable_1
+           ,p_variable_2
+           ,p_variable_3
+        );
+                
+        FOR v_i IN 1..v_prepared_query.variable_names.COUNT LOOP
+        
+            v_variable := v_prepared_query.variable_names(v_i);
+                    
+            IF v_variable_values(v_variable) IS NOT NULL THEN
+                DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':' || v_variable, v_variable_values(v_variable));
+            END IF;
+            
+        END LOOP;
+        
         v_result := DBMS_SQL.EXECUTE(v_cursor_id);
         
         p_context.cursor_id := v_cursor_id;
         p_context.column_count := v_prepared_query.column_names.COUNT;
+        p_context.fetched_row_count := NULL;
         p_context.piped_row_count := 0;
         
         p_context.row_buffer := t_varchars();
@@ -47,7 +70,10 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     
     STATIC FUNCTION odcitabledescribe
         (p_return_type OUT ANYTYPE
-        ,p_query IN VARCHAR2) RETURN PLS_INTEGER IS
+        ,p_query IN VARCHAR2
+        ,p_variable_1 IN VARCHAR2 := NULL
+        ,p_variable_2 IN VARCHAR2 := NULL
+        ,p_variable_3 IN VARCHAR2 := NULL) RETURN PLS_INTEGER IS
         
         v_prepared_query json_store.t_prepared_query;
         
@@ -77,6 +103,9 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         p_context OUT t_json_query
        ,p_table_function_info IN sys.odcitabfuncinfo
        ,p_query IN VARCHAR2
+       ,p_variable_1 IN VARCHAR2 := NULL
+       ,p_variable_2 IN VARCHAR2 := NULL
+       ,p_variable_3 IN VARCHAR2 := NULL
     ) RETURN PLS_INTEGER IS
     
         v_return NUMBER;
@@ -150,6 +179,8 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
             p_row(v_i) := row_buffer((v_i - 1) * json_store.c_query_row_buffer_size + piped_row_count);
         END LOOP;
         
+        
+        
         RETURN TRUE;
     
     END;
@@ -161,6 +192,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         ,p_dataset OUT ANYDATASET) RETURN PLS_INTEGER IS
         
         v_row t_varchars;
+        v_cursor_id INTEGER;
         
     BEGIN
     
@@ -191,7 +223,14 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         END LOOP;
         
         IF p_dataset IS NOT NULL THEN
+        
             p_dataset.endcreate;
+            
+        ELSE 
+        
+            v_cursor_id := cursor_id;
+            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+            
         END IF;
         
         RETURN odciconst.success;
@@ -200,13 +239,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     
     MEMBER FUNCTION odcitableclose
         (self IN t_json_query) RETURN PLS_INTEGER IS
-        
-        v_cursor_id INTEGER;
-        
     BEGIN
-    
-        v_cursor_id := cursor_id;
-        DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
     
         RETURN odciconst.success;
     

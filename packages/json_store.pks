@@ -65,7 +65,8 @@ CREATE OR REPLACE PACKAGE json_store IS
     TYPE t_prepared_query IS RECORD (
         statement VARCHAR2(32000),
         statement_clob CLOB,
-        column_names t_varchars
+        column_names t_varchars,
+        variable_names t_varchars
     ); 
     
     TYPE t_t_varchars IS TABLE OF t_varchars;
@@ -183,9 +184,10 @@ CREATE OR REPLACE PACKAGE json_store IS
         (p_query IN VARCHAR2)
     RETURN t_query_elements;
     
-    FUNCTION get_query_column_names
-        (p_query_elements IN t_query_elements)
-    RETURN t_varchars;
+    PROCEDURE get_query_details
+        (p_query_elements IN t_query_elements
+        ,p_column_names IN OUT NOCOPY t_varchars
+        ,p_variable_names IN OUT NOCOPY t_varchars);
     
     PROCEDURE generate_query_statement
         (p_query_elements IN t_query_elements
@@ -473,7 +475,10 @@ CREATE OR REPLACE PACKAGE json_store IS
     RETURN t_10_value_table PIPELINED;
     
     FUNCTION get_value_table
-        (p_query IN VARCHAR2)
+        (p_query IN VARCHAR2
+        ,p_variable_1 IN VARCHAR2 := NULL
+        ,p_variable_2 IN VARCHAR2 := NULL
+        ,p_variable_3 IN VARCHAR2 := NULL)
     RETURN ANYDATASET PIPELINED USING t_json_query;
     
     FUNCTION get_value_table_cursor

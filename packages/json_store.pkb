@@ -869,6 +869,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
                 push('W');
                 v_state := 'lf_array_element_end'; 
+            
+            ELSIF v_char = ':' THEN
+            
+                v_value := NULL;
+                v_state := 'lf_array_variable';
                 
             ELSIF NOT space THEN
             
@@ -1148,6 +1153,49 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         END;
         
+        PROCEDURE lf_array_variable IS
+        BEGIN
+        
+            IF INSTR('123456789', v_char) > 0 THEN
+            
+                v_value := v_char;
+                v_state := 'r_array_variable';
+                
+            ELSE
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+            
+            END IF;
+        
+        END;
+        
+        PROCEDURE r_array_variable IS
+        BEGIN
+        
+            IF INSTR('1234567890', v_char) > 0 THEN
+            
+                v_value := v_value || v_char;
+                
+            ELSIF v_char = ']' THEN
+            
+                push_variable(v_value);
+                v_state := 'lf_separator';
+            
+            ELSIF space THEN
+            
+                push_variable(v_value);
+                v_state := 'lf_array_element_end';
+                
+            ELSE
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+            
+            END IF;    
+        
+        END;
+        
     BEGIN
     
         v_query_elements := t_query_elements();
@@ -1180,6 +1228,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 WHEN 'r_quoted_alias' THEN r_quoted_alias;
                 WHEN 'lf_variable' THEN lf_variable;
                 WHEN 'r_variable' THEN r_variable;
+                WHEN 'lf_array_variable' THEN lf_array_variable;
+                WHEN 'r_array_variable' THEN r_array_variable;
             END CASE;
         
         END LOOP;
@@ -1198,14 +1248,16 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    FUNCTION get_query_column_names
-        (p_query_elements IN t_query_elements)
-    RETURN t_varchars IS
+    PROCEDURE get_query_details
+        (p_query_elements IN t_query_elements
+        ,p_column_names IN OUT NOCOPY t_varchars
+        ,p_variable_names IN OUT NOCOPY t_varchars) IS
     
-        TYPE t_unique_column_names IS TABLE OF BOOLEAN INDEX BY VARCHAR2(30);
-        v_unique_column_names t_unique_column_names;
+        TYPE t_unique_names IS TABLE OF BOOLEAN INDEX BY VARCHAR2(30);
+        v_unique_column_names t_unique_names;
+        v_variable_names t_unique_names;
         
-        v_column_names t_varchars;
+        v_variable_name VARCHAR2(30);
         
         PROCEDURE add_column_name
             (p_name IN VARCHAR2) IS
@@ -1221,8 +1273,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 error$.raise('JDOC-00016');
             END IF;
             
-            v_column_names.EXTEND(1);
-            v_column_names(v_column_names.COUNT) := p_name;
+            p_column_names.EXTEND(1);
+            p_column_names(p_column_names.COUNT) := p_name;
             
             v_unique_column_names(p_name) := TRUE;
         
@@ -1234,6 +1286,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             v_child_i PLS_INTEGER;
             
         BEGIN
+        
+            IF p_query_elements(p_i).type = 'V' THEN
+                
+                v_variable_names(p_query_elements(p_i).value) := TRUE;
+                
+            END IF;
         
             v_child_i := p_query_elements(p_i).first_child_i;
         
@@ -1262,6 +1320,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
                     add_column_name(p_query_elements(p_i).value);
                     
+                ELSIF p_query_elements(p_i).type = 'V' THEN
+                
+                    add_column_name(p_query_elements(p_i).value);
+                    
                 END IF; 
             
             END IF;
@@ -1270,11 +1332,21 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
     BEGIN
     
-        v_column_names := t_varchars();
+        p_column_names := t_varchars();
         
         visit_element(1);
         
-        RETURN v_column_names;
+        p_variable_names := t_varchars();
+        v_variable_name := v_variable_names.FIRST;
+        
+        WHILE v_variable_name IS NOT NULL LOOP
+        
+            p_variable_names.EXTEND(1);
+            p_variable_names(p_variable_names.COUNT) := v_variable_name;
+        
+            v_variable_name := v_variable_names.NEXT(v_variable_name);
+        
+        END LOOP;        
     
     END;
     
@@ -1434,6 +1506,18 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
                 v_and := ' AND ';
                 
+            ELSIF p_query_elements(p_i).type = 'V' THEN
+            
+                add_text(v_and || 'j' || v_table_instance || '.name');
+                
+                IF p_query_elements(p_i).optional THEN
+                    add_text('(+)');
+                END IF;
+                
+                add_text('=:' || p_query_elements(p_i).value);
+                
+                v_and := ' AND ';
+                
             END IF;
         
             v_child_i := p_query_elements(p_i).first_child_i;
@@ -1496,7 +1580,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         ELSE    
 
             v_query_elements := parse_query(p_query);
-            v_prepared_query.column_names := get_query_column_names(v_query_elements);
+            get_query_details(v_query_elements, v_prepared_query.column_names, v_prepared_query.variable_names);
             generate_query_statement(v_query_elements, v_prepared_query.statement, v_prepared_query.statement_clob);
             
             v_prepared_query_cache(p_query) := v_prepared_query;

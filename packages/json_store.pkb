@@ -53,13 +53,14 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00012', ':1 is not an array!');
         default_message_resolver.register_message('JDOC-00013', 'Invalid array element index :1!');
         default_message_resolver.register_message('JDOC-00014', 'Requested target is not an array!');
-        default_message_resolver.register_message('JDOC-00015', 'Unexpected comma in a non-branching query!');
+        default_message_resolver.register_message('JDOC-00015', 'Unexpected :1 in a non-branching query!');
         default_message_resolver.register_message('JDOC-00016', 'Duplicate property/alias :1!');
         default_message_resolver.register_message('JDOC-00017', 'Alias too long!');
         default_message_resolver.register_message('JDOC-00018', 'Property name :1 is too long to be a column name!');
         default_message_resolver.register_message('JDOC-00019', 'Alias not specified for a leaf wildcard property!');
         default_message_resolver.register_message('JDOC-00020', 'Variable name is not a valid number!');
         default_message_resolver.register_message('JDOC-00021', 'Only variables with names 1 .. :1 are supported!');
+        default_message_resolver.register_message('JDOC-00022', 'Root can''t be optional!');
     END;
     
     FUNCTION get_length (
@@ -479,11 +480,13 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
         END;
         
-        PROCEDURE push_name
-            (p_value IN VARCHAR2) IS
+        PROCEDURE push_name (
+            p_value IN VARCHAR2,
+            p_simple IN BOOLEAN := FALSE
+        ) IS
         BEGIN
         
-            IF p_value = '$' THEN
+            IF p_simple AND p_value = '$' THEN
             
                 IF v_stack.COUNT > 1 THEN
                     -- 'Root requested as a property!'
@@ -524,21 +527,31 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         END;
         
-        PROCEDURE pop_sibling IS
+        PROCEDURE pop_sibling (
+            p_character IN CHAR := ','
+        ) IS
         BEGIN
         
             LOOP
             
-                v_stack.TRIM(1);
-                
                 IF v_stack.COUNT = 0 THEN
-                    -- 'Unexpected comma in a non-branching query!'
-                    error$.raise('JDOC-00015');
+                    -- 'Unexpected :1 in a non-branching query!'
+                    error$.raise('JDOC-00015', p_character);
                 END IF;
                 
                 EXIT WHEN v_stack(v_stack.COUNT).branching;
+                
+                v_stack.TRIM(1);
             
             END LOOP;
+        
+        END;
+        
+        PROCEDURE pop_branch IS
+        BEGIN
+        
+            pop_sibling(')');
+            v_stack.TRIM(1);
         
         END;
         
@@ -553,6 +566,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         PROCEDURE set_optional IS
         BEGIN
+        
+            
+            IF v_query_elements(v_stack(v_stack.COUNT).element_i).TYPE = 'R' THEN
+                -- Root can''t be optional!
+                error$.raise('JDOC-00022');
+            END IF;
         
             v_query_elements(v_stack(v_stack.COUNT).element_i).optional := TRUE;
         
@@ -574,7 +593,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         FUNCTION branching
         RETURN BOOLEAN IS
         BEGIN
-            RETURN v_stack(v_stack.COUNT).branching;
+        
+            FOR v_i IN 1..v_stack.COUNT LOOP
+                IF v_stack(v_i).branching THEN
+                    RETURN TRUE;
+                END IF;
+            END LOOP;
+        
+            RETURN FALSE;
+            
         END;
             
         FUNCTION space 
@@ -664,12 +691,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
             ELSIF v_char = '.' THEN
             
-                push_name(v_value);
+                push_name(v_value, TRUE);
                 v_state := 'lf_element';
                 
             ELSIF v_char = ',' THEN
             
-                push_name(v_value);
+                push_name(v_value, TRUE);
                 pop_sibling;
                 
                 IF (v_stack.COUNT = 1) THEN
@@ -680,33 +707,32 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
             ELSIF v_char = ')' THEN
             
-                push_name(v_value);
-                pop_sibling;
+                push_name(v_value, TRUE);
+                pop_branch;
                 v_state := 'lf_comma';
                 
             ELSIF v_char = '[' THEN
                
-                push_name(v_value);
+                push_name(v_value, TRUE);
                 v_state := 'lf_array_element';    
                 
             ELSIF v_char = '(' THEN
             
-                push_name(v_value);
+                push_name(v_value, TRUE);
                 branch;
                 v_state := 'lf_child';
                 
             ELSIF space THEN
             
-                push_name(v_value);
+                push_name(v_value, TRUE);
                 v_state := 'lf_separator';
                 
             ELSIF v_char = '?' THEN
             
-                push_name(v_value);
+                push_name(v_value, TRUE);
                 set_optional;
                 v_state := 'lf_separator';
-                
-                
+                               
             ELSE
             
                 -- Unexpected character ":1"!
@@ -731,7 +757,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
             ELSIF v_char = ')' THEN
             
-                pop_sibling;
+                pop_branch;
                 
             ELSIF NOT space THEN
             
@@ -747,7 +773,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
             IF v_char = ')' THEN
               
-                pop_sibling;
+                pop_branch;
                 v_state := 'lf_comma';
                 
             ELSIF v_char = ',' THEN
@@ -830,7 +856,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSIF v_char = ')' THEN
             
                 push('I', v_value);
-                pop_sibling;
+                pop_branch;
                 v_state := 'lf_comma';
                 
             ELSIF v_char = '[' THEN
@@ -1049,7 +1075,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSIF v_char = ')' THEN
             
                 set_alias(UPPER(v_value));
-                pop_sibling;
+                pop_branch;
                 v_state := 'lf_comma';
                 
             ELSIF space THEN
@@ -1131,7 +1157,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             ELSIF v_char = ')' THEN
             
                 push_variable(v_value);
-                pop_sibling;
+                pop_branch;
                 v_state := 'lf_comma';
                 
             ELSIF v_char = '[' THEN
@@ -1247,13 +1273,21 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         END LOOP;
         
         IF v_state = 'r_name' THEN
-            push_name(v_value);
+            push_name(v_value, TRUE);
         ELSIF v_state = 'r_id' THEN
             push('I', v_value);
         ELSIF v_state = 'r_alias' THEN
             set_alias(UPPER(v_value));
         ELSIF v_state = 'r_variable' THEN
             push_variable(v_value);
+        ELSIF v_state NOT IN ('lf_separator', 'lf_comma') THEN 
+            -- Unexpected end of the input!
+            error$.raise('JDOC-00002');
+        END IF;
+        
+        IF branching THEN
+            -- Unexpected end of the input!
+            error$.raise('JDOC-00002');
         END IF;
         
         RETURN v_query_elements;

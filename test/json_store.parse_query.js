@@ -1,5 +1,821 @@
 suite("Invalid query tests", function() {
 
+    suite("Unexpected end of the input", function() {
+    
+        test("Empty query", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: null
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        });
+
+        test("Empty query, spaces only", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "   "
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        });
+
+        test("Query ends with a dot", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person."
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        });        
+
+        test("Query ends with a dot with spaces", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.  "
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Query ends with [", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person["
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Query ends with [ and spaces", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person[   "
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Incomplete quoted property", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person["name'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Array element closing bracket ] missing", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person[123'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Array element closing bracket ] missing, spaces in the end", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person[123   '
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Quoted property closing bracket ] missing", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person["name"'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Quoted property closing bracket ] missing, spaces in the end", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person["name"   '
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Branched query ends with ,", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person(.name,'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Branched query ends with , and spaces", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person(.name,   '
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Branch closing bracket missing", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person(.name'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Branch closing bracket missing, spaces in the end", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person(.name   '
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Query ends with (", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person('
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Query ends with ( and spaces", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person(   '
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Query ends with #", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: '#'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Query ends with :", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: '#'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test('Query ends with "as"', function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person.name as'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test('Query ends with "as" and spaces', function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person.name as   '
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Incomplete quoted alias", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person.name as "name'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test("Missing escaped character in the end", function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person["name\\'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+
+        test('Incomplete "as"', function() {
+            
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person.name a'
+                });
+            
+            }).to.throw(/JDOC-00002/);
+
+        }); 
+    
+    });
+
+    suite("Unexpected character", function() {
+    
+        test("Unexpected characted in the beginning", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: ".name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+        
+        test("Spaces and unexpected characted in the beginning", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "  .name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected characted when expected the first child in a branch", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.(a"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected characted when expected the n-th child in a branch", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.(.name,surname"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected characted in the simple property", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.name^"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected comma in a non-branching query", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.name,"
+                });
+            
+            }).to.throw(/JDOC-00015/);
+        
+        });
+
+        test("Unexpected spaces and comma in a non-branching query", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.name  ,"
+                });
+            
+            }).to.throw(/JDOC-00015/);
+        
+        });
+
+        test("Unexpected ) in a non-branching query", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.name)"
+                });
+            
+            }).to.throw(/JDOC-00015/);
+        
+        });
+
+        test("Unexpected ) and comma in a non-branching query", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.name  )"
+                });
+            
+            }).to.throw(/JDOC-00015/);
+        
+        });
+
+        test("Unexpected character in the simple property", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.name^"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after the branch close", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person(.name).surname"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected spaces and a character after the branch close", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person(.name)   .surname"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected spaces and a character after an aliased property", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person as person  .surname"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after an quoted alias", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person as "person".surname'
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected spaces and a character after an quoted alias", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: 'person as "person"  .surname'
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after a wildcard", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "* name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after a simple name", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "name surname"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after a simple optional name", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "name? surname"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after an ID reference", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "#123 surname"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after an optional ID refernce", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "#123? surname"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after an array element", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[123] name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after an optional array element", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[123]? name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after in a variable name", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: ":2 name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after a variable", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: ":2 name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after an optional variable", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: ":2?name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after #", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "#name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character in an ID reference", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "#123n"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character after [", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character in an array element", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[123abc"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character in an array element before ]", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[123 123]"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test('Invalid "as"', function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons.name ab name"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test('No space after "as"', function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons.name asname"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid alias start", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons.name as 123"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character in an alias" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons.name as name^"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid variable start", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons.:abc"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character in a variable" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: ":23a"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Invalid array element variable start", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[:abc"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Unexpected character in an array element variable" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[:123a"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+        
+        test("Empty branch" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[123]()"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Empty branch with spaces" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[123](   )"
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+    });
+
+    suite("Other errors", function() {
+    
+        test("Optional root", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "$?"
+                });
+            
+            }).to.throw(/JDOC-00022/);
+        
+        });
+
+        test("Alias too long", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person as abcabcabcabcabcabcabcabcabcabcA"
+                });
+            
+            }).to.throw(/JDOC-00017/);
+        
+        });
+        
+        test("Variable number too big", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: ":25"
+                });
+            
+            }).to.throw(/JDOC-00021/);
+        
+        });
+    
+    });
+
 });
 
 suite("Valid query tests", function() {
@@ -697,6 +1513,114 @@ suite("Valid query tests", function() {
             {
                 type: "R",
                 value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Property of the root", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: "$.persons"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "R",
+                value: null,
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Property of the root, spaces after $", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: "$.persons"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "R",
+                value: null,
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Array element of the root", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: "$[123]"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "R",
+                value: null,
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Array element of the root, spaces after $", function() {
+    
+        var elements = database.call("json_store.parse_query", {
+            p_query: "$   [123]"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "R",
+                value: null,
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -2761,72 +3685,3 @@ suite("Valid query tests", function() {
 
 });
 
-suite("Column name retrieval tests", function() {
-
-    test("One simple property", function() {
-
-        var elements = database.call("json_store.parse_query", {
-            p_query: "person"
-        });
-
-        var names = database.call("json_store.get_query_column_names", {
-            p_query_elements: elements
-        });
-
-        expect(names).to.eql([
-            "person"
-        ]);
-
-    });
-
-    test("One simple property with an alias", function() {
-
-        var elements = database.call("json_store.parse_query", {
-            p_query: "person AS person"
-        });
-
-        var names = database.call("json_store.get_query_column_names", {
-            p_query_elements: elements
-        });
-
-        expect(names).to.eql([
-            "PERSON"
-        ]);
-
-    });
-
-    test("Two branched properties", function() {
-
-        var elements = database.call("json_store.parse_query", {
-            p_query: "person(.name, .surname)"
-        });
-
-        var names = database.call("json_store.get_query_column_names", {
-            p_query_elements: elements
-        });
-
-        expect(names).to.eql([
-            "name",
-            "surname"
-        ]);
-
-    });
-
-    test("Two branched properties with aliases", function() {
-
-        var elements = database.call("json_store.parse_query", {
-            p_query: "person(.name as person_name, .surname as person_surname)"
-        });
-
-        var names = database.call("json_store.get_query_column_names", {
-            p_query_elements: elements
-        });
-
-        expect(names).to.eql([
-            "PERSON_NAME",
-            "PERSON_SURNAME"
-        ]);
-
-    });
-
-});

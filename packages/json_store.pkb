@@ -1342,9 +1342,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         PROCEDURE visit_element (
             p_i IN PLS_INTEGER
         ) IS
-            
-            v_child_i PLS_INTEGER;
-            
         BEGIN
         
             IF p_query_elements(p_i).type = 'V' THEN
@@ -1353,14 +1350,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
             END IF;
         
-            v_child_i := p_query_elements(p_i).first_child_i;
-        
-            IF v_child_i IS NOT NULL THEN
+            IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
             
-                WHILE v_child_i IS NOT NULL LOOP
-                    visit_element(v_child_i);
-                    v_child_i := p_query_elements(v_child_i).next_sibling_i;
-                END LOOP;
+                visit_element(p_query_elements(p_i).first_child_i);
                 
             ELSE
             
@@ -1388,6 +1380,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                     
                 END IF; 
             
+            END IF;
+            
+            IF p_query_elements(p_i).next_sibling_i IS NOT NULL THEN
+                visit_element(p_query_elements(p_i).next_sibling_i);
             END IF;
         
         END;
@@ -1451,7 +1447,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         ) IS
             
             v_table_instance PLS_INTEGER;
-            v_child_i PLS_INTEGER;
             
         BEGIN
         
@@ -1460,25 +1455,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 v_table_instance := v_table_instance_counter;
             END IF;
         
-            v_child_i := p_query_elements(p_i).first_child_i;
-        
-            IF v_child_i IS NOT NULL THEN
-            
-                WHILE v_child_i IS NOT NULL LOOP
-                    select_list_visit(v_child_i);
-                    v_child_i := p_query_elements(v_child_i).next_sibling_i;
-                END LOOP;
-                
-            ELSIF p_query_elements(p_i).type != 'R' THEN
-            
+            IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
+                select_list_visit(p_query_elements(p_i).first_child_i);
+            ELSE
                 add_text(v_comma || 'j' || v_table_instance || '.value');
                 v_comma := ',';
-                
-            ELSE
+            END IF;
             
-                add_text(v_comma || 'NULL');
-                v_comma := ',';
-            
+            IF p_query_elements(p_i).next_sibling_i IS NOT NULL THEN
+                select_list_visit(p_query_elements(p_i).next_sibling_i);
             END IF;
         
         END;
@@ -1488,7 +1473,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         ) IS
             
             v_table_instance PLS_INTEGER;
-            v_child_i PLS_INTEGER;
             
         BEGIN
         
@@ -1502,12 +1486,13 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
             END IF;
         
-            v_child_i := p_query_elements(p_i).first_child_i;
-        
-            WHILE v_child_i IS NOT NULL LOOP
-                from_list_visit(v_child_i);
-                v_child_i := p_query_elements(v_child_i).next_sibling_i;
-            END LOOP;
+            IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
+                from_list_visit(p_query_elements(p_i).first_child_i);
+            END IF;
+            
+            IF p_query_elements(p_i).next_sibling_i IS NOT NULL THEN
+                from_list_visit(p_query_elements(p_i).next_sibling_i);
+            END IF;
         
         END;
         
@@ -1518,7 +1503,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         ) IS
             
             v_table_instance PLS_INTEGER;
-            v_child_i PLS_INTEGER;
             
         BEGIN
         
@@ -1587,12 +1571,13 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
             END IF;
         
-            v_child_i := p_query_elements(p_i).first_child_i;
-        
-            WHILE v_child_i IS NOT NULL LOOP
-                where_list_visit(v_child_i, p_i, v_table_instance);
-                v_child_i := p_query_elements(v_child_i).next_sibling_i;
-            END LOOP;
+            IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
+                where_list_visit(p_query_elements(p_i).first_child_i, p_i, v_table_instance);
+            END IF;
+            
+            IF p_query_elements(p_i).next_sibling_i IS NOT NULL THEN
+                where_list_visit(p_query_elements(p_i).next_sibling_i, p_parent_i, p_parent_table_instance);
+            END IF;
                 
         END;
     
@@ -1623,6 +1608,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         IF p_statement_clob IS NULL THEN
             p_statement := v_line;
         END IF;
+        
+        dbms_output.put_line(v_line);
     
     END;
     

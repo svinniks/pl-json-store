@@ -290,6 +290,28 @@ suite("Column and variable name retrieval tests", function() {
     
         }); 
 
+        test("Branching root columns", function() {
+
+            var elements = database.call("json_store.parse_query", {
+                p_query: '(person.name, person.surname)'
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                "name",
+                "surname"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+            ]);
+    
+        }); 
+
         test("Multiple different variables", function() {
 
             var elements = database.call("json_store.parse_query", {

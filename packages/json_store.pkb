@@ -409,7 +409,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     END;
     
     FUNCTION parse_query (
-        p_query IN VARCHAR2
+        p_query IN VARCHAR2,
+        p_optional_allowed IN BOOLEAN := TRUE,
+        p_aliases_allowed IN BOOLEAN := TRUE
     )
     RETURN t_query_elements IS
     
@@ -727,7 +729,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 push_name(v_value, TRUE);
                 v_state := 'lf_separator';
                 
-            ELSIF v_char = '?' THEN
+            ELSIF v_char = '?' AND p_optional_allowed THEN
             
                 push_name(v_value, TRUE);
                 set_optional;
@@ -792,11 +794,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 branch;
                 v_state := 'lf_child';  
                 
-            ELSIF LOWER(v_char) = 'a' THEN
+            ELSIF LOWER(v_char) = 'a' AND p_aliases_allowed THEN
             
                 v_state := 'lf_as_s';
                 
-            ELSIF v_char = '?' THEN
+            ELSIF v_char = '?' AND p_optional_allowed THEN
             
                 IF optional THEN
                     -- Unexpected character ":1"!
@@ -875,7 +877,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 push('I', v_value);
                 v_state := 'lf_separator';
                 
-            ELSIF v_char = '?' THEN
+            ELSIF v_char = '?' AND p_optional_allowed THEN
             
                 push('I', v_value);
                 set_optional;
@@ -1176,7 +1178,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 push_variable(v_value);
                 v_state := 'lf_separator';
                 
-            ELSIF v_char = '?' THEN
+            ELSIF v_char = '?' AND p_optional_allowed THEN
             
                 push_variable(v_value);
                 set_optional;

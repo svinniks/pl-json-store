@@ -147,7 +147,9 @@ CREATE OR REPLACE PACKAGE json_store IS
     RETURN t_path_elements;
     
     FUNCTION parse_query (
-        p_query IN VARCHAR2
+        p_query IN VARCHAR2,
+        p_optional_allowed IN BOOLEAN := TRUE,
+        p_aliases_allowed IN BOOLEAN := TRUE
     ) 
     RETURN t_query_elements;
     

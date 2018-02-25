@@ -774,6 +774,97 @@ suite("Invalid query tests", function() {
         
         });
 
+        test("Optional property while optional are not allowed" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons.name?",
+                    p_optional_allowed: false
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Optional property while optional are not allowed, spaces before ?" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons.name   ?",
+                    p_optional_allowed: false
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Optional array element while optional are not allowed" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "persons[1]?",
+                    p_optional_allowed: false
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Optional wildcard while optional are not allowed" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "*?",
+                    p_optional_allowed: false
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Optional ID reference while optional are not allowed" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "#123?",
+                    p_optional_allowed: false
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Optional variable while optional are not allowed" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: ":12?",
+                    p_optional_allowed: false
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
+        test("Alias while aliases are not allowed" , function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "person.name as forename",
+                    p_aliases_allowed: false
+                });
+            
+            }).to.throw(/JDOC-00001/);
+        
+        });
+
     });
 
     suite("Other errors", function() {

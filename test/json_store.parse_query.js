@@ -807,10 +807,70 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_store.parse_query", {
+                    p_query: "person.$"
+                });
+            
+            }).to.throw(/JDOC-00006/);
+        
+        });
+
+        test("Root requested as a property", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
                     p_query: ":25"
                 });
             
             }).to.throw(/JDOC-00021/);
+        
+        });
+
+        test("Root only", function() {
+    
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "$"
+                });
+            
+            }).to.throw(/JDOC-00006/);
+        
+        });
+    
+        test("Root only, spaces before $", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "   $"
+                });
+            
+            }).to.throw(/JDOC-00006/);
+
+        });
+    
+        test("Root only, spaces after $", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "$   "
+                });
+            
+            }).to.throw(/JDOC-00006/);
+            
+        });
+
+        test("Branched root with two roots", function() {
+    
+            expect(function() {
+            
+                var elements = database.call("json_store.parse_query", {
+                    p_query: "($, $)"
+                });    
+            
+            }).to.throw(/JDOC-00006/);
         
         });
     
@@ -1465,63 +1525,6 @@ suite("Valid query tests", function() {
     
     });
 
-    test("Root only", function() {
-    
-        var elements = database.call("json_store.parse_query", {
-            p_query: "$"
-        });
-
-        expect(elements).to.eql([
-            {
-                type: "R",
-                value: null,
-                optional: false,
-                first_child_i: null,
-                next_sibling_i: null,
-                alias: null
-            }
-        ]);
-    
-    });
-
-    test("Root only, spaces before $", function() {
-    
-        var elements = database.call("json_store.parse_query", {
-            p_query: "   $"
-        });
-
-        expect(elements).to.eql([
-            {
-                type: "R",
-                value: null,
-                optional: false,
-                first_child_i: null,
-                next_sibling_i: null,
-                alias: null
-            }
-        ]);
-    
-    });
-
-    test("Root only, spaces after $", function() {
-    
-        var elements = database.call("json_store.parse_query", {
-            p_query: "$   "
-        });
-
-        expect(elements).to.eql([
-            {
-                type: "R",
-                value: null,
-                optional: false,
-                first_child_i: null,
-                next_sibling_i: null,
-                alias: null
-            }
-        ]);
-    
-    });
-
     test("Property of the root", function() {
     
         var elements = database.call("json_store.parse_query", {
@@ -1621,33 +1624,6 @@ suite("Valid query tests", function() {
             {
                 type: "N",
                 value: "123",
-                optional: false,
-                first_child_i: null,
-                next_sibling_i: null,
-                alias: null
-            }
-        ]);
-    
-    });
-
-    test("Branched root with two roots", function() {
-    
-        var elements = database.call("json_store.parse_query", {
-            p_query: "($, $)"
-        });
-
-        expect(elements).to.eql([
-            {
-                type: "R",
-                value: null,
-                optional: false,
-                first_child_i: null,
-                next_sibling_i: 2,
-                alias: null
-            },
-            {
-                type: "R",
-                value: null,
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,

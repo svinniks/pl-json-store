@@ -1290,6 +1290,13 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             -- Unexpected end of the input!
             error$.raise('JDOC-00002');
         END IF;
+    
+        FOR v_i IN 1..v_query_elements.COUNT LOOP
+            IF v_query_elements(v_i).type = 'R' AND v_query_elements(v_i).first_child_i IS NULL THEN
+                -- 'Root requested as a property!'
+                error$.raise('JDOC-00006');
+            END IF; 
+        END LOOP;
         
         RETURN v_query_elements;
     

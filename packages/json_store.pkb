@@ -3582,7 +3582,27 @@ WHERE 1=1';
     END;
     
     FUNCTION get_5_value_table (
-        p_query IN VARCHAR2
+        p_query IN VARCHAR2,
+        p_variable_1 IN VARCHAR2 := NULL,
+        p_variable_2 IN VARCHAR2 := NULL,
+        p_variable_3 IN VARCHAR2 := NULL,
+        p_variable_4 IN VARCHAR2 := NULL,
+        p_variable_5 IN VARCHAR2 := NULL,
+        p_variable_6 IN VARCHAR2 := NULL,
+        p_variable_7 IN VARCHAR2 := NULL,
+        p_variable_8 IN VARCHAR2 := NULL,
+        p_variable_9 IN VARCHAR2 := NULL,
+        p_variable_10 IN VARCHAR2 := NULL,
+        p_variable_11 IN VARCHAR2 := NULL,
+        p_variable_12 IN VARCHAR2 := NULL,
+        p_variable_13 IN VARCHAR2 := NULL,
+        p_variable_14 IN VARCHAR2 := NULL,
+        p_variable_15 IN VARCHAR2 := NULL,
+        p_variable_16 IN VARCHAR2 := NULL,
+        p_variable_17 IN VARCHAR2 := NULL,
+        p_variable_18 IN VARCHAR2 := NULL,
+        p_variable_19 IN VARCHAR2 := NULL,
+        p_variable_20 IN VARCHAR2 := NULL
     )
     RETURN t_5_value_table PIPELINED IS
     
@@ -3621,7 +3641,27 @@ WHERE 1=1';
     END;
     
     FUNCTION get_10_value_table (
-        p_query IN VARCHAR2
+        p_query IN VARCHAR2,
+        p_variable_1 IN VARCHAR2 := NULL,
+        p_variable_2 IN VARCHAR2 := NULL,
+        p_variable_3 IN VARCHAR2 := NULL,
+        p_variable_4 IN VARCHAR2 := NULL,
+        p_variable_5 IN VARCHAR2 := NULL,
+        p_variable_6 IN VARCHAR2 := NULL,
+        p_variable_7 IN VARCHAR2 := NULL,
+        p_variable_8 IN VARCHAR2 := NULL,
+        p_variable_9 IN VARCHAR2 := NULL,
+        p_variable_10 IN VARCHAR2 := NULL,
+        p_variable_11 IN VARCHAR2 := NULL,
+        p_variable_12 IN VARCHAR2 := NULL,
+        p_variable_13 IN VARCHAR2 := NULL,
+        p_variable_14 IN VARCHAR2 := NULL,
+        p_variable_15 IN VARCHAR2 := NULL,
+        p_variable_16 IN VARCHAR2 := NULL,
+        p_variable_17 IN VARCHAR2 := NULL,
+        p_variable_18 IN VARCHAR2 := NULL,
+        p_variable_19 IN VARCHAR2 := NULL,
+        p_variable_20 IN VARCHAR2 := NULL
     )
     RETURN t_10_value_table PIPELINED IS
     
@@ -3635,7 +3675,30 @@ WHERE 1=1';
     BEGIN
     
         v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
+        v_dummy := t_json_query.odcitablestart(
+            v_query, 
+            p_query,
+            p_variable_1,
+            p_variable_2,
+            p_variable_3,
+            p_variable_4,
+            p_variable_5,
+            p_variable_6,
+            p_variable_7,
+            p_variable_8,
+            p_variable_9,
+            p_variable_10,
+            p_variable_11,
+            p_variable_12,
+            p_variable_13,
+            p_variable_14,
+            p_variable_15,
+            p_variable_16,
+            p_variable_17,
+            p_variable_18,
+            p_variable_19,
+            p_variable_20
+        );
         
         v_row := t_varchars();
         v_row.extend(10);
@@ -3664,7 +3727,27 @@ WHERE 1=1';
     END;
     
     FUNCTION get_15_value_table (
-        p_query IN VARCHAR2
+        p_query IN VARCHAR2,
+        p_variable_1 IN VARCHAR2 := NULL,
+        p_variable_2 IN VARCHAR2 := NULL,
+        p_variable_3 IN VARCHAR2 := NULL,
+        p_variable_4 IN VARCHAR2 := NULL,
+        p_variable_5 IN VARCHAR2 := NULL,
+        p_variable_6 IN VARCHAR2 := NULL,
+        p_variable_7 IN VARCHAR2 := NULL,
+        p_variable_8 IN VARCHAR2 := NULL,
+        p_variable_9 IN VARCHAR2 := NULL,
+        p_variable_10 IN VARCHAR2 := NULL,
+        p_variable_11 IN VARCHAR2 := NULL,
+        p_variable_12 IN VARCHAR2 := NULL,
+        p_variable_13 IN VARCHAR2 := NULL,
+        p_variable_14 IN VARCHAR2 := NULL,
+        p_variable_15 IN VARCHAR2 := NULL,
+        p_variable_16 IN VARCHAR2 := NULL,
+        p_variable_17 IN VARCHAR2 := NULL,
+        p_variable_18 IN VARCHAR2 := NULL,
+        p_variable_19 IN VARCHAR2 := NULL,
+        p_variable_20 IN VARCHAR2 := NULL
     )
     RETURN t_15_value_table PIPELINED IS
     
@@ -3678,7 +3761,30 @@ WHERE 1=1';
     BEGIN
     
         v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
+        v_dummy := t_json_query.odcitablestart(
+            v_query, 
+            p_query,
+            p_variable_1,
+            p_variable_2,
+            p_variable_3,
+            p_variable_4,
+            p_variable_5,
+            p_variable_6,
+            p_variable_7,
+            p_variable_8,
+            p_variable_9,
+            p_variable_10,
+            p_variable_11,
+            p_variable_12,
+            p_variable_13,
+            p_variable_14,
+            p_variable_15,
+            p_variable_16,
+            p_variable_17,
+            p_variable_18,
+            p_variable_19,
+            p_variable_20
+        );
         
         v_row := t_varchars();
         v_row.extend(15);
@@ -3712,7 +3818,27 @@ WHERE 1=1';
     END;
     
     FUNCTION get_20_value_table (
-        p_query IN VARCHAR2
+        p_query IN VARCHAR2,
+        p_variable_1 IN VARCHAR2 := NULL,
+        p_variable_2 IN VARCHAR2 := NULL,
+        p_variable_3 IN VARCHAR2 := NULL,
+        p_variable_4 IN VARCHAR2 := NULL,
+        p_variable_5 IN VARCHAR2 := NULL,
+        p_variable_6 IN VARCHAR2 := NULL,
+        p_variable_7 IN VARCHAR2 := NULL,
+        p_variable_8 IN VARCHAR2 := NULL,
+        p_variable_9 IN VARCHAR2 := NULL,
+        p_variable_10 IN VARCHAR2 := NULL,
+        p_variable_11 IN VARCHAR2 := NULL,
+        p_variable_12 IN VARCHAR2 := NULL,
+        p_variable_13 IN VARCHAR2 := NULL,
+        p_variable_14 IN VARCHAR2 := NULL,
+        p_variable_15 IN VARCHAR2 := NULL,
+        p_variable_16 IN VARCHAR2 := NULL,
+        p_variable_17 IN VARCHAR2 := NULL,
+        p_variable_18 IN VARCHAR2 := NULL,
+        p_variable_19 IN VARCHAR2 := NULL,
+        p_variable_20 IN VARCHAR2 := NULL
     )
     RETURN t_20_value_table PIPELINED IS
     
@@ -3726,7 +3852,30 @@ WHERE 1=1';
     BEGIN
     
         v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
+        v_dummy := t_json_query.odcitablestart(
+            v_query, 
+            p_query,
+            p_variable_1,
+            p_variable_2,
+            p_variable_3,
+            p_variable_4,
+            p_variable_5,
+            p_variable_6,
+            p_variable_7,
+            p_variable_8,
+            p_variable_9,
+            p_variable_10,
+            p_variable_11,
+            p_variable_12,
+            p_variable_13,
+            p_variable_14,
+            p_variable_15,
+            p_variable_16,
+            p_variable_17,
+            p_variable_18,
+            p_variable_19,
+            p_variable_20
+        );
         
         v_row := t_varchars();
         v_row.extend(20);

@@ -1,69 +1,345 @@
-suite("Column name retrieval tests", function() {
+suite("Column and variable name retrieval tests", function() {
 
-    test("One simple property", function() {
+    suite("Negative tests", function() {
+    
+        test("No alias for a wildcard", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person.*"
+            });
 
-        var elements = database.call("json_store.parse_query", {
-            p_query: "person"
+            expect(function() {
+            
+                var details = database.call("json_store.get_query_details", {
+                    p_query_elements: elements,
+                    p_column_names: null,
+                    p_variable_names: null
+                });
+            
+            }).to.throw(/JDOC-00023/);
+        
         });
 
-        var names = database.call("json_store.get_query_column_names", {
-            p_query_elements: elements
+        test("Property name too long", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person(.name, .abcabcabcabcabcabcabcabcabcabcA)"
+            });
+
+            expect(function() {
+            
+                var details = database.call("json_store.get_query_details", {
+                    p_query_elements: elements,
+                    p_column_names: null,
+                    p_variable_names: null
+                });
+            
+            }).to.throw(/JDOC-00018/);
+        
         });
 
-        expect(names).to.eql([
-            "person"
-        ]);
+        test("Duplicate porperty names", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person(.name, .name)"
+            });
 
+            expect(function() {
+            
+                var details = database.call("json_store.get_query_details", {
+                    p_query_elements: elements,
+                    p_column_names: null,
+                    p_variable_names: null
+                });
+            
+            }).to.throw(/JDOC-00016/);
+        
+        });
+
+        test("Duplicate aliases", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person(.name as forename, .name as forename)"
+            });
+
+            expect(function() {
+            
+                var details = database.call("json_store.get_query_details", {
+                    p_query_elements: elements,
+                    p_column_names: null,
+                    p_variable_names: null
+                });
+            
+            }).to.throw(/JDOC-00016/);
+        
+        });
+
+        test("Duplicate property and alias", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person(.NAME, .suename as name)"
+            });
+
+            expect(function() {
+            
+                var details = database.call("json_store.get_query_details", {
+                    p_query_elements: elements,
+                    p_column_names: null,
+                    p_variable_names: null
+                });
+            
+            }).to.throw(/JDOC-00016/);
+        
+        });
+
+        test("Duplicate variable and alias", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: 'person(.:2, .surname as ":2")'
+            });
+
+            expect(function() {
+            
+                var details = database.call("json_store.get_query_details", {
+                    p_query_elements: elements,
+                    p_column_names: null,
+                    p_variable_names: null
+                });
+            
+            }).to.throw(/JDOC-00016/);
+        
+        });
+        
     });
 
-    test("One simple property with an alias", function() {
+    suite("Positive tests", function() {
+    
+        test("One simple property", function() {
 
-        var elements = database.call("json_store.parse_query", {
-            p_query: "person AS person"
-        });
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person"
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                "person"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+            ]);
+    
+        });        
 
-        var names = database.call("json_store.get_query_column_names", {
-            p_query_elements: elements
-        });
+        test("One variable", function() {
 
-        expect(names).to.eql([
-            "PERSON"
-        ]);
+            var elements = database.call("json_store.parse_query", {
+                p_query: ":15"
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                ":15"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+                "15"
+            ]);
+    
+        }); 
 
-    });
+        test("One ID reference", function() {
 
-    test("Two branched properties", function() {
+            var elements = database.call("json_store.parse_query", {
+                p_query: "#123"
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                "#123"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+            ]);
+    
+        }); 
 
-        var elements = database.call("json_store.parse_query", {
-            p_query: "person(.name, .surname)"
-        });
+        test("One simple property with a case insensitive alias", function() {
 
-        var names = database.call("json_store.get_query_column_names", {
-            p_query_elements: elements
-        });
+            var elements = database.call("json_store.parse_query", {
+                p_query: "value as name"
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                "NAME"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+            ]);
+    
+        }); 
 
-        expect(names).to.eql([
-            "name",
-            "surname"
-        ]);
+        test("One simple property with a case sensitive alias", function() {
 
-    });
+            var elements = database.call("json_store.parse_query", {
+                p_query: 'value as "name"'
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                "name"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+            ]);
+    
+        }); 
 
-    test("Two branched properties with aliases", function() {
+        test("One wildcard with a case insesnsitive alias", function() {
 
-        var elements = database.call("json_store.parse_query", {
-            p_query: "person(.name as person_name, .surname as person_surname)"
-        });
+            var elements = database.call("json_store.parse_query", {
+                p_query: '* as value'
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                "VALUE"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+            ]);
+    
+        }); 
 
-        var names = database.call("json_store.get_query_column_names", {
-            p_query_elements: elements
-        });
+        test("Multiple simple names", function() {
 
-        expect(names).to.eql([
-            "PERSON_NAME",
-            "PERSON_SURNAME"
-        ]);
+            var elements = database.call("json_store.parse_query", {
+                p_query: 'person(.name, .surname, .address(.street))'
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                "name",
+                "surname",
+                "street"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+            ]);
+    
+        }); 
 
+        test("Combined column names", function() {
+
+            var elements = database.call("json_store.parse_query", {
+                p_query: 'person(.name as forename, .surname as "family_name", .address(.street, .:3, .#44))'
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                "FORENAME",
+                "family_name",
+                "street",
+                ":3",
+                "#44"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+                "3"
+            ]);
+    
+        }); 
+
+        test("Multiple different variables", function() {
+
+            var elements = database.call("json_store.parse_query", {
+                p_query: 'person(.:1, .:2(.:3))'
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                ":1",
+                ":3"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+                "1",
+                "2",
+                "3"
+            ]);
+    
+        }); 
+
+        test("Multiple repeating variables", function() {
+
+            var elements = database.call("json_store.parse_query", {
+                p_query: 'person(.:1, .:2(.:1 as value), .:2)'
+            });
+    
+            var details = database.call("json_store.get_query_details", {
+                p_query_elements: elements,
+                p_column_names: null,
+                p_variable_names: null
+            });
+    
+            expect(details.p_column_names).to.eql([
+                ":1",
+                "VALUE",
+                ":2"
+            ]);
+    
+            expect(details.p_variable_names).to.eql([
+                "1",
+                "2"
+            ]);
+    
+        }); 
+    
     });
 
 });

@@ -61,6 +61,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00020', 'Variable name is not a valid number!');
         default_message_resolver.register_message('JDOC-00021', 'Only variables with names 1 .. :1 are supported!');
         default_message_resolver.register_message('JDOC-00022', 'Root can''t be optional!');
+        default_message_resolver.register_message('JDOC-00023', 'Column alias for a wildcard not specified!');
     END;
     
     FUNCTION get_length (
@@ -1316,7 +1317,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
             IF LENGTH(p_name) > 30 THEN
                 -- Property name :1 is too long to be a column name!
-                error$.raise('JDOC-00018');
+                error$.raise('JDOC-00018', p_name);
             END IF;
             
             IF v_unique_column_names.EXISTS(p_name) THEN
@@ -1360,19 +1361,21 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
                     add_column_name(p_query_elements(p_i).alias);
                     
-                ELSIF p_query_elements(p_i).type = 'N' THEN
-                
-                    add_column_name(p_query_elements(p_i).value);
-                    
                 ELSIF p_query_elements(p_i).type = 'I' THEN
                 
                     add_column_name('#' || p_query_elements(p_i).value);
                     
+                ELSIF p_query_elements(p_i).type = 'V' THEN
+                
+                    add_column_name(':' || p_query_elements(p_i).value);
+    
+                 
                 ELSIF p_query_elements(p_i).type = 'W' THEN
                 
-                    add_column_name(p_query_elements(p_i).value);
+                    -- Column alias for a wildcard not specified!
+                    error$.raise('JDOC-00023');
                     
-                ELSIF p_query_elements(p_i).type = 'V' THEN
+                ELSE
                 
                     add_column_name(p_query_elements(p_i).value);
                     

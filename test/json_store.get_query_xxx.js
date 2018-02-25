@@ -1,4 +1,4 @@
-suite("Column and variable name retrieval tests", function() {
+suite("Query detail retrieval tests", function() {
 
     suite("Negative tests", function() {
     
@@ -361,6 +361,136 @@ suite("Column and variable name retrieval tests", function() {
             ]);
     
         }); 
+    
+    });
+
+    suite("Query signature retrieval", function() {
+    
+        test("Single name", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person"
+            });
+
+            var signature = database.call("json_store.get_query_signature", {
+                p_query_elements: elements
+            }); 
+
+            expect(signature).to.be('(N)');
+        
+        });
+        
+        test("Multiple property names", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person.address.street"
+            });
+
+            var signature = database.call("json_store.get_query_signature", {
+                p_query_elements: elements
+            }); 
+
+            expect(signature).to.be('(N(N(N)))');
+        
+        });
+
+        test("Single ID reference", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "#123"
+            });
+
+            var signature = database.call("json_store.get_query_signature", {
+                p_query_elements: elements
+            }); 
+
+            expect(signature).to.be('(I)');
+        
+        });
+
+        test("Single wildcard", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "*"
+            });
+
+            var signature = database.call("json_store.get_query_signature", {
+                p_query_elements: elements
+            }); 
+
+            expect(signature).to.be('(W)');
+        
+        });
+
+        test("Single variable", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: ":12"
+            });
+
+            var signature = database.call("json_store.get_query_signature", {
+                p_query_elements: elements
+            }); 
+
+            expect(signature).to.be('(V)');
+        
+        });
+
+        test("Complex child property chain", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person.:2.#123.*"
+            });
+
+            var signature = database.call("json_store.get_query_signature", {
+                p_query_elements: elements
+            }); 
+
+            expect(signature).to.be('(N(V(I(W))))');
+        
+        });
+
+        test("Single optional name", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person?"
+            });
+
+            var signature = database.call("json_store.get_query_signature", {
+                p_query_elements: elements
+            }); 
+
+            expect(signature).to.be('(N?)');
+        
+        });
+
+        test("Branched names", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person(.name, .surname)"
+            });
+
+            var signature = database.call("json_store.get_query_signature", {
+                p_query_elements: elements
+            }); 
+
+            expect(signature).to.be('(N(NN))');
+        
+        });
+
+        test("Complex branched query", function() {
+        
+            var elements = database.call("json_store.parse_query", {
+                p_query: "person(.name, .:1, .address?(.*), .surname)"
+            });
+
+            var signature = database.call("json_store.get_query_signature", {
+                p_query_elements: elements
+            }); 
+
+            expect(signature).to.be('(N(NVN?(W)N))');
+        
+        });
     
     });
 

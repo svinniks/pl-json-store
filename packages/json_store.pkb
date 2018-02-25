@@ -1303,6 +1303,42 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
+    FUNCTION get_query_signature (
+        p_query_elements IN t_query_elements
+    )
+    RETURN VARCHAR2 IS
+    
+        v_signature VARCHAR2(4000);
+        
+        PROCEDURE visit_element (
+            p_i IN PLS_INTEGER
+        ) IS
+        BEGIN
+        
+            v_signature := v_signature || p_query_elements(p_i).type || CASE WHEN p_query_elements(p_i).optional THEN '?' END;
+        
+            IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
+                v_signature := v_signature || '(';
+                visit_element(p_query_elements(p_i).first_child_i);
+                v_signature := v_signature || ')';
+            END IF;
+            
+            IF p_query_elements(p_i).next_sibling_i IS NOT NULL THEN
+                visit_element(p_query_elements(p_i).next_sibling_i);
+            END IF;
+        
+        END;
+    
+    BEGIN
+    
+        v_signature := '(';
+        visit_element(1);
+        v_signature := v_signature || ')';
+        
+        RETURN v_signature;
+    
+    END;
+    
     PROCEDURE get_query_details (
         p_query_elements IN t_query_elements,
         p_column_names IN OUT NOCOPY t_varchars,

@@ -153,6 +153,11 @@ CREATE OR REPLACE PACKAGE json_store IS
     ) 
     RETURN t_query_elements;
     
+    FUNCTION get_query_signature (
+        p_query_elements IN t_query_elements
+    )
+    RETURN VARCHAR2;
+    
     PROCEDURE get_query_details (
         p_query_elements IN t_query_elements,
         p_column_names IN OUT NOCOPY t_varchars,

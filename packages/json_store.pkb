@@ -3581,150 +3581,6 @@ WHERE 1=1';
     
     END;
     
-    FUNCTION get_1_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_1_value_table PIPELINED IS
-    
-        v_dummy NUMBER;
-    
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_1_value_row;
-    
-    BEGIN
-    
-        v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
-        
-        v_row := t_varchars();
-        v_row.extend(1);
-    
-        WHILE v_query.fetch_row(v_row) LOOP
-        
-            v_value_row.value_1 := v_row(1);
-            
-            PIPE ROW(v_value_row);
-        
-        END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
-    
-        RETURN;
-    
-    END;
-    
-    FUNCTION get_2_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_2_value_table PIPELINED IS
-    
-        v_dummy NUMBER;
-    
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_2_value_row;
-    
-    BEGIN
-    
-        v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
-        
-        v_row := t_varchars();
-        v_row.extend(2);
-    
-        WHILE v_query.fetch_row(v_row) LOOP
-        
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            
-            PIPE ROW(v_value_row);
-        
-        END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
-    
-        RETURN;
-    
-    END;
-    
-    FUNCTION get_3_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_3_value_table PIPELINED IS
-    
-        v_dummy NUMBER;
-    
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_3_value_row;
-    
-    BEGIN
-    
-        v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
-        
-        v_row := t_varchars();
-        v_row.extend(3);
-    
-        WHILE v_query.fetch_row(v_row) LOOP
-        
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            v_value_row.value_3 := v_row(3);
-            
-            
-            PIPE ROW(v_value_row);
-        
-        END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
-    
-        RETURN;
-    
-    END;
-    
-    FUNCTION get_4_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_4_value_table PIPELINED IS
-    
-        v_dummy NUMBER;
-    
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_4_value_row;
-    
-    BEGIN
-    
-        v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
-        
-        v_row := t_varchars();
-        v_row.extend(4);
-    
-        WHILE v_query.fetch_row(v_row) LOOP
-        
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            v_value_row.value_3 := v_row(3);
-            v_value_row.value_4 := v_row(4);
-            
-            
-            PIPE ROW(v_value_row);
-        
-        END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
-    
-        RETURN;
-    
-    END;
-    
     FUNCTION get_5_value_table (
         p_query IN VARCHAR2
     )
@@ -3753,168 +3609,6 @@ WHERE 1=1';
             v_value_row.value_4 := v_row(4);
             v_value_row.value_5 := v_row(5);
             
-            
-            PIPE ROW(v_value_row);
-        
-        END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
-    
-        RETURN;
-    
-    END;
-    
-    FUNCTION get_6_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_6_value_table PIPELINED IS
-    
-        v_dummy NUMBER;
-    
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_6_value_row;
-    
-    BEGIN
-    
-        v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
-        
-        v_row := t_varchars();
-        v_row.extend(6);
-    
-        WHILE v_query.fetch_row(v_row) LOOP
-        
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            v_value_row.value_3 := v_row(3);
-            v_value_row.value_4 := v_row(4);
-            v_value_row.value_5 := v_row(5);
-            v_value_row.value_6 := v_row(6);
-            
-            PIPE ROW(v_value_row);
-        
-        END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
-    
-        RETURN;
-    
-    END;
-    
-    FUNCTION get_7_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_7_value_table PIPELINED IS
-    
-        v_dummy NUMBER;
-    
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_7_value_row;
-    
-    BEGIN
-    
-        v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
-        
-        v_row := t_varchars();
-        v_row.extend(7);
-    
-        WHILE v_query.fetch_row(v_row) LOOP
-        
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            v_value_row.value_3 := v_row(3);
-            v_value_row.value_4 := v_row(4);
-            v_value_row.value_5 := v_row(5);
-            v_value_row.value_6 := v_row(6);
-            v_value_row.value_7 := v_row(7);
-            
-            PIPE ROW(v_value_row);
-        
-        END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
-    
-        RETURN;
-    
-    END;
-    
-    FUNCTION get_8_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_8_value_table PIPELINED IS
-    
-        v_dummy NUMBER;
-    
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_8_value_row;
-    
-    BEGIN
-    
-        v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
-        
-        v_row := t_varchars();
-        v_row.extend(8);
-    
-        WHILE v_query.fetch_row(v_row) LOOP
-        
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            v_value_row.value_3 := v_row(3);
-            v_value_row.value_4 := v_row(4);
-            v_value_row.value_5 := v_row(5);
-            v_value_row.value_6 := v_row(6);
-            v_value_row.value_7 := v_row(7);
-            v_value_row.value_8 := v_row(8);
-            
-            PIPE ROW(v_value_row);
-        
-        END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
-    
-        RETURN;
-    
-    END;
-    
-    FUNCTION get_9_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_9_value_table PIPELINED IS
-    
-        v_dummy NUMBER;
-    
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_9_value_row;
-    
-    BEGIN
-    
-        v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
-        
-        v_row := t_varchars();
-        v_row.extend(9);
-    
-        WHILE v_query.fetch_row(v_row) LOOP
-        
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            v_value_row.value_3 := v_row(3);
-            v_value_row.value_4 := v_row(4);
-            v_value_row.value_5 := v_row(5);
-            v_value_row.value_6 := v_row(6);
-            v_value_row.value_7 := v_row(7);
-            v_value_row.value_8 := v_row(8);
-            v_value_row.value_9 := v_row(9);
             
             PIPE ROW(v_value_row);
         
@@ -3958,6 +3652,107 @@ WHERE 1=1';
             v_value_row.value_8 := v_row(8);
             v_value_row.value_9 := v_row(9);
             v_value_row.value_10 := v_row(10);
+            
+            PIPE ROW(v_value_row);
+        
+        END LOOP;
+    
+        v_dummy := v_query.odcitableclose;
+    
+        RETURN;
+    
+    END;
+    
+    FUNCTION get_15_value_table (
+        p_query IN VARCHAR2
+    )
+    RETURN t_15_value_table PIPELINED IS
+    
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_15_value_row;
+    
+    BEGIN
+    
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
+        
+        v_row := t_varchars();
+        v_row.extend(15);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
+        
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
+            v_value_row.value_4 := v_row(4);
+            v_value_row.value_5 := v_row(5);
+            v_value_row.value_6 := v_row(6);
+            v_value_row.value_7 := v_row(7);
+            v_value_row.value_8 := v_row(8);
+            v_value_row.value_9 := v_row(9);
+            v_value_row.value_10 := v_row(10);
+            v_value_row.value_11 := v_row(11);
+            v_value_row.value_12 := v_row(12);
+            v_value_row.value_13 := v_row(13);
+            v_value_row.value_14 := v_row(14);
+            v_value_row.value_15 := v_row(15);
+            
+            PIPE ROW(v_value_row);
+        
+        END LOOP;
+    
+        v_dummy := v_query.odcitableclose;
+    
+        RETURN;
+    
+    END;
+    
+    FUNCTION get_20_value_table (
+        p_query IN VARCHAR2
+    )
+    RETURN t_20_value_table PIPELINED IS
+    
+        v_dummy NUMBER;
+    
+        v_query t_json_query;
+        v_row t_varchars;
+        
+        v_value_row t_20_value_row;
+    
+    BEGIN
+    
+        v_query := t_json_query(NULL);
+        v_dummy := t_json_query.odcitablestart(v_query, p_query);
+        
+        v_row := t_varchars();
+        v_row.extend(20);
+    
+        WHILE v_query.fetch_row(v_row) LOOP
+        
+            v_value_row.value_1 := v_row(1);
+            v_value_row.value_2 := v_row(2);
+            v_value_row.value_3 := v_row(3);
+            v_value_row.value_4 := v_row(4);
+            v_value_row.value_5 := v_row(5);
+            v_value_row.value_6 := v_row(6);
+            v_value_row.value_7 := v_row(7);
+            v_value_row.value_8 := v_row(8);
+            v_value_row.value_9 := v_row(9);
+            v_value_row.value_10 := v_row(10);
+            v_value_row.value_11 := v_row(11);
+            v_value_row.value_12 := v_row(12);
+            v_value_row.value_13 := v_row(13);
+            v_value_row.value_14 := v_row(14);
+            v_value_row.value_15 := v_row(15);
+            v_value_row.value_16 := v_row(16);
+            v_value_row.value_17 := v_row(17);
+            v_value_row.value_18 := v_row(18);
+            v_value_row.value_19 := v_row(19);
+            v_value_row.value_20 := v_row(10);
             
             PIPE ROW(v_value_row);
         

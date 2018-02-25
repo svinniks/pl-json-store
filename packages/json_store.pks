@@ -71,36 +71,6 @@ CREATE OR REPLACE PACKAGE json_store IS
     
     TYPE t_t_varchars IS TABLE OF t_varchars;
     
-    TYPE t_1_value_row IS RECORD (
-        value_1 VARCHAR2(4000)
-    );
-    
-    TYPE t_1_value_table IS TABLE OF t_1_value_row;
-    
-    TYPE t_2_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000)
-    );
-    
-    TYPE t_2_value_table IS TABLE OF t_2_value_row;
-    
-    TYPE t_3_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000)
-    );
-    
-    TYPE t_3_value_table IS TABLE OF t_3_value_row;
-    
-    TYPE t_4_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000),
-        value_4 VARCHAR2(4000)
-    );
-    
-    TYPE t_4_value_table IS TABLE OF t_4_value_row;
-    
     TYPE t_5_value_row IS RECORD (
         value_1 VARCHAR2(4000),
         value_2 VARCHAR2(4000),
@@ -110,56 +80,6 @@ CREATE OR REPLACE PACKAGE json_store IS
     );
     
     TYPE t_5_value_table IS TABLE OF t_5_value_row;
-    
-    TYPE t_6_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000),
-        value_4 VARCHAR2(4000),
-        value_5 VARCHAR2(4000),
-        value_6 VARCHAR2(4000)
-    );
-    
-    TYPE t_6_value_table IS TABLE OF t_6_value_row;
-    
-    TYPE t_7_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000),
-        value_4 VARCHAR2(4000),
-        value_5 VARCHAR2(4000),
-        value_6 VARCHAR2(4000),
-        value_7 VARCHAR2(4000)
-    );
-    
-    TYPE t_7_value_table IS TABLE OF t_7_value_row;
-    
-    TYPE t_8_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000),
-        value_4 VARCHAR2(4000),
-        value_5 VARCHAR2(4000),
-        value_6 VARCHAR2(4000),
-        value_7 VARCHAR2(4000),
-        value_8 VARCHAR2(4000)
-    );
-    
-    TYPE t_8_value_table IS TABLE OF t_8_value_row;
-    
-    TYPE t_9_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000),
-        value_4 VARCHAR2(4000),
-        value_5 VARCHAR2(4000),
-        value_6 VARCHAR2(4000),
-        value_7 VARCHAR2(4000),
-        value_8 VARCHAR2(4000),
-        value_9 VARCHAR2(4000)
-    );
-    
-    TYPE t_9_value_table IS TABLE OF t_9_value_row;
     
     TYPE t_10_value_row IS RECORD (
         value_1 VARCHAR2(4000),
@@ -175,6 +95,51 @@ CREATE OR REPLACE PACKAGE json_store IS
     );
     
     TYPE t_10_value_table IS TABLE OF t_10_value_row;
+    
+    TYPE t_15_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000),
+        value_4 VARCHAR2(4000),
+        value_5 VARCHAR2(4000),
+        value_6 VARCHAR2(4000),
+        value_7 VARCHAR2(4000),
+        value_8 VARCHAR2(4000),
+        value_9 VARCHAR2(4000),
+        value_10 VARCHAR2(4000),
+        value_11 VARCHAR2(4000),
+        value_12 VARCHAR2(4000),
+        value_13 VARCHAR2(4000),
+        value_14 VARCHAR2(4000),
+        value_15 VARCHAR2(4000)
+    );
+    
+    TYPE t_15_value_table IS TABLE OF t_15_value_row;
+    
+    TYPE t_20_value_row IS RECORD (
+        value_1 VARCHAR2(4000),
+        value_2 VARCHAR2(4000),
+        value_3 VARCHAR2(4000),
+        value_4 VARCHAR2(4000),
+        value_5 VARCHAR2(4000),
+        value_6 VARCHAR2(4000),
+        value_7 VARCHAR2(4000),
+        value_8 VARCHAR2(4000),
+        value_9 VARCHAR2(4000),
+        value_10 VARCHAR2(4000),
+        value_11 VARCHAR2(4000),
+        value_12 VARCHAR2(4000),
+        value_13 VARCHAR2(4000),
+        value_14 VARCHAR2(4000),
+        value_15 VARCHAR2(4000),
+        value_16 VARCHAR2(4000),
+        value_17 VARCHAR2(4000),
+        value_18 VARCHAR2(4000),
+        value_19 VARCHAR2(4000),
+        value_20 VARCHAR2(4000)
+    );
+    
+    TYPE t_20_value_table IS TABLE OF t_20_value_row;
 
     FUNCTION parse_path (
         p_path IN VARCHAR2
@@ -485,55 +450,25 @@ CREATE OR REPLACE PACKAGE json_store IS
     )
     RETURN json_parser.t_parse_events;
     
-    FUNCTION get_1_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_1_value_table PIPELINED;
-    
-    FUNCTION get_2_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_2_value_table PIPELINED;
-    
-    FUNCTION get_3_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_3_value_table PIPELINED;
-    
-    FUNCTION get_4_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_4_value_table PIPELINED;
-    
     FUNCTION get_5_value_table (
         p_query IN VARCHAR2
     )
     RETURN t_5_value_table PIPELINED;
     
-    FUNCTION get_6_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_6_value_table PIPELINED;
-    
-    FUNCTION get_7_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_7_value_table PIPELINED;
-    
-    FUNCTION get_8_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_8_value_table PIPELINED;
-    
-    FUNCTION get_9_value_table (
-        p_query IN VARCHAR2
-    )
-    RETURN t_9_value_table PIPELINED;
-    
     FUNCTION get_10_value_table (
         p_query IN VARCHAR2
     )
     RETURN t_10_value_table PIPELINED;
+    
+    FUNCTION get_15_value_table (
+        p_query IN VARCHAR2
+    )
+    RETURN t_15_value_table PIPELINED;
+    
+    FUNCTION get_20_value_table (
+        p_query IN VARCHAR2
+    )
+    RETURN t_20_value_table PIPELINED;
     
     FUNCTION get_value_table (
         p_query IN VARCHAR2,

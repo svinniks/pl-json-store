@@ -35,6 +35,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         INDEX BY VARCHAR2(32000);
     
     v_prepared_query_cache t_prepared_queries;
+    
+    TYPE t_query_element_cache IS 
+        TABLE OF t_query_elements 
+        INDEX BY VARCHAR2(32000); 
+        
+    v_query_element_cache t_query_element_cache;
         
     PROCEDURE register_messages IS
     BEGIN
@@ -1238,6 +1244,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
     BEGIN
     
+        IF v_query_element_cache.EXISTS(p_query) THEN
+            RETURN v_query_element_cache(p_query);
+        END IF;
+    
         v_query_elements := t_query_elements();
         init_stack;
         
@@ -1298,6 +1308,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 error$.raise('JDOC-00006');
             END IF; 
         END LOOP;
+        
+        v_query_element_cache(p_query) := v_query_elements;
         
         RETURN v_query_elements;
     
@@ -3653,7 +3665,30 @@ WHERE 1=1';
     BEGIN
     
         v_query := t_json_query(NULL);
-        v_dummy := t_json_query.odcitablestart(v_query, p_query);
+        v_dummy := t_json_query.odcitablestart(
+            v_query, 
+            p_query,
+            p_variable_1,
+            p_variable_2,
+            p_variable_3,
+            p_variable_4,
+            p_variable_5,
+            p_variable_6,
+            p_variable_7,
+            p_variable_8,
+            p_variable_9,
+            p_variable_10,
+            p_variable_11,
+            p_variable_12,
+            p_variable_13,
+            p_variable_14,
+            p_variable_15,
+            p_variable_16,
+            p_variable_17,
+            p_variable_18,
+            p_variable_19,
+            p_variable_20
+        );
         
         v_row := t_varchars();
         v_row.extend(5);

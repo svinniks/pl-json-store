@@ -1501,11 +1501,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
         BEGIN
         
-            IF p_query_elements(p_i).type != 'R' THEN
-                v_table_instance_counter := v_table_instance_counter + 1;
-                v_table_instance := v_table_instance_counter;
-            END IF;
-        
+            v_table_instance_counter := v_table_instance_counter + 1;
+            v_table_instance := v_table_instance_counter;
+                    
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
                 select_list_visit(p_query_elements(p_i).first_child_i);
             ELSE
@@ -1527,15 +1525,16 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
         BEGIN
         
-            IF p_query_elements(p_i).type != 'R' THEN
-            
-                v_table_instance_counter := v_table_instance_counter + 1;
-                v_table_instance := v_table_instance_counter;
-                
+            v_table_instance_counter := v_table_instance_counter + 1;
+            v_table_instance := v_table_instance_counter;
+        
+            IF p_query_elements(p_i).type = 'R' THEN
+                add_text(v_comma || '(SELECT 0 AS id FROM dual) j' || v_table_instance);
+            ELSE
                 add_text(v_comma || 'json_values j' || v_table_instance);
-                v_comma := ',';
-                
             END IF;
+            
+            v_comma := ',';
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
                 from_list_visit(p_query_elements(p_i).first_child_i);
@@ -1557,31 +1556,21 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
         BEGIN
         
-            IF p_query_elements(p_i).type != 'R' THEN
-            
-                v_table_instance_counter := v_table_instance_counter + 1;
-                v_table_instance := v_table_instance_counter;
-                
-            END IF;
+            v_table_instance_counter := v_table_instance_counter + 1;
+            v_table_instance := v_table_instance_counter;
             
             IF p_parent_table_instance IS NOT NULL THEN
             
-                add_text(v_and || 'j' || v_table_instance || '.parent_id');
+                add_text(v_and || 'NVL(j' || v_table_instance || '.parent_id');
                 
                 IF p_query_elements(p_i).optional THEN
                     add_text('(+)');
                 END IF;
                 
-                add_text('=j' || p_parent_table_instance || '.id');
+                add_text(',0)=j' || p_parent_table_instance || '.id');
                 
                 v_and := ' AND ';
                 
-            ELSIF p_parent_i IS NOT NULL AND p_query_elements(p_parent_i).type = 'R' THEN
-            
-                add_text(v_and || 'j' || v_table_instance || '.parent_id IS NULL');
-                
-                v_and := ' AND ';
-            
             END IF;
             
             IF p_query_elements(p_i).type = 'N' THEN
@@ -3041,7 +3030,7 @@ WHERE 1=1';
                     SELECT *
                     INTO v_child_value_row
                     FROM json_values
-                    WHERE parent_id IS NULL
+                    WHERE NVL(parent_id, 0) = 0
                           AND name = v_child_value_name;
                 
                     p_event_i := p_event_i + 1;
@@ -3074,7 +3063,7 @@ WHERE 1=1';
                     SELECT *
                     INTO v_child_value_row
                     FROM json_values
-                    WHERE parent_id = p_value_row.id
+                    WHERE NVL(parent_id, 0) = p_value_row.id
                           AND name = v_child_value_name;
                 
                     p_event_i := p_event_i + 1;
@@ -3106,8 +3095,8 @@ WHERE 1=1';
                     SELECT *
                     INTO v_child_value_row
                     FROM json_values
-                    WHERE parent_id = p_value_row.id
-                          AND name = v_item_i;
+                    WHERE NVL(parent_id, 0) = p_value_row.id
+                          AND name = TO_CHAR(v_item_i);
                     
                     apply_value(v_child_value_row, p_content_parse_events, p_event_i, p_check_types);               
                 
@@ -3212,7 +3201,7 @@ WHERE 1=1';
         SELECT NVL(MAX(to_index(name)), -1)
         INTO v_length
         FROM json_values
-        WHERE parent_id = p_array_id;
+        WHERE NVL(parent_id, 0) = p_array_id;
         
         RETURN v_length + 1;
     
@@ -3550,7 +3539,7 @@ WHERE 1=1';
         ) IS
         SELECT 1
         FROM json_values
-        WHERE parent_id = p_parent_id
+        WHERE NVL(parent_id, 0) = p_parent_id
               AND locked = 'T';
     
     BEGIN
@@ -3614,7 +3603,7 @@ WHERE 1=1';
                         END
                  FROM parent_jsvl
                      ,json_values jsvl
-                 WHERE jsvl.parent_id = parent_jsvl.id
+                 WHERE NVL(jsvl.parent_id, 0) = parent_jsvl.id
                  ORDER BY 6)
             SEARCH DEPTH FIRST BY ord SET dummy
             SELECT type

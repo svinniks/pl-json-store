@@ -18,12 +18,20 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     
     CONSTRUCTOR FUNCTION t_json_query (
         p_row_type ANYTYPE
-    ) RETURN SELF AS RESULT IS
+    ) 
+    RETURN SELF AS RESULT IS
     BEGIN
     
         row_type := p_row_type;
+        
         RETURN;
     
+    END;
+    
+    CONSTRUCTOR FUNCTION t_json_query
+    RETURN SELF AS RESULT IS
+    BEGIN
+        RETURN;
     END;
 
     STATIC FUNCTION odcitablestart ( 
@@ -49,39 +57,16 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         p_variable_18 IN VARCHAR2 := NULL,
         p_variable_19 IN VARCHAR2 := NULL,
         p_variable_20 IN VARCHAR2 := NULL
-    ) RETURN PLS_INTEGER IS
-        
-        v_query_elements json_store.t_query_elements;
-        v_query_statement json_store.t_query_statement;
-        v_query_column_names t_varchars;
-        v_query_variable_names t_varchars;
-        v_query_values t_varchars;
-        
-        v_cursor_id INTEGER;
-        
-        v_dummy DBMS_SQL.VARCHAR2_TABLE;
-        v_result INTEGER;
-        
-        v_variable_values t_varchars;
-        v_variable NUMBER;
-        
+    ) 
+    RETURN PLS_INTEGER IS
+    
+        v_columns DBMS_SQL.DESC_TAB;
+    
     BEGIN
-    
-        v_query_elements := json_store.parse_query(p_query);
-        v_query_statement := json_store.get_query_statement(v_query_elements, json_store.c_VALUE);
-        v_query_column_names := json_store.get_query_column_names(v_query_elements);
-        v_query_variable_names := json_store.get_query_variable_names(v_query_elements);
-        v_query_values := json_store.get_query_values(v_query_elements);
-    
-        v_cursor_id := DBMS_SQL.OPEN_CURSOR();
         
-        IF v_query_statement.statement_clob IS NOT NULL THEN
-            DBMS_SQL.PARSE(v_cursor_id, v_query_statement.statement_clob, DBMS_SQL.NATIVE);
-        ELSE
-            DBMS_SQL.PARSE(v_cursor_id, v_query_statement.statement, DBMS_SQL.NATIVE);
-        END IF;
-        
-        v_variable_values := t_varchars (
+        p_context.cursor_id := json_store.prepare_query(
+            p_query,
+            json_store.c_VALUE,
             p_variable_1,
             p_variable_2,
             p_variable_3,
@@ -103,25 +88,9 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
             p_variable_19,
             p_variable_20
         );
-                
-        FOR v_i IN 1..v_query_variable_names.COUNT LOOP
         
-            v_variable := v_query_variable_names(v_i);
-                    
-            IF v_variable_values(v_variable) IS NOT NULL THEN
-                DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':' || v_variable, v_variable_values(v_variable));
-            END IF;
-            
-        END LOOP;
+        DBMS_SQL.DESCRIBE_COLUMNS(p_context.cursor_id, p_context.column_count, v_columns); 
         
-        FOR v_i IN 1..v_query_values.COUNT LOOP
-            DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':v' || v_i, v_query_values(v_i));
-        END LOOP;
-        
-        v_result := DBMS_SQL.EXECUTE(v_cursor_id);
-        
-        p_context.cursor_id := v_cursor_id;
-        p_context.column_count := v_query_column_names.COUNT;
         p_context.fetched_row_count := NULL;
         p_context.piped_row_count := 0;
         
@@ -155,7 +124,8 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         p_variable_18 IN VARCHAR2 := NULL,
         p_variable_19 IN VARCHAR2 := NULL,
         p_variable_20 IN VARCHAR2 := NULL
-    ) RETURN PLS_INTEGER IS
+    ) 
+    RETURN PLS_INTEGER IS
         
         v_query_elements json_store.t_query_elements;
         v_query_statement json_store.t_query_statement;
@@ -209,7 +179,8 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         p_variable_18 IN VARCHAR2 := NULL,
         p_variable_19 IN VARCHAR2 := NULL,
         p_variable_20 IN VARCHAR2 := NULL
-    ) RETURN PLS_INTEGER IS
+    ) 
+    RETURN PLS_INTEGER IS
     
         v_return NUMBER;
         v_precision PLS_INTEGER;
@@ -242,7 +213,8 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     MEMBER FUNCTION fetch_row(
         self IN OUT NOCOPY t_json_query,
         p_row IN OUT NOCOPY t_varchars
-    ) RETURN BOOLEAN IS
+    ) 
+    RETURN BOOLEAN IS
         
         v_column_values DBMS_SQL.VARCHAR2_TABLE;
         
@@ -292,7 +264,8 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         self IN OUT NOCOPY t_json_query,
         p_row_count IN NUMBER,
         p_dataset OUT ANYDATASET
-    ) RETURN PLS_INTEGER IS
+    ) 
+    RETURN PLS_INTEGER IS
         
         v_row t_varchars;
         

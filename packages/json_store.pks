@@ -196,7 +196,33 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_query_elements IN t_query_elements,
         p_select IN PLS_INTEGER
     )
-    RETURN t_query_statement;    
+    RETURN t_query_statement;  
+    
+    FUNCTION prepare_query (
+        p_query IN VARCHAR2,
+        p_select IN PLS_INTEGER,
+        p_variable_1 IN VARCHAR2 := NULL,
+        p_variable_2 IN VARCHAR2 := NULL,
+        p_variable_3 IN VARCHAR2 := NULL,
+        p_variable_4 IN VARCHAR2 := NULL,
+        p_variable_5 IN VARCHAR2 := NULL,
+        p_variable_6 IN VARCHAR2 := NULL,
+        p_variable_7 IN VARCHAR2 := NULL,
+        p_variable_8 IN VARCHAR2 := NULL,
+        p_variable_9 IN VARCHAR2 := NULL,
+        p_variable_10 IN VARCHAR2 := NULL,
+        p_variable_11 IN VARCHAR2 := NULL,
+        p_variable_12 IN VARCHAR2 := NULL,
+        p_variable_13 IN VARCHAR2 := NULL,
+        p_variable_14 IN VARCHAR2 := NULL,
+        p_variable_15 IN VARCHAR2 := NULL,
+        p_variable_16 IN VARCHAR2 := NULL,
+        p_variable_17 IN VARCHAR2 := NULL,
+        p_variable_18 IN VARCHAR2 := NULL,
+        p_variable_19 IN VARCHAR2 := NULL,
+        p_variable_20 IN VARCHAR2 := NULL
+    )
+    RETURN INTEGER;
     
     PROCEDURE request_properties (
         p_path IN VARCHAR2,

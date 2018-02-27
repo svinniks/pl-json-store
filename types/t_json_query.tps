@@ -27,6 +27,9 @@ CREATE OR REPLACE TYPE t_json_query AUTHID CURRENT_USER AS OBJECT (
         p_row_type ANYTYPE
     ) RETURN SELF AS RESULT,
     
+    CONSTRUCTOR FUNCTION t_json_query
+    RETURN SELF AS RESULT,
+    
     STATIC FUNCTION odcitablestart (
         p_context IN OUT t_json_query,
         p_query IN VARCHAR2,

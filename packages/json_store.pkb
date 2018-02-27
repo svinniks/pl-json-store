@@ -1714,7 +1714,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         v_signature := p_select || get_query_signature(p_query_elements);
         
         IF v_query_statement_cache.EXISTS(v_signature) THEN
-            dbms_output.put_line('cached ' || v_signature);
             RETURN v_query_statement_cache(v_signature);
         END IF;    
     
@@ -1742,11 +1741,106 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             v_statement.statement := v_line;
         END IF;
         
-        dbms_output.put_line(v_line);
-        
         v_query_statement_cache(v_signature) := v_statement;
         
         RETURN v_statement;
+    
+    END;
+    
+    FUNCTION prepare_query (
+        p_query IN VARCHAR2,
+        p_select IN PLS_INTEGER,
+        p_variable_1 IN VARCHAR2 := NULL,
+        p_variable_2 IN VARCHAR2 := NULL,
+        p_variable_3 IN VARCHAR2 := NULL,
+        p_variable_4 IN VARCHAR2 := NULL,
+        p_variable_5 IN VARCHAR2 := NULL,
+        p_variable_6 IN VARCHAR2 := NULL,
+        p_variable_7 IN VARCHAR2 := NULL,
+        p_variable_8 IN VARCHAR2 := NULL,
+        p_variable_9 IN VARCHAR2 := NULL,
+        p_variable_10 IN VARCHAR2 := NULL,
+        p_variable_11 IN VARCHAR2 := NULL,
+        p_variable_12 IN VARCHAR2 := NULL,
+        p_variable_13 IN VARCHAR2 := NULL,
+        p_variable_14 IN VARCHAR2 := NULL,
+        p_variable_15 IN VARCHAR2 := NULL,
+        p_variable_16 IN VARCHAR2 := NULL,
+        p_variable_17 IN VARCHAR2 := NULL,
+        p_variable_18 IN VARCHAR2 := NULL,
+        p_variable_19 IN VARCHAR2 := NULL,
+        p_variable_20 IN VARCHAR2 := NULL
+    )
+    RETURN INTEGER IS
+    
+        v_query_elements t_query_elements;
+        v_query_statement t_query_statement;
+        v_query_column_names t_varchars;
+        v_query_variable_names t_varchars;
+        v_query_values t_varchars;
+        
+        v_cursor_id INTEGER;
+        v_result INTEGER;
+        
+        v_variable_values t_varchars;
+        v_variable NUMBER;
+    
+    BEGIN
+    
+        v_query_elements := parse_query(p_query);
+        v_query_statement := get_query_statement(v_query_elements, json_store.c_VALUE);
+        v_query_column_names := get_query_column_names(v_query_elements);
+        v_query_variable_names := get_query_variable_names(v_query_elements);
+        v_query_values := get_query_values(v_query_elements);
+        
+        v_cursor_id := DBMS_SQL.OPEN_CURSOR();
+        
+        IF v_query_statement.statement_clob IS NOT NULL THEN
+            DBMS_SQL.PARSE(v_cursor_id, v_query_statement.statement_clob, DBMS_SQL.NATIVE);
+        ELSE
+            DBMS_SQL.PARSE(v_cursor_id, v_query_statement.statement, DBMS_SQL.NATIVE);
+        END IF;
+        
+        v_variable_values := t_varchars (
+            p_variable_1,
+            p_variable_2,
+            p_variable_3,
+            p_variable_4,
+            p_variable_5,
+            p_variable_6,
+            p_variable_7,
+            p_variable_8,
+            p_variable_9,
+            p_variable_10,
+            p_variable_11,
+            p_variable_12,
+            p_variable_13,
+            p_variable_14,
+            p_variable_15,
+            p_variable_16,
+            p_variable_17,
+            p_variable_18,
+            p_variable_19,
+            p_variable_20
+        );
+                
+        FOR v_i IN 1..v_query_variable_names.COUNT LOOP
+        
+            v_variable := v_query_variable_names(v_i);
+                    
+            IF v_variable_values(v_variable) IS NOT NULL THEN
+                DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':' || v_variable, v_variable_values(v_variable));
+            END IF;
+            
+        END LOOP;
+        
+        FOR v_i IN 1..v_query_values.COUNT LOOP
+            DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':v' || v_i, v_query_values(v_i));
+        END LOOP;
+        
+        v_result := DBMS_SQL.EXECUTE(v_cursor_id);
+        
+        RETURN v_cursor_id;
     
     END;
     
@@ -3790,7 +3884,7 @@ WHERE 1=1';
     
     BEGIN
     
-        v_query := t_json_query(NULL);
+        v_query := t_json_query();
         v_dummy := t_json_query.odcitablestart(
             v_query, 
             p_query,
@@ -3872,7 +3966,7 @@ WHERE 1=1';
     
     BEGIN
     
-        v_query := t_json_query(NULL);
+        v_query := t_json_query();
         v_dummy := t_json_query.odcitablestart(
             v_query, 
             p_query,
@@ -3958,7 +4052,7 @@ WHERE 1=1';
     
     BEGIN
     
-        v_query := t_json_query(NULL);
+        v_query := t_json_query();
         v_dummy := t_json_query.odcitablestart(
             v_query, 
             p_query,
@@ -4049,7 +4143,7 @@ WHERE 1=1';
     
     BEGIN
     
-        v_query := t_json_query(NULL);
+        v_query := t_json_query();
         v_dummy := t_json_query.odcitablestart(
             v_query, 
             p_query,

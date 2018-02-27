@@ -67,6 +67,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00021', 'Only variables with names 1 .. :1 are supported!');
         default_message_resolver.register_message('JDOC-00022', 'Root can''t be optional!');
         default_message_resolver.register_message('JDOC-00023', 'Column alias for a wildcard not specified!');
+        default_message_resolver.register_message('JDOC-00024', 'Value :1 is locked!');
+        default_message_resolver.register_message('JDOC-00025', 'Value :1 has locked children!');
     END;
     
     FUNCTION get_length (
@@ -1745,7 +1747,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
             IF p_path_elements.COUNT = 1 THEN
 
-                v_sql := v_sql || 'SELECT parent.id, parent.type, property.id, property.type, property.name
+                v_sql := v_sql || 'SELECT parent.id, parent.type, property.id, property.type, property.name, property.locked
 FROM json_values property
     ,json_values parent
 WHERE property.' || field(1) || ' = :property_value
@@ -1753,7 +1755,7 @@ WHERE property.' || field(1) || ' = :property_value
 
             ELSIF p_path_elements.COUNT = 2 AND p_path_elements(1).type = 'R' THEN
 
-                v_sql := v_sql || 'SELECT NULL, NULL, jsvl.id, jsvl.type, jsvl.name
+                v_sql := v_sql || 'SELECT NULL, NULL, jsvl.id, jsvl.type, jsvl.name, jsvl.locked
 FROM (SELECT jsvl.*, 0 AS nvl_parent_id
       FROM json_values jsvl
       WHERE ' || field(2) || ' = :property_value
@@ -1766,7 +1768,7 @@ WHERE jsvl.nvl_parent_id(+) = root.id';
 
                 v_start_level := CASE p_path_elements(1).type WHEN 'R' THEN 2 ELSE 1 END;
 
-                v_sql := v_sql || 'SELECT l' || (p_path_elements.COUNT - 1) || '.id, l' || (p_path_elements.COUNT - 1) || '.type, property.id, property.type, property.name
+                v_sql := v_sql || 'SELECT l' || (p_path_elements.COUNT - 1) || '.id, l' || (p_path_elements.COUNT - 1) || '.type, property.id, property.type, property.name, property.locked
 FROM ';
 
                 FOR v_i IN v_start_level..p_path_elements.COUNT - 1 LOOP
@@ -2309,6 +2311,11 @@ WHERE 1=1';
         v_parent_ids := t_numbers();
 
         FOR v_i IN 1..v_properties.COUNT LOOP
+
+            IF v_properties(v_i).property_locked = 'T' THEN
+                -- Value :1 is locked!
+                error$.raise('JDOC-00024');
+            END IF;
 
             IF NVL(v_properties(v_i).parent_type, 'R') NOT IN ('R', 'O', 'A') THEN
                 -- Scalar values and null can't have properties!
@@ -3486,6 +3493,11 @@ WHERE 1=1';
         
         FOR v_i IN 1..v_properties.COUNT LOOP
             
+            IF v_properties(v_i).property_locked = 'T' THEN
+                -- Value :1 is locked!
+                error$.raise('JDOC-00024');
+            END IF;
+        
             DELETE FROM json_values
             WHERE id = v_properties(v_i).property_id;
         
@@ -3498,6 +3510,67 @@ WHERE 1=1';
         
         END LOOP;
 
+    
+    END;
+    
+    PROCEDURE lock_value (
+        p_path IN VARCHAR2
+    ) IS
+    
+        v_value t_value;
+        t_ids_to_lock t_numbers;
+    
+    BEGIN
+    
+        v_value := request_value(p_path);
+    
+        SELECT id
+        BULK COLLECT INTO t_ids_to_lock
+        FROM json_values
+        START WITH id = v_value.id
+        CONNECT BY PRIOR parent_id = id
+        FOR UPDATE;
+        
+        FORALL v_i IN 1..t_ids_to_lock.COUNT
+            UPDATE json_values
+            SET locked = 'T'
+            WHERE id = t_ids_to_lock(v_i);
+    
+    END;
+    
+    PROCEDURE unlock_value (
+        p_path IN VARCHAR2
+    ) IS
+    
+        v_value t_value;
+        v_dummy NUMBER;
+        
+        CURSOR c_locked_child (
+            p_parent_id IN NUMBER
+        ) IS
+        SELECT 1
+        FROM json_values
+        WHERE parent_id = p_parent_id
+              AND locked = 'T';
+    
+    BEGIN
+        
+        v_value := request_value(p_path);
+        
+        OPEN c_locked_child(v_value.id);
+        
+        FETCH c_locked_child
+        INTO v_dummy;
+        
+        IF c_locked_child%FOUND THEN
+            -- Value :1 has locked children!
+            error$.raise('JDOC-00025');
+        END IF;
+        
+        UPDATE json_values
+        SET locked = NULL
+        WHERE id = v_value.id;
+        
     
     END;
     

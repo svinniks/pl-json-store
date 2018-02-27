@@ -49,7 +49,8 @@ CREATE OR REPLACE PACKAGE json_store IS
         parent_type CHAR,
         property_id NUMBER,
         property_type CHAR,
-        property_name VARCHAR2(4000)
+        property_name VARCHAR2(4000),
+        property_locked CHAR
     );
        
     TYPE t_properties IS TABLE OF t_property;
@@ -449,6 +450,14 @@ CREATE OR REPLACE PACKAGE json_store IS
     );
          
     PROCEDURE delete_value (
+        p_path IN VARCHAR2
+    );
+    
+    PROCEDURE lock_value (
+        p_path IN VARCHAR2
+    );
+    
+    PROCEDURE unlock_value (
         p_path IN VARCHAR2
     );
 

@@ -122,7 +122,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: null,
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -145,7 +146,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'S',
                         name: null,
-                        value: "Hello, World!"
+                        value: "Hello, World!",
+                        locked: null
                     });
 
                 });
@@ -168,7 +170,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'N',
                         name: null,
-                        value: "123.456"
+                        value: "123.456",
+                        locked: null
                     });
 
                 });
@@ -191,7 +194,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'B',
                         name: null,
-                        value: "true"
+                        value: "true",
+                        locked: null
                     });
 
                 });
@@ -214,7 +218,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: null,
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -237,7 +242,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: null,
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -260,7 +266,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: null,
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -291,7 +298,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: null,
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -314,7 +322,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'S',
                         name: null,
-                        value: "Hello, World!"
+                        value: "Hello, World!",
+                        locked: null
                     });
 
                 });
@@ -337,7 +346,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'N',
                         name: null,
-                        value: "123.456"
+                        value: "123.456",
+                        locked: null
                     });
 
                 });
@@ -360,7 +370,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'B',
                         name: null,
-                        value: "true"
+                        value: "true",
+                        locked: null
                     });
 
                 });  
@@ -391,7 +402,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: "jodus_null",
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -413,7 +425,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: "jodus_null",
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -437,7 +450,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'S',
                         name: "jodus_string",
-                        value: "Hello, World!"
+                        value: "Hello, World!",
+                        locked: null
                     });
 
                 });
@@ -460,7 +474,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'S',
                         name: "jodus_string",
-                        value: "Hello, World!"
+                        value: "Hello, World!",
+                        locked: null
                     });
 
                 });
@@ -484,7 +499,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'N',
                         name: "jodus_number",
-                        value: "123.456"
+                        value: "123.456",
+                        locked: null
                     });
 
                 });
@@ -507,7 +523,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'N',
                         name: "jodus_number",
-                        value: "123.456"
+                        value: "123.456",
+                        locked: null
                     });
 
                 });
@@ -531,7 +548,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'B',
                         name: "jodus_boolean",
-                        value: "true"
+                        value: "true",
+                        locked: null
                     });
 
                 });
@@ -554,7 +572,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'B',
                         name: "jodus_boolean",
-                        value: "true"
+                        value: "true",
+                        locked: null
                     });
 
                 });
@@ -578,7 +597,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: "jodus_string",
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -602,7 +622,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: "jodus_number",
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -626,7 +647,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: "jodus_boolean",
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -658,7 +680,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'E',
                         name: "jodus_null",
-                        value: null
+                        value: null,
+                        locked: null
                     });
 
                 });
@@ -682,7 +705,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'S',
                         name: "jodus_string",
-                        value: "Hello, World!"
+                        value: "Hello, World!",
+                        locked: null
                     });
 
                 });
@@ -706,7 +730,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'N',
                         name: "jodus_number",
-                        value: "123.456"
+                        value: "123.456",
+                        locked: null
                     });
 
                 });
@@ -730,7 +755,8 @@ suite("JSON store management tests", function() {
                         parent_id: null,
                         type: 'B',
                         name: "jodus_boolean",
-                        value: "true"
+                        value: "true",
+                        locked: null
                     });
 
                 });
@@ -761,7 +787,8 @@ suite("JSON store management tests", function() {
                     parent_id: null,
                     type: 'O',
                     name: null,
-                    value: null
+                    value: null,
+                    locked: null
                 });
 
             });
@@ -784,7 +811,8 @@ suite("JSON store management tests", function() {
                     parent_id: null,
                     type: 'O',
                     name: null,
-                    value: null
+                    value: null,
+                    locked: null
                 });
 
             });
@@ -876,7 +904,8 @@ suite("JSON store management tests", function() {
                     parent_id: null,
                     type: 'O',
                     name: "jodus_object",
-                    value: null
+                    value: null,
+                    locked: null
                 });
 
             });
@@ -900,7 +929,8 @@ suite("JSON store management tests", function() {
                     parent_id: null,
                     type: 'O',
                     name: "jodus_object",
-                    value: null
+                    value: null,
+                    locked: null
                 });
 
             });
@@ -929,7 +959,8 @@ suite("JSON store management tests", function() {
                     parent_id: null,
                     type: 'A',
                     name: null,
-                    value: null
+                    value: null,
+                    locked: null
                 });
 
             });
@@ -952,7 +983,8 @@ suite("JSON store management tests", function() {
                     parent_id: null,
                     type: 'A',
                     name: null,
-                    value: null
+                    value: null,
+                    locked: null
                 });
 
             });
@@ -1037,7 +1069,8 @@ suite("JSON store management tests", function() {
                     parent_id: null,
                     type: 'A',
                     name: "jodus_array",
-                    value: null
+                    value: null,
+                    locked: null
                 });
 
             });
@@ -1061,7 +1094,8 @@ suite("JSON store management tests", function() {
                     parent_id: null,
                     type: 'A',
                     name: "jodus_array",
-                    value: null
+                    value: null,
+                    locked: null
                 });
 
             });
@@ -3218,6 +3252,327 @@ suite("JSON store management tests", function() {
         
         });
 
+    });
+
+    suite("JSON node locking tests", function() {
+    
+        test("Lock anonymous scalar value", function() {
+    
+            let id = database.call("json_store.create_string", {
+                p_value: "Hello, World!"
+            });
+
+            database.call("json_store.lock_value", {
+                p_path: `#${id}`
+            });
+
+            let value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}`);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: "S",
+                name: null,
+                value: "Hello, World!",
+                locked: "T"
+            });
+    
+        });
+
+        test("Try to modify locked anonymous scalar value", function() {
+    
+            let id = database.call("json_store.create_string", {
+                p_value: "Hello, World!"
+            });
+
+            database.call("json_store.lock_value", {
+                p_path: `#${id}`
+            });
+
+            expect(function() {
+            
+                database.call("json_store.set_string", {
+                    p_path: `#${id}`,
+                    p_value: "Good bye, World!"
+                });
+            
+            }).to.throw(/JDOC-00024/);
+
+        });
+
+        test("Lock scalar property of the root", function() {
+    
+            let name = randomString(32);
+
+            let id = database.call("json_store.set_string", {
+                p_path: `$["${name}"]`,
+                p_value: "Hello, World!"
+            });
+
+            database.call("json_store.lock_value", {
+                p_path: `$["${name}"]`
+            });
+
+            let value = database.selectObject(`*
+                FROM json_values
+                WHERE parent_id IS NULL
+                      AND name = '${name}'`);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: "S",
+                name: name,
+                value: "Hello, World!",
+                locked: "T"
+            });
+    
+        });
+
+        test("Try to modify locked anonymous value", function() {
+    
+            let name = randomString(32);
+
+            let id = database.call("json_store.set_string", {
+                p_path: `$["${name}"]`,
+                p_value: "Hello, World!"
+            });
+
+            database.call("json_store.lock_value", {
+                p_path: `$["${name}"]`
+            });
+
+            expect(function() {
+            
+                database.call("json_store.set_string", {
+                    p_path: `$["${name}"]`,
+                    p_value: "Good bye, World!"
+                });
+            
+            }).to.throw(/JDOC-00024/);
+
+        });
+
+        test("Lock child property", function() {
+        
+            let name = randomString(32);
+
+            let id = database.call("json_store.set_json", {
+                p_path: `$["${name}"]`,
+                p_content: {
+                    name: "Sergejs",
+                    addresses: {
+                        home: {
+                            city: "Riga"
+                        }
+                    }
+                }
+            });
+
+            database.call("json_store.lock_value", {
+                p_path: `$["${name}"].addresses.home.city`
+            });
+
+            let values = database.selectRows(`
+                     name,
+                     locked
+                FROM json_values
+                START WITH id = ${id}
+                CONNECT BY PRIOR id = parent_id
+                ORDER SIBLINGS BY name`);
+
+            expect(values).to.eql([
+                [name, "T"],
+                ["addresses", "T"],
+                ["home", "T"],
+                ["city", "T"],
+                ["name", null]
+            ]);
+        
+        });
+          
+        test("Delete locked property", function() {
+        
+            let name = randomString(32);
+
+            let id = database.call("json_store.set_json", {
+                p_path: `$["${name}"]`,
+                p_content: {
+                    name: "Sergejs",
+                    addresses: {
+                        home: {
+                            city: "Riga"
+                        }
+                    }
+                }
+            });
+
+            database.call("json_store.lock_value", {
+                p_path: `$["${name}"].addresses.home.city`
+            });
+
+            expect(function() {
+            
+                database.call("json_store.delete_value", {
+                    p_path: `$["${name}"].addresses.home`
+                });
+            
+            }).to.throw(/JDOC-00024/);
+        
+        });
+
+        test("Unlock anonymous scalar value", function() {
+    
+            let id = database.call("json_store.create_string", {
+                p_value: "Hello, World!"
+            });
+
+            database.call("json_store.lock_value", {
+                p_path: `#${id}`
+            });
+
+            let value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}`);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: "S",
+                name: null,
+                value: "Hello, World!",
+                locked: "T"
+            });
+
+            database.call("json_store.unlock_value", {
+                p_path: `#${id}`
+            });
+
+            value = database.selectObject(`*
+                FROM json_values
+                WHERE id = ${id}`);
+
+            expect(value).to.eql({
+                id: id,
+                parent_id: null,
+                type: "S",
+                name: null,
+                value: "Hello, World!",
+                locked: null
+            });
+    
+        });
+
+        test("Try to unlock a value with locked children", function() {
+        
+            let name = randomString(32);
+
+            let id = database.call("json_store.set_json", {
+                p_path: `$["${name}"]`,
+                p_content: {
+                    name: "Sergejs",
+                    addresses: {
+                        home: {
+                            city: "Riga"
+                        }
+                    }
+                }
+            });
+
+            database.call("json_store.lock_value", {
+                p_path: `$["${name}"].addresses.home.city`
+            });
+
+            let values = database.selectRows(`
+                     name,
+                     locked
+                FROM json_values
+                START WITH id = ${id}
+                CONNECT BY PRIOR id = parent_id
+                ORDER SIBLINGS BY name`);
+
+            expect(values).to.eql([
+                [name, "T"],
+                ["addresses", "T"],
+                ["home", "T"],
+                ["city", "T"],
+                ["name", null]
+            ]);
+
+            expect(function() {
+            
+                database.call("json_store.unlock_value", {
+                    p_path:  `$["${name}"].addresses.home`
+                });
+            
+            }).to.throw(/JDOC-00025/);
+        
+        });
+
+        test("Unlock a value with all children unlocked", function() {
+        
+            let name = randomString(32);
+
+            let id = database.call("json_store.set_json", {
+                p_path: `$["${name}"]`,
+                p_content: {
+                    name: "Sergejs",
+                    addresses: {
+                        home: {
+                            city: "Riga"
+                        }
+                    }
+                }
+            });
+
+            database.call("json_store.lock_value", {
+                p_path: `$["${name}"].addresses.home.city`
+            });
+
+            let values = database.selectRows(`
+                     name,
+                     locked
+                FROM json_values
+                START WITH id = ${id}
+                CONNECT BY PRIOR id = parent_id
+                ORDER SIBLINGS BY name`);
+
+            expect(values).to.eql([
+                [name, "T"],
+                ["addresses", "T"],
+                ["home", "T"],
+                ["city", "T"],
+                ["name", null]
+            ]);
+
+            database.call("json_store.unlock_value", {
+                p_path:  `$["${name}"].addresses.home.city`
+            });
+
+            database.call("json_store.unlock_value", {
+                p_path:  `$["${name}"].addresses.home`
+            });
+
+            values = database.selectRows(`
+                     name,
+                     locked
+                FROM json_values
+                START WITH id = ${id}
+                CONNECT BY PRIOR id = parent_id
+                ORDER SIBLINGS BY name`);
+
+            expect(values).to.eql([
+                [name, "T"],
+                ["addresses", "T"],
+                ["home", null],
+                ["city", null],
+                ["name", null]
+            ]);
+        
+        });
+    
     });
 
 });

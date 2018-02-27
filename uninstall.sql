@@ -14,6 +14,9 @@
     limitations under the License.
 */
 
+DROP TYPE t_json_query
+/
+
 DROP PACKAGE json_store
 /
 DROP PACKAGE json_parser

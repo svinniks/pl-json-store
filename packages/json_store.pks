@@ -24,123 +24,141 @@ CREATE OR REPLACE PACKAGE json_store IS
         
     */
     
-    TYPE t_path_element IS RECORD (
-        type CHAR,
-        value VARCHAR2(4000)
-    );
+    TYPE t_path_element IS 
+        RECORD (
+            type CHAR,
+            value VARCHAR2(4000)
+        );
         
-    TYPE t_path_elements IS TABLE OF t_path_element;
+    TYPE t_path_elements IS 
+        TABLE OF t_path_element;
     
-    TYPE t_query_element IS RECORD (
-        type CHAR,
-        value VARCHAR2(4000),
-        optional BOOLEAN,
-        alias VARCHAR2(4000),
-        first_child_i PLS_INTEGER,
-        next_sibling_i PLS_INTEGER
-    );
+    TYPE t_query_element IS 
+        RECORD (
+            type CHAR,
+            value VARCHAR2(4000),
+            optional BOOLEAN,
+            alias VARCHAR2(4000),
+            first_child_i PLS_INTEGER,
+            next_sibling_i PLS_INTEGER
+        );
         
-    TYPE t_query_elements IS TABLE OF t_query_element;
+    TYPE t_query_elements IS 
+        TABLE OF t_query_element;
     
     c_query_row_buffer_size CONSTANT PLS_INTEGER := 100;
     
-    TYPE t_property IS RECORD (
-        parent_id NUMBER,
-        parent_type CHAR,
-        property_id NUMBER,
-        property_type CHAR,
-        property_name VARCHAR2(4000),
-        property_locked CHAR
-    );
+    TYPE t_property IS 
+        RECORD (
+            parent_id NUMBER,
+            parent_type CHAR,
+            property_id NUMBER,
+            property_type CHAR,
+            property_name VARCHAR2(4000),
+            property_locked CHAR
+        );
        
     TYPE t_properties IS TABLE OF t_property;
     
-    TYPE t_value IS RECORD (
-        id NUMBER,
-        type CHAR,
-        value VARCHAR2(4000)
-    );
+    TYPE t_value IS 
+        RECORD (
+            id NUMBER,
+            type CHAR,
+            value VARCHAR2(4000)
+        );
         
     TYPE t_values IS TABLE OF t_value;
     
-    TYPE t_prepared_query IS RECORD (
-        statement VARCHAR2(32000),
-        statement_clob CLOB,
-        column_names t_varchars,
-        variable_names t_varchars
-    ); 
+    c_VALUE CONSTANT PLS_INTEGER := 1;
+    c_VALUE_RECORD CONSTANT PLS_INTEGER := 2;
+    c_PROPERTY_RECORD CONSTANT PLS_INTEGER := 3;
     
-    TYPE t_t_varchars IS TABLE OF t_varchars;
+    TYPE t_query_statement IS
+        RECORD (
+            statement VARCHAR2(32000),
+            statement_clob CLOB
+        );
     
-    TYPE t_5_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000),
-        value_4 VARCHAR2(4000),
-        value_5 VARCHAR2(4000)
-    );
+    TYPE t_t_varchars IS 
+        TABLE OF t_varchars;
     
-    TYPE t_5_value_table IS TABLE OF t_5_value_row;
+    TYPE t_5_value_row IS 
+        RECORD (
+            value_1 VARCHAR2(4000),
+            value_2 VARCHAR2(4000),
+            value_3 VARCHAR2(4000),
+            value_4 VARCHAR2(4000),
+            value_5 VARCHAR2(4000)
+        );
     
-    TYPE t_10_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000),
-        value_4 VARCHAR2(4000),
-        value_5 VARCHAR2(4000),
-        value_6 VARCHAR2(4000),
-        value_7 VARCHAR2(4000),
-        value_8 VARCHAR2(4000),
-        value_9 VARCHAR2(4000),
-        value_10 VARCHAR2(4000)
-    );
+    TYPE t_5_value_table IS 
+        TABLE OF t_5_value_row;
     
-    TYPE t_10_value_table IS TABLE OF t_10_value_row;
+    TYPE t_10_value_row IS 
+        RECORD (
+            value_1 VARCHAR2(4000),
+            value_2 VARCHAR2(4000),
+            value_3 VARCHAR2(4000),
+            value_4 VARCHAR2(4000),
+            value_5 VARCHAR2(4000),
+            value_6 VARCHAR2(4000),
+            value_7 VARCHAR2(4000),
+            value_8 VARCHAR2(4000),
+            value_9 VARCHAR2(4000),
+            value_10 VARCHAR2(4000)
+        );
     
-    TYPE t_15_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000),
-        value_4 VARCHAR2(4000),
-        value_5 VARCHAR2(4000),
-        value_6 VARCHAR2(4000),
-        value_7 VARCHAR2(4000),
-        value_8 VARCHAR2(4000),
-        value_9 VARCHAR2(4000),
-        value_10 VARCHAR2(4000),
-        value_11 VARCHAR2(4000),
-        value_12 VARCHAR2(4000),
-        value_13 VARCHAR2(4000),
-        value_14 VARCHAR2(4000),
-        value_15 VARCHAR2(4000)
-    );
+    TYPE t_10_value_table IS 
+        TABLE OF t_10_value_row;
     
-    TYPE t_15_value_table IS TABLE OF t_15_value_row;
+    TYPE t_15_value_row IS 
+        RECORD (
+            value_1 VARCHAR2(4000),
+            value_2 VARCHAR2(4000),
+            value_3 VARCHAR2(4000),
+            value_4 VARCHAR2(4000),
+            value_5 VARCHAR2(4000),
+            value_6 VARCHAR2(4000),
+            value_7 VARCHAR2(4000),
+            value_8 VARCHAR2(4000),
+            value_9 VARCHAR2(4000),
+            value_10 VARCHAR2(4000),
+            value_11 VARCHAR2(4000),
+            value_12 VARCHAR2(4000),
+            value_13 VARCHAR2(4000),
+            value_14 VARCHAR2(4000),
+            value_15 VARCHAR2(4000)
+        );
     
-    TYPE t_20_value_row IS RECORD (
-        value_1 VARCHAR2(4000),
-        value_2 VARCHAR2(4000),
-        value_3 VARCHAR2(4000),
-        value_4 VARCHAR2(4000),
-        value_5 VARCHAR2(4000),
-        value_6 VARCHAR2(4000),
-        value_7 VARCHAR2(4000),
-        value_8 VARCHAR2(4000),
-        value_9 VARCHAR2(4000),
-        value_10 VARCHAR2(4000),
-        value_11 VARCHAR2(4000),
-        value_12 VARCHAR2(4000),
-        value_13 VARCHAR2(4000),
-        value_14 VARCHAR2(4000),
-        value_15 VARCHAR2(4000),
-        value_16 VARCHAR2(4000),
-        value_17 VARCHAR2(4000),
-        value_18 VARCHAR2(4000),
-        value_19 VARCHAR2(4000),
-        value_20 VARCHAR2(4000)
-    );
+    TYPE t_15_value_table IS 
+        TABLE OF t_15_value_row;
     
-    TYPE t_20_value_table IS TABLE OF t_20_value_row;
+    TYPE t_20_value_row IS 
+        RECORD (
+            value_1 VARCHAR2(4000),
+            value_2 VARCHAR2(4000),
+            value_3 VARCHAR2(4000),
+            value_4 VARCHAR2(4000),
+            value_5 VARCHAR2(4000),
+            value_6 VARCHAR2(4000),
+            value_7 VARCHAR2(4000),
+            value_8 VARCHAR2(4000),
+            value_9 VARCHAR2(4000),
+            value_10 VARCHAR2(4000),
+            value_11 VARCHAR2(4000),
+            value_12 VARCHAR2(4000),
+            value_13 VARCHAR2(4000),
+            value_14 VARCHAR2(4000),
+            value_15 VARCHAR2(4000),
+            value_16 VARCHAR2(4000),
+            value_17 VARCHAR2(4000),
+            value_18 VARCHAR2(4000),
+            value_19 VARCHAR2(4000),
+            value_20 VARCHAR2(4000)
+        );
+    
+    TYPE t_20_value_table IS 
+        TABLE OF t_20_value_row;
 
     FUNCTION parse_path (
         p_path IN VARCHAR2
@@ -159,22 +177,26 @@ CREATE OR REPLACE PACKAGE json_store IS
     )
     RETURN VARCHAR2;
     
-    PROCEDURE get_query_details (
-        p_query_elements IN t_query_elements,
-        p_column_names IN OUT NOCOPY t_varchars,
-        p_variable_names IN OUT NOCOPY t_varchars
-    );
+    FUNCTION get_query_column_names (
+        p_query_elements IN t_query_elements
+    )
+    RETURN t_varchars;
     
-    PROCEDURE generate_query_statement (
-        p_query_elements IN t_query_elements,
-        p_statement OUT VARCHAR2,
-        p_statement_clob OUT CLOB
-    );    
+    FUNCTION get_query_variable_names (
+        p_query_elements IN t_query_elements
+    )
+    RETURN t_varchars;
     
-    FUNCTION prepare_query (
-        p_query IN VARCHAR2
-    ) 
-    RETURN t_prepared_query;
+    FUNCTION get_query_values (
+        p_query_elements IN t_query_elements
+    )
+    RETURN t_varchars;
+    
+    FUNCTION get_query_statement (
+        p_query_elements IN t_query_elements,
+        p_select IN PLS_INTEGER
+    )
+    RETURN t_query_statement;    
     
     PROCEDURE request_properties (
         p_path IN VARCHAR2,

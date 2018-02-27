@@ -16,6 +16,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         limitations under the License.
     */
 
+    -- TODO: variables in set_xxx, get_xxx etc
+
     TYPE t_json_values IS 
         TABLE OF json_values%ROWTYPE;
 
@@ -29,18 +31,18 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     v_property_request_sqls t_varchar_indexed_varchars;
     v_value_request_sqls t_varchar_indexed_varchars;
-        
-    TYPE t_prepared_queries IS 
-        TABLE OF t_prepared_query 
-        INDEX BY VARCHAR2(32000);
-    
-    v_prepared_query_cache t_prepared_queries;
     
     TYPE t_query_element_cache IS 
         TABLE OF t_query_elements 
         INDEX BY VARCHAR2(32000); 
         
     v_query_element_cache t_query_element_cache;
+        
+    TYPE t_query_statement_cache IS
+        TABLE OF t_query_statement
+        INDEX BY VARCHAR2(32000);
+        
+    v_query_statement_cache t_query_statement_cache;
         
     PROCEDURE register_messages IS
     BEGIN
@@ -1353,20 +1355,17 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    PROCEDURE get_query_details (
-        p_query_elements IN t_query_elements,
-        p_column_names IN OUT NOCOPY t_varchars,
-        p_variable_names IN OUT NOCOPY t_varchars
-    ) IS
+    FUNCTION get_query_column_names (
+        p_query_elements IN t_query_elements
+    )
+    RETURN t_varchars IS
     
         TYPE t_unique_names IS 
             TABLE OF BOOLEAN 
             INDEX BY VARCHAR2(30);
             
         v_unique_column_names t_unique_names;
-        v_variable_names t_unique_names;
-        
-        v_variable_name VARCHAR2(30);
+        v_column_names t_varchars;
         
         PROCEDURE add_column_name (
             p_name IN VARCHAR2
@@ -1383,8 +1382,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 error$.raise('JDOC-00016');
             END IF;
             
-            p_column_names.EXTEND(1);
-            p_column_names(p_column_names.COUNT) := p_name;
+            v_column_names.EXTEND(1);
+            v_column_names(v_column_names.COUNT) := p_name;
             
             v_unique_column_names(p_name) := TRUE;
         
@@ -1394,12 +1393,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_i IN PLS_INTEGER
         ) IS
         BEGIN
-        
-            IF p_query_elements(p_i).type = 'V' THEN
-                
-                v_variable_names(p_query_elements(p_i).value) := TRUE;
-                
-            END IF;
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
             
@@ -1438,38 +1431,123 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             END IF;
         
         END;
-            
+    
     BEGIN
     
-        p_column_names := t_varchars();
+        v_column_names := t_varchars();
         
         visit_element(1);
         
-        p_variable_names := t_varchars();
-        v_variable_name := v_variable_names.FIRST;
-        
-        WHILE v_variable_name IS NOT NULL LOOP
-        
-            p_variable_names.EXTEND(1);
-            p_variable_names(p_variable_names.COUNT) := v_variable_name;
-        
-            v_variable_name := v_variable_names.NEXT(v_variable_name);
-        
-        END LOOP;        
+        RETURN v_column_names;
     
     END;
     
-    PROCEDURE generate_query_statement (
+    FUNCTION get_query_variable_names (
+        p_query_elements IN t_query_elements
+    )
+    RETURN t_varchars IS
+    
+        TYPE t_unique_names IS 
+            TABLE OF BOOLEAN 
+            INDEX BY VARCHAR2(30);
+            
+        v_unique_variable_names t_unique_names;
+        v_variable_name VARCHAR2(30);
+        
+        v_variable_names t_varchars;
+        
+        PROCEDURE visit_element (
+            p_i IN PLS_INTEGER
+        ) IS
+        BEGIN
+        
+            IF p_query_elements(p_i).type = 'V' THEN
+                v_unique_variable_names(p_query_elements(p_i).value) := TRUE;
+            END IF;
+        
+            IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
+                visit_element(p_query_elements(p_i).first_child_i);
+            END IF;
+            
+            IF p_query_elements(p_i).next_sibling_i IS NOT NULL THEN
+                visit_element(p_query_elements(p_i).next_sibling_i);
+            END IF;
+        
+        END;
+        
+    BEGIN
+    
+        visit_element(1);
+    
+        v_variable_names := t_varchars();
+        v_variable_name := v_unique_variable_names.FIRST;
+        
+        WHILE v_variable_name IS NOT NULL LOOP
+        
+            v_variable_names.EXTEND(1);
+            v_variable_names(v_variable_names.COUNT) := v_variable_name;
+        
+            v_variable_name := v_unique_variable_names.NEXT(v_variable_name);
+        
+        END LOOP;
+        
+        RETURN v_variable_names;
+    
+    END;    
+    
+    FUNCTION get_query_values (
+        p_query_elements IN t_query_elements
+    )
+    RETURN t_varchars IS
+    
+        v_values t_varchars;
+    
+        PROCEDURE visit_element (
+            p_i IN PLS_INTEGER
+        ) IS
+        BEGIN
+        
+            IF p_query_elements(p_i).type IN ('N', 'I') THEN
+                v_values.EXTEND(1);
+                v_values(v_values.COUNT) := p_query_elements(p_i).value;
+            END IF;
+        
+            IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
+                visit_element(p_query_elements(p_i).first_child_i);
+            END IF;
+            
+            IF p_query_elements(p_i).next_sibling_i IS NOT NULL THEN
+                visit_element(p_query_elements(p_i).next_sibling_i);
+            END IF;
+        
+        END;
+    
+    BEGIN
+    
+        v_values := t_varchars();
+        
+        visit_element(1);
+        
+        RETURN v_values;
+    
+    END;
+    
+    FUNCTION get_query_statement (
         p_query_elements IN t_query_elements,
-        p_statement OUT VARCHAR2,
-        p_statement_clob OUT CLOB
-    ) IS
+        p_select IN PLS_INTEGER
+    )
+    RETURN t_query_statement IS
+    
+        v_signature VARCHAR2(32000);
     
         v_line VARCHAR2(32000);
         
         v_table_instance_counter PLS_INTEGER;
+        v_variable_counter PLS_INTEGER;
         v_comma CHAR;
         v_and VARCHAR2(5);
+        
+        v_statement t_query_statement;
     
         PROCEDURE add_text (
             p_text IN VARCHAR2,
@@ -1479,11 +1557,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
             IF LENGTH(v_line) + LENGTH(p_text) > 32000 THEN
             
-                IF p_statement_clob IS NULL THEN
-                    DBMS_LOB.CREATETEMPORARY(p_statement_clob, TRUE);
+                IF v_statement.statement_clob IS NULL THEN
+                    DBMS_LOB.CREATETEMPORARY(v_statement.statement_clob, TRUE);
                 END IF;
             
-                DBMS_LOB.APPEND(p_statement_clob, v_line);
+                DBMS_LOB.APPEND(v_statement.statement_clob, v_line);
             
                 v_line := NULL;
                 
@@ -1507,8 +1585,16 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
                 select_list_visit(p_query_elements(p_i).first_child_i);
             ELSE
-                add_text(v_comma || 'j' || v_table_instance || '.value');
+            
+                CASE p_select 
+                    WHEN c_VALUE THEN
+                        add_text(v_comma || 'j' || v_table_instance || '.value');
+                    WHEN c_VALUE_RECORD THEN
+                        add_text(v_comma || 'j' || v_table_instance || '.id,j' || v_table_instance || '.type,j' || v_table_instance || '.value');
+                END CASE;
+                
                 v_comma := ',';
+                
             END IF;
             
             IF p_query_elements(p_i).next_sibling_i IS NOT NULL THEN
@@ -1581,7 +1667,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                     add_text('(+)');
                 END IF;
                 
-                add_text('=''' || p_query_elements(p_i).value || '''');
+                v_variable_counter := v_variable_counter + 1;
+                add_text('=:v' || v_variable_counter);
                 
                 v_and := ' AND ';
                 
@@ -1593,7 +1680,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                     add_text('(+)');
                 END IF;
                 
-                add_text('=' || p_query_elements(p_i).value);
+                v_variable_counter := v_variable_counter + 1;
+                add_text('=TO_NUMBER(:v' || v_variable_counter || ')');
                 
                 v_and := ' AND ';
                 
@@ -1623,8 +1711,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
-        p_statement := NULL;
-        p_statement_clob := NULL;
+        v_signature := p_select || get_query_signature(p_query_elements);
+        
+        IF v_query_statement_cache.EXISTS(v_signature) THEN
+            dbms_output.put_line('cached ' || v_signature);
+            RETURN v_query_statement_cache(v_signature);
+        END IF;    
     
         v_table_instance_counter := 0;
         v_comma := NULL; 
@@ -1637,55 +1729,27 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         from_list_visit(1);
         
         v_table_instance_counter := 0;
+        v_variable_counter := 0;
         v_and := NULL; 
         add_text(' WHERE ');
         where_list_visit(1, NULL, NULL);
         
-        IF v_line IS NOT NULL AND p_statement_clob IS NOT NULL THEN
-            DBMS_LOB.APPEND(p_statement_clob, v_line);
+        IF v_line IS NOT NULL AND v_statement.statement_clob IS NOT NULL THEN
+            DBMS_LOB.APPEND(v_statement.statement_clob, v_line);
         END IF;
         
-        IF p_statement_clob IS NULL THEN
-            p_statement := v_line;
+        IF v_statement.statement_clob IS NULL THEN
+            v_statement.statement := v_line;
         END IF;
         
         dbms_output.put_line(v_line);
+        
+        v_query_statement_cache(v_signature) := v_statement;
+        
+        RETURN v_statement;
     
     END;
     
-    FUNCTION prepare_query (
-        p_query IN VARCHAR2
-    )
-    RETURN t_prepared_query IS
-    
-        v_prepared_query t_prepared_query;
-        
-        v_query_elements t_query_elements;
-        v_column_names t_varchars;
-        
-        v_statement VARCHAR2(32000);
-        v_statement_clob CLOB;
-    
-    BEGIN
-    
-        IF v_prepared_query_cache.EXISTS(p_query) THEN
-        
-            v_prepared_query := v_prepared_query_cache(p_query);
-            
-        ELSE    
-
-            v_query_elements := parse_query(p_query);
-            get_query_details(v_query_elements, v_prepared_query.column_names, v_prepared_query.variable_names);
-            generate_query_statement(v_query_elements, v_prepared_query.statement, v_prepared_query.statement_clob);
-            
-            v_prepared_query_cache(p_query) := v_prepared_query;
-            
-        END IF;
-        
-        RETURN v_prepared_query;
-    
-    END;
-
     PROCEDURE request_properties (
         p_path_elements IN t_path_elements,
         p_properties OUT SYS_REFCURSOR
@@ -4047,28 +4111,16 @@ WHERE 1=1';
     
     END;
     
+    -- TODO
     FUNCTION get_value_table_cursor (
         p_query IN VARCHAR2
     )
     RETURN SYS_REFCURSOR IS 
     
-        v_prepared_query t_prepared_query;
         v_cursor SYS_REFCURSOR;
     
     BEGIN
     
-        v_prepared_query := prepare_query(p_query);
-        
-        IF v_prepared_query.statement_clob IS NOT NULL THEN
-        
-            OPEN v_cursor FOR v_prepared_query.statement_clob;
-            
-        ELSE
-        
-            OPEN v_cursor FOR v_prepared_query.statement;
-            
-        END IF;
-        
         RETURN v_cursor;
         
     END;

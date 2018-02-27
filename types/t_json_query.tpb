@@ -51,7 +51,12 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         p_variable_20 IN VARCHAR2 := NULL
     ) RETURN PLS_INTEGER IS
         
-        v_prepared_query json_store.t_prepared_query;
+        v_query_elements json_store.t_query_elements;
+        v_query_statement json_store.t_query_statement;
+        v_query_column_names t_varchars;
+        v_query_variable_names t_varchars;
+        v_query_values t_varchars;
+        
         v_cursor_id INTEGER;
         
         v_dummy DBMS_SQL.VARCHAR2_TABLE;
@@ -62,14 +67,18 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         
     BEGIN
     
-        v_prepared_query := json_store.prepare_query(p_query);
+        v_query_elements := json_store.parse_query(p_query);
+        v_query_statement := json_store.get_query_statement(v_query_elements, json_store.c_VALUE);
+        v_query_column_names := json_store.get_query_column_names(v_query_elements);
+        v_query_variable_names := json_store.get_query_variable_names(v_query_elements);
+        v_query_values := json_store.get_query_values(v_query_elements);
     
         v_cursor_id := DBMS_SQL.OPEN_CURSOR();
         
-        IF v_prepared_query.statement_clob IS NOT NULL THEN
-            DBMS_SQL.PARSE(v_cursor_id, v_prepared_query.statement_clob, DBMS_SQL.NATIVE);
+        IF v_query_statement.statement_clob IS NOT NULL THEN
+            DBMS_SQL.PARSE(v_cursor_id, v_query_statement.statement_clob, DBMS_SQL.NATIVE);
         ELSE
-            DBMS_SQL.PARSE(v_cursor_id, v_prepared_query.statement, DBMS_SQL.NATIVE);
+            DBMS_SQL.PARSE(v_cursor_id, v_query_statement.statement, DBMS_SQL.NATIVE);
         END IF;
         
         v_variable_values := t_varchars (
@@ -95,9 +104,9 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
             p_variable_20
         );
                 
-        FOR v_i IN 1..v_prepared_query.variable_names.COUNT LOOP
+        FOR v_i IN 1..v_query_variable_names.COUNT LOOP
         
-            v_variable := v_prepared_query.variable_names(v_i);
+            v_variable := v_query_variable_names(v_i);
                     
             IF v_variable_values(v_variable) IS NOT NULL THEN
                 DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':' || v_variable, v_variable_values(v_variable));
@@ -105,10 +114,14 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
             
         END LOOP;
         
+        FOR v_i IN 1..v_query_values.COUNT LOOP
+            DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':v' || v_i, v_query_values(v_i));
+        END LOOP;
+        
         v_result := DBMS_SQL.EXECUTE(v_cursor_id);
         
         p_context.cursor_id := v_cursor_id;
-        p_context.column_count := v_prepared_query.column_names.COUNT;
+        p_context.column_count := v_query_column_names.COUNT;
         p_context.fetched_row_count := NULL;
         p_context.piped_row_count := 0;
         
@@ -144,18 +157,22 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         p_variable_20 IN VARCHAR2 := NULL
     ) RETURN PLS_INTEGER IS
         
-        v_prepared_query json_store.t_prepared_query;
+        v_query_elements json_store.t_query_elements;
+        v_query_statement json_store.t_query_statement;
+        v_query_column_names t_varchars;
         
         v_row_type ANYTYPE;
         
     BEGIN
         
-        v_prepared_query := json_store.prepare_query(p_query);
+        v_query_elements := json_store.parse_query(p_query);
+        v_query_statement := json_store.get_query_statement(v_query_elements, json_store.c_VALUE);
+        v_query_column_names := json_store.get_query_column_names(v_query_elements);
         
         ANYTYPE.begincreate(DBMS_TYPES.TYPECODE_OBJECT, v_row_type);
         
-        FOR v_i IN 1..v_prepared_query.column_names.COUNT LOOP
-            v_row_type.addattr(v_prepared_query.column_names(v_i), DBMS_TYPES.TYPECODE_VARCHAR2, NULL, NULL, 4000, NULL, NULL);
+        FOR v_i IN 1..v_query_column_names.COUNT LOOP
+            v_row_type.addattr(v_query_column_names(v_i), DBMS_TYPES.TYPECODE_VARCHAR2, NULL, NULL, 4000, NULL, NULL);
         END LOOP;
             
         v_row_type.endcreate;
@@ -266,8 +283,6 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
             p_row(v_i) := row_buffer((v_i - 1) * json_store.c_query_row_buffer_size + piped_row_count);
         END LOOP;
         
-        
-        
         RETURN TRUE;
     
     END;
@@ -283,29 +298,10 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         
     BEGIN
     
-        --v_row := t_varchars('Sergejs', 'Vinniks');
         v_row := t_varchars();
         v_row.extend(column_count);
         
         FOR v_i IN 1..p_row_count LOOP
-        
-           /* if a = 0 then
-                exit;
-            end if;
-            
-        IF p_dataset IS NULL THEN
-                    ANYDATASET.begincreate(DBMS_TYPES.TYPECODE_OBJECT, row_type, p_dataset);
-                END IF;         
-            
-                p_dataset.addinstance;          
-                p_dataset.piecewise;
-                
-                FOR v_i IN 1..column_count LOOP
-                    p_dataset.setvarchar2(v_row(v_i), v_i = column_count);
-                END LOOP;
-                
-            a := a -1;*/
-        
         
             IF fetch_row(v_row) THEN
             

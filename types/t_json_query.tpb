@@ -23,6 +23,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     BEGIN
     
         row_type := p_row_type;
+        query_type := json_store.c_VALUE_TABLE_QUERY;
         
         RETURN;
     
@@ -31,7 +32,11 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     CONSTRUCTOR FUNCTION t_json_query
     RETURN SELF AS RESULT IS
     BEGIN
+    
+        query_type := json_store.c_X_VALUE_TABLE_QUERY;
+    
         RETURN;
+        
     END;
 
     STATIC FUNCTION odcitablestart ( 
@@ -66,7 +71,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         
         p_context.cursor_id := json_store.prepare_query(
             p_query,
-            json_store.c_VALUE,
+            p_context.query_type,
             p_variable_1,
             p_variable_2,
             p_variable_3,
@@ -135,8 +140,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         
     BEGIN
         
-        v_query_elements := json_store.parse_query(p_query);
-        v_query_statement := json_store.get_query_statement(v_query_elements, json_store.c_VALUE);
+        v_query_elements := json_store.parse_query(p_query, json_store.c_VALUE_TABLE_QUERY);
         v_query_column_names := json_store.get_query_column_names(v_query_elements);
         
         ANYTYPE.begincreate(DBMS_TYPES.TYPECODE_OBJECT, v_row_type);

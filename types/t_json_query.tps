@@ -17,6 +17,7 @@ CREATE OR REPLACE TYPE t_json_query AUTHID CURRENT_USER AS OBJECT (
     */
     
     row_type ANYTYPE,
+    query_type NUMBER,
     column_count NUMBER,
     cursor_id INTEGER,
     row_buffer t_varchars,

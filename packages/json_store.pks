@@ -24,15 +24,6 @@ CREATE OR REPLACE PACKAGE json_store IS
         
     */
     
-    TYPE t_path_element IS 
-        RECORD (
-            type CHAR,
-            value VARCHAR2(4000)
-        );
-        
-    TYPE t_path_elements IS 
-        TABLE OF t_path_element;
-    
     TYPE t_query_element IS 
         RECORD (
             type CHAR,
@@ -69,9 +60,10 @@ CREATE OR REPLACE PACKAGE json_store IS
         
     TYPE t_values IS TABLE OF t_value;
     
-    c_VALUE CONSTANT PLS_INTEGER := 1;
-    c_VALUE_RECORD CONSTANT PLS_INTEGER := 2;
-    c_PROPERTY_RECORD CONSTANT PLS_INTEGER := 3;
+    c_VALUE_QUERY CONSTANT PLS_INTEGER := 1;
+    c_PROPERTY_QUERY CONSTANT PLS_INTEGER := 2;
+    c_VALUE_TABLE_QUERY CONSTANT PLS_INTEGER := 3;
+    c_X_VALUE_TABLE_QUERY CONSTANT PLS_INTEGER := 4;
     
     TYPE t_query_statement IS
         RECORD (
@@ -160,15 +152,9 @@ CREATE OR REPLACE PACKAGE json_store IS
     TYPE t_20_value_table IS 
         TABLE OF t_20_value_row;
 
-    FUNCTION parse_path (
-        p_path IN VARCHAR2
-    ) 
-    RETURN t_path_elements;
-    
     FUNCTION parse_query (
         p_query IN VARCHAR2,
-        p_optional_allowed IN BOOLEAN := TRUE,
-        p_aliases_allowed IN BOOLEAN := TRUE
+        p_query_type IN PLS_INTEGER := c_VALUE_TABLE_QUERY
     ) 
     RETURN t_query_elements;
     
@@ -194,13 +180,13 @@ CREATE OR REPLACE PACKAGE json_store IS
     
     FUNCTION get_query_statement (
         p_query_elements IN t_query_elements,
-        p_select IN PLS_INTEGER
+        p_query_type IN PLS_INTEGER
     )
     RETURN t_query_statement;  
     
     FUNCTION prepare_query (
         p_query IN VARCHAR2,
-        p_select IN PLS_INTEGER,
+        p_query_type IN PLS_INTEGER,
         p_variable_1 IN VARCHAR2 := NULL,
         p_variable_2 IN VARCHAR2 := NULL,
         p_variable_3 IN VARCHAR2 := NULL,

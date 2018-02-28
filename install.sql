@@ -22,6 +22,19 @@
 
 @@tables/json_values.tab
 /
+
+INSERT INTO json_values (
+    id,
+    type
+) VALUES (
+    0,
+    'R'
+)    
+/
+
+COMMIT
+/
+
 @@indexes/jsvl_i1.idx
 /
 @@indexes/jsvl_i2.idx

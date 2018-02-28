@@ -399,7 +399,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'E',
                         name: "jodus_null",
                         value: null,
@@ -417,12 +417,12 @@ suite("JSON store management tests", function() {
                     var value = database.selectObject(`*
                         FROM json_values
                         WHERE name = 'jodus_null'
-                              AND parent_id IS NULL
+                              AND parent_id = 0
                     `);
 
                     expect(value).to.eql({
                         id: value.id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'E',
                         name: "jodus_null",
                         value: null,
@@ -447,7 +447,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'S',
                         name: "jodus_string",
                         value: "Hello, World!",
@@ -466,12 +466,12 @@ suite("JSON store management tests", function() {
                     var value = database.selectObject(`*
                         FROM json_values
                         WHERE name = 'jodus_string'
-                              AND parent_id IS NULL
+                              AND parent_id = 0
                     `);
 
                     expect(value).to.eql({
                         id: value.id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'S',
                         name: "jodus_string",
                         value: "Hello, World!",
@@ -496,7 +496,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'N',
                         name: "jodus_number",
                         value: "123.456",
@@ -515,12 +515,12 @@ suite("JSON store management tests", function() {
                     var value = database.selectObject(`*
                         FROM json_values
                         WHERE name = 'jodus_number'
-                              AND parent_id IS NULL
+                              AND parent_id = 0
                     `);
 
                     expect(value).to.eql({
                         id: value.id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'N',
                         name: "jodus_number",
                         value: "123.456",
@@ -545,7 +545,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'B',
                         name: "jodus_boolean",
                         value: "true",
@@ -564,12 +564,12 @@ suite("JSON store management tests", function() {
                     var value = database.selectObject(`*
                         FROM json_values
                         WHERE name = 'jodus_boolean'
-                              AND parent_id IS NULL
+                              AND parent_id = 0
                     `);
 
                     expect(value).to.eql({
                         id: value.id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'B',
                         name: "jodus_boolean",
                         value: "true",
@@ -594,7 +594,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'E',
                         name: "jodus_string",
                         value: null,
@@ -619,7 +619,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'E',
                         name: "jodus_number",
                         value: null,
@@ -644,7 +644,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'E',
                         name: "jodus_boolean",
                         value: null,
@@ -677,7 +677,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'E',
                         name: "jodus_null",
                         value: null,
@@ -702,7 +702,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'S',
                         name: "jodus_string",
                         value: "Hello, World!",
@@ -727,7 +727,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'N',
                         name: "jodus_number",
                         value: "123.456",
@@ -752,7 +752,7 @@ suite("JSON store management tests", function() {
 
                     expect(value).to.eql({
                         id: id,
-                        parent_id: null,
+                        parent_id: 0,
                         type: 'B',
                         name: "jodus_boolean",
                         value: "true",
@@ -901,7 +901,7 @@ suite("JSON store management tests", function() {
 
                 expect(value).to.eql({
                     id: id,
-                    parent_id: null,
+                    parent_id: 0,
                     type: 'O',
                     name: "jodus_object",
                     value: null,
@@ -926,7 +926,7 @@ suite("JSON store management tests", function() {
 
                 expect(value).to.eql({
                     id: id,
-                    parent_id: null,
+                    parent_id: 0,
                     type: 'O',
                     name: "jodus_object",
                     value: null,
@@ -1066,7 +1066,7 @@ suite("JSON store management tests", function() {
 
                 expect(value).to.eql({
                     id: id,
-                    parent_id: null,
+                    parent_id: 0,
                     type: 'A',
                     name: "jodus_array",
                     value: null,
@@ -1091,7 +1091,7 @@ suite("JSON store management tests", function() {
 
                 expect(value).to.eql({
                     id: id,
-                    parent_id: null,
+                    parent_id: 0,
                     type: 'A',
                     name: "jodus_array",
                     value: null,
@@ -3317,12 +3317,12 @@ suite("JSON store management tests", function() {
 
             let value = database.selectObject(`*
                 FROM json_values
-                WHERE parent_id IS NULL
+                WHERE parent_id = 0
                       AND name = '${name}'`);
 
             expect(value).to.eql({
                 id: id,
-                parent_id: null,
+                parent_id: 0,
                 type: "S",
                 name: name,
                 value: "Hello, World!",

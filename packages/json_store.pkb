@@ -74,6 +74,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00023', 'Column alias for a wildcard not specified!');
         default_message_resolver.register_message('JDOC-00024', 'Value :1 is locked!');
         default_message_resolver.register_message('JDOC-00025', 'Value :1 has locked children!');
+        default_message_resolver.register_message('JDOC-00026', 'Root can''t be unlocked!');
     END;
     
     FUNCTION get_length (
@@ -3215,12 +3216,16 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
         v_value := request_value(p_path);
     
-        SELECT /*+ FIRST_ROWS(1) */
-               id
+        IF v_value.type = 'R' THEN
+            RETURN;
+        END IF;
+    
+        SELECT id
         BULK COLLECT INTO t_ids_to_lock
         FROM json_values
         START WITH id = v_value.id
         CONNECT BY PRIOR parent_id = id
+                         AND id != 0
         FOR UPDATE;
         
         FORALL v_i IN 1..t_ids_to_lock.COUNT
@@ -3248,6 +3253,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
         
         v_value := request_value(p_path);
+        
+        IF v_value.type = 'R' THEN
+            -- Root can''t be unlocked!
+            error$.raise('JDOC-00026');
+        END IF;
         
         OPEN c_locked_child(v_value.id);
         

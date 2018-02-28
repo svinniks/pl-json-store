@@ -3256,6 +3256,18 @@ suite("JSON store management tests", function() {
 
     suite("JSON node locking tests", function() {
     
+        test("Try to unlock the root", function() {
+        
+            expect(function() {
+            
+                database.call("json_store.unlock_value", {
+                    p_path: "$"
+                });
+            
+            }).to.throw(/JDOC-00026/);
+        
+        });
+
         test("Lock anonymous scalar value", function() {
     
             let id = database.call("json_store.create_string", {

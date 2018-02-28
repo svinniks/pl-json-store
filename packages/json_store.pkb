@@ -43,6 +43,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         INDEX BY VARCHAR2(32000);
         
     v_query_statement_cache t_query_statement_cache;
+    
+    e_no_more_rows_needed EXCEPTION;
+    PRAGMA EXCEPTION_INIT(e_no_more_rows_needed, -6548);
         
     PROCEDURE register_messages IS
     BEGIN
@@ -1393,7 +1396,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
-        v_cache_key := p_query_type || get_query_signature(p_query_elements);
+        v_cache_key := p_query_type || '[' || p_column_count || ']' || get_query_signature(p_query_elements);
         
         IF v_query_statement_cache.EXISTS(v_cache_key) THEN
             RETURN v_query_statement_cache(v_cache_key);
@@ -1431,15 +1434,13 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         v_query_statement_cache(v_cache_key) := v_statement;
         
-        dbms_output.put_line(v_line);
-        
         RETURN v_statement;
     
     END;
     
     FUNCTION prepare_query (
         p_query_elements IN t_query_elements,
-        p_query_type IN PLS_INTEGER,
+        p_query_statement IN t_query_statement,
         p_variable_1 IN VARCHAR2 := NULL,
         p_variable_2 IN VARCHAR2 := NULL,
         p_variable_3 IN VARCHAR2 := NULL,
@@ -1464,7 +1465,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     )
     RETURN INTEGER IS
     
-        v_query_statement t_query_statement;
         v_query_variable_names t_varchars;
         v_query_values t_varchars;
         
@@ -1476,16 +1476,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
         
-        v_query_statement := get_query_statement(p_query_elements, p_query_type, p_column_count);
         v_query_variable_names := get_query_variable_names(p_query_elements);
         v_query_values := get_query_values(p_query_elements);
         
         v_cursor_id := DBMS_SQL.OPEN_CURSOR();
         
-        IF v_query_statement.statement_clob IS NOT NULL THEN
-            DBMS_SQL.PARSE(v_cursor_id, v_query_statement.statement_clob, DBMS_SQL.NATIVE);
+        IF p_query_statement.statement_clob IS NOT NULL THEN
+            DBMS_SQL.PARSE(v_cursor_id, p_query_statement.statement_clob, DBMS_SQL.NATIVE);
         ELSE
-            DBMS_SQL.PARSE(v_cursor_id, v_query_statement.statement, DBMS_SQL.NATIVE);
+            DBMS_SQL.PARSE(v_cursor_id, p_query_statement.statement, DBMS_SQL.NATIVE);
         END IF;
         
         v_variable_values := t_varchars (
@@ -1553,20 +1552,21 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_variable_17 IN VARCHAR2 := NULL,
         p_variable_18 IN VARCHAR2 := NULL,
         p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL,
-        p_column_count IN PLS_INTEGER := NULL
+        p_variable_20 IN VARCHAR2 := NULL
     )
     RETURN INTEGER IS
     
         v_query_elements t_query_elements;
+        v_query_statement t_query_statement;
     
     BEGIN
     
         v_query_elements := parse_query(p_query, p_query_type);
+        v_query_statement := get_query_statement(v_query_elements, p_query_type);
     
         RETURN prepare_query (
             v_query_elements,
-            p_query_type,
+            v_query_statement,
             p_variable_1,
             p_variable_2,
             p_variable_3,
@@ -1586,8 +1586,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_variable_17,
             p_variable_18,
             p_variable_19,
-            p_variable_20,
-            p_column_count
+            p_variable_20
         );     
     
     END;
@@ -1598,7 +1597,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     ) IS
     
         v_cursor_id INTEGER;
-    
+        v_query_statement t_query_statement;
+            
     BEGIN
     
         IF p_query_elements(p_query_elements.COUNT).type = 'R' THEN
@@ -1606,7 +1606,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             error$.raise('JDOC-00006');
         END IF;
     
-        v_cursor_id := prepare_query(p_query_elements, c_PROPERTY_QUERY);
+        v_query_statement := get_query_statement(p_query_elements, c_PROPERTY_QUERY);
+    
+        v_cursor_id := prepare_query(p_query_elements, v_query_statement);
         p_properties := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
     END;
@@ -3418,19 +3420,23 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     )
     RETURN t_5_value_table PIPELINED IS
     
-        v_dummy NUMBER;
+        v_query_elements t_query_elements;
+        v_query_statement t_query_statement;
     
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_5_value_row;
+        v_cursor_id INTEGER;
+        c_rows SYS_REFCURSOR;
+    
+        v_row_buffer t_5_value_table;
+        c_fetch_limit CONSTANT PLS_INTEGER := 1000;
     
     BEGIN
     
-        v_query := t_json_query();
-        v_dummy := t_json_query.odcitablestart(
-            v_query, 
-            p_query,
+        v_query_elements := parse_query(p_query, c_X_VALUE_TABLE_QUERY);
+        v_query_statement := get_query_statement(v_query_elements, c_X_VALUE_TABLE_QUERY, 5);
+    
+        v_cursor_id := prepare_query (
+            v_query_elements,
+            v_query_statement,
             p_variable_1,
             p_variable_2,
             p_variable_3,
@@ -3452,26 +3458,30 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_variable_19,
             p_variable_20
         );
-        
-        v_row := t_varchars();
-        v_row.extend(5);
     
-        WHILE v_query.fetch_row(v_row) LOOP
+        c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            v_value_row.value_3 := v_row(3);
-            v_value_row.value_4 := v_row(4);
-            v_value_row.value_5 := v_row(5);
+        LOOP
+        
+            FETCH c_rows
+            BULK COLLECT INTO v_row_buffer
+            LIMIT c_fetch_limit;
             
+            FOR v_i IN 1..v_row_buffer.COUNT LOOP
+                PIPE ROW(v_row_buffer(v_i));
+            END LOOP;
             
-            PIPE ROW(v_value_row);
+            EXIT WHEN v_row_buffer.COUNT < c_fetch_limit;
         
         END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
+        
+        CLOSE c_rows;
     
         RETURN;
+        
+    EXCEPTION
+        WHEN e_no_more_rows_needed THEN
+            CLOSE c_rows;
     
     END;
     
@@ -3500,6 +3510,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     )
     RETURN t_10_value_table PIPELINED IS
     
+        v_query_elements t_query_elements;
+        v_query_statement t_query_statement;
+    
         v_cursor_id INTEGER;
         c_rows SYS_REFCURSOR;
     
@@ -3508,9 +3521,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
+        v_query_elements := parse_query(p_query, c_X_VALUE_TABLE_QUERY);
+        v_query_statement := get_query_statement(v_query_elements, c_X_VALUE_TABLE_QUERY, 10);
+    
         v_cursor_id := prepare_query (
-            p_query,
-            c_X_VALUE_TABLE_QUERY,
+            v_query_elements,
+            v_query_statement,
             p_variable_1,
             p_variable_2,
             p_variable_3,
@@ -3530,8 +3546,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_variable_17,
             p_variable_18,
             p_variable_19,
-            p_variable_20,
-            10
+            p_variable_20
         );
     
         c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
@@ -3553,6 +3568,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         CLOSE c_rows;
     
         RETURN;
+        
+    EXCEPTION
+        WHEN e_no_more_rows_needed THEN
+            CLOSE c_rows;
     
     END;
     
@@ -3581,19 +3600,23 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     )
     RETURN t_15_value_table PIPELINED IS
     
-        v_dummy NUMBER;
+        v_query_elements t_query_elements;
+        v_query_statement t_query_statement;
     
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_15_value_row;
+        v_cursor_id INTEGER;
+        c_rows SYS_REFCURSOR;
+    
+        v_row_buffer t_15_value_table;
+        c_fetch_limit CONSTANT PLS_INTEGER := 1000;
     
     BEGIN
     
-        v_query := t_json_query();
-        v_dummy := t_json_query.odcitablestart(
-            v_query, 
-            p_query,
+        v_query_elements := parse_query(p_query, c_X_VALUE_TABLE_QUERY);
+        v_query_statement := get_query_statement(v_query_elements, c_X_VALUE_TABLE_QUERY, 15);
+    
+        v_cursor_id := prepare_query (
+            v_query_elements,
+            v_query_statement,
             p_variable_1,
             p_variable_2,
             p_variable_3,
@@ -3615,35 +3638,30 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_variable_19,
             p_variable_20
         );
-        
-        v_row := t_varchars();
-        v_row.extend(15);
     
-        WHILE v_query.fetch_row(v_row) LOOP
+        c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            v_value_row.value_3 := v_row(3);
-            v_value_row.value_4 := v_row(4);
-            v_value_row.value_5 := v_row(5);
-            v_value_row.value_6 := v_row(6);
-            v_value_row.value_7 := v_row(7);
-            v_value_row.value_8 := v_row(8);
-            v_value_row.value_9 := v_row(9);
-            v_value_row.value_10 := v_row(10);
-            v_value_row.value_11 := v_row(11);
-            v_value_row.value_12 := v_row(12);
-            v_value_row.value_13 := v_row(13);
-            v_value_row.value_14 := v_row(14);
-            v_value_row.value_15 := v_row(15);
+        LOOP
+        
+            FETCH c_rows
+            BULK COLLECT INTO v_row_buffer
+            LIMIT c_fetch_limit;
             
-            PIPE ROW(v_value_row);
+            FOR v_i IN 1..v_row_buffer.COUNT LOOP
+                PIPE ROW(v_row_buffer(v_i));
+            END LOOP;
+            
+            EXIT WHEN v_row_buffer.COUNT < c_fetch_limit;
         
         END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
+        
+        CLOSE c_rows;
     
         RETURN;
+        
+    EXCEPTION
+        WHEN e_no_more_rows_needed THEN
+            CLOSE c_rows;
     
     END;
     
@@ -3672,19 +3690,23 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     )
     RETURN t_20_value_table PIPELINED IS
     
-        v_dummy NUMBER;
+        v_query_elements t_query_elements;
+        v_query_statement t_query_statement;
     
-        v_query t_json_query;
-        v_row t_varchars;
-        
-        v_value_row t_20_value_row;
+        v_cursor_id INTEGER;
+        c_rows SYS_REFCURSOR;
+    
+        v_row_buffer t_20_value_table;
+        c_fetch_limit CONSTANT PLS_INTEGER := 1000;
     
     BEGIN
     
-        v_query := t_json_query();
-        v_dummy := t_json_query.odcitablestart(
-            v_query, 
-            p_query,
+        v_query_elements := parse_query(p_query, c_X_VALUE_TABLE_QUERY);
+        v_query_statement := get_query_statement(v_query_elements, c_X_VALUE_TABLE_QUERY, 20);
+    
+        v_cursor_id := prepare_query (
+            v_query_elements,
+            v_query_statement,
             p_variable_1,
             p_variable_2,
             p_variable_3,
@@ -3706,40 +3728,30 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_variable_19,
             p_variable_20
         );
-        
-        v_row := t_varchars();
-        v_row.extend(20);
     
-        WHILE v_query.fetch_row(v_row) LOOP
+        c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
-            v_value_row.value_1 := v_row(1);
-            v_value_row.value_2 := v_row(2);
-            v_value_row.value_3 := v_row(3);
-            v_value_row.value_4 := v_row(4);
-            v_value_row.value_5 := v_row(5);
-            v_value_row.value_6 := v_row(6);
-            v_value_row.value_7 := v_row(7);
-            v_value_row.value_8 := v_row(8);
-            v_value_row.value_9 := v_row(9);
-            v_value_row.value_10 := v_row(10);
-            v_value_row.value_11 := v_row(11);
-            v_value_row.value_12 := v_row(12);
-            v_value_row.value_13 := v_row(13);
-            v_value_row.value_14 := v_row(14);
-            v_value_row.value_15 := v_row(15);
-            v_value_row.value_16 := v_row(16);
-            v_value_row.value_17 := v_row(17);
-            v_value_row.value_18 := v_row(18);
-            v_value_row.value_19 := v_row(19);
-            v_value_row.value_20 := v_row(10);
+        LOOP
+        
+            FETCH c_rows
+            BULK COLLECT INTO v_row_buffer
+            LIMIT c_fetch_limit;
             
-            PIPE ROW(v_value_row);
+            FOR v_i IN 1..v_row_buffer.COUNT LOOP
+                PIPE ROW(v_row_buffer(v_i));
+            END LOOP;
+            
+            EXIT WHEN v_row_buffer.COUNT < c_fetch_limit;
         
         END LOOP;
-    
-        v_dummy := v_query.odcitableclose;
+        
+        CLOSE c_rows;
     
         RETURN;
+        
+    EXCEPTION
+        WHEN e_no_more_rows_needed THEN
+            CLOSE c_rows;
     
     END;
     

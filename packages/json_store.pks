@@ -207,8 +207,7 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_variable_17 IN VARCHAR2 := NULL,
         p_variable_18 IN VARCHAR2 := NULL,
         p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL,
-        p_column_count IN PLS_INTEGER := NULL
+        p_variable_20 IN VARCHAR2 := NULL
     )
     RETURN INTEGER;
     

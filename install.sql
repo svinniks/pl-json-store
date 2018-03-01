@@ -14,6 +14,9 @@
     limitations under the License.
 */
 
+@@types/bind.tps
+/
+
 @@sequences/jsvl_id.seq
 /
 

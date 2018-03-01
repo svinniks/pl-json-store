@@ -187,37 +187,20 @@ CREATE OR REPLACE PACKAGE json_store IS
     
     FUNCTION prepare_query (
         p_query IN VARCHAR2,
-        p_query_type IN PLS_INTEGER,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind,
+        p_query_type IN PLS_INTEGER
     )
     RETURN INTEGER;
     
     PROCEDURE request_properties (
         p_path IN VARCHAR2,
+        p_bind IN bind,
         p_properties OUT SYS_REFCURSOR
     );
         
     FUNCTION request_properties (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind
     ) 
     RETURN t_properties PIPELINED;
     
@@ -260,122 +243,146 @@ CREATE OR REPLACE PACKAGE json_store IS
     FUNCTION set_json (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN VARCHAR2
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
     ) 
     RETURN NUMBER;
     
     PROCEDURE set_json (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN VARCHAR2
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
     );
     
     FUNCTION set_json_clob (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN CLOB
+        p_content IN CLOB,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
     
     PROCEDURE set_json_clob (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN CLOB
+        p_content IN CLOB,
+        p_bind IN bind := NULL
     );
     
     FUNCTION set_string (
         p_path IN VARCHAR2,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
     ) 
     RETURN NUMBER;
     
     PROCEDURE set_string (
         p_path IN VARCHAR2,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
     );
     
     FUNCTION set_number (
         p_path IN VARCHAR2,
-        p_value IN NUMBER
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
     ) 
     RETURN NUMBER;
     
     PROCEDURE set_number (
         p_path IN VARCHAR2,
-        p_value IN NUMBER
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
     );
     
     FUNCTION set_boolean (
         p_path IN VARCHAR2,
-        p_value IN BOOLEAN
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
     ) 
     RETURN NUMBER;
     
     PROCEDURE set_boolean (
         p_path IN VARCHAR2,
-        p_value IN BOOLEAN
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
     );
     
     FUNCTION set_null (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) 
     RETURN NUMBER;
     
     PROCEDURE set_null (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     );
     
     FUNCTION set_object (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) 
     RETURN NUMBER;
     
     PROCEDURE set_object (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     );
     
     FUNCTION set_array (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) 
     RETURN NUMBER;
     
     PROCEDURE set_array (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     );
 
     PROCEDURE request_values (
         p_path IN VARCHAR2,
+        p_bind IN bind,
         p_values OUT SYS_REFCURSOR
     );
         
     FUNCTION request_values (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind
     ) 
     RETURN t_values PIPELINED;
     
     FUNCTION get_string (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) 
     RETURN VARCHAR2;
     
     FUNCTION get_number (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) 
     RETURN NUMBER;
     
     FUNCTION get_boolean (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) 
     RETURN BOOLEAN;
 
     FUNCTION get_json (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) 
     -- @json
     RETURN VARCHAR2;
     
-    FUNCTION get_json_clob
-        (p_path IN VARCHAR2)
+    FUNCTION get_json_clob (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
     -- @json
     RETURN CLOB;
     
@@ -383,252 +390,181 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_path IN VARCHAR2,
         -- @json
         p_content IN VARCHAR2,
+        p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
     );
         
     PROCEDURE apply_json_clob (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN VARCHAR2,
+        p_content IN CLOB,
+        p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
     );    
         
     FUNCTION get_length (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
     
     FUNCTION push_string (
         p_path IN VARCHAR2,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
     
     PROCEDURE push_string (
         p_path IN VARCHAR2,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
     );
    
     FUNCTION push_number (
         p_path IN VARCHAR2,
-        p_value IN NUMBER
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
     
     PROCEDURE push_number (
         p_path IN VARCHAR2,
-        p_value IN NUMBER
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
     );
     
     FUNCTION push_boolean (
         p_path IN VARCHAR2,
-        p_value IN BOOLEAN
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
     ) 
     RETURN NUMBER;
     
     PROCEDURE push_boolean (
         p_path IN VARCHAR2,
-        p_value IN BOOLEAN
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
     );
     
     FUNCTION push_null (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
         
     PROCEDURE push_null (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     );
         
     FUNCTION push_object (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
         
     PROCEDURE push_object (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     );
         
     FUNCTION push_array (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
         
     PROCEDURE push_array (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     );
         
     FUNCTION push_json (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN VARCHAR2
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
         
     PROCEDURE push_json (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN VARCHAR2
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
     );
         
     FUNCTION push_json_clob (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN CLOB
+        p_content IN CLOB,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
         
     PROCEDURE push_json_clob (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN CLOB
+        p_content IN CLOB,
+        p_bind IN bind := NULL
     );
          
     PROCEDURE delete_value (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     );
     
     PROCEDURE lock_value (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     );
     
     PROCEDURE unlock_value (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     );
 
     FUNCTION get_parse_events (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN json_parser.t_parse_events;
     
     FUNCTION get_5_value_table (
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind := NULL
     )
     RETURN t_5_value_table PIPELINED;
     
     FUNCTION get_10_value_table (
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind := NULL
     )
     RETURN t_10_value_table PIPELINED;
     
     FUNCTION get_15_value_table (
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind := NULL
     )
     RETURN t_15_value_table PIPELINED;
     
     FUNCTION get_20_value_table (
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind := NULL
     )
     RETURN t_20_value_table PIPELINED;
     
     FUNCTION get_value_table (
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind := NULL
     )
     RETURN ANYDATASET PIPELINED 
     USING t_value_table_query;
     
     FUNCTION get_value_table_cursor (
-        p_query IN VARCHAR2
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN SYS_REFCURSOR;
     

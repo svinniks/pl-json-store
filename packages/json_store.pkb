@@ -994,7 +994,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         ) IS
         BEGIN
         
-            v_signature := v_signature || p_query_elements(p_i).type || CASE WHEN p_query_elements(p_i).optional THEN '?' END;
+            v_signature := v_signature || p_query_elements(p_i).type;
+            
+            IF p_query_elements(p_i).type = 'V' THEN
+                v_signature := v_signature || p_query_elements(p_i).value;
+            END IF;
+            
+            IF p_query_elements(p_i).optional THEN 
+                v_signature := v_signature || '?';
+            END IF;
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
                 v_signature := v_signature || '(';
@@ -1353,7 +1361,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
                 v_variable_counter := v_variable_counter + 1;
                 add_text('=:v' || v_variable_counter);
-                --add_text('=''' || p_query_elements(p_i).value || '''');
                 
                 v_and := ' AND ';
                 
@@ -1367,7 +1374,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
                 v_variable_counter := v_variable_counter + 1;
                 add_text('=TO_NUMBER(:v' || v_variable_counter || ')');
-                --add_text('=' || p_query_elements(p_i).value);
                 
                 v_and := ' AND ';
                 
@@ -1442,26 +1448,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     FUNCTION prepare_query (
         p_query_elements IN t_query_elements,
         p_query_statement IN t_query_statement,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL,
+        p_bind IN bind,
         p_column_count IN PLS_INTEGER := NULL
     )
     RETURN INTEGER IS
@@ -1472,7 +1459,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         v_cursor_id INTEGER;
         v_result INTEGER;
         
-        v_variable_values t_varchars;
         v_variable NUMBER;
     
     BEGIN
@@ -1487,39 +1473,21 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         ELSE
             DBMS_SQL.PARSE(v_cursor_id, p_query_statement.statement, DBMS_SQL.NATIVE);
         END IF;
+               
+        IF p_bind IS NOT NULL THEN 
         
-        v_variable_values := t_varchars (
-            p_variable_1,
-            p_variable_2,
-            p_variable_3,
-            p_variable_4,
-            p_variable_5,
-            p_variable_6,
-            p_variable_7,
-            p_variable_8,
-            p_variable_9,
-            p_variable_10,
-            p_variable_11,
-            p_variable_12,
-            p_variable_13,
-            p_variable_14,
-            p_variable_15,
-            p_variable_16,
-            p_variable_17,
-            p_variable_18,
-            p_variable_19,
-            p_variable_20
-        );
-                
-        FOR v_i IN 1..v_query_variable_names.COUNT LOOP
-        
-            v_variable := v_query_variable_names(v_i);
-                    
-            IF v_variable_values(v_variable) IS NOT NULL THEN
-                DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':' || v_variable, v_variable_values(v_variable));
-            END IF;
+            FOR v_i IN 1..v_query_variable_names.COUNT LOOP
             
-        END LOOP;
+                v_variable := v_query_variable_names(v_i);
+                
+                IF v_variable <= p_bind.COUNT THEN
+                    DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':' || v_variable, p_bind(v_variable));
+                END IF;
+                
+                
+            END LOOP;
+            
+        END IF;
         
         FOR v_i IN 1..v_query_values.COUNT LOOP
             DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':v' || v_i, v_query_values(v_i));
@@ -1533,27 +1501,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     FUNCTION prepare_query (
         p_query IN VARCHAR2,
-        p_query_type IN PLS_INTEGER,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind,
+        p_query_type IN PLS_INTEGER
     )
     RETURN INTEGER IS
     
@@ -1568,32 +1517,14 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         RETURN prepare_query (
             v_query_elements,
             v_query_statement,
-            p_variable_1,
-            p_variable_2,
-            p_variable_3,
-            p_variable_4,
-            p_variable_5,
-            p_variable_6,
-            p_variable_7,
-            p_variable_8,
-            p_variable_9,
-            p_variable_10,
-            p_variable_11,
-            p_variable_12,
-            p_variable_13,
-            p_variable_14,
-            p_variable_15,
-            p_variable_16,
-            p_variable_17,
-            p_variable_18,
-            p_variable_19,
-            p_variable_20
+            p_bind
         );     
     
     END;
     
     PROCEDURE request_properties (
         p_query_elements IN t_query_elements,
+        p_bind IN bind,
         p_properties OUT SYS_REFCURSOR
     ) IS
     
@@ -1609,13 +1540,19 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
         v_query_statement := get_query_statement(p_query_elements, c_PROPERTY_QUERY);
     
-        v_cursor_id := prepare_query(p_query_elements, v_query_statement);
+        v_cursor_id := prepare_query(
+            p_query_elements, 
+            v_query_statement,
+            p_bind
+        );
+        
         p_properties := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
     END;
     
     PROCEDURE request_properties (
         p_path IN VARCHAR2,
+        p_bind IN bind,
         p_properties OUT SYS_REFCURSOR
     ) IS
     
@@ -1625,12 +1562,17 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
         v_query_elements := parse_query(p_path, c_PROPERTY_QUERY);
     
-        request_properties(v_query_elements, p_properties);
+        request_properties(
+            v_query_elements,
+            p_bind,  
+            p_properties
+        );
                 
     END;
     
     FUNCTION request_properties (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind
     )
     RETURN t_properties PIPELINED IS
 
@@ -1641,7 +1583,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     BEGIN
 
-        request_properties(p_path, c_properties);
+        request_properties(
+            p_path,
+            p_bind,
+            c_properties
+        );
 
         LOOP
 
@@ -2059,6 +2005,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     FUNCTION set_property (
         p_path IN VARCHAR2,
+        p_bind IN bind,
         p_content_parse_events IN json_parser.t_parse_events,
         p_exact IN BOOLEAN := TRUE
     )
@@ -2079,7 +2026,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         v_query_elements := parse_query(p_path, c_PROPERTY_QUERY);
-        request_properties(v_query_elements, c_properties);
+        
+        request_properties(
+            v_query_elements, 
+            p_bind,
+            c_properties
+        );
 
         FETCH c_properties
         BULK COLLECT INTO v_properties;
@@ -2185,182 +2137,272 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     FUNCTION set_json (
         p_path IN VARCHAR2,
-        p_content IN VARCHAR2
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
-        RETURN set_property(p_path, json_parser.parse(p_content))(1);
+    
+        RETURN set_property(
+            p_path, 
+            p_bind,
+            json_parser.parse(p_content)
+        )(1);
+        
     END;
     
     PROCEDURE set_json (
         p_path IN VARCHAR2,
-        p_content IN VARCHAR2
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
     
-        v_dummy := set_json(p_path, p_content);
+        v_dummy := set_json(
+            p_path,
+            p_content,
+            p_bind
+        );
     
     END;
     
     FUNCTION set_json_clob (
         p_path IN VARCHAR2,
-        p_content IN CLOB
+        p_content IN CLOB,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
-        RETURN set_property(p_path, json_parser.parse(p_content))(1);
+    
+        RETURN set_property(
+            p_path, 
+            p_bind,
+            json_parser.parse(p_content)
+        )(1);
+        
     END;
 
     PROCEDURE set_json_clob (
         p_path IN VARCHAR2,
-        p_content IN CLOB
+        p_content IN CLOB,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
     
-        v_dummy := set_json_clob(p_path, p_content); 
+        v_dummy := set_json_clob(
+            p_path, 
+            p_content,
+            p_bind
+        ); 
     
     END;
 
     FUNCTION set_string (
         p_path IN VARCHAR2,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN set_property(p_path, string_events(p_value))(1);
+        RETURN set_property(
+            p_path, 
+            p_bind,
+            string_events(p_value)
+        )(1);
 
     END;
     
     PROCEDURE set_string (
         p_path IN VARCHAR2,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
 
-        v_dummy := set_string(p_path, p_value);
+        v_dummy := set_string(
+            p_path, 
+            p_value,
+            p_bind
+        );
 
     END;
 
     FUNCTION set_number (
         p_path IN VARCHAR2,
-        p_value IN NUMBER
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN set_property(p_path, number_events(p_value))(1);
+        RETURN set_property(
+            p_path, 
+            p_bind,
+            number_events(p_value)
+        )(1);
 
     END;
     
     PROCEDURE set_number (
         p_path IN VARCHAR2,
-        p_value IN NUMBER
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
 
-        v_dummy := set_number(p_path, p_value);
+        v_dummy := set_number(
+            p_path, 
+            p_value,
+            p_bind
+        );
 
     END;
 
     FUNCTION set_boolean (
         p_path IN VARCHAR2,
-        p_value IN BOOLEAN
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN set_property(p_path, boolean_events(p_value))(1);
+        RETURN set_property(
+            p_path, 
+            p_bind,
+            boolean_events(p_value)
+        )(1);
 
     END;
     
     PROCEDURE set_boolean (
         p_path IN VARCHAR2,
-        p_value IN BOOLEAN
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
 
-        v_dummy := set_boolean(p_path, p_value);
+        v_dummy := set_boolean(
+            p_path, 
+            p_value, 
+            p_bind
+        );
 
     END;
 
     FUNCTION set_null (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN set_property(p_path, null_events)(1);
+        RETURN set_property(
+            p_path, 
+            p_bind,
+            null_events
+        )(1);
 
     END;
     
     PROCEDURE set_null (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
     
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := set_null(p_path);
+    
+        v_dummy := set_null(
+            p_path,
+            p_bind
+        );
+        
     END;
 
     FUNCTION set_object (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN set_property(p_path, object_events)(1);
+        RETURN set_property(
+            p_path, 
+            p_bind,
+            object_events
+        )(1);
 
     END;
     
     PROCEDURE set_object (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := set_property(p_path, object_events)(1);
+    
+        v_dummy := set_property(
+            p_path, 
+            p_bind,
+            object_events
+        )(1);
+        
     END;
 
     FUNCTION set_array (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL        
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN set_property(p_path, array_events)(1);
+        RETURN set_property(
+            p_path, 
+            p_bind, 
+            array_events
+        )(1);
 
     END;
     
     PROCEDURE set_array (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := set_property(p_path, array_events)(1);
+    
+        v_dummy := set_property(
+            p_path,
+            p_bind,
+            array_events
+        )(1);
+        
     END;
     
     PROCEDURE request_values (
         p_path IN VARCHAR2,
+        p_bind IN bind,
         p_values OUT SYS_REFCURSOR
     ) IS
     
@@ -2368,13 +2410,14 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
-        v_cursor_id := prepare_query(p_path, c_VALUE_QUERY);
+        v_cursor_id := prepare_query(p_path, p_bind, c_VALUE_QUERY);
         p_values := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
     END;
         
     FUNCTION request_values (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind
     )
     RETURN t_values PIPELINED IS
     
@@ -2385,7 +2428,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
 
-        request_values(p_path, c_values);
+        request_values(p_path, p_bind, c_values);
         
         LOOP
         
@@ -2408,7 +2451,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     END;
     
     FUNCTION request_value (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind
     ) 
     RETURN t_value IS
     
@@ -2417,7 +2461,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
 
-        request_values(p_path, c_values);
+        request_values(p_path, p_bind, c_values);
         
         FETCH c_values
         BULK COLLECT INTO v_values;
@@ -2437,7 +2481,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     END;
     
     FUNCTION get_string (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN VARCHAR2 IS
 
@@ -2445,7 +2490,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
 
-        v_value := request_value(p_path);
+        v_value := request_value(p_path, p_bind);
         
         IF v_value.type IN ('S', 'N', 'E') THEN
             RETURN v_value.value;
@@ -2457,7 +2502,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     END;
     
     FUNCTION get_number (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     
@@ -2465,7 +2511,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
 
-        v_value := request_value(p_path);
+        v_value := request_value(p_path, p_bind);
         
         IF v_value.type IN ('N', 'E') THEN
           
@@ -2491,7 +2537,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     END;
     
     FUNCTION get_boolean (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN BOOLEAN IS
     
@@ -2499,7 +2546,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
 
-        v_value := request_value(p_path);
+        v_value := request_value(p_path, p_bind);
 
         IF v_value.type IN ('B', 'E') THEN
             RETURN v_value.value = 'true';
@@ -2622,7 +2669,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
             IF p_json_clob IS NOT NULL AND v_length >= 25000 THEN
                 
-                dbms_lob.append(p_json_clob, p_json);
+                DBMS_LOB.APPEND(p_json_clob, p_json);
                     
                 p_json := NULL;
                 v_length := 0;
@@ -2633,14 +2680,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         END LOOP;
         
         IF p_json_clob IS NOT NULL AND p_json IS NOT NULL THEN
-            dbms_lob.append(p_json_clob, p_json);
+            DBMS_LOB.APPEND(p_json_clob, p_json);
             p_json := NULL;
         END IF;
     
     END;
     
     FUNCTION get_json (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN VARCHAR2 IS
     
@@ -2649,14 +2697,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
       
-        serialize_value(get_parse_events(p_path), v_json, v_json_clob);
+        serialize_value(get_parse_events(p_path, p_bind), v_json, v_json_clob);
         
         RETURN v_json;
     
     END;
     
     FUNCTION get_json_clob (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN CLOB IS
         
@@ -2666,8 +2715,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
       
         
-        dbms_lob.createtemporary(v_json_clob, TRUE);
-        serialize_value(get_parse_events(p_path), v_json, v_json_clob);
+        DBMS_LOB.CREATETEMPORARY(v_json_clob, TRUE);
+        serialize_value(get_parse_events(p_path, p_bind), v_json, v_json_clob);
         
         RETURN v_json_clob;
     
@@ -2823,6 +2872,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     PROCEDURE apply_json (
         p_path IN VARCHAR2,
         p_content_parse_events json_parser.t_parse_events,
+        p_bind IN bind,
         p_check_types IN BOOLEAN
     ) IS
         
@@ -2835,7 +2885,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
 
-        request_values(p_path, c_values);
+        request_values(p_path, p_bind, c_values);
         
         FETCH c_values
         BULK COLLECT INTO v_values;
@@ -2874,22 +2924,24 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     PROCEDURE apply_json (
         p_path IN VARCHAR2,
-         -- @json
+        -- @json
         p_content IN VARCHAR2,
+        p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
     ) IS
     BEGIN
-        apply_json(p_path, json_parser.parse(p_content), p_check_types);
+        apply_json(p_path, json_parser.parse(p_content), p_bind, p_check_types);
     END;
         
     PROCEDURE apply_json_clob (
         p_path IN VARCHAR2,
         -- @json
-        p_content IN VARCHAR2,
+        p_content IN CLOB,
+        p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
     ) IS
     BEGIN
-        apply_json(p_path, json_parser.parse(p_content), p_check_types);
+        apply_json(p_path, json_parser.parse(p_content), p_bind, p_check_types);
     END;
     
     FUNCTION get_length (
@@ -2912,7 +2964,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
     
     FUNCTION get_length (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     
@@ -2920,7 +2973,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
     BEGIN
     
-        v_array := request_value(p_path);
+        v_array := request_value(p_path, p_bind);
         
         IF v_array.type != 'A' THEN
             -- :1 is not an array!
@@ -2934,6 +2987,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     FUNCTION push_property (
         p_path IN VARCHAR2,
+        p_bind IN bind,
         p_content_parse_events IN json_parser.t_parse_events,
         p_exact IN BOOLEAN := TRUE
     )
@@ -2947,7 +3001,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
-        request_values(p_path, c_values);
+        request_values(p_path, p_bind, c_values);
     
         FETCH c_values
         BULK COLLECT INTO v_values;
@@ -2989,176 +3043,193 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     FUNCTION push_string (
         p_path IN VARCHAR2,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN push_property(p_path, string_events(p_value))(1);
+        RETURN push_property(p_path, p_bind, string_events(p_value))(1);
 
     END;
     
     PROCEDURE push_string (
         p_path IN VARCHAR2,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := push_string(p_path, p_value);
+        v_dummy := push_string(p_path, p_value, p_bind);
     END;
    
     FUNCTION push_number (
         p_path IN VARCHAR2,
-        p_value IN NUMBER
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN push_property(p_path, number_events(p_value))(1);
+        RETURN push_property(p_path, p_bind, number_events(p_value))(1);
 
     END;
     
     PROCEDURE push_number (
         p_path IN VARCHAR2,
-        p_value IN NUMBER
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := push_number(p_path, p_value);
+        v_dummy := push_number(p_path, p_value, p_bind);
     END;
     
     FUNCTION push_boolean (
         p_path IN VARCHAR2,
-        p_value IN BOOLEAN
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN push_property(p_path, boolean_events(p_value))(1);
+        RETURN push_property(p_path, p_bind, boolean_events(p_value))(1);
 
     END;
     
     PROCEDURE push_boolean (
         p_path IN VARCHAR2,
-        p_value IN BOOLEAN
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := push_boolean(p_path, p_value);
+        v_dummy := push_boolean(p_path, p_value, p_bind);
     END;
     
     FUNCTION push_null (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN push_property(p_path, null_events)(1);
+        RETURN push_property(p_path, p_bind, null_events)(1);
 
     END;
         
     PROCEDURE push_null (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := push_null(p_path);
+        v_dummy := push_null(p_path, p_bind);
     END;
     
     FUNCTION push_object (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN push_property(p_path, object_events)(1);
+        RETURN push_property(p_path, p_bind, object_events)(1);
 
     END;
         
     PROCEDURE push_object (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := push_object(p_path);
+        v_dummy := push_object(p_path, p_bind);
     END;
         
     FUNCTION push_array (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN push_property(p_path, array_events)(1);
+        RETURN push_property(p_path, p_bind, array_events)(1);
 
     END;
         
     PROCEDURE push_array (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := push_array(p_path);
+        v_dummy := push_array(p_path, p_bind);
     END;
         
     FUNCTION push_json (
         p_path IN VARCHAR2,
-        p_content IN VARCHAR2
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
     
-        RETURN push_property(p_path, json_parser.parse(p_content))(1);
+        RETURN push_property(p_path, p_bind, json_parser.parse(p_content))(1);
     
     END;
         
     PROCEDURE push_json (
         p_path IN VARCHAR2,
-        p_content IN VARCHAR2
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := push_json(p_path, p_content);
+        v_dummy := push_json(p_path, p_content, p_bind);
     END;
         
     FUNCTION push_json_clob (
         p_path IN VARCHAR2,
-        p_content IN CLOB
+        p_content IN CLOB,
+        p_bind IN bind := NULL
     )
     RETURN NUMBER IS
     BEGIN
     
-        RETURN push_property(p_path, json_parser.parse(p_content))(1);
+        RETURN push_property(p_path, p_bind, json_parser.parse(p_content))(1);
     
     END;
         
     PROCEDURE push_json_clob (
         p_path IN VARCHAR2,
-        p_content IN CLOB
+        p_content IN CLOB,
+        p_bind IN bind := NULL
     ) IS
         
         v_dummy NUMBER;
         
     BEGIN
-        v_dummy := push_json(p_path, p_content);
+        v_dummy := push_json(p_path, p_content, p_bind);
     END;
     
     PROCEDURE delete_value (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
         
         c_properties SYS_REFCURSOR;
@@ -3168,7 +3239,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
     BEGIN
     
-        request_properties(p_path, c_properties);
+        request_properties(p_path, p_bind, c_properties);
         
         FETCH c_properties
         BULK COLLECT INTO v_properties;
@@ -3206,7 +3277,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     END;
     
     PROCEDURE lock_value (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
     
         v_value t_value;
@@ -3214,7 +3286,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
-        v_value := request_value(p_path);
+        v_value := request_value(p_path, p_bind);
     
         IF v_value.type = 'R' THEN
             RETURN;
@@ -3236,7 +3308,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     END;
     
     PROCEDURE unlock_value (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     ) IS
     
         v_value t_value;
@@ -3252,7 +3325,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
         
-        v_value := request_value(p_path);
+        v_value := request_value(p_path, p_bind);
         
         IF v_value.type = 'R' THEN
             -- Root can''t be unlocked!
@@ -3277,7 +3350,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     END;
     
     FUNCTION get_parse_events (
-        p_path IN VARCHAR2
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN json_parser.t_parse_events IS
     
@@ -3339,7 +3413,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 
     BEGIN
         
-        v_path_value := request_value(p_path);
+        v_path_value := request_value(p_path, p_bind);
     
         v_events := json_parser.t_parse_events();
         v_json_stack := t_chars();
@@ -3407,26 +3481,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     FUNCTION get_5_value_table (
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind := NULL
     )
     RETURN t_5_value_table PIPELINED IS
     
@@ -3447,26 +3502,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         v_cursor_id := prepare_query (
             v_query_elements,
             v_query_statement,
-            p_variable_1,
-            p_variable_2,
-            p_variable_3,
-            p_variable_4,
-            p_variable_5,
-            p_variable_6,
-            p_variable_7,
-            p_variable_8,
-            p_variable_9,
-            p_variable_10,
-            p_variable_11,
-            p_variable_12,
-            p_variable_13,
-            p_variable_14,
-            p_variable_15,
-            p_variable_16,
-            p_variable_17,
-            p_variable_18,
-            p_variable_19,
-            p_variable_20
+            p_bind
         );
     
         c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
@@ -3497,26 +3533,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     FUNCTION get_10_value_table (
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind := NULL
     )
     RETURN t_10_value_table PIPELINED IS
     
@@ -3537,26 +3554,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         v_cursor_id := prepare_query (
             v_query_elements,
             v_query_statement,
-            p_variable_1,
-            p_variable_2,
-            p_variable_3,
-            p_variable_4,
-            p_variable_5,
-            p_variable_6,
-            p_variable_7,
-            p_variable_8,
-            p_variable_9,
-            p_variable_10,
-            p_variable_11,
-            p_variable_12,
-            p_variable_13,
-            p_variable_14,
-            p_variable_15,
-            p_variable_16,
-            p_variable_17,
-            p_variable_18,
-            p_variable_19,
-            p_variable_20
+            p_bind
         );
     
         c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
@@ -3587,26 +3585,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     FUNCTION get_15_value_table (
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind := NULL
     )
     RETURN t_15_value_table PIPELINED IS
     
@@ -3627,26 +3606,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         v_cursor_id := prepare_query (
             v_query_elements,
             v_query_statement,
-            p_variable_1,
-            p_variable_2,
-            p_variable_3,
-            p_variable_4,
-            p_variable_5,
-            p_variable_6,
-            p_variable_7,
-            p_variable_8,
-            p_variable_9,
-            p_variable_10,
-            p_variable_11,
-            p_variable_12,
-            p_variable_13,
-            p_variable_14,
-            p_variable_15,
-            p_variable_16,
-            p_variable_17,
-            p_variable_18,
-            p_variable_19,
-            p_variable_20
+            p_bind
         );
     
         c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
@@ -3677,26 +3637,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     FUNCTION get_20_value_table (
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind := NULL
     )
     RETURN t_20_value_table PIPELINED IS
     
@@ -3717,26 +3658,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         v_cursor_id := prepare_query (
             v_query_elements,
             v_query_statement,
-            p_variable_1,
-            p_variable_2,
-            p_variable_3,
-            p_variable_4,
-            p_variable_5,
-            p_variable_6,
-            p_variable_7,
-            p_variable_8,
-            p_variable_9,
-            p_variable_10,
-            p_variable_11,
-            p_variable_12,
-            p_variable_13,
-            p_variable_14,
-            p_variable_15,
-            p_variable_16,
-            p_variable_17,
-            p_variable_18,
-            p_variable_19,
-            p_variable_20
+            p_bind
         );
     
         c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
@@ -3767,7 +3689,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     -- TODO
     FUNCTION get_value_table_cursor (
-        p_query IN VARCHAR2
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     RETURN SYS_REFCURSOR IS 
     

@@ -31,3 +31,7 @@ DROP FUNCTION to_index
 DROP SEQUENCE jsvl_id
 /
 
+DROP TYPE bind
+/
+
+

@@ -31,26 +31,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
     STATIC FUNCTION odcitablestart ( 
         p_context IN OUT t_value_table_query,
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind
     ) 
     RETURN PLS_INTEGER IS
     
@@ -60,27 +41,8 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
         
         p_context.cursor_id := json_store.prepare_query(
             p_query,
-            json_store.c_VALUE_TABLE_QUERY,
-            p_variable_1,
-            p_variable_2,
-            p_variable_3,
-            p_variable_4,
-            p_variable_5,
-            p_variable_6,
-            p_variable_7,
-            p_variable_8,
-            p_variable_9,
-            p_variable_10,
-            p_variable_11,
-            p_variable_12,
-            p_variable_13,
-            p_variable_14,
-            p_variable_15,
-            p_variable_16,
-            p_variable_17,
-            p_variable_18,
-            p_variable_19,
-            p_variable_20
+            p_bind,
+            json_store.c_VALUE_TABLE_QUERY
         );
         
         DBMS_SQL.DESCRIBE_COLUMNS(p_context.cursor_id, p_context.column_count, v_columns); 
@@ -98,26 +60,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
     STATIC FUNCTION odcitabledescribe (
         p_return_type OUT ANYTYPE,
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind
     ) 
     RETURN PLS_INTEGER IS
         
@@ -152,26 +95,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
         p_context OUT t_value_table_query,
         p_table_function_info IN sys.odcitabfuncinfo,
         p_query IN VARCHAR2,
-        p_variable_1 IN VARCHAR2 := NULL,
-        p_variable_2 IN VARCHAR2 := NULL,
-        p_variable_3 IN VARCHAR2 := NULL,
-        p_variable_4 IN VARCHAR2 := NULL,
-        p_variable_5 IN VARCHAR2 := NULL,
-        p_variable_6 IN VARCHAR2 := NULL,
-        p_variable_7 IN VARCHAR2 := NULL,
-        p_variable_8 IN VARCHAR2 := NULL,
-        p_variable_9 IN VARCHAR2 := NULL,
-        p_variable_10 IN VARCHAR2 := NULL,
-        p_variable_11 IN VARCHAR2 := NULL,
-        p_variable_12 IN VARCHAR2 := NULL,
-        p_variable_13 IN VARCHAR2 := NULL,
-        p_variable_14 IN VARCHAR2 := NULL,
-        p_variable_15 IN VARCHAR2 := NULL,
-        p_variable_16 IN VARCHAR2 := NULL,
-        p_variable_17 IN VARCHAR2 := NULL,
-        p_variable_18 IN VARCHAR2 := NULL,
-        p_variable_19 IN VARCHAR2 := NULL,
-        p_variable_20 IN VARCHAR2 := NULL
+        p_bind IN bind
     ) 
     RETURN PLS_INTEGER IS
     

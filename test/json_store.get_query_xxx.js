@@ -249,7 +249,7 @@ suite("Query column name retrieval", function() {
 
 });
 
-suite("Query variable name retrieval", function() {
+suite("Query variable count retrieval", function() {
 
     test("Multiple different variables", function() {
 
@@ -257,15 +257,11 @@ suite("Query variable name retrieval", function() {
             p_query: 'person(.:var1, .:name(.:detail))'
         });
 
-        var variableNames = database.call("json_store.get_query_variable_names", {
+        var variableCount = database.call("json_store.get_query_variable_count", {
             p_query_elements: elements
         });
 
-        expect(variableNames).to.eql([
-            "VAR1",
-            "NAME",
-            "DETAIL"
-        ]);
+        expect(variableCount).to.be(3);
 
     }); 
 
@@ -275,14 +271,11 @@ suite("Query variable name retrieval", function() {
             p_query: 'person(.:var1, .:name(.:var1 as value), .:name)'
         });
 
-        var variableNames = database.call("json_store.get_query_variable_names", {
+        var variableCount = database.call("json_store.get_query_variable_count", {
             p_query_elements: elements
         });
 
-        expect(variableNames).to.eql([
-            "VAR1",
-            "NAME"
-        ]);
+        expect(variableCount).to.be(2);
 
     }); 
 

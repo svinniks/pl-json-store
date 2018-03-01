@@ -1088,19 +1088,16 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    FUNCTION get_query_variable_names (
+    FUNCTION get_query_variable_count (
         p_query_elements IN t_query_elements
     )
-    RETURN t_varchars IS
+    RETURN PLS_INTEGER IS
     
         TYPE t_unique_names IS 
             TABLE OF BOOLEAN 
             INDEX BY VARCHAR2(30);
             
         v_unique_variable_names t_unique_names;
-        v_variable_name VARCHAR2(30);
-        
-        v_variable_names t_varchars;
         
         PROCEDURE visit_element (
             p_i IN PLS_INTEGER
@@ -1108,14 +1105,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         BEGIN
         
             IF p_query_elements(p_i).type = 'V' THEN
-                IF NOT v_unique_variable_names.EXISTS(p_query_elements(p_i).value) THEN
-                
-                    v_variable_names.EXTEND(1);
-                    v_variable_names(v_variable_names.COUNT) := p_query_elements(p_i).value;
-                    
-                    v_unique_variable_names(p_query_elements(p_i).value) := TRUE;
-                    
-                END IF;
+                v_unique_variable_names(p_query_elements(p_i).value) := TRUE;
             END IF;
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
@@ -1130,11 +1120,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
     BEGIN
     
-        v_variable_names := t_varchars();
-    
         visit_element(1);
         
-        RETURN v_variable_names;
+        RETURN v_unique_variable_names.COUNT;
     
     END;    
     
@@ -1187,10 +1175,17 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         v_line VARCHAR2(32000);
         
         v_table_instance_counter PLS_INTEGER;
-        v_variable_counter PLS_INTEGER;
+        v_auto_variable_number PLS_INTEGER;
         v_comma CHAR;
         v_and VARCHAR2(5);
         v_column_count PLS_INTEGER;
+        
+        TYPE t_variable_numbers IS 
+            TABLE OF PLS_INTEGER
+            INDEX BY VARCHAR2(30);
+            
+        v_variable_numbers t_variable_numbers;
+        v_variable_number PLS_INTEGER;
         
         v_statement t_query_statement;
     
@@ -1331,8 +1326,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                     add_text('(+)');
                 END IF;
                 
-                v_variable_counter := v_variable_counter + 1;
-                add_text('=:v' || v_variable_counter);
+                v_auto_variable_number := v_auto_variable_number + 1;
+                add_text('=:v' || v_auto_variable_number);
                 
                 v_and := ' AND ';
                 
@@ -1344,8 +1339,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                     add_text('(+)');
                 END IF;
                 
-                v_variable_counter := v_variable_counter + 1;
-                add_text('=TO_NUMBER(:v' || v_variable_counter || ')');
+                v_auto_variable_number := v_auto_variable_number + 1;
+                add_text('=TO_NUMBER(:v' || v_auto_variable_number || ')');
                 
                 v_and := ' AND ';
                 
@@ -1357,7 +1352,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                     add_text('(+)');
                 END IF;
                 
-                add_text('=:' || p_query_elements(p_i).value);
+                IF NOT v_variable_numbers.EXISTS(p_query_elements(p_i).value) THEN
+                    v_variable_number := v_variable_number + 1;
+                    v_variable_numbers(p_query_elements(p_i).value) := v_variable_number;
+                END IF;
+                
+                add_text('=:' || v_variable_numbers(p_query_elements(p_i).value));
                 
                 v_and := ' AND ';
                 
@@ -1398,7 +1398,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         from_list_visit(1);
         
         v_table_instance_counter := 0;
-        v_variable_counter := 0;
+        v_auto_variable_number := 0;
+        v_variable_number := 0;
         v_and := NULL; 
         add_text(' WHERE ');
         where_list_visit(1, NULL);
@@ -1425,7 +1426,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     )
     RETURN INTEGER IS
     
-        v_query_variable_names t_varchars;
+        v_variable_count PLS_INTEGER;
         v_query_values t_varchars;
         
         v_cursor_id INTEGER;
@@ -1433,7 +1434,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
         
-        v_query_variable_names := get_query_variable_names(p_query_elements);
+        v_variable_count := get_query_variable_count(p_query_elements);
         v_query_values := get_query_values(p_query_elements);
         
         v_cursor_id := DBMS_SQL.OPEN_CURSOR();
@@ -1445,8 +1446,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         END IF;
                
         IF p_bind IS NOT NULL THEN 
-            FOR v_i IN 1..LEAST(v_query_variable_names.COUNT, p_bind.COUNT) LOOP
-                DBMS_SQL.BIND_VARIABLE(v_cursor_id, v_query_variable_names(v_i), p_bind(v_i));
+            FOR v_i IN 1..LEAST(v_variable_count, p_bind.COUNT) LOOP
+                DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':' || v_i, p_bind(v_i));
             END LOOP;
         END IF;
         

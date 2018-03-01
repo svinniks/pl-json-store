@@ -168,10 +168,10 @@ CREATE OR REPLACE PACKAGE json_store IS
     )
     RETURN t_varchars;
     
-    FUNCTION get_query_variable_names (
+    FUNCTION get_query_variable_count (
         p_query_elements IN t_query_elements
     )
-    RETURN t_varchars;
+    RETURN PLS_INTEGER;
     
     FUNCTION get_query_values (
         p_query_elements IN t_query_elements

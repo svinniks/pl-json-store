@@ -31,7 +31,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
     STATIC FUNCTION odcitablestart ( 
         p_context IN OUT t_value_table_query,
         p_query IN VARCHAR2,
-        p_bind IN bind
+        p_bind IN bind := NULL
     ) 
     RETURN PLS_INTEGER IS
     
@@ -60,7 +60,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
     STATIC FUNCTION odcitabledescribe (
         p_return_type OUT ANYTYPE,
         p_query IN VARCHAR2,
-        p_bind IN bind
+        p_bind IN bind := NULL
     ) 
     RETURN PLS_INTEGER IS
         
@@ -95,7 +95,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
         p_context OUT t_value_table_query,
         p_table_function_info IN sys.odcitabfuncinfo,
         p_query IN VARCHAR2,
-        p_bind IN bind
+        p_bind IN bind := NULL
     ) 
     RETURN PLS_INTEGER IS
     

@@ -44,7 +44,7 @@ suite("Query column name retrieval", function() {
                 p_query_elements: elements
             });
         
-        }).to.throw(/JDOC-00016/);
+        }).to.throw(/JDOC-00016.*name/);
     
     });
 
@@ -83,7 +83,7 @@ suite("Query column name retrieval", function() {
     test("Duplicate variable and alias", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'person(.:2, .surname as ":2")'
+            p_query: 'person(.:a, .surname as a)'
         });
 
         expect(function() {
@@ -115,7 +115,7 @@ suite("Query column name retrieval", function() {
     test("One variable", function() {
 
         var elements = database.call("json_store.parse_query", {
-            p_query: ":15"
+            p_query: ":var"
         });
 
         var columnNames = database.call("json_store.get_query_column_names", {
@@ -123,7 +123,7 @@ suite("Query column name retrieval", function() {
         });
 
         expect(columnNames).to.eql([
-            ":15"
+            "VAR"
         ]);
 
     }); 
@@ -139,7 +139,7 @@ suite("Query column name retrieval", function() {
         });
 
         expect(columnNames).to.eql([
-            "#123"
+            "123"
         ]);
 
     }); 
@@ -213,7 +213,7 @@ suite("Query column name retrieval", function() {
     test("Combined column names", function() {
 
         var elements = database.call("json_store.parse_query", {
-            p_query: 'person(.name as forename, .surname as "family_name", .address(.street, .:3, .#44))'
+            p_query: 'person(.name as forename, .surname as "family_name", .address(.street, .:var, .#44))'
         });
 
         var columnNames = database.call("json_store.get_query_column_names", {
@@ -224,8 +224,8 @@ suite("Query column name retrieval", function() {
             "FORENAME",
             "family_name",
             "street",
-            ":3",
-            "#44"
+            "VAR",
+            "44"
         ]);
 
     }); 
@@ -249,12 +249,12 @@ suite("Query column name retrieval", function() {
 
 });
 
-suite("QUery variable name retrieval", function() {
+suite("Query variable name retrieval", function() {
 
     test("Multiple different variables", function() {
 
         var elements = database.call("json_store.parse_query", {
-            p_query: 'person(.:1, .:2(.:3))'
+            p_query: 'person(.:var1, .:name(.:detail))'
         });
 
         var variableNames = database.call("json_store.get_query_variable_names", {
@@ -262,9 +262,9 @@ suite("QUery variable name retrieval", function() {
         });
 
         expect(variableNames).to.eql([
-            "1",
-            "2",
-            "3"
+            "VAR1",
+            "NAME",
+            "DETAIL"
         ]);
 
     }); 
@@ -272,7 +272,7 @@ suite("QUery variable name retrieval", function() {
     test("Multiple repeating variables", function() {
 
         var elements = database.call("json_store.parse_query", {
-            p_query: 'person(.:1, .:2(.:1 as value), .:2)'
+            p_query: 'person(.:var1, .:name(.:var1 as value), .:name)'
         });
 
         var variableNames = database.call("json_store.get_query_variable_names", {
@@ -280,8 +280,8 @@ suite("QUery variable name retrieval", function() {
         });
 
         expect(variableNames).to.eql([
-            "1",
-            "2"
+            "VAR1",
+            "NAME"
         ]);
 
     }); 
@@ -349,7 +349,7 @@ suite("Query signature retrieval", function() {
     test("Single variable", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: ":12"
+            p_query: ":var1"
         });
 
         var signature = database.call("json_store.get_query_signature", {
@@ -363,7 +363,7 @@ suite("Query signature retrieval", function() {
     test("Complex child property chain", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: "person.:2.#123.*"
+            p_query: "person.:var1.#123.*"
         });
 
         var signature = database.call("json_store.get_query_signature", {
@@ -405,7 +405,7 @@ suite("Query signature retrieval", function() {
     test("Complex branched query", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: "person(.name, .:1, .address?(.*), .surname)"
+            p_query: "person(.name, .:var1, .address?(.*), .surname)"
         });
 
         var signature = database.call("json_store.get_query_signature", {

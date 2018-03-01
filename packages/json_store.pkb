@@ -52,24 +52,24 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         default_message_resolver.register_message('JDOC-00001', 'Unexpected character ":1"!');
         default_message_resolver.register_message('JDOC-00002', 'Unexpected end of the input!');
         default_message_resolver.register_message('JDOC-00003', 'Root can''t be modified!');
-        default_message_resolver.register_message('JDOC-00004', 'Multiple values found at the path :1!');
+        default_message_resolver.register_message('JDOC-00004', 'Multiple values found at path :1!');
         default_message_resolver.register_message('JDOC-00005', 'Empty path specified!');
         default_message_resolver.register_message('JDOC-00006', 'Root requested as a property!');
         default_message_resolver.register_message('JDOC-00007', 'No container for property at path :1 could be found!');
         default_message_resolver.register_message('JDOC-00008', 'Scalar values and null can''t have properties!');
         default_message_resolver.register_message('JDOC-00009', 'Value :1 does not exist!');
         default_message_resolver.register_message('JDOC-00010', 'Type conversion error!');
-        default_message_resolver.register_message('JDOC-00011', 'Property :1 type mismatch!');
+        default_message_resolver.register_message('JDOC-00011', 'Property ":1" type mismatch!');
         default_message_resolver.register_message('JDOC-00012', ':1 is not an array!');
         default_message_resolver.register_message('JDOC-00013', 'Invalid array element index :1!');
         default_message_resolver.register_message('JDOC-00014', 'Requested target is not an array!');
         default_message_resolver.register_message('JDOC-00015', 'Unexpected :1 in a non-branching query!');
-        default_message_resolver.register_message('JDOC-00016', 'Duplicate property/alias :1!');
+        default_message_resolver.register_message('JDOC-00016', 'Duplicate property/alias ":1"!');
         default_message_resolver.register_message('JDOC-00017', 'Alias too long!');
-        default_message_resolver.register_message('JDOC-00018', 'Property name :1 is too long to be a column name!');
+        default_message_resolver.register_message('JDOC-00018', 'Property name ":1" is too long to be a column name!');
         default_message_resolver.register_message('JDOC-00019', 'Alias not specified for a leaf wildcard property!');
-        default_message_resolver.register_message('JDOC-00020', 'Variable name is not a valid number!');
-        default_message_resolver.register_message('JDOC-00021', 'Only variables with names 1 .. :1 are supported!');
+        default_message_resolver.register_message('JDOC-00020', 'Variable name too long!');
+        default_message_resolver.register_message('JDOC-00021', '');
         default_message_resolver.register_message('JDOC-00022', 'Root can''t be optional!');
         default_message_resolver.register_message('JDOC-00023', 'Column alias for a wildcard not specified!');
         default_message_resolver.register_message('JDOC-00024', 'Value :1 is locked!');
@@ -186,20 +186,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
         BEGIN
         
-            BEGIN
-                v_variable := TO_NUMBER(p_value);
-            EXCEPTION
-                WHEN OTHERS THEN
-                    -- Variable name is not a valid number!
-                    error$.raise('JDOC-00020');
-            END;
-
-            IF v_variable > 20 THEN
-                -- Only variables with names 1 .. :1 are supported!
-                error$.raise('JDOC-00021', 20);
+            IF LENGTH(p_value) > 30 THEN
+                -- Variable name too long
+                error$.raise('JDOC-00020');
             END IF;
-            
-            push('V', p_value);
+         
+            push('V', UPPER(p_value));
         
         END;
         
@@ -793,7 +785,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         PROCEDURE lf_variable IS
         BEGIN
         
-            IF INSTR('123456789', v_char) > 0 THEN
+            IF INSTR('qwertyuioplkjhgfdsazxcvbnm', LOWER(v_char)) > 0 THEN
             
                 v_value := v_char;
                 v_state := 'r_variable';
@@ -810,7 +802,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         PROCEDURE r_variable IS
         BEGIN
         
-            IF INSTR('1234567890', v_char) > 0 THEN
+            IF INSTR('qwertyuioplkjhgfdsazxcvbnm1234567890_$#', LOWER(v_char)) > 0 THEN
             
                 v_value := v_value || v_char;
                 
@@ -870,7 +862,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         PROCEDURE lf_array_variable IS
         BEGIN
         
-            IF INSTR('123456789', v_char) > 0 THEN
+            IF INSTR('qwertyuioplkjhgfdsazxcvbnm', LOWER(v_char)) > 0 THEN
             
                 v_value := v_char;
                 v_state := 'r_array_variable';
@@ -887,7 +879,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         PROCEDURE r_array_variable IS
         BEGIN
         
-            IF INSTR('1234567890', v_char) > 0 THEN
+            IF INSTR('qwertyuioplkjhgfdsazxcvbnm1234567890_$#', LOWER(v_char)) > 0 THEN
             
                 v_value := v_value || v_char;
                 
@@ -994,15 +986,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         ) IS
         BEGIN
         
-            v_signature := v_signature || p_query_elements(p_i).type;
-            
-            IF p_query_elements(p_i).type = 'V' THEN
-                v_signature := v_signature || p_query_elements(p_i).value;
-            END IF;
-            
-            IF p_query_elements(p_i).optional THEN 
-                v_signature := v_signature || '?';
-            END IF;
+            v_signature := v_signature || p_query_elements(p_i).type || CASE WHEN p_query_elements(p_i).optional THEN '?' END;
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
                 v_signature := v_signature || '(';
@@ -1050,7 +1034,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
             IF v_unique_column_names.EXISTS(p_name) THEN
                 -- Duplicate property/alias :1!
-                error$.raise('JDOC-00016');
+                error$.raise('JDOC-00016', p_name);
             END IF;
             
             v_column_names.EXTEND(1);
@@ -1074,15 +1058,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                 IF p_query_elements(p_i).alias IS NOT NULL THEN
                 
                     add_column_name(p_query_elements(p_i).alias);
-                    
-                ELSIF p_query_elements(p_i).type = 'I' THEN
-                
-                    add_column_name('#' || p_query_elements(p_i).value);
-                    
-                ELSIF p_query_elements(p_i).type = 'V' THEN
-                
-                    add_column_name(':' || p_query_elements(p_i).value);
-    
                  
                 ELSIF p_query_elements(p_i).type = 'W' THEN
                 
@@ -1133,7 +1108,14 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         BEGIN
         
             IF p_query_elements(p_i).type = 'V' THEN
-                v_unique_variable_names(p_query_elements(p_i).value) := TRUE;
+                IF NOT v_unique_variable_names.EXISTS(p_query_elements(p_i).value) THEN
+                
+                    v_variable_names.EXTEND(1);
+                    v_variable_names(v_variable_names.COUNT) := p_query_elements(p_i).value;
+                    
+                    v_unique_variable_names(p_query_elements(p_i).value) := TRUE;
+                    
+                END IF;
             END IF;
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
@@ -1148,19 +1130,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
     BEGIN
     
-        visit_element(1);
-    
         v_variable_names := t_varchars();
-        v_variable_name := v_unique_variable_names.FIRST;
-        
-        WHILE v_variable_name IS NOT NULL LOOP
-        
-            v_variable_names.EXTEND(1);
-            v_variable_names(v_variable_names.COUNT) := v_variable_name;
-        
-            v_variable_name := v_unique_variable_names.NEXT(v_variable_name);
-        
-        END LOOP;
+    
+        visit_element(1);
         
         RETURN v_variable_names;
     
@@ -1458,8 +1430,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         v_cursor_id INTEGER;
         v_result INTEGER;
-        
-        v_variable NUMBER;
     
     BEGIN
         
@@ -1475,18 +1445,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         END IF;
                
         IF p_bind IS NOT NULL THEN 
-        
-            FOR v_i IN 1..v_query_variable_names.COUNT LOOP
-            
-                v_variable := v_query_variable_names(v_i);
-                
-                IF v_variable <= p_bind.COUNT THEN
-                    DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':' || v_variable, p_bind(v_variable));
-                END IF;
-                
-                
+            FOR v_i IN 1..LEAST(v_query_variable_names.COUNT, p_bind.COUNT) LOOP
+                DBMS_SQL.BIND_VARIABLE(v_cursor_id, v_query_variable_names(v_i), p_bind(v_i));
             END LOOP;
-            
         END IF;
         
         FOR v_i IN 1..v_query_values.COUNT LOOP

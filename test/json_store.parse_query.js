@@ -712,7 +712,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_store.parse_query", {
-                    p_query: "persons.:abc"
+                    p_query: "persons.:1a"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -724,7 +724,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_store.parse_query", {
-                    p_query: ":23a"
+                    p_query: ":ab12-"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -736,7 +736,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_store.parse_query", {
-                    p_query: "persons[:abc"
+                    p_query: "persons[:1"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -971,15 +971,15 @@ suite("Invalid query tests", function() {
         
         });
         
-        test("Variable number too big", function() {
+        test("Variable number too long", function() {
         
             expect(function() {
             
                 var elements = database.call("json_store.parse_query", {
-                    p_query: "person.$"
+                    p_query: ":abcabcabcabcabcabcabcabcabcabcA"
                 });
             
-            }).to.throw(/JDOC-00006/);
+            }).to.throw(/JDOC-00020/);
         
         });
 
@@ -988,11 +988,11 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_store.parse_query", {
-                    p_query: ":25"
+                    p_query: "person.$"
                 });
             
-            }).to.throw(/JDOC-00021/);
-        
+            }).to.throw(/JDOC-00006/);
+
         });
 
     });
@@ -3373,13 +3373,13 @@ suite("Valid query tests", function() {
     test("Single variable", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: ':1'
+            p_query: ':var'
         });
 
         expect(elements).to.eql([
             {
                 type: "V",
-                value: "1",
+                value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3392,13 +3392,13 @@ suite("Valid query tests", function() {
     test("Single variable, spaces before :", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: '   :1'
+            p_query: '   :var'
         });
 
         expect(elements).to.eql([
             {
                 type: "V",
-                value: "1",
+                value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3411,13 +3411,13 @@ suite("Valid query tests", function() {
     test("Single variable, spaces after", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: ':1  '
+            p_query: ':var  '
         });
 
         expect(elements).to.eql([
             {
                 type: "V",
-                value: "1",
+                value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3430,13 +3430,13 @@ suite("Valid query tests", function() {
     test("Single optional variable", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: ':1?'
+            p_query: ':var?'
         });
 
         expect(elements).to.eql([
             {
                 type: "V",
-                value: "1",
+                value: "VAR",
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3449,33 +3449,14 @@ suite("Valid query tests", function() {
     test("Single optional variable, spaces before ?", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: ':1 ?'
+            p_query: ':var ?'
         });
 
         expect(elements).to.eql([
             {
                 type: "V",
-                value: "1",
+                value: "VAR",
                 optional: true,
-                first_child_i: null,
-                next_sibling_i: null,
-                alias: null
-            }
-        ]);
-    
-    });
-
-    test("Single :10 variable", function() {
-    
-        var elements = database.call("json_store.parse_query", {
-            p_query: ':10'
-        });
-
-        expect(elements).to.eql([
-            {
-                type: "V",
-                value: "10",
-                optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
                 alias: null
@@ -3487,7 +3468,7 @@ suite("Valid query tests", function() {
     test("Variable as a property", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons.:5'
+            p_query: 'persons.:var'
         });
 
         expect(elements).to.eql([
@@ -3501,7 +3482,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "5",
+                value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3514,7 +3495,7 @@ suite("Valid query tests", function() {
     test("Variable as a property, spaces after the dot", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons. :5'
+            p_query: 'persons. :var'
         });
 
         expect(elements).to.eql([
@@ -3528,7 +3509,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "5",
+                value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3541,7 +3522,7 @@ suite("Valid query tests", function() {
     test("Variable as an array element", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons[:5]'
+            p_query: 'persons[:var]'
         });
 
         expect(elements).to.eql([
@@ -3555,7 +3536,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "5",
+                value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3568,7 +3549,7 @@ suite("Valid query tests", function() {
     test("Variable as an array element, spaces after [", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons[   :5]'
+            p_query: 'persons[   :var]'
         });
 
         expect(elements).to.eql([
@@ -3582,7 +3563,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "5",
+                value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3595,7 +3576,7 @@ suite("Valid query tests", function() {
     test("Variable as an array element, spaces before ]", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons[   :5]'
+            p_query: 'persons[:var   ]'
         });
 
         expect(elements).to.eql([
@@ -3609,7 +3590,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "5",
+                value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3622,7 +3603,7 @@ suite("Valid query tests", function() {
     test("Property of a variable", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons.:5.name'
+            p_query: 'persons.:var.name'
         });
 
         expect(elements).to.eql([
@@ -3636,7 +3617,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "5",
+                value: "VAR",
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
@@ -3657,7 +3638,7 @@ suite("Valid query tests", function() {
     test("Property of a variable, spaces after the variable", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons.:5   .name'
+            p_query: 'persons.:var   .name'
         });
 
         expect(elements).to.eql([
@@ -3671,7 +3652,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "5",
+                value: "VAR",
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
@@ -3692,7 +3673,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons(.:2,.:3)'
+            p_query: 'persons(.:var1,.:var2)'
         });
 
         expect(elements).to.eql([
@@ -3706,7 +3687,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "2",
+                value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
@@ -3714,7 +3695,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "3",
+                value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3727,7 +3708,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch, spaces after (", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons(   .:2,.:3)'
+            p_query: 'persons(   .:var1,.:var2)'
         });
 
         expect(elements).to.eql([
@@ -3741,7 +3722,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "2",
+                value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
@@ -3749,7 +3730,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "3",
+                value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3762,7 +3743,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch, spaces before the comma", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons(.:2   ,.:3)'
+            p_query: 'persons(.:var1   ,.:var2)'
         });
 
         expect(elements).to.eql([
@@ -3776,7 +3757,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "2",
+                value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
@@ -3784,7 +3765,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "3",
+                value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3797,7 +3778,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch, spaces after the comma", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons(.:2,   .:3)'
+            p_query: 'persons(.:var1,   .:var2)'
         });
 
         expect(elements).to.eql([
@@ -3811,7 +3792,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "2",
+                value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
@@ -3819,7 +3800,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "3",
+                value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -3832,7 +3813,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch, spaces before )", function() {
     
         var elements = database.call("json_store.parse_query", {
-            p_query: 'persons(.:2,.:3   )'
+            p_query: 'persons(.:var1,.:var2   )'
         });
 
         expect(elements).to.eql([
@@ -3846,7 +3827,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "2",
+                value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
@@ -3854,7 +3835,7 @@ suite("Valid query tests", function() {
             },
             {
                 type: "V",
-                value: "3",
+                value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,

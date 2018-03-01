@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE BODY t_json_query IS
+CREATE OR REPLACE TYPE BODY t_value_table_query IS
 
     /* 
         Copyright 2018 Sergejs Vinniks
@@ -16,31 +16,20 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         limitations under the License.
     */
     
-    CONSTRUCTOR FUNCTION t_json_query (
+    CONSTRUCTOR FUNCTION t_value_table_query (
         p_row_type ANYTYPE
     ) 
     RETURN SELF AS RESULT IS
     BEGIN
     
         row_type := p_row_type;
-        query_type := json_store.c_VALUE_TABLE_QUERY;
         
         RETURN;
     
     END;
     
-    CONSTRUCTOR FUNCTION t_json_query
-    RETURN SELF AS RESULT IS
-    BEGIN
-    
-        query_type := json_store.c_X_VALUE_TABLE_QUERY;
-    
-        RETURN;
-        
-    END;
-
     STATIC FUNCTION odcitablestart ( 
-        p_context IN OUT t_json_query,
+        p_context IN OUT t_value_table_query,
         p_query IN VARCHAR2,
         p_variable_1 IN VARCHAR2 := NULL,
         p_variable_2 IN VARCHAR2 := NULL,
@@ -71,7 +60,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
         
         p_context.cursor_id := json_store.prepare_query(
             p_query,
-            p_context.query_type,
+            json_store.c_VALUE_TABLE_QUERY,
             p_variable_1,
             p_variable_2,
             p_variable_3,
@@ -160,7 +149,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     END;
     
     STATIC FUNCTION odcitableprepare (
-        p_context OUT t_json_query,
+        p_context OUT t_value_table_query,
         p_table_function_info IN sys.odcitabfuncinfo,
         p_query IN VARCHAR2,
         p_variable_1 IN VARCHAR2 := NULL,
@@ -208,14 +197,14 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
            ,v_name
         );
     
-        p_context := t_json_query(v_row_type);
+        p_context := t_value_table_query(v_row_type);
     
         RETURN odciconst.success;
     
     END;
              
     MEMBER FUNCTION fetch_row(
-        self IN OUT NOCOPY t_json_query,
+        self IN OUT NOCOPY t_value_table_query,
         p_row IN OUT NOCOPY t_varchars
     ) 
     RETURN BOOLEAN IS
@@ -265,7 +254,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     
     
     MEMBER FUNCTION odcitablefetch (
-        self IN OUT NOCOPY t_json_query,
+        self IN OUT NOCOPY t_value_table_query,
         p_row_count IN NUMBER,
         p_dataset OUT ANYDATASET
     ) 
@@ -316,7 +305,7 @@ CREATE OR REPLACE TYPE BODY t_json_query IS
     END;
     
     MEMBER FUNCTION odcitableclose (
-        self IN t_json_query
+        self IN t_value_table_query
     ) 
     RETURN PLS_INTEGER IS
     

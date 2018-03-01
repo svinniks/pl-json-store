@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE t_json_query AUTHID CURRENT_USER AS OBJECT (
+CREATE OR REPLACE TYPE t_value_table_query AUTHID CURRENT_USER AS OBJECT (
 
     /* 
         Copyright 2018 Sergejs Vinniks
@@ -17,22 +17,18 @@ CREATE OR REPLACE TYPE t_json_query AUTHID CURRENT_USER AS OBJECT (
     */
     
     row_type ANYTYPE,
-    query_type NUMBER,
     column_count NUMBER,
     cursor_id INTEGER,
     row_buffer t_varchars,
     fetched_row_count NUMBER,
     piped_row_count NUMBER,
 
-    CONSTRUCTOR FUNCTION t_json_query (
+    CONSTRUCTOR FUNCTION t_value_table_query (
         p_row_type ANYTYPE
     ) RETURN SELF AS RESULT,
     
-    CONSTRUCTOR FUNCTION t_json_query
-    RETURN SELF AS RESULT,
-    
     STATIC FUNCTION odcitablestart (
-        p_context IN OUT t_json_query,
+        p_context IN OUT t_value_table_query,
         p_query IN VARCHAR2,
         p_variable_1 IN VARCHAR2 := NULL,
         p_variable_2 IN VARCHAR2 := NULL,
@@ -58,7 +54,7 @@ CREATE OR REPLACE TYPE t_json_query AUTHID CURRENT_USER AS OBJECT (
     RETURN PLS_INTEGER,
     
     STATIC FUNCTION odcitableprepare (
-        p_context OUT t_json_query,
+        p_context OUT t_value_table_query,
         p_table_function_info IN sys.odcitabfuncinfo,
         p_query IN VARCHAR2,
         p_variable_1 IN VARCHAR2 := NULL,
@@ -109,18 +105,18 @@ CREATE OR REPLACE TYPE t_json_query AUTHID CURRENT_USER AS OBJECT (
     ) RETURN PLS_INTEGER,
              
     MEMBER FUNCTION fetch_row (
-        self IN OUT NOCOPY t_json_query,
+        self IN OUT NOCOPY t_value_table_query,
         p_row IN OUT NOCOPY t_varchars
     ) RETURN BOOLEAN, 
     
     MEMBER FUNCTION odcitablefetch (
-        self IN OUT NOCOPY t_json_query,
+        self IN OUT NOCOPY t_value_table_query,
         p_row_count IN NUMBER,
         p_dataset OUT ANYDATASET
     ) RETURN PLS_INTEGER,
     
     MEMBER FUNCTION odcitableclose(
-        self IN t_json_query
+        self IN t_value_table_query
     ) RETURN PLS_INTEGER
     
 )    

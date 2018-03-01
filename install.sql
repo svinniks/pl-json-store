@@ -45,13 +45,13 @@ COMMIT
 @@packages/json_parser.pkb
 /
 
-@@types/t_json_query.tps
+@@types/t_value_table_query.tps
 /
 
 @@packages/json_store.pks
 /
 
-@@types/t_json_query.tpb
+@@types/t_value_table_query.tpb
 /
 
 @@packages/json_store.pkb

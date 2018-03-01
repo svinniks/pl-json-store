@@ -625,7 +625,7 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_variable_20 IN VARCHAR2 := NULL
     )
     RETURN ANYDATASET PIPELINED 
-    USING t_json_query;
+    USING t_value_table_query;
     
     FUNCTION get_value_table_cursor (
         p_query IN VARCHAR2

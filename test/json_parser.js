@@ -354,6 +354,30 @@ suite("Scalar value tests", function() {
         ]);
     
     });
+
+    test("String value with newlines", function() {
+    
+        var result = database.call("json_parser.parse", {
+            p_content: '\n"Hello, World!"\n'
+        });
+
+        expect(result).to.eql([
+            {name: "STRING", value: "Hello, World!"}
+        ]);
+    
+    });
+
+    test("String value with tabs", function() {
+    
+        var result = database.call("json_parser.parse", {
+            p_content: '\t"Hello, World!"\t'
+        });
+
+        expect(result).to.eql([
+            {name: "STRING", value: "Hello, World!"}
+        ]);
+    
+    });
     
     test("String value with escaped characters (without \\u)", function() {
     

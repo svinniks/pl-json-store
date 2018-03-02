@@ -75,7 +75,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         FUNCTION space
         RETURN BOOLEAN IS
         BEGIN
-            RETURN v_char IN (' ', CHR(10), CHR(13));
+            RETURN v_char IN (' ', CHR(10), CHR(13), CHR(9));
         END;
         
         PROCEDURE end_object IS

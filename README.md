@@ -115,7 +115,7 @@ should return
 
 In a similar way one can create a complex (non-scalar, which is an object or an array) named property:
 
-```plsql
+```sql
 BEGIN
     json_store.set_json('$.author', '{
         "name": "Frank", 
@@ -130,6 +130,38 @@ Now `json_store.get_string('$.auhtor.name')` should return `Frank`.
 
 Creating anonymous values
 -------------------------
+
+In addition to one common root object, it is possible to create anonymous unnamed JSON values. These values do not belong to the root or any other element and are only accessible by the automatically generated internal ID. For example, an anonymous string can be created by executing:
+
+```sql
+DECLARE
+    v_id NUMBER;
+BEGIN
+    v_id := json_store.create_string('Hello, World!');
+END;
+```
+
+Here is another example, which creates an anonymous object with one property in one call:
+
+```sql
+DECLARE
+    v_id NUMBER;
+BEGIN
+    v_id := json_store.create_json('{"hello":"world"}');
+END;
+```
+
+Now, providing that the last example has returned `v_id = 12345`, it is possible to get the whole value or to refer to a property using the syntax shown below:
+
+```sql
+SELECT json_store.get_string('#12345.hello')
+FROM dual;
+
+SELECT json_store.get_json('#12345')
+FROM dual;
+```
+
+The aforementioned technique allows to create virtually any number of additional "roots", provided that you store element IDs for further use.
 
 API reference
 ------------

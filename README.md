@@ -15,8 +15,8 @@ Table of contents
 <!--ts-->
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
-* [Jodus basics](#basics)
-* [API reference](#reference)
+* [Jodus basics](#jodus-basics)
+* [API reference](#api-reference)
 <!--te-->
 
 Prerequisites

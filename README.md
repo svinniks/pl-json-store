@@ -18,6 +18,7 @@ Table of contents
 * [Jodus basics](#jodus-basics)
     * [Creating named properties](#creating-named-properties)
     * [Creating anonymous values](#creating-anonymous-values)
+    * [Relational view of JSON data](#relational-view-of-json-data)
 * [API reference](#api-reference)
 <!--te-->
 
@@ -151,7 +152,7 @@ BEGIN
 END;
 ```
 
-Now, providing that the last example has returned `v_id = 12345`, it is possible to get the whole value or to refer to a property using the syntax shown below:
+Now, provided that the last example has returned `v_id = 12345`, it is possible to get the whole value or to refer to a property using the syntax shown below:
 
 ```sql
 SELECT json_store.get_string('#12345.hello')
@@ -163,5 +164,61 @@ FROM dual;
 
 The aforementioned technique allows to create virtually any number of additional "roots", provided that you store element IDs for further use.
 
+Relational view of JSON data
+----------------------------
+
+Similar to Oracle's [JSON_TABLE](https://docs.oracle.com/database/121/SQLRF/functions092.htm#SQLRF56973) Jodus is able to present data in a relational way, by mapping JSON properties to rows and columns. Imagine there is an array of objects representing superheroes:
+
+```sql
+BEGIN
+    json_store.set_json('$.superheroes'. '[
+        {
+            "name": "Bruce",
+            "surname": "Wayne",
+            "address": {
+                "city": "Gotham"
+            }
+        },
+        {
+            "name": "Clark",
+            "surname": "Kent",
+            "address": {
+                "city": "Metropolis"
+            }
+        },
+        {
+            "name": "Anthony",
+            "surname": "Stark",
+            "address": {
+                "city": "Malibu"
+            }
+        }
+    ]');
+END;
+```
+
+The array consists of objects with properties `name`, `surname` and `address` of which `address` is a nested object with it's own properties. Let's query the data of the superhero array and render is as a SQL statement result set:
+
+```sql
+SELECT *
+FROM TABLE(json_store.get_value_table('
+         $.superheroes[*] (
+             .name,
+             .surname,
+             .address.city
+         )
+     '));
+```
+
+The result of the query above is:
+
+|name   |surname|city      |
+|-------|-------|----------|
+|Bruce  |Wayne  |Gotham    |
+|Clark  |Kent   |Metropolis|
+|Anthony|Stark  |Malibu    |
+
+While the functionality of `GET_JSON_TABLE` is quite limited at this moment, it is quite a powerfull tool which may serve as a bridge from JSON to PL/SQL.
+
 API reference
-------------
+=============

@@ -13,8 +13,20 @@ Table of contents
 -----------------
 
 <!--ts-->
-    * [Installation](#installation)
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
+* [Jodus basics](#basics)
+* [API reference](#reference)
 <!--te-->
 
+Prerequisites
+------------
+
 Installation
+------------
+
+Jodus basics
+------------
+
+API reference
 ------------

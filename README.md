@@ -115,7 +115,7 @@ should return
 
 In a similar way one can create a complex (non-scalar, which is an object or an array) named property:
 
-```sql
+```plsql
 BEGIN
     json_store.set_json('$.author', '{
         "name": "Frank", 

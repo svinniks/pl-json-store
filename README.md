@@ -10,22 +10,24 @@ Jodus, however, proposes a different aproach and maybe also different use cases 
 The next view chapters describe the essentials and basic features of the Jodus JSON store as well as provides detailed installation and usage manual with code examples.
 
 Table of contents
------------------
+=================
 
 <!--ts-->
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Jodus basics](#jodus-basics)
+    * [Creating named properties](#creating-named-properties)
+    * [Creating anonymous values](#creating-anonymous-values)
 * [API reference](#api-reference)
 <!--te-->
 
 Prerequisites
-------------
+=============
 
 Jodus is dependant on [oraspect](https://github.com/svinniks/oraspect), which is a generic logging and error handling tool for PL/SQL. Please make sure you have installed it first.
 
 Installation
-------------
+============
 
 1. It is advisable (but not restricted) to create a separate user for the installation to avoid possible object naming conflicts. The user, however, must have privileges to create **TABLES, INDEXES, PACKAGES (and FUNCTIONS), TYPES and SEQUENCES**.
 
@@ -45,7 +47,10 @@ GRANT EXECUTE ON json_store TO your_desired_user
 4. You may also want to create a public synonym for the package to make calling statements a little bit shorter.
 
 Jodus basics
-------------
+============
+
+Creating named properties
+-------------------------
 
 The whole JSON store is basically **one huge JSON document** called `root` or `$`. All other values are usually stored somewhere under the root. The example below shows how to create a property of the root named `hello`, which is a string `world`:
 
@@ -94,6 +99,37 @@ should return
 |X|
 |-|
 |Sergejs|
+
+There is also an option to serialize any portion of the store into a JSON:
+
+```sql
+SELECT json_store.get_json('$.author')
+FROM dual
+```
+
+should return
+
+|X|
+|-|
+|{"name":"Sergejs"}|
+
+In a similar way one can create a complex (non-scalar, which is an object or an array) named property:
+
+```sql
+BEGIN
+    json_store.set_json('$.author', '{
+        "name": "Frank", 
+        "surname": "Sinatra"
+    }');
+END;
+```
+
+Now `json_store.get_string('$.auhtor.name')` should return `Frank`.
+
+:exclamation: Please note, that `set_xxx` methods overwrite the old property value regardless it's type. For example you can easilty loose a big object by overwriting it with a scalar value, so be carefull! To slightly lower the chances of loosing data by overwriting, it is possible to **lock** selected values against direct modification. Please refer to the [corresponding chapter](#aaa) for more information.
+
+Creating anonymous values
+-------------------------
 
 API reference
 ------------

@@ -1443,6 +1443,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             DBMS_SQL.PARSE(v_cursor_id, p_query_statement.statement_clob, DBMS_SQL.NATIVE);
         ELSE
             DBMS_SQL.PARSE(v_cursor_id, p_query_statement.statement, DBMS_SQL.NATIVE);
+            dbms_output.put_line(p_query_statement.statement);
         END IF;
                
         IF p_bind IS NOT NULL THEN 
@@ -3385,7 +3386,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
             FOR v_i IN v_value.lvl..v_last_lvl LOOP
                   
-                IF v_json_stack(v_json_stack.COUNT) = 'O' THEN
+                IF v_json_stack(v_json_stack.COUNT) IN ('O', 'R') THEN
                     add_event('END_OBJECT');                        
                 ELSIF v_json_stack(v_json_stack.COUNT) = 'A' THEN
                     add_event('END_ARRAY');
@@ -3397,7 +3398,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             
             IF v_value.name IS NOT NULL 
                AND v_json_stack.COUNT > 0
-               AND v_json_stack(v_json_stack.COUNT) = 'O' THEN
+               AND v_json_stack(v_json_stack.COUNT) IN ('O', 'R') THEN
 
                 add_event('NAME', v_value.name);
                    
@@ -3415,6 +3416,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
                     add_event('NULL');
                 WHEN 'O' THEN
                     add_event('START_OBJECT');
+                WHEN 'R' THEN
+                    add_event('START_OBJECT');
                 WHEN 'A' THEN
                     add_event('START_ARRAY');
                 
@@ -3429,7 +3432,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         FOR v_i IN REVERSE 1..v_json_stack.COUNT LOOP
           
-             IF v_json_stack(v_i) = 'O' THEN
+             IF v_json_stack(v_i) IN ('O', 'R') THEN
                  add_event('END_OBJECT');    
              ELSIF v_json_stack(v_i) = 'A' THEN
                  add_event('END_ARRAY');

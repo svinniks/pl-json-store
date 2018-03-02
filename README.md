@@ -47,7 +47,53 @@ GRANT EXECUTE ON json_store TO your_desired_user
 Jodus basics
 ------------
 
-The whole JSON store is basically **one huge JSON document** called `root` or `$`. All other values are usually stored somewhere under the root.
+The whole JSON store is basically **one huge JSON document** called `root` or `$`. All other values are usually stored somewhere under the root. The example below shows how to create a property of the root named `hello`, which is a string `world`:
+
+```sql
+BEGIN
+    json_store.set_string('$.hello', 'world');
+END;
+```
+
+and here is how to create an empty object as a named property of the root:
+
+```sql
+BEGIN
+    json_store.set_object('$.author');
+END;
+```
+
+Now let's create a named property `name` under `$.author`:
+
+```sql
+BEGIN
+    json_store.set_string('$.author.name'. 'Sergejs');
+END;
+```
+
+Providing we had a fresh Jodus install in the beginning, our whole stored JSON data should look like this:
+
+```json
+{
+    "hello": "world",
+    "author": {
+        "name": "Sergejs"
+    }
+}
+```
+
+Now it's possible to retrieve a string property value by path:
+
+```sql
+SELECT json_store.get_string('$.author.name')
+FROM dual
+```
+
+should return
+
+|X|
+|-|
+|Sergejs|
 
 API reference
 ------------

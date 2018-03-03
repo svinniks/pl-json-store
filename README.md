@@ -12,15 +12,14 @@ The next view chapters describe the essentials and basic features of the Jodus J
 Table of contents
 =================
 
-<!--ts-->
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
-* [Jodus basics](#jodus-basics)
+* [Getting started](#getting-started)
     * [Creating named properties](#creating-named-properties)
     * [Creating anonymous values](#creating-anonymous-values)
     * [Relational view of JSON data](#relational-view-of-json-data)
+    * [The JSON parser](#the-json-parser)
 * [API reference](#api-reference)
-<!--te-->
 
 Prerequisites
 =============
@@ -47,7 +46,7 @@ GRANT EXECUTE ON json_store TO your_desired_user
 
 4. You may also want to create a public synonym for the package to make calling statements a little bit shorter.
 
-Jodus basics
+Getting started
 ============
 
 Creating named properties
@@ -77,7 +76,7 @@ BEGIN
 END;
 ```
 
-Providing we had a fresh Jodus install in the beginning, our whole stored JSON data should look like this:
+Provided we had a fresh Jodus install in the beginning, our whole stored JSON data should look like this:
 
 ```json
 {
@@ -97,11 +96,11 @@ FROM dual
 
 should return
 
-|X|
-|-|
+|X      |
+|-------|
 |Sergejs|
 
-There is also an option to serialize any portion of the store into a JSON:
+There is also an option to serialize any portion of the store into JSON:
 
 ```sql
 SELECT json_store.get_json('$.author')
@@ -110,8 +109,8 @@ FROM dual
 
 should return
 
-|X|
-|-|
+|X                 |
+|------------------|
 |{"name":"Sergejs"}|
 
 In a similar way one can create a complex (non-scalar, which is an object or an array) named property:
@@ -127,12 +126,12 @@ END;
 
 Now `json_store.get_string('$.auhtor.name')` should return `Frank`.
 
-:exclamation: Please note, that `set_xxx` methods overwrite the old property value regardless it's type. For example you can easilty loose a big object by overwriting it with a scalar value, so be carefull! To slightly lower the chances of loosing data by overwriting, it is possible to **lock** selected values against direct modification. Please refer to the [corresponding chapter](#aaa) for more information.
+:exclamation: Please note, that `set_xxx` methods overwrite the old property value regardless it's type. For example you can easily loose a big object by overwriting it with a scalar value, so be carefull! To slightly lower the chances of loosing data by overwriting, it is possible to **lock** selected values against direct modification. Please refer to the [corresponding chapter](#todo) for more information.
 
 Creating anonymous values
 -------------------------
 
-In addition to one common root object, it is possible to create anonymous unnamed JSON values. These values do not belong to the root or any other element and are only accessible by the automatically generated internal ID. For example, an anonymous string can be created by executing:
+In addition to one common root object, it is possible to create anonymous unnamed JSON values. These values do not belong to the root or any other element and are only accessible by the automatically generated internal IDs. For example, an anonymous string can be created by executing:
 
 ```sql
 DECLARE
@@ -142,7 +141,7 @@ BEGIN
 END;
 ```
 
-Here is another example, which creates an anonymous object with one property in one call:
+Here is another example, which creates an anonymous object with one property:
 
 ```sql
 DECLARE
@@ -162,7 +161,7 @@ SELECT json_store.get_json('#12345')
 FROM dual;
 ```
 
-The aforementioned technique allows to create virtually any number of additional "roots", provided that you store element IDs for further use.
+The aforementioned technique allows to create virtually any number of additional "roots", provided that you store element IDs for future use.
 
 Relational view of JSON data
 ----------------------------
@@ -197,7 +196,7 @@ BEGIN
 END;
 ```
 
-The array consists of objects with properties `name`, `surname` and `address` of which `address` is a nested object with it's own properties. Let's query the data of the superhero array and render is as a SQL statement result set:
+The array consists of objects with properties `name`, `surname` and `address` of which `address` is a nested object with it's own properties. Let's query the array and render it's data as a relational data set:
 
 ```sql
 SELECT *
@@ -218,7 +217,41 @@ The result of the query above is:
 |Clark  |Kent   |Metropolis|
 |Anthony|Stark  |Malibu    |
 
-While the functionality of `GET_JSON_TABLE` is quite limited at this moment, it is quite a powerfull tool which may serve as a bridge from JSON to PL/SQL.
+While the functionality of `GET_JSON_TABLE` is quite limited at this moment, it still is a powerfull tool which may serve as the bridge from JSON to PL/SQL. Please refer to the corresponding API reference [chapter](#todo) for further details on this topic.
+
+The JSON parser
+-----------
+
+Jodus uses it's own JSON parser written completely in PL/SQL. It is located in the separate package called `JSON_PARSER`. If required the parser can be used separately from the store. The parser function receives a JSON value as text (`VARCHAR2` or `CLOB`) and outputs a list of parse events:
+
+```sql
+SELECT *
+FROM TABLE(json_parser.parse('{"hello":"world"}'));
+```
+
+will output
+
+|name        |value|
+|------------|-----|
+|START_OBJECT|     |
+|NAME        |hello|
+|STRING      |world|
+|END_OBJECT  |     |
+
+It is also possible to generate a list of parse events from a stored JSON value. If we create and store the object from the previos example:
+
+```sql
+BEGIN
+    json_store.set_json('$.object', '{"hello":"world"}');
+END;
+```
+
+the the following call will return the same list of parse events:
+
+```sql
+SELECT *
+FROM TABLE(json_store.get_parse_events('$.object'));
+```
 
 API reference
 =============

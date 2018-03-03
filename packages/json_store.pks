@@ -525,11 +525,17 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_bind IN bind := NULL
     );
 
+    PROCEDURE get_parse_events (
+        p_path IN VARCHAR2,
+        p_parse_events OUT json_parser.t_parse_events,
+        p_bind IN bind := NULL
+    );
+
     FUNCTION get_parse_events (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     )
-    RETURN json_parser.t_parse_events;
+    RETURN json_parser.t_parse_events PIPELINED;
     
     FUNCTION get_5_value_table (
         p_query IN VARCHAR2,

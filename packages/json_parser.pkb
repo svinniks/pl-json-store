@@ -24,9 +24,10 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         default_message_resolver.register_message('JSON-00002', 'Unexpected end of the input!');
     END;
 
-    FUNCTION parse
-        (p_content IN t_varchars)
-    RETURN t_parse_events IS
+    PROCEDURE parse (
+        p_content IN t_varchars,
+        p_parse_events OUT NOCOPY t_parse_events
+    ) IS
         
         v_state VARCHAR2(30);
         v_value VARCHAR2(4000);
@@ -36,8 +37,6 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
         v_string VARCHAR2(32000);
         v_char CHAR;
-        
-        v_events t_parse_events;
         
         PROCEDURE push_context
             (p_value IN CHAR) IS
@@ -67,9 +66,9 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             (p_name IN VARCHAR2
             ,p_value IN VARCHAR2) IS
         BEGIN
-            v_events.EXTEND(1);
-            v_events(v_events.COUNT).name := p_name;
-            v_events(v_events.COUNT).value := p_value;
+            p_parse_events.EXTEND(1);
+            p_parse_events(p_parse_events.COUNT).name := p_name;
+            p_parse_events(p_parse_events.COUNT).value := p_value;
         END;
         
         FUNCTION space
@@ -633,7 +632,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
     
         v_state := 'lfContent';
         v_context_stack := t_chars();
-        v_events := t_parse_events();
+        p_parse_events := t_parse_events();
         
         FOR v_i IN 1..p_content.COUNT LOOP
         
@@ -690,22 +689,42 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             error$.raise('JSON-00002');
         END IF;
         
-        RETURN v_events;
     
     END;
 
-    FUNCTION parse
-        (p_content IN VARCHAR2)
-    RETURN t_parse_events IS
+    PROCEDURE parse (
+        p_content IN VARCHAR2,
+        p_parse_events OUT NOCOPY t_parse_events
+    ) IS
     BEGIN
     
-        RETURN parse(t_varchars(p_content));
+        parse(t_varchars(p_content), p_parse_events);
     
     END;
     
-    FUNCTION parse
-        (p_content IN CLOB)
-    RETURN t_parse_events IS
+    FUNCTION parse ( 
+        p_content IN VARCHAR2
+    )
+    RETURN t_parse_events PIPELINED IS
+    
+        v_events t_parse_events;
+    
+    BEGIN
+    
+        parse(p_content, v_events);
+        
+        FOR v_i IN 1..v_events.COUNT LOOP
+            PIPE ROW(v_events(v_i));
+        END LOOP;
+    
+        RETURN;
+    
+    END;
+    
+    PROCEDURE parse (
+        p_content IN CLOB,
+        p_parse_events OUT NOCOPY t_parse_events
+    ) IS
     
         v_content t_varchars;
     
@@ -738,7 +757,26 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             
         END IF;
         
-        RETURN parse(v_content);
+        parse(v_content, p_parse_events);
+    
+    END;
+    
+    FUNCTION parse ( 
+        p_content IN CLOB
+    )
+    RETURN t_parse_events PIPELINED IS
+    
+        v_events t_parse_events;
+    
+    BEGIN
+    
+        parse(p_content, v_events);
+        
+        FOR v_i IN 1..v_events.COUNT LOOP
+            PIPE ROW(v_events(v_i));
+        END LOOP;
+    
+        RETURN;
     
     END;
     

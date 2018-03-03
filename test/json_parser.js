@@ -327,7 +327,7 @@ suite("Scalar value tests", function() {
             p_content: null
         });
 
-        expect(result).to.eql([]);
+        expect(result.p_parse_events).to.eql([]);
 
     });
 
@@ -337,7 +337,7 @@ suite("Scalar value tests", function() {
             p_content: '"Hello, World!"'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "STRING", value: "Hello, World!"}
         ]);
     
@@ -349,7 +349,7 @@ suite("Scalar value tests", function() {
             p_content: '    "Hello, World!"   '
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "STRING", value: "Hello, World!"}
         ]);
     
@@ -361,7 +361,7 @@ suite("Scalar value tests", function() {
             p_content: '\n"Hello, World!"\n'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "STRING", value: "Hello, World!"}
         ]);
     
@@ -373,7 +373,7 @@ suite("Scalar value tests", function() {
             p_content: '\t"Hello, World!"\t'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "STRING", value: "Hello, World!"}
         ]);
     
@@ -385,7 +385,7 @@ suite("Scalar value tests", function() {
             p_content: '"\\"\\n\\/\\\\\\b\\f\\r\\t\\y"'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "STRING", value: '"\n/\\\b\f\r\ty'}
         ]);
     
@@ -397,7 +397,7 @@ suite("Scalar value tests", function() {
             p_content: '"\\u0041BC"'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "STRING", value: 'ABC'}
         ]);
     
@@ -409,7 +409,7 @@ suite("Scalar value tests", function() {
             p_content: "0"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "0"}
         ]);
     
@@ -421,7 +421,7 @@ suite("Scalar value tests", function() {
             p_content: "   0    "
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "0"}
         ]);
     
@@ -433,7 +433,7 @@ suite("Scalar value tests", function() {
             p_content: "1234567890"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "1234567890"}
         ]);
     
@@ -445,7 +445,7 @@ suite("Scalar value tests", function() {
             p_content: "   1234567890   "
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "1234567890"}
         ]);
     
@@ -457,7 +457,7 @@ suite("Scalar value tests", function() {
             p_content: "-1234567890"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "-1234567890"}
         ]);
     
@@ -469,7 +469,7 @@ suite("Scalar value tests", function() {
             p_content: "   -  1234567890   "
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "-1234567890"}
         ]);
     
@@ -481,7 +481,7 @@ suite("Scalar value tests", function() {
             p_content: "12345.67890"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "12345.67890"}
         ]);
     
@@ -493,7 +493,7 @@ suite("Scalar value tests", function() {
             p_content: "0.12345"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "0.12345"}
         ]);
     
@@ -505,7 +505,7 @@ suite("Scalar value tests", function() {
             p_content: "    12345.67890    "
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "12345.67890"}
         ]);
     
@@ -517,7 +517,7 @@ suite("Scalar value tests", function() {
             p_content: "-12345.67890"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "-12345.67890"}
         ]);
     
@@ -529,7 +529,7 @@ suite("Scalar value tests", function() {
             p_content: "    -    12345.67890     "
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NUMBER", value: "-12345.67890"}
         ]);
     
@@ -541,7 +541,7 @@ suite("Scalar value tests", function() {
             p_content: "true"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "BOOLEAN", value: "true"}
         ]);
     
@@ -553,7 +553,7 @@ suite("Scalar value tests", function() {
             p_content: "false"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "BOOLEAN", value: "false"}
         ]);
     
@@ -565,7 +565,7 @@ suite("Scalar value tests", function() {
             p_content: "  true  "
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "BOOLEAN", value: "true"}
         ]);
     
@@ -577,7 +577,7 @@ suite("Scalar value tests", function() {
             p_content: "null"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NULL", value: null}
         ]);
     
@@ -589,7 +589,7 @@ suite("Scalar value tests", function() {
             p_content: "   null   "
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "NULL", value: null}
         ]);
     
@@ -605,7 +605,7 @@ suite("Object tests", function() {
             p_content: "{}"
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "END_OBJECT", value: null}
         ]);
@@ -618,7 +618,7 @@ suite("Object tests", function() {
             p_content: "    {     }      "
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "END_OBJECT", value: null}
         ]);
@@ -631,7 +631,7 @@ suite("Object tests", function() {
             p_content: '{"hello":"world"}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "STRING", value: "world"},
@@ -646,7 +646,7 @@ suite("Object tests", function() {
             p_content: '{"hello\\n\\t":"world"}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello\n\t"},
             {name: "STRING", value: "world"},
@@ -661,7 +661,7 @@ suite("Object tests", function() {
             p_content: '   {   "hello"   :   "world"   }   '
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "STRING", value: "world"},
@@ -676,7 +676,7 @@ suite("Object tests", function() {
             p_content: '{"name":"Sergejs","surname":"Vinniks","age":"35"}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "name"},
             {name: "STRING", value: "Sergejs"},
@@ -695,7 +695,7 @@ suite("Object tests", function() {
             p_content: '  {  "name"  :  "Sergejs"  ,  "surname"  :  "Vinniks"  ,  "age"  :  "35"  }  '
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "name"},
             {name: "STRING", value: "Sergejs"},
@@ -714,7 +714,7 @@ suite("Object tests", function() {
             p_content: '{"hello":0}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "NUMBER", value: "0"},
@@ -729,7 +729,7 @@ suite("Object tests", function() {
             p_content: '  {  "hello"  :  0  }  '
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "NUMBER", value: "0"},
@@ -744,7 +744,7 @@ suite("Object tests", function() {
             p_content: '{"hello":1234567890}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "NUMBER", value: "1234567890"},
@@ -759,7 +759,7 @@ suite("Object tests", function() {
             p_content: '{"hello":-1234567890}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "NUMBER", value: "-1234567890"},
@@ -774,7 +774,7 @@ suite("Object tests", function() {
             p_content: '   {   "hello"   :   -1234567890    }    '
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "NUMBER", value: "-1234567890"},
@@ -789,7 +789,7 @@ suite("Object tests", function() {
             p_content: '{"a":123,"b":456,"c":-789}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "a"},
             {name: "NUMBER", value: "123"},
@@ -808,7 +808,7 @@ suite("Object tests", function() {
             p_content: '  {  "a"  :  123  ,  "b"  :  456  ,  "c"  :  -  789  }  '
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "a"},
             {name: "NUMBER", value: "123"},
@@ -827,7 +827,7 @@ suite("Object tests", function() {
             p_content: '{"hello":12345.67890}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "NUMBER", value: "12345.67890"},
@@ -842,7 +842,7 @@ suite("Object tests", function() {
             p_content: '{"hello":-12345.67890}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "NUMBER", value: "-12345.67890"},
@@ -857,7 +857,7 @@ suite("Object tests", function() {
             p_content: '{"a":12.34,"b":34.56,"c":-56.78}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "a"},
             {name: "NUMBER", value: "12.34"},
@@ -876,7 +876,7 @@ suite("Object tests", function() {
             p_content: '  {  "a"  :  12.34  ,  "b"  :  34.56  ,  "c"  :  -  56.78  }  '
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "a"},
             {name: "NUMBER", value: "12.34"},
@@ -895,7 +895,7 @@ suite("Object tests", function() {
             p_content: '{"hello":true}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "BOOLEAN", value: "true"},
@@ -910,7 +910,7 @@ suite("Object tests", function() {
             p_content: '{"hello":false}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "BOOLEAN", value: "false"},
@@ -925,7 +925,7 @@ suite("Object tests", function() {
             p_content: '   {   "hello"   :   true   }   '
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "BOOLEAN", value: "true"},
@@ -940,7 +940,7 @@ suite("Object tests", function() {
             p_content: '{"hello":null}'
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "NULL", value: null},
@@ -955,7 +955,7 @@ suite("Object tests", function() {
             p_content: '   {   "hello"   :   null   }   '
         });
 
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "hello"},
             {name: "NULL", value: null},
@@ -970,7 +970,7 @@ suite("Object tests", function() {
             p_content: '{"name":"Sergejs","surname":"Vinniks","age":35,"married":true}'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "name"},
             {name: "STRING", value: "Sergejs"},
@@ -991,7 +991,7 @@ suite("Object tests", function() {
             p_content: '   {   "name"   :   "Sergejs"   ,   "surname"   :    "Vinniks",    "age"  :  35 ,   "married"   :   true   }    '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "name"},
             {name: "STRING", value: "Sergejs"},
@@ -1016,7 +1016,7 @@ suite("Array tests", function() {
             p_content: '[]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "END_ARRAY", value: null}
         ]);
@@ -1029,7 +1029,7 @@ suite("Array tests", function() {
             p_content: ' [ ] '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "END_ARRAY", value: null}
         ]);
@@ -1042,7 +1042,7 @@ suite("Array tests", function() {
             p_content: '["hello"]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "STRING", value: "hello"},
             {name: "END_ARRAY", value: null}
@@ -1056,7 +1056,7 @@ suite("Array tests", function() {
             p_content: '  [  "hello"  ]  '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "STRING", value: "hello"},
             {name: "END_ARRAY", value: null}
@@ -1070,7 +1070,7 @@ suite("Array tests", function() {
             p_content: '["hello","world","how","are","you"]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "STRING", value: "hello"},
             {name: "STRING", value: "world"},
@@ -1088,7 +1088,7 @@ suite("Array tests", function() {
             p_content: '  [  "hello"  ,  "world"  ,  "how"  ,  "are"  ,  "you"  ]  '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "STRING", value: "hello"},
             {name: "STRING", value: "world"},
@@ -1106,7 +1106,7 @@ suite("Array tests", function() {
             p_content: '[12345.678]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NUMBER", value: "12345.678"},
             {name: "END_ARRAY", value: null}
@@ -1120,7 +1120,7 @@ suite("Array tests", function() {
             p_content: '  [  12345.678  ]  '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NUMBER", value: "12345.678"},
             {name: "END_ARRAY", value: null}
@@ -1134,7 +1134,7 @@ suite("Array tests", function() {
             p_content: '[12345.678,2,-45,0,-0.12]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NUMBER", value: "12345.678"},
             {name: "NUMBER", value: "2"},
@@ -1152,7 +1152,7 @@ suite("Array tests", function() {
             p_content: '  [  12345.678  ,  2  ,  -45  ,  0  ,  -0.12  ]   '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NUMBER", value: "12345.678"},
             {name: "NUMBER", value: "2"},
@@ -1170,7 +1170,7 @@ suite("Array tests", function() {
             p_content: '[0,0,0]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NUMBER", value: "0"},
             {name: "NUMBER", value: "0"},
@@ -1186,7 +1186,7 @@ suite("Array tests", function() {
             p_content: '  [  0  ,  0  ,  0  ]  '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NUMBER", value: "0"},
             {name: "NUMBER", value: "0"},
@@ -1202,7 +1202,7 @@ suite("Array tests", function() {
             p_content: '[true]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "BOOLEAN", value: "true"},
             {name: "END_ARRAY", value: null}
@@ -1216,7 +1216,7 @@ suite("Array tests", function() {
             p_content: '  [  true  ]  '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "BOOLEAN", value: "true"},
             {name: "END_ARRAY", value: null}
@@ -1230,7 +1230,7 @@ suite("Array tests", function() {
             p_content: '[true,true,false,false,true,false]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "BOOLEAN", value: "true"},
             {name: "BOOLEAN", value: "true"},
@@ -1249,7 +1249,7 @@ suite("Array tests", function() {
             p_content: '  [  true  ,  true  ,  false  ,  false  ,  true  ,  false  ]  '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "BOOLEAN", value: "true"},
             {name: "BOOLEAN", value: "true"},
@@ -1268,7 +1268,7 @@ suite("Array tests", function() {
             p_content: '[null]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NULL", value: null},
             {name: "END_ARRAY", value: null}
@@ -1282,7 +1282,7 @@ suite("Array tests", function() {
             p_content: '  [  null  ]  '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NULL", value: null},
             {name: "END_ARRAY", value: null}
@@ -1296,7 +1296,7 @@ suite("Array tests", function() {
             p_content: '[null,null,null]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NULL", value: null},
             {name: "NULL", value: null},
@@ -1312,7 +1312,7 @@ suite("Array tests", function() {
             p_content: '  [  null  ,  null  ,  null  ]  '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "NULL", value: null},
             {name: "NULL", value: null},
@@ -1328,7 +1328,7 @@ suite("Array tests", function() {
             p_content: '["Hello", -12.9 ,  null, "World",false   ,111   ]  '
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "STRING", value: "Hello"},
             {name: "NUMBER", value: "-12.9"},
@@ -1347,7 +1347,7 @@ suite("Array tests", function() {
             p_content: '["Hello,\\nWorld", null, null, 987654.0000012, "\\"!\\"", true]'
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "STRING", value: "Hello,\nWorld"},
             {name: "NULL", value: null},
@@ -1372,7 +1372,7 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "obj"},
             {name: "START_OBJECT", value: null},
@@ -1393,7 +1393,7 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "obj"},
             {name: "START_OBJECT", value: null},
@@ -1420,7 +1420,7 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "string"},
             {name: "STRING", value: "Hello"},
@@ -1453,7 +1453,7 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "obj1"},
             {name: "START_OBJECT", value: null},
@@ -1498,7 +1498,7 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "l1_obj1"},
             {name: "START_OBJECT", value: null},
@@ -1540,7 +1540,7 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "arr"},
             {name: "START_ARRAY", value: null},
@@ -1558,7 +1558,7 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "arr"},
             {name: "START_ARRAY", value: null},
@@ -1583,7 +1583,7 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "string"},
             {name: "STRING", value: "Hello"},
@@ -1612,7 +1612,7 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_OBJECT", value: null},
             {name: "NAME", value: "arr1"},
             {name: "START_ARRAY", value: null},
@@ -1647,7 +1647,7 @@ suite("Complex object test", function() {
             ], "    ")
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "START_ARRAY", value: null},
             {name: "NUMBER", value: 1},
@@ -1683,7 +1683,7 @@ suite("Complex object test", function() {
             ])
         });
     
-        expect(result).to.eql([
+        expect(result.p_parse_events).to.eql([
             {name: "START_ARRAY", value: null},
             {name: "START_OBJECT", value: null},
             {name: "END_OBJECT", value: null},

@@ -22,12 +22,24 @@ CREATE OR REPLACE PACKAGE json_parser IS
        
     TYPE t_parse_events IS TABLE OF t_parse_event;
     
-    FUNCTION parse
-        (p_content IN VARCHAR2)
-    RETURN t_parse_events;
+    PROCEDURE parse (
+        p_content IN VARCHAR2,
+        p_parse_events OUT NOCOPY t_parse_events
+    );
     
-    FUNCTION parse
-        (p_content IN CLOB)
-    RETURN t_parse_events;
+    FUNCTION parse ( 
+        p_content IN VARCHAR2
+    )
+    RETURN t_parse_events PIPELINED;
+    
+    PROCEDURE parse (
+        p_content IN CLOB,
+        p_parse_events OUT NOCOPY t_parse_events
+    );
+    
+    FUNCTION parse ( 
+        p_content IN CLOB
+    )
+    RETURN t_parse_events PIPELINED;
     
 END;

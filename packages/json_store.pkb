@@ -1796,17 +1796,21 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_content IN VARCHAR2
     )
     RETURN NUMBER IS
+        v_parse_events json_parser.t_parse_events;
         v_created_ids t_numbers;
     BEGIN
-        RETURN create_json(t_numbers(NULL), NULL, json_parser.parse(p_content))(1);
+        json_parser.parse(p_content, v_parse_events);
+        RETURN create_json(t_numbers(NULL), NULL, v_parse_events)(1);
     END;
     
     FUNCTION create_json_clob (
         p_content IN CLOB
     )
     RETURN NUMBER IS
+        v_parse_events json_parser.t_parse_events;
     BEGIN
-        RETURN create_json(t_numbers(NULL), NULL, json_parser.parse(p_content))(1);
+        json_parser.parse(p_content, v_parse_events);
+        RETURN create_json(t_numbers(NULL), NULL, v_parse_events)(1);
     END;
 
     FUNCTION string_events (
@@ -2104,12 +2108,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     )
     RETURN NUMBER IS
+        v_parse_events json_parser.t_parse_events;
     BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
     
         RETURN set_property(
             p_path, 
             p_bind,
-            json_parser.parse(p_content)
+            v_parse_events
         )(1);
         
     END;
@@ -2138,12 +2145,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     )
     RETURN NUMBER IS
+        v_parse_events json_parser.t_parse_events;
     BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
     
         RETURN set_property(
             p_path, 
             p_bind,
-            json_parser.parse(p_content)
+            v_parse_events
         )(1);
         
     END;
@@ -2655,12 +2665,15 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     )
     RETURN VARCHAR2 IS
     
+        v_parse_events json_parser.t_parse_events;
+    
         v_json VARCHAR2(32000);
         v_json_clob CLOB;
     
     BEGIN
       
-        serialize_value(get_parse_events(p_path, p_bind), v_json, v_json_clob);
+        get_parse_events(p_path, v_parse_events, p_bind);
+        serialize_value(v_parse_events, v_json, v_json_clob);
         
         RETURN v_json;
     
@@ -2672,6 +2685,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     )
     RETURN CLOB IS
         
+        v_parse_events json_parser.t_parse_events;
+    
         v_json VARCHAR2(32000);
         v_json_clob CLOB;
     
@@ -2679,7 +2694,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
       
         
         DBMS_LOB.CREATETEMPORARY(v_json_clob, TRUE);
-        serialize_value(get_parse_events(p_path, p_bind), v_json, v_json_clob);
+        
+        get_parse_events(p_path, v_parse_events, p_bind);
+        serialize_value(v_parse_events, v_json, v_json_clob);
         
         RETURN v_json_clob;
     
@@ -2892,8 +2909,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
     ) IS
+        v_parse_events json_parser.t_parse_events;
     BEGIN
-        apply_json(p_path, json_parser.parse(p_content), p_bind, p_check_types);
+        json_parser.parse(p_content, v_parse_events);
+        apply_json(p_path, v_parse_events, p_bind, p_check_types);
     END;
         
     PROCEDURE apply_json_clob (
@@ -2903,8 +2922,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
     ) IS
+        v_parse_events json_parser.t_parse_events;
     BEGIN
-        apply_json(p_path, json_parser.parse(p_content), p_bind, p_check_types);
+        json_parser.parse(p_content, v_parse_events);
+        apply_json(p_path, v_parse_events, p_bind, p_check_types);
     END;
     
     FUNCTION get_length (
@@ -3148,10 +3169,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     )
     RETURN NUMBER IS
+        v_parse_events json_parser.t_parse_events;
     BEGIN
-    
-        RETURN push_property(p_path, p_bind, json_parser.parse(p_content))(1);
-    
+        json_parser.parse(p_content, v_parse_events);
+        RETURN push_property(p_path, p_bind, v_parse_events)(1);
     END;
         
     PROCEDURE push_json (
@@ -3172,10 +3193,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     )
     RETURN NUMBER IS
+        v_parse_events json_parser.t_parse_events;
     BEGIN
-    
-        RETURN push_property(p_path, p_bind, json_parser.parse(p_content))(1);
-    
+        json_parser.parse(p_content, v_parse_events); 
+        RETURN push_property(p_path, p_bind, v_parse_events)(1);
     END;
         
     PROCEDURE push_json_clob (
@@ -3312,11 +3333,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    FUNCTION get_parse_events (
+    PROCEDURE get_parse_events (
         p_path IN VARCHAR2,
+        p_parse_events OUT json_parser.t_parse_events,
         p_bind IN bind := NULL
-    )
-    RETURN json_parser.t_parse_events IS
+    ) IS
     
         v_path_value t_value;
         
@@ -3326,8 +3347,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         v_json_stack t_chars;
         
         v_last_lvl PLS_INTEGER;
-        
-        v_events json_parser.t_parse_events;
     
         CURSOR c_values (p_root_id IN NUMBER) IS
             WITH parent_jsvl(id, type, name, value, lvl, ord) AS
@@ -3368,17 +3387,17 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         ) IS
         BEGIN
         
-            v_events.EXTEND(1);
+            p_parse_events.EXTEND(1);
             
-            v_events(v_events.COUNT).name := p_name;
-            v_events(v_events.COUNT).value := p_value;        
+            p_parse_events(p_parse_events.COUNT).name := p_name;
+            p_parse_events(p_parse_events.COUNT).value := p_value;        
         END;
                 
     BEGIN
         
         v_path_value := request_value(p_path, p_bind);
     
-        v_events := json_parser.t_parse_events();
+        p_parse_events := json_parser.t_parse_events();
         v_json_stack := t_chars();
         v_last_lvl := 0;
     
@@ -3440,8 +3459,24 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
         END LOOP;
     
-        RETURN v_events;
+    END;
     
+    FUNCTION get_parse_events (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN json_parser.t_parse_events PIPELINED IS
+        v_parse_events json_parser.t_parse_events;
+    BEGIN
+    
+        get_parse_events(p_path, v_parse_events, p_bind);
+        
+        FOR v_i IN 1..v_parse_events.COUNT LOOP
+            PIPE ROW(v_parse_events(v_i));
+        END LOOP;
+        
+        RETURN;
+        
     END;
     
     FUNCTION get_5_value_table (

@@ -261,3 +261,14 @@ API reference
 
 Overview
 --------
+
+The Jodus public API consists of one package and one collection type:
+
+- `PACKAGE json_store`
+- `TYPE bind IS TABLE OF VARCHAR2(4000);`
+
+Another package which is safe to use is:
+
+- `PACKAGE json_parser`
+
+:exclamation: All other objects are considered internal API so use them at you own risk! It is recommended to not grant any privileges on these objects to other users.

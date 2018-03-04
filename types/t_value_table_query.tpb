@@ -39,10 +39,10 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
     
     BEGIN
         
-        p_context.cursor_id := json_store.prepare_query(
+        p_context.cursor_id := json_core.prepare_query(
             p_query,
             p_bind,
-            json_store.c_VALUE_TABLE_QUERY
+            json_core.c_VALUE_TABLE_QUERY
         );
         
         DBMS_SQL.DESCRIBE_COLUMNS(p_context.cursor_id, p_context.column_count, v_columns); 
@@ -51,7 +51,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
         p_context.piped_row_count := 0;
         
         p_context.row_buffer := t_varchars();
-        p_context.row_buffer.EXTEND(p_context.column_count * json_store.c_query_row_buffer_size);
+        p_context.row_buffer.EXTEND(p_context.column_count * json_core.c_query_row_buffer_size);
         
         RETURN odciconst.success;
     
@@ -64,16 +64,16 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
     ) 
     RETURN PLS_INTEGER IS
         
-        v_query_elements json_store.t_query_elements;
-        v_query_statement json_store.t_query_statement;
+        v_query_elements json_core.t_query_elements;
+        v_query_statement json_core.t_query_statement;
         v_query_column_names t_varchars;
         
         v_row_type ANYTYPE;
         
     BEGIN
         
-        v_query_elements := json_store.parse_query(p_query, json_store.c_VALUE_TABLE_QUERY);
-        v_query_column_names := json_store.get_query_column_names(v_query_elements);
+        v_query_elements := json_core.parse_query(p_query, json_core.c_VALUE_TABLE_QUERY);
+        v_query_column_names := json_core.get_query_column_names(v_query_elements);
         
         ANYTYPE.begincreate(DBMS_TYPES.TYPECODE_OBJECT, v_row_type);
         
@@ -139,12 +139,12 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
     
         IF fetched_row_count IS NULL OR fetched_row_count = piped_row_count THEN
             
-            IF fetched_row_count IS NOT NULL AND piped_row_count < json_store.c_query_row_buffer_size THEN
+            IF fetched_row_count IS NOT NULL AND piped_row_count < json_core.c_query_row_buffer_size THEN
                 RETURN FALSE;
             END IF;
             
             FOR v_i IN 1..column_count LOOP
-                DBMS_SQL.DEFINE_ARRAY(cursor_id, v_i, v_column_values, json_store.c_query_row_buffer_size, 1);
+                DBMS_SQL.DEFINE_ARRAY(cursor_id, v_i, v_column_values, json_core.c_query_row_buffer_size, 1);
             END LOOP;
             
             piped_row_count := 0;
@@ -159,7 +159,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
                 DBMS_SQL.COLUMN_VALUE(cursor_id, v_i, v_column_values);
                     
                 FOR v_j IN 1..fetched_row_count LOOP
-                    row_buffer((v_i - 1) * json_store.c_query_row_buffer_size + v_j) := v_column_values(v_j);
+                    row_buffer((v_i - 1) * json_core.c_query_row_buffer_size + v_j) := v_column_values(v_j);
                 END LOOP;
                     
             END LOOP;   
@@ -169,7 +169,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
         piped_row_count := piped_row_count + 1;
         
         FOR v_i IN 1..LEAST(column_count, p_row.COUNT) LOOP
-            p_row(v_i) := row_buffer((v_i - 1) * json_store.c_query_row_buffer_size + piped_row_count);
+            p_row(v_i) := row_buffer((v_i - 1) * json_core.c_query_row_buffer_size + piped_row_count);
         END LOOP;
         
         RETURN TRUE;

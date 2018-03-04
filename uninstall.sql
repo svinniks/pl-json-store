@@ -19,6 +19,8 @@ DROP TYPE t_value_table_query
 
 DROP PACKAGE json_store
 /
+DROP PACKAGE json_core
+/
 DROP PACKAGE json_parser
 /
 

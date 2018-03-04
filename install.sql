@@ -48,6 +48,12 @@ COMMIT
 @@packages/json_parser.pkb
 /
 
+@@packages/json_core.pks
+/
+@@packages/json_core.pkb
+/
+
+
 @@types/t_value_table_query.tps
 /
 

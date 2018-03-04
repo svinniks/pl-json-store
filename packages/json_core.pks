@@ -106,6 +106,13 @@ CREATE OR REPLACE PACKAGE json_core IS
     )
     RETURN INTEGER;
     
+    FUNCTION prepare_query (
+        p_query IN VARCHAR2,
+        p_bind IN bind,
+        p_query_type IN PLS_INTEGER
+    )
+    RETURN INTEGER;
+    
     FUNCTION get_length (
         p_array_id IN NUMBER
     )

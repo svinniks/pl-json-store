@@ -15,11 +15,12 @@ Table of contents
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Getting started](#getting-started)
-    * [Creating named properties](#creating-named-properties)
-    * [Creating anonymous values](#creating-anonymous-values)
+    * [Named JSON properties](#named-json-properties)
+    * [Anonymous JSON values](#anonymous-json_values)
     * [Relational view of JSON data](#relational-view-of-json-data)
     * [The JSON parser](#the-json-parser)
 * [API reference](#api-reference)
+    * [Overview](#overview)
 
 Prerequisites
 =============
@@ -37,19 +38,21 @@ Installation
 @install.sql
 ```
 
-3. All API methods are located in the `JSON_STORE`, so it is enough to grant access just to this package:
+3. All API methods are located in the `JSON_STORE` package, do the minimum access requirement is `EXECUTE` privilege on this program unit. To enable using [bind](#todo) variables `EXECUTE` privilege must be also granted on the `BIND` collection type.
 
 ```sql
 GRANT EXECUTE ON json_store TO your_desired_user
 /
+GRANT EXECUTE ON bind TO your_desired_user
+/
 ```
 
-4. You may also want to create a public synonym for the package to make calling statements a little bit shorter.
+4. You may also want to create a public synonym for the package and the type to make calling statements a little bit shorter.
 
 Getting started
 ============
 
-Creating named properties
+Named JSON properties
 -------------------------
 
 The whole JSON store is basically **one huge JSON document** called `root` or `$`. All other values are usually stored somewhere under the root. The example below shows how to create a property of the root named `hello`, which is a string `world`:
@@ -128,7 +131,7 @@ Now `json_store.get_string('$.auhtor.name')` should return `Frank`.
 
 :exclamation: Please note, that `set_xxx` methods overwrite the old property value regardless it's type. For example you can easily loose a big object by overwriting it with a scalar value, so be carefull! To slightly lower the chances of loosing data by overwriting, it is possible to **lock** selected values against direct modification. Please refer to the [corresponding chapter](#todo) for more information.
 
-Creating anonymous values
+Anonymous JSON values
 -------------------------
 
 In addition to one common root object, it is possible to create anonymous unnamed JSON values. These values do not belong to the root or any other element and are only accessible by the automatically generated internal IDs. For example, an anonymous string can be created by executing:
@@ -246,7 +249,7 @@ BEGIN
 END;
 ```
 
-the the following call will return the same list of parse events:
+the the following call will return identical list of parse events:
 
 ```sql
 SELECT *
@@ -255,3 +258,6 @@ FROM TABLE(json_store.get_parse_events('$.object'));
 
 API reference
 =============
+
+Overview
+--------

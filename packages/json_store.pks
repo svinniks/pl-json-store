@@ -14,66 +14,8 @@ CREATE OR REPLACE PACKAGE json_store IS
         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
         See the License for the specific language governing permissions and
         limitations under the License.
-    */
+    */    
 
-    /**
-        Methods for maintaining the store of JSON values.
-        
-        The whole store is one big JSON object named $ (or "root").
-       
-        
-    */
-    
-    TYPE t_query_element IS 
-        RECORD (
-            type CHAR,
-            value VARCHAR2(4000),
-            optional BOOLEAN,
-            alias VARCHAR2(4000),
-            first_child_i PLS_INTEGER,
-            next_sibling_i PLS_INTEGER
-        );
-        
-    TYPE t_query_elements IS 
-        TABLE OF t_query_element;
-    
-    c_query_row_buffer_size CONSTANT PLS_INTEGER := 100;
-    
-    TYPE t_property IS 
-        RECORD (
-            parent_id NUMBER,
-            parent_type CHAR,
-            property_id NUMBER,
-            property_type CHAR,
-            property_name VARCHAR2(4000),
-            property_locked CHAR
-        );
-       
-    TYPE t_properties IS TABLE OF t_property;
-    
-    TYPE t_value IS 
-        RECORD (
-            id NUMBER,
-            type CHAR,
-            value VARCHAR2(4000)
-        );
-        
-    TYPE t_values IS TABLE OF t_value;
-    
-    c_VALUE_QUERY CONSTANT PLS_INTEGER := 1;
-    c_PROPERTY_QUERY CONSTANT PLS_INTEGER := 2;
-    c_VALUE_TABLE_QUERY CONSTANT PLS_INTEGER := 3;
-    c_X_VALUE_TABLE_QUERY CONSTANT PLS_INTEGER := 4;
-    
-    TYPE t_query_statement IS
-        RECORD (
-            statement VARCHAR2(32000),
-            statement_clob CLOB
-        );
-    
-    TYPE t_t_varchars IS 
-        TABLE OF t_varchars;
-    
     TYPE t_5_value_row IS 
         RECORD (
             value_1 VARCHAR2(4000),
@@ -152,58 +94,6 @@ CREATE OR REPLACE PACKAGE json_store IS
     TYPE t_20_value_table IS 
         TABLE OF t_20_value_row;
 
-    FUNCTION parse_query (
-        p_query IN VARCHAR2,
-        p_query_type IN PLS_INTEGER := c_VALUE_TABLE_QUERY
-    ) 
-    RETURN t_query_elements;
-    
-    FUNCTION get_query_signature (
-        p_query_elements IN t_query_elements
-    )
-    RETURN VARCHAR2;
-    
-    FUNCTION get_query_column_names (
-        p_query_elements IN t_query_elements
-    )
-    RETURN t_varchars;
-    
-    FUNCTION get_query_variable_count (
-        p_query_elements IN t_query_elements
-    )
-    RETURN PLS_INTEGER;
-    
-    FUNCTION get_query_values (
-        p_query_elements IN t_query_elements
-    )
-    RETURN t_varchars;
-    
-    FUNCTION get_query_statement (
-        p_query_elements IN t_query_elements,
-        p_query_type IN PLS_INTEGER,
-        p_column_count IN PLS_INTEGER := NULL
-    )
-    RETURN t_query_statement;  
-    
-    FUNCTION prepare_query (
-        p_query IN VARCHAR2,
-        p_bind IN bind,
-        p_query_type IN PLS_INTEGER
-    )
-    RETURN INTEGER;
-    
-    PROCEDURE request_properties (
-        p_path IN VARCHAR2,
-        p_bind IN bind,
-        p_properties OUT SYS_REFCURSOR
-    );
-        
-    FUNCTION request_properties (
-        p_path IN VARCHAR2,
-        p_bind IN bind
-    ) 
-    RETURN t_properties PIPELINED;
-    
     FUNCTION create_json (
         -- @json
         p_content IN VARCHAR2
@@ -342,18 +232,6 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_bind IN bind := NULL
     );
 
-    PROCEDURE request_values (
-        p_path IN VARCHAR2,
-        p_bind IN bind,
-        p_values OUT SYS_REFCURSOR
-    );
-        
-    FUNCTION request_values (
-        p_path IN VARCHAR2,
-        p_bind IN bind
-    ) 
-    RETURN t_values PIPELINED;
-    
     FUNCTION get_string (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -525,18 +403,6 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_bind IN bind := NULL
     );
 
-    PROCEDURE get_parse_events (
-        p_path IN VARCHAR2,
-        p_parse_events OUT json_parser.t_parse_events,
-        p_bind IN bind := NULL
-    );
-
-    FUNCTION get_parse_events (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    )
-    RETURN json_parser.t_parse_events PIPELINED;
-    
     FUNCTION get_5_value_table (
         p_query IN VARCHAR2,
         p_bind IN bind := NULL

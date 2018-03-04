@@ -1837,8 +1837,7 @@ suite("JSON store management tests", function() {
                 expect(length).to.be(0);
 
             });
-            
-
+           
             test("Retrieve array length", function() {
 
                 var length = database.call("json_store.get_length", {
@@ -3042,218 +3041,6 @@ suite("JSON store management tests", function() {
     
     });
 
-    suite("Retrieving JSON parse events from stored values", function() {
-    
-        test("String value", function() {
-        
-            var id = database.call("json_store.create_string", {
-                p_value: "Hello, World!"
-            });
-
-            var result = database.call("json_store.get_parse_events", {
-                p_path: `#${id}`
-            });
-
-            expect(result.p_parse_events).to.eql([
-                {
-                    name: "STRING",
-                    value: "Hello, World!"
-                }
-            ]);
-        
-        });
-
-        test("Number value", function() {
-        
-            var id = database.call("json_store.create_number", {
-                p_value: 123
-            });
-
-            var result = database.call("json_store.get_parse_events", {
-                p_path: `#${id}`
-            });
-
-            expect(result.p_parse_events).to.eql([
-                {
-                    name: "NUMBER",
-                    value: "123"
-                }
-            ]);
-        
-        });
-
-        test("Boolean value", function() {
-        
-            var id = database.call("json_store.create_boolean", {
-                p_value: true
-            });
-
-            var result = database.call("json_store.get_parse_events", {
-                p_path: `#${id}`
-            });
-
-            expect(result.p_parse_events).to.eql([
-                {
-                    name: "BOOLEAN",
-                    value: "true"
-                }
-            ]);
-        
-        });
-
-        test("Null value", function() {
-        
-            var id = database.call("json_store.create_null");
-
-            var result = database.call("json_store.get_parse_events", {
-                p_path: `#${id}`
-            });
-
-            expect(result.p_parse_events).to.eql([
-                {
-                    name: "NULL",
-                    value: null
-                }
-            ]);
-        
-        });
-        
-        test("Empty object value", function() {
-        
-            var id = database.call("json_store.create_object");
-
-            var result = database.call("json_store.get_parse_events", {
-                p_path: `#${id}`
-            });
-
-            expect(result.p_parse_events).to.eql([
-                {
-                    name: "START_OBJECT",
-                    value: null
-                },
-                {
-                    name: "END_OBJECT",
-                    value: null
-                }
-            ]);
-        
-        });
-
-        test("Empty array value", function() {
-        
-            var id = database.call("json_store.create_array");
-
-            var result = database.call("json_store.get_parse_events", {
-                p_path: `#${id}`
-            });
-
-            expect(result.p_parse_events).to.eql([
-                {
-                    name: "START_ARRAY",
-                    value: null
-                },
-                {
-                    name: "END_ARRAY",
-                    value: null
-                }
-            ]);
-        
-        });
-
-        test("Simple object value", function() {
-        
-            var id = database.call("json_store.create_json", {
-                p_content: {
-                    name: "Sergejs",
-                    surname: "Vinniks",
-                    phone: 1234567
-                }
-            });
-    
-            var result = database.call("json_store.get_parse_events", {
-                p_path: `#${id}`
-            });
-    
-            expect(result.p_parse_events).to.eql([
-                {
-                    name: "START_OBJECT",
-                    value: null
-                },
-                {
-                    name: "NAME",
-                    value: "name"
-                },
-                {
-                    name: "STRING",
-                    value: "Sergejs"
-                },
-                {
-                    name: "NAME",
-                    value: "surname"
-                },
-                {
-                    name: "STRING",
-                    value: "Vinniks"
-                },
-                {
-                    name: "NAME",
-                    value: "phone"
-                },
-                {
-                    name: "NUMBER",
-                    value: "1234567"
-                },
-                {
-                    name: "END_OBJECT",
-                    value: null
-                }
-            ]);
-        
-        });
-
-        test("Simple array value", function() {
-        
-            var id = database.call("json_store.create_json", {
-                p_content: [
-                    123, "Hello", true, null
-                ]
-            });
-    
-            var result = database.call("json_store.get_parse_events", {
-                p_path: `#${id}`
-            });
-    
-            expect(result.p_parse_events).to.eql([
-                {
-                    name: "START_ARRAY",
-                    value: null
-                },
-                {
-                    name: "NUMBER",
-                    value: "123"
-                },
-                {
-                    name: "STRING",
-                    value: "Hello"
-                },
-                {
-                    name: "BOOLEAN",
-                    value: "true"
-                },
-                {
-                    name: "NULL",
-                    value: null
-                },
-                {
-                    name: "END_ARRAY",
-                    value: null
-                }
-            ]);
-        
-        });
-
-    });
-
     suite("JSON node locking tests", function() {
     
         test("Try to unlock the root", function() {
@@ -3585,6 +3372,79 @@ suite("JSON store management tests", function() {
         
         });
     
+    });
+
+});
+
+suite("Huge JSON document handling", function() {
+
+    var document;
+    var documentJSON;
+    var documentId;
+
+    setup("Create a huge array", function() {
+        
+        document = [];
+
+        for (var i = 0; i < 100000; i++)
+            document[i] = i;
+
+        documentJSON = JSON.stringify(document);
+
+    });
+
+    test("Save anonymous huge document via the VARCHAR method", function() {
+
+        expect(function() {
+        
+            database.call("json_store.create_json", {
+                p_content: document
+            });
+        
+        }).to.throw(/./);
+
+    });
+
+    test("Parse huge document via the CLOB method", function() {
+
+        documentId = database.call2("json_parser.parse", {
+            p_content: documentJSON
+        });
+        
+    });
+
+    test("Save anonymous huge document via the CLOB method", function() {
+
+        documentId = database.call("json_store.create_json_clob", {
+            p_content: document
+        });
+        
+    });
+
+    test("Retrieve anonymous huge document via the VARCHAR method", function() {
+
+        expect(function() {
+        
+            database.call("json_store.get_json", {
+                p_path: `#${documentId}`
+            });
+        
+        }).to.throw(/./);
+        
+    });
+
+    test("Retrieve anonymous huge document via the CLOB method", function() {
+    
+        var savedDocument = database.call("json_store.get_json_clob", {
+            p_path: `#${documentId}`
+        });
+
+        expect(savedDocument).to.eql(document);
+    
+    });
+    
+    teardown("Rollback", function() {
+        database.rollback();
     });
 
 });

@@ -294,10 +294,164 @@ Subprogram|Description
 All of the anonymous value creation subprograms are functions, which create a value of the requested type and return a newly generated internal ID of the stored value. Below is the detailed description of the listed subprograms.
 
 CREATE_STRING
----------------
+-------------
+
+```
+FUNCTION create_string (
+    p_value IN VARCHAR2
+)
+RETURN NUMBER;
+```
+
+Creates an anonymous string in the JSON store. All characters of `p_value` will be stored as-is, there is no need for quting the whole value or for escaping special characters. In case of `NULL` argument value, a new JSON null value will be created.
+
+Returns an automatically genrated internal ID of the created value.
+
+Example:
+
+```
+DECLARE
+    v_id NUMBER;
+BEGIN
+    v_id := json_store.create_string('Hello, World!');
+END;
+```
 
 CREATE_NUMBER
----------------
+--------------
+
+```
+FUNCTION create_number (
+    p_value IN NUMBER
+)
+RETURN NUMBER;
+```
+
+Creates an anonymous number in the JSON store. In case of `NULL` argument value, a new JSON `null` value will be created.
+
+Returns an automatically genrated internal ID of the created value.
+
+Example:
+
+```
+DECLARE
+    v_id NUMBER;
+BEGIN
+    v_id := json_store.create_number(-123.45);
+END;
+```
+
+CREATE_BOOLEAN
+--------------
+
+```
+FUNCTION create_number (
+    p_value IN BOOLEAN
+)
+RETURN NUMBER;
+```
+
+Creates an anonymous boolean in the JSON store. In case of `NULL` argument value, a new JSON `null` value will be created.
+
+Returns an automatically genrated internal ID of the created value.
+
+Example:
+
+```
+DECLARE
+    v_id NUMBER;
+BEGIN
+    v_id := json_store.create_boolean(TRUE);
+END;
+```
+
+CREATE_OBJECT
+--------------
+
+```
+FUNCTION create_object
+RETURN NUMBER;
+```
+
+Creates an anonymous empty object.
+
+Returns an automatically genrated internal ID of the created value. Despite the fact that the object is initially empty, it can be further complemented using one of the `SET_*` subprograms.
+
+Example:
+
+```
+DECLARE
+    v_id NUMBER;
+BEGIN
+    v_id := json_store.create_object;
+END;
+```
+
+CREATE_ARRAY
+--------------
+
+```
+FUNCTION create_array
+RETURN NUMBER;
+```
+
+Creates an anonymous empty array.
+
+Returns an automatically genrated internal ID of the created value. Despite the fact that the array is initially empty, it can be further complemented using one of the `SET_*` subprograms.
+
+Example:
+
+```
+DECLARE
+    v_id NUMBER;
+BEGIN
+    v_id := json_store.create_array;
+END;
+```
+
+CREATE_JSON
+--------------
+
+```
+FUNCTION create_json (
+    p_content IN VARCHAR2
+)
+RETURN NUMBER;
+```
+
+Creates an anonymous JSON value, which is represented by the supplied JSON string.
+Any valid JSON may be passed through `p_content`, including arrays and objects with complex nested structure. Thus, to create a string using `CREATE_JSON`, the value must be surrounded with double-quotes and all special characters must be correctly escaped.
+
+If JSON size exceeds 32K, [`CREATE_JSON_CLOB`](#create_json_clob) must be used.
+
+Returns an automatically genrated internal ID of the created value.
+
+Example:
+
+```
+DECLARE
+    v_string_id NUMBER;
+    v_object_id NUMBER;
+BEGIN
+
+    v_string_id := json_store.create_json('"Hello, World!"');
+
+    v_object_id := json_store.create_json('{"hello":"world"}');
+
+END;
+```
+
+CREATE_JSON_CLOB
+--------------
+
+```
+FUNCTION create_json_clob (
+    p_content IN CLOB
+)
+RETURN NUMBER;
+```
+
+A CLOB version of [`CREATE_JSON`](#create_json).
 
 Almost all `JSON_STORE` subprograms take a [JSON-PATH](http://goessner.net/articles/JsonPath/)-like query string as the first argument. This query defines the location of the JSON values being addresses within the store. Currently the syntax of the Jodus JSON query conforms neither the complete JSON-PATH specification nor it's subset - more likely it resembles the way object properties are being referenced in JavaScript + some Jodus-unique features described below.
 

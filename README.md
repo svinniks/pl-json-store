@@ -272,3 +272,85 @@ Another package which is safe to use is:
 - `PACKAGE json_parser`
 
 :exclamation: All other objects are considered internal API so use them at you own risk! It is recommended to not grant any privileges on these objects to other users.
+
+JSON query syntax
+-----------------
+
+Almost all `JSON_STORE` subprograms take a [JSON-PATH](http://goessner.net/articles/JsonPath/)-like query string as the first argument. This query defines the location of the JSON values being addresses within the store. Currently the syntax of the Jodus JSON query conforms neither the complete JSON-PATH specification nor it's subset - more likaly it resembles the way object properties are being referenced in JavaScript + some Jodus-unique features described below.
+
+To refer a property somewhere deep in the object hierarchy, standard JavaScript dot notation can be used:
+
+```
+$.documents.invoice.issuer
+```
+
+If property is not a "normal" JavaScript identifier (that is doen's no start with a letter, _ or $ and/or contains any character other than a letter, a digit, _ or $), it is possible to use a bracket notation with double-quotes:
+
+```
+$.documents.["client invoice"].issuer
+```
+
+Array elements can be referenced using standard bracket notation (with positive integer index inside the brackets):
+
+```
+$.document.invoice.lines[3].amount
+```
+
+It is not necessary to always bind the query to the root `$`. It is allowed to start the path with any valid property name or array element index:
+
+```
+persons[123].name
+```
+
+This, however, is potentially unsafe as parent of the property `persons` is not checked at all which may lead to ambiguous query results in case when there are multiple properties named "persons" sumewhere in the store. For example in the JSON structure 
+
+```json
+{
+    "members": ["Sergejs"],
+    "avengers": {
+        "members": ["Anthony"]
+    }
+}
+```
+
+query `members[0]` would fail with an ambiguity error, while `$.members[0]` and `$.avengers.members[0]` would uniquely address each of the `members` properties.
+
+Named JSON value creation
+------------------------
+
+Normally, the complete JSON store is one huge object called `root` or `$`. All other stored JSON structures are placed somewhere under the root. For example, if you were going to store some document metadata in the JSON store, you would create an object property `documents` in the root and place all you document metadata as nested objects of `$.documents`:
+
+```json
+{
+    "documents": {
+        "1": {
+            "mimetype": "text/plain",
+            "filename": "readme.txt",
+            ...
+        },
+        "2": {
+            "mimetype": "image/jpeg",
+            "filename": "photo.jpg",
+            ...
+        },
+        ...
+    }
+}
+```
+
+There is a set of `JSON_STORE` subprograms for creating and altering named properties anywhere in the store:
+
+```
+set_string
+set_number
+set_boolean
+set_null
+set_object
+set_array
+set_json
+set_json_clob
+```
+
+There is both a `PROCEDURE` and a `FUNCTION` version of each method. The procedure version just creates a new value in the store, while the function version additionally returnes the internal ID of the created value record.
+
+All of the methods accepts a path of the value being created

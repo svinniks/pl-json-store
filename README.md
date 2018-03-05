@@ -40,7 +40,7 @@ Installation
 
 3. All API methods are located in the `JSON_STORE` package, do the minimum access requirement is `EXECUTE` privilege on this program unit. To enable using [bind](#todo) variables `EXECUTE` privilege must be also granted on the `BIND` collection type.
 
-```sql
+```
 GRANT EXECUTE ON json_store TO your_desired_user
 /
 GRANT EXECUTE ON bind TO your_desired_user
@@ -57,7 +57,7 @@ Named JSON properties
 
 The whole JSON store is basically **one huge JSON document** called `root` or `$`. All other values are usually stored somewhere under the root. The example below shows how to create a property of the root named `hello`, which is a string `world`:
 
-```sql
+```
 BEGIN
     json_store.set_string('$.hello', 'world');
 END;
@@ -65,7 +65,7 @@ END;
 
 and here is how to create an empty object as a named property of the root:
 
-```sql
+```
 BEGIN
     json_store.set_object('$.author');
 END;
@@ -73,7 +73,7 @@ END;
 
 Now let's create a named property `name` under `$.author`:
 
-```sql
+```
 BEGIN
     json_store.set_string('$.author.name'. 'Sergejs');
 END;
@@ -92,7 +92,7 @@ Provided we had a fresh Jodus install in the beginning, our whole stored JSON da
 
 Now it's possible to retrieve a string property value by path:
 
-```sql
+```
 SELECT json_store.get_string('$.author.name')
 FROM dual
 ```
@@ -105,7 +105,7 @@ should return
 
 There is also an option to serialize any portion of the store into JSON:
 
-```sql
+```
 SELECT json_store.get_json('$.author')
 FROM dual
 ```
@@ -118,7 +118,7 @@ should return
 
 In a similar way one can create a complex (non-scalar, which is an object or an array) named property:
 
-```sql
+```
 BEGIN
     json_store.set_json('$.author', '{
         "name": "Frank", 
@@ -136,7 +136,7 @@ Anonymous JSON values
 
 In addition to one common root object, it is possible to create anonymous unnamed JSON values. These values do not belong to the root or any other element and are only accessible by the automatically generated internal IDs. For example, an anonymous string can be created by executing:
 
-```sql
+```
 DECLARE
     v_id NUMBER;
 BEGIN
@@ -146,7 +146,7 @@ END;
 
 Here is another example, which creates an anonymous object with one property:
 
-```sql
+```
 DECLARE
     v_id NUMBER;
 BEGIN
@@ -156,7 +156,7 @@ END;
 
 Now, provided that the last example has returned `v_id = 12345`, it is possible to get the whole value or to refer to a property using the syntax shown below:
 
-```sql
+```
 SELECT json_store.get_string('#12345.hello')
 FROM dual;
 
@@ -171,7 +171,7 @@ Relational view of JSON data
 
 Similar to Oracle's [JSON_TABLE](https://docs.oracle.com/database/121/SQLRF/functions092.htm#SQLRF56973) Jodus is able to present data in a relational way, by mapping JSON properties to rows and columns. Imagine there is an array of objects representing superheroes:
 
-```sql
+```
 BEGIN
     json_store.set_json('$.superheroes'. '[
         {
@@ -201,7 +201,7 @@ END;
 
 The array consists of objects with properties `name`, `surname` and `address` of which `address` is a nested object with it's own properties. Let's query the array and render it's data as a relational data set:
 
-```sql
+```
 SELECT *
 FROM TABLE(json_store.get_value_table('
          $.superheroes[*] (
@@ -227,7 +227,7 @@ The JSON parser
 
 Jodus uses it's own JSON parser written completely in PL/SQL. It is located in the separate package called `JSON_PARSER`. If required the parser can be used separately from the store. The parser function receives a JSON value as text (`VARCHAR2` or `CLOB`) and outputs a list of parse events:
 
-```sql
+```
 SELECT *
 FROM TABLE(json_parser.parse('{"hello":"world"}'));
 ```
@@ -243,7 +243,7 @@ will output
 
 It is also possible to generate a list of parse events from a stored JSON value. If we create and store the object from the previos example:
 
-```sql
+```
 BEGIN
     json_store.set_json('$.object', '{"hello":"world"}');
 END;
@@ -251,7 +251,7 @@ END;
 
 the the following call will return identical list of parse events:
 
-```sql
+```
 SELECT *
 FROM TABLE(json_store.get_parse_events('$.object'));
 ```

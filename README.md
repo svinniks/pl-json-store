@@ -273,10 +273,33 @@ Another package which is safe to use is:
 
 :exclamation: All other objects are considered internal API so use them at you own risk! It is recommended to not grant any privileges on these objects to other users.
 
-JSON query syntax
------------------
+Anonymous value creation
+------------------------
 
-Almost all `JSON_STORE` subprograms take a [JSON-PATH](http://goessner.net/articles/JsonPath/)-like query string as the first argument. This query defines the location of the JSON values being addresses within the store. Currently the syntax of the Jodus JSON query conforms neither the complete JSON-PATH specification nor it's subset - more likaly it resembles the way object properties are being referenced in JavaScript + some Jodus-unique features described below.
+JSON values which don't reside in the common root `$` are called **anonymous**. Each  anonymous object or array may serve as an alternative root if it is necessary to separate/hide some data from the generic JSON value tree. Anonymous JSON values do not have names associated with them and can only be accessed by internal IDs which are generated automatically by the system.
+
+Below is the summary of anonymous value management subprograms of `JSON_STORE`:
+
+Subprogram|Description
+-|-
+[`CREATE_STRING`](#create_string)|Creates an anonymous string value
+[`CREATE_NUMBER`](#create_number)|Creates an anonymous number value
+[`CREATE_BOOLEAN`](#create_boolean)|Creates an anonymous boolean value
+[`CREATE_NULL`](#create_null)|Creates an anonymous null value
+[`CREATE_OBJECT`](#create_object)|Creates an anonymous empty object value
+[`CREATE_ARRAY`](#create_array)|Creates an anonymous array value
+[`CREATE_JSON`](#create_json)|Creates an anonymous value represented by the supplied JSON string
+[`CREATE_JSON_CLOB`](#create_json_clob)|Creates an anonymous value represented by the supplied JSON string
+
+All of the anonymous value creation subprograms are functions, which create a value of the requested type and return a newly generated internal ID of the stored value. Below is the detailed description of the listed subprograms.
+
+CREATE_STRING
+---------------
+
+CREATE_NUMBER
+---------------
+
+Almost all `JSON_STORE` subprograms take a [JSON-PATH](http://goessner.net/articles/JsonPath/)-like query string as the first argument. This query defines the location of the JSON values being addresses within the store. Currently the syntax of the Jodus JSON query conforms neither the complete JSON-PATH specification nor it's subset - more likely it resembles the way object properties are being referenced in JavaScript + some Jodus-unique features described below.
 
 To refer a property somewhere deep in the object hierarchy, standard JavaScript dot notation can be used:
 
@@ -284,13 +307,13 @@ To refer a property somewhere deep in the object hierarchy, standard JavaScript 
 $.documents.invoice.issuer
 ```
 
-If property is not a "normal" JavaScript identifier (that is doen's no start with a letter, _ or $ and/or contains any character other than a letter, a digit, _ or $), it is possible to use a bracket notation with double-quotes:
+If property is not a "normal" JavaScript identifier (that is does not start with a letter, _ or $ and/or contains any character other than a letter, a digit, _ or $), it is possible to use the bracket notation with double-quotes:
 
 ```
 $.documents.["client invoice"].issuer
 ```
 
-Array elements can be referenced using standard bracket notation (with positive integer index inside the brackets):
+Array elements can be referenced using the usual bracket notation (with positive integer index inside the brackets):
 
 ```
 $.document.invoice.lines[3].amount
@@ -302,7 +325,7 @@ It is not necessary to always bind the query to the root `$`. It is allowed to s
 persons[123].name
 ```
 
-This, however, is potentially unsafe as parent of the property `persons` is not checked at all which may lead to ambiguous query results in case when there are multiple properties named "persons" sumewhere in the store. For example in the JSON structure 
+This, however, is potentially unsafe as parent of the first property in the path is not checked at all which may lead to ambiguous query results in case when there are multiple equally named properties somewhere in the store. For example in the JSON structure 
 
 ```json
 {
@@ -313,7 +336,7 @@ This, however, is potentially unsafe as parent of the property `persons` is not 
 }
 ```
 
-query `members[0]` would fail with an ambiguity error, while `$.members[0]` and `$.avengers.members[0]` would uniquely address each of the `members` properties.
+query `members[0]` would fail with the ambiguity error, while `$.members[0]` and `$.avengers.members[0]` would uniquely address each of the different `members` properties.
 
 Named JSON value creation
 ------------------------

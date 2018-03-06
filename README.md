@@ -34,7 +34,7 @@ Jodus is dependant on [oraspect](https://github.com/svinniks/oraspect), which is
 Installation
 ============
 
-1. It is advisable (but not restricted) to create a separate user for the installation to avoid possible object naming conflicts. The user, however, must have privileges to create **TABLES, INDEXES, PACKAGES (and FUNCTIONS), TYPES and SEQUENCES**.
+1. It is advisable (but not restricted) to create a separate user for the installation to avoid possible object naming conflicts. The user must have privileges to create **TABLES, INDEXES, PACKAGES (and FUNCTIONS), TYPES and SEQUENCES**.
 
 2. To install Jodus open SQL*Plus in the project's root folder, login with your desired user and run 
 
@@ -308,9 +308,9 @@ BEGIN
 END;
 ```
 
-Please note that you **must surround values with double-quotes** when using `CREATE_JSON` to store strings. It is also required that you escape all special characters accordingly to the JSON specification.
+Please note that you **must surround values with double-quotes** when using `CREATE_JSON` to store strings. It is also required that you escape all special characters according to the JSON specification.
 
-And here is an example of creating an array with complex elements by issuing just one call to `CREATE_JSON`:
+Below is an example of creating an array with complex elements by calling `CREATE_JSON`:
 
 ```
 DECLARE
@@ -347,7 +347,7 @@ Setting object properties
 
 Anonymous value creation is the only JSON store operation which does not require addressing existing JSON values. All other actions, such as object property creation and modification, array extension and value deletion, require **accessing existing values** using [JSON-PATH](http://goessner.net/articles/JsonPath/)-like query expressions. Query syntax in Jodus conforms neither the complete JSON-PATH specification nor it's subset - more likely it resembles the way object properties are being referenced in JavaScript + some Jodus-unique features described below.
 
-To refer a property somewhere in the object hierarchy, standard JavaScript dot notation can be used:
+To refer to a property somewhere in the object hierarchy, standard JavaScript dot notation can be used:
 
 ```
 $.documents.invoice.issuer
@@ -510,7 +510,7 @@ Managing arrays
 Array elements can be accessed and modified by using the same set of `SET_...` subprograms. 
 However, there are some features which have to be considered when working with array elements:
 
-1. Deletion of an array element will actually replace it with a `null` value instead of complete removal. This is necessary to avoid forming empty gaps in the sequence of elements. For instance after running
+1. Deletion of an array element will actually replace it with a `null` value instead of complete removal. This is necessary to avoid forming gaps in the sequence of elements. For instance, after running
 
     ```
     BEGIN
@@ -542,7 +542,7 @@ However, there are some features which have to be considered when working with a
 
 Additionally there is a set of `JSON_STORE` subprograms, which work only with arrays: `GET_LENGTH`, `PUSH_STRING`, `PUSH_NUMBER`, `PUSH_BOOLEAN`, `PUSH_NULL`, `PUSH_OBJECT`, `PUSH_JSON` and `PUSH_JSON_CLOB`.
 
-`GET_LENGTH` returns the length of an array and raise an exception for any other value. Provided that we have executed
+`GET_LENGTH` returns the length of an array and raises an exception for any other value. Provided that we have executed
 
 ```
 BEGIN
@@ -553,7 +553,7 @@ END;
 
 `json_store.get_length('$.numbers')` will return `5`, while `json_store.get_length('$.hello')` will result in an exception.
 
-The `PUSH_...` subprorgams, similar to the JavaScript array `push()` method, add an element to the end of an array. Note that the expression in the first argument of `PUSH_...` must refer to the array itself:
+The `PUSH_...` subprograms, similarily to the JavaScript array `push()` method, add an element to the end of an array. Note that the expression in the first argument of `PUSH_...` must refer to the array itself:
 
 ```
 BEGIN

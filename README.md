@@ -24,6 +24,8 @@ Table of contents
         * [Managing arrays](#managing-arrays)
         * [Locking stored values](#locking-stored-values)
     * [Accessing JSON data](#accessing-json-data)
+        * [Retrieving property values](#retrieving-property-values)
+        * [Relational view on JSON data](#relational-view-on-json-data)
     * [Using the JSON parser](#using-the-json-parser)
 
 Prerequisites
@@ -553,7 +555,7 @@ END;
 
 `json_store.get_length('$.numbers')` will return `5`, while `json_store.get_length('$.hello')` will result in an exception.
 
-The `PUSH_...` subprograms, similarily to the JavaScript array `push()` method, add an element to the end of an array. Note that the expression in the first argument of `PUSH_...` must refer to the array itself:
+The `PUSH_...` subprograms, similarily to the JavaScript array `push()` method, allows to add a new element to the tail of an array. Note that the expression in the first argument of `PUSH_...` must refer to the array itself:
 
 ```
 BEGIN
@@ -562,4 +564,94 @@ BEGIN
 END;
 ```
 
+Locking stored values
+---------------------
 
+In order to protect data from accident owervriting, Jodus allows to lock values against direct modification. "Direct" means that the value of the locked property itself can't be deleted by `DELETE_VALUE` or replaced with a new one by using one of the `SET_...` subprograms. Any of the child properties of a locked object or array still can be deleted or modified.
+
+`LOCK_VALUE` and `UNLOCK_VALUE` subprograms are used for locking and unlocking stored values. Each of the subprograms takes one argument which is a path to the value being modified.
+
+Locking a property **always locks the whole chain of it's parents up to the very root**. The generic root `$` is locked by default.
+
+Unlocking of an object or array **is not possible while it has at leas one locked property**, therefore unlocking of a chain of parents can be done only by iterating through it from bottom to top and executing `UNLOCK_VALUE` separately for each property.
+
+Let's demonstrate behaviour of the locking mechanism in Jodus. First, create an object in the root with some levels of nested data:
+
+```
+BEGIN
+    json_store.set_json('$.author', '{
+        "name": "Sergejs",
+        "address": {
+            "city": "Riga"
+        }
+    }');
+END;
+```
+
+Now let's lock the `$.author` object:
+
+```
+BEGIN
+    json_store.lock_value('$.author');
+END;
+```
+
+From now on it is not allowed to directly change the value of `$.author` - call to 
+
+```
+BEGIN
+    json_store.set_string('$.author', 'Sergejs');
+END;
+```
+
+will result in an exception. However, it's still possible to add and modify properties on any level of `$.author`:
+
+```
+BEGIN
+    json_store.set_string('$.author.name', 'Anthony');
+    json_store.set_string('$.author.address.country', 'Latvia');
+END;
+```
+
+Now let's try locking the `country` property of the address object:
+
+```
+BEGIN
+    json_store.lock_value('$.author.address.country');
+END;
+```
+
+Now the whole chain `$ - person - address - country` is locked and we can directly change neither of them. So
+
+```
+BEGIN
+    json_store.set_json('$.author.address', '{
+        "city": "Malibu",
+        "country": "USA"
+    }');
+END;
+```
+
+will fail.
+
+Unlocking the address by issuing `json_store.unlock_value('$.author.address');` will also fail, because it's nested property `country` is locked. So the only valid option for unlocking the whole `author` object is
+
+```
+BEGIN
+    json_store.unlock_value('$.author.address.country');
+    json_store.unlock_value('$.author.address');
+    json_store.unlock_value('$.author');
+END;
+```
+
+Accessing JSON data
+-------------------
+
+Retrieving property values
+--------------------------
+
+Relational view on JSON data
+----------------------------
+
+Using the JSON parser
+---------------------

@@ -1,5 +1,4 @@
-Jodus
-=====
+# Jodus
 
 **Jodus** stands for **J**s**o**n **d**oc**u**ment **s**tore and is a PL/SQL library for parsing, storing and querying JSON data.
 
@@ -9,8 +8,7 @@ Jodus, however, proposes a different aproach and maybe also different use cases 
 
 The next view chapters describe the essentials and basic features of the Jodus JSON store as well as provides detailed installation and usage manual with code examples.
 
-Table of contents
-=================
+# Table of contents
 
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
@@ -28,13 +26,11 @@ Table of contents
         * [Relational view on JSON data](#relational-view-on-json-data)
     * [Using the JSON parser](#using-the-json-parser)
 
-Prerequisites
-=============
+# Prerequisites
 
 Jodus is dependant on [oraspect](https://github.com/svinniks/oraspect), which is a generic logging and error handling tool for PL/SQL. Please make sure you have installed it first.
 
-Installation
-============
+# Installation
 
 1. It is advisable (but not restricted) to create a separate user for the installation to avoid possible object naming conflicts. The user must have privileges to create **TABLES, INDEXES, PACKAGES (and FUNCTIONS), TYPES and SEQUENCES**.
 
@@ -55,8 +51,7 @@ GRANT EXECUTE ON bind TO your_desired_user
 
 4. You may also want to create a public synonym for the package and the type to make calling statements a little bit shorter.
 
-Getting started
-============
+# Getting started
 
 The whole JSON store is basically **one huge JSON document** called `root` or `$`. All other values are usually stored somewhere under the root. The example below shows how to create a property of the root named `hello` holding the string value `world`:
 
@@ -241,11 +236,9 @@ will output
 |STRING      |world|
 |END_OBJECT  |     |
 
-API reference
-=============
+# API reference
 
-Overview
---------
+## Overview
 
 The Jodus public API consists of one package and one collection type:
 
@@ -258,11 +251,9 @@ Another package which is safe to use is:
 
 :exclamation: All other objects are considered internal API so use them at you own risk! It is recommended to not grant any privileges on these objects to other users.
 
-Managing JSON data
-------------------
+## Managing JSON data
 
-Creating anonymous values
-------------------------
+### Creating anonymous values
 
 JSON values which don't reside in the common root `$` are called **anonymous**. Each anonymous object or array may serve as an alternative root if it is necessary to separate/hide some data from the generic JSON value tree. Anonymous JSON values do not have names associated with them and can only be accessed by internal IDs which are generated automatically by the system.
 
@@ -344,8 +335,7 @@ BEGIN
 END;
 ```
 
-Setting object properties
--------------------------
+### Setting object properties
 
 Anonymous value creation is the only JSON store operation which does not require addressing existing JSON values. All other actions, such as object property creation and modification, array extension and value deletion, require **accessing existing values** using [JSON-PATH](http://goessner.net/articles/JsonPath/)-like query expressions. Query syntax in Jodus conforms neither the complete JSON-PATH specification nor it's subset - more likely it resembles the way object properties are being referenced in JavaScript + some Jodus-unique features described below.
 
@@ -485,8 +475,7 @@ END;
 
 the whole array will be replaced with just one string. To protect a property from accident replacement it can be locked. Please refer to the corresponding [chapter](#todo) for details.
 
-Deleting stored values
-----------------------
+### Deleting stored values
 
 Deletion of stored JSON values is rather a simple task, which can be accomplished by executing the `DELETE_VALUE` subprogram of `JSON_STORE`. The first argument must specify a valid path to the property to be removed from the store. It doesn't matter how complex the underlying structure of the addressed value is - the whole value tree will be erased. 
 
@@ -506,8 +495,7 @@ BEGIN
 END;
 ```
 
-Managing arrays
----------------
+### Managing arrays
 
 Array elements can be accessed and modified by using the same set of `SET_...` subprograms. 
 However, there are some features which have to be considered when working with array elements:
@@ -564,8 +552,7 @@ BEGIN
 END;
 ```
 
-Locking stored values
----------------------
+### Locking stored values
 
 In order to protect data from accident owervriting, Jodus allows to lock values against direct modification. "Direct" means that the value of the locked property itself can't be deleted by `DELETE_VALUE` or replaced with a new one by using one of the `SET_...` subprograms. Any of the child properties of a locked object or array still can be deleted or modified.
 
@@ -644,14 +631,10 @@ BEGIN
 END;
 ```
 
-Accessing JSON data
--------------------
+## Accessing JSON data
 
-Retrieving property values
---------------------------
+### Retrieving property values
 
-Relational view on JSON data
-----------------------------
+### Relational view on JSON data
 
-Using the JSON parser
----------------------
+## Using the JSON parser

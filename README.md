@@ -15,12 +15,14 @@ Table of contents
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Getting started](#getting-started)
-    * [Named JSON properties](#named-json-properties)
-    * [Anonymous JSON values](#anonymous-json_values)
-    * [Relational view of JSON data](#relational-view-of-json-data)
-    * [The JSON parser](#the-json-parser)
 * [API reference](#api-reference)
     * [Overview](#overview)
+    * [Creating anonymous values](#creating-anonymous-values)
+    * [Modifying stored properties](#modifying-stored-properties)
+    * [Querying JSON data](#querying-json-data)
+    * [Locking stored values](#locking-stored-value)
+    * [Deleting values](#deleting-values)
+    * [Using the JSON parser](#using-the-json-parser)
 
 Prerequisites
 =============
@@ -52,10 +54,7 @@ GRANT EXECUTE ON bind TO your_desired_user
 Getting started
 ============
 
-Named JSON properties
--------------------------
-
-The whole JSON store is basically **one huge JSON document** called `root` or `$`. All other values are usually stored somewhere under the root. The example below shows how to create a property of the root named `hello`, which is a string `world`:
+The whole JSON store is basically **one huge JSON document** called `root` or `$`. All other values are usually stored somewhere under the root. The example below shows how to create a property of the root named `hello` holding the string value `world`:
 
 ```
 BEGIN
@@ -63,7 +62,7 @@ BEGIN
 END;
 ```
 
-and here is how to create an empty object as a named property of the root:
+and here is how to create an empty object `author` in the root:
 
 ```
 BEGIN
@@ -71,7 +70,7 @@ BEGIN
 END;
 ```
 
-Now let's create a named property `name` under `$.author`:
+Now let's create a property `name` under `$.author`:
 
 ```
 BEGIN
@@ -116,7 +115,7 @@ should return
 |------------------|
 |{"name":"Sergejs"}|
 
-In a similar way one can create a complex (non-scalar, which is an object or an array) named property:
+Th `SET_JSON` routine allows to create a JSON structure of arbitrary complexity in one call:
 
 ```
 BEGIN
@@ -131,8 +130,7 @@ Now `json_store.get_string('$.auhtor.name')` should return `Frank`.
 
 :exclamation: Please note, that `set_xxx` methods overwrite the old property value regardless it's type. For example you can easily loose a big object by overwriting it with a scalar value, so be carefull! To slightly lower the chances of loosing data by overwriting, it is possible to **lock** selected values against direct modification. Please refer to the [corresponding chapter](#todo) for more information.
 
-Anonymous JSON values
--------------------------
+---
 
 In addition to one common root object, it is possible to create anonymous unnamed JSON values. These values do not belong to the root or any other element and are only accessible by the automatically generated internal IDs. For example, an anonymous string can be created by executing:
 
@@ -154,7 +152,7 @@ BEGIN
 END;
 ```
 
-Now, provided that the last example has returned `v_id = 12345`, it is possible to get the whole value or to refer to a property using the syntax shown below:
+Now, provided that the last example has returned `v_id = 12345`, it is possible to get the whole object or to refer to it's property using the statements listed below:
 
 ```
 SELECT json_store.get_string('#12345.hello')
@@ -164,12 +162,11 @@ SELECT json_store.get_json('#12345')
 FROM dual;
 ```
 
-The aforementioned technique allows to create virtually any number of additional "roots", provided that you store element IDs for future use.
+The aforementioned technique allows to create virtually any number of additional "roots", provided that you store their IDs for future use.
 
-Relational view of JSON data
-----------------------------
+---
 
-Similar to Oracle's [JSON_TABLE](https://docs.oracle.com/database/121/SQLRF/functions092.htm#SQLRF56973) Jodus is able to present data in a relational way, by mapping JSON properties to rows and columns. Imagine there is an array of objects representing superheroes:
+Similar to Oracle's [JSON_TABLE](https://docs.oracle.com/database/121/SQLRF/functions092.htm#SQLRF56973) Jodus is capable of presenting data in a relational way, by mapping JSON properties to rows and columns. Imagine there is an array of objects representing superheroes:
 
 ```
 BEGIN
@@ -199,7 +196,7 @@ BEGIN
 END;
 ```
 
-The array consists of objects with properties `name`, `surname` and `address` of which `address` is a nested object with it's own properties. Let's query the array and render it's data as a relational data set:
+Array's elements posess both scalar properties and nested objects. Let's query the array and render it's data as a relational data set:
 
 ```
 SELECT *
@@ -222,7 +219,6 @@ The result of the query above is:
 
 While the functionality of `GET_JSON_TABLE` is quite limited at this moment, it still is a powerfull tool which may serve as the bridge from JSON to PL/SQL. Please refer to the corresponding API reference [chapter](#todo) for further details on this topic.
 
-The JSON parser
 -----------
 
 Jodus uses it's own JSON parser written completely in PL/SQL. It is located in the separate package called `JSON_PARSER`. If required the parser can be used separately from the store. The parser function receives a JSON value as text (`VARCHAR2` or `CLOB`) and outputs a list of parse events:
@@ -240,21 +236,6 @@ will output
 |NAME        |hello|
 |STRING      |world|
 |END_OBJECT  |     |
-
-It is also possible to generate a list of parse events from a stored JSON value. If we create and store the object from the previos example:
-
-```
-BEGIN
-    json_store.set_json('$.object', '{"hello":"world"}');
-END;
-```
-
-the the following call will return identical list of parse events:
-
-```
-SELECT *
-FROM TABLE(json_store.get_parse_events('$.object'));
-```
 
 API reference
 =============
@@ -276,182 +257,87 @@ Another package which is safe to use is:
 Anonymous value creation
 ------------------------
 
-JSON values which don't reside in the common root `$` are called **anonymous**. Each  anonymous object or array may serve as an alternative root if it is necessary to separate/hide some data from the generic JSON value tree. Anonymous JSON values do not have names associated with them and can only be accessed by internal IDs which are generated automatically by the system.
+JSON values which don't reside in the common root `$` are called **anonymous**. Each anonymous object or array may serve as an alternative root if it is necessary to separate/hide some data from the generic JSON value tree. Anonymous JSON values do not have names associated with them and can only be accessed by internal IDs which are generated automatically by the system.
 
-Below is the summary of anonymous value management subprograms of `JSON_STORE`:
+`JSON_STORE` subprograms for anonymous value creation are `CREATE_STRING`, `CREATE_NUMBER`, `CREATE_BOOLEAN`, `CREATE_NULL`, `CREATE_OBJECT`, `CREATE_ARRAY`, `CREATE_JSON` and `CREATE_JSON_CLOB`.
 
-Subprogram|Description
--|-
-[`CREATE_STRING`](#create_string)|Creates an anonymous string value
-[`CREATE_NUMBER`](#create_number)|Creates an anonymous number value
-[`CREATE_BOOLEAN`](#create_boolean)|Creates an anonymous boolean value
-[`CREATE_NULL`](#create_null)|Creates an anonymous null value
-[`CREATE_OBJECT`](#create_object)|Creates an anonymous empty object value
-[`CREATE_ARRAY`](#create_array)|Creates an anonymous array value
-[`CREATE_JSON`](#create_json)|Creates an anonymous value represented by the supplied JSON string
-[`CREATE_JSON_CLOB`](#create_json_clob)|Creates an anonymous value represented by the supplied JSON string
-
-All of the anonymous value creation subprograms are functions, which create a value of the requested type and return a newly generated internal ID of the stored value. Below is the detailed description of the listed subprograms.
-
-CREATE_STRING
--------------
-
-```
-FUNCTION create_string (
-    p_value IN VARCHAR2
-)
-RETURN NUMBER;
-```
-
-Creates an anonymous string in the JSON store. All characters of `p_value` will be stored as-is, there is no need for quting the whole value or for escaping special characters. In case of `NULL` argument value, a new JSON null value will be created.
-
-Returns an automatically genrated internal ID of the created value.
-
-Example:
+`CREATE_STRING`, `CREATE_NUMBER` and `CREATE_BOOLEAN` takes one input argument of equivalent PL/SQL type (`VARCHAR2`, `NUMBER` and `BOOLEAN` respectively) and create corresponding scalar values. For example:
 
 ```
 DECLARE
     v_id NUMBER;
 BEGIN
     v_id := json_store.create_string('Hello, World!');
-END;
-```
-
-CREATE_NUMBER
---------------
-
-```
-FUNCTION create_number (
-    p_value IN NUMBER
-)
-RETURN NUMBER;
-```
-
-Creates an anonymous number in the JSON store. In case of `NULL` argument value, a new JSON `null` value will be created.
-
-Returns an automatically genrated internal ID of the created value.
-
-Example:
-
-```
-DECLARE
-    v_id NUMBER;
-BEGIN
-    v_id := json_store.create_number(-123.45);
-END;
-```
-
-CREATE_BOOLEAN
---------------
-
-```
-FUNCTION create_number (
-    p_value IN BOOLEAN
-)
-RETURN NUMBER;
-```
-
-Creates an anonymous boolean in the JSON store. In case of `NULL` argument value, a new JSON `null` value will be created.
-
-Returns an automatically genrated internal ID of the created value.
-
-Example:
-
-```
-DECLARE
-    v_id NUMBER;
-BEGIN
+    v_id := json_store.create_number(-123,45);
     v_id := json_store.create_boolean(TRUE);
 END;
 ```
 
-CREATE_OBJECT
---------------
+Please note that you do not need to surround the string with double-quotes nor do you need to escape any special characters - `CREATE_STRING` will store the string as-is.
 
-```
-FUNCTION create_object
-RETURN NUMBER;
-```
-
-Creates an anonymous empty object.
-
-Returns an automatically genrated internal ID of the created value. Despite the fact that the object is initially empty, it can be further complemented using one of the `SET_*` subprograms.
-
-Example:
+To create an anonymous `null` value call either `CREATE_NULL` or pass `NULL` value to one of `CREATE_STRING`, `CREATE_NUMBER` or `CREATE_BOOLEAN`. The next four calls are equivalent:
 
 ```
 DECLARE
     v_id NUMBER;
 BEGIN
-    v_id := json_store.create_object;
+    v_id := json_store.create_null;
+    v_id := json_store.create_string(NULL);
+    v_id := json_store.create_number(NULL);
+    v_id := json_store.create_boolean(NULL);
 END;
 ```
 
-CREATE_ARRAY
---------------
+`CREATE_OBJECT` and `CREATE_ARRAY` functions create respectively an empty object or an empty array. While initially these structures don't contain any properties or elements, they can be later edited using any of the `SET_*` subprograms.
 
-```
-FUNCTION create_array
-RETURN NUMBER;
-```
-
-Creates an anonymous empty array.
-
-Returns an automatically genrated internal ID of the created value. Despite the fact that the array is initially empty, it can be further complemented using one of the `SET_*` subprograms.
-
-Example:
+The most generic way of creating anonymous values is using `CREATE_JSON` or `CREATE_JSON_CLOB` subprograms. Each of these functions takes a JSON string of arbitrary complexity, parses it and saves into the store as the whole JSON structure all in just one call. It is possible to create both scalar and complex values using this subprogram. The next few examples demonstrate creation of anonymous scalar values of different types as well as creation of a null value:
 
 ```
 DECLARE
     v_id NUMBER;
 BEGIN
-    v_id := json_store.create_array;
+    v_id := json_store.create_json('"Hello, World!"');
+    v_id := json_store.create_json('123.45');
+    v_id := json_store.create_json('false');
+    v_id := json_store.create_json('null');
 END;
 ```
 
-CREATE_JSON
---------------
+Please note that you **must surround values with double-quotes** when using `CREATE_JSON` to store strings. It is also required that you escape all special characters accordingly to the JSON specification.
 
-```
-FUNCTION create_json (
-    p_content IN VARCHAR2
-)
-RETURN NUMBER;
-```
-
-Creates an anonymous JSON value, which is represented by the supplied JSON string.
-Any valid JSON may be passed through `p_content`, including arrays and objects with complex nested structure. Thus, to create a string using `CREATE_JSON`, the value must be surrounded with double-quotes and all special characters must be correctly escaped.
-
-If JSON size exceeds 32K, [`CREATE_JSON_CLOB`](#create_json_clob) must be used.
-
-Returns an automatically genrated internal ID of the created value.
-
-Example:
+And here is an example of creating an array with complex elements by issuing just one call to `CREATE_JSON`:
 
 ```
 DECLARE
-    v_string_id NUMBER;
-    v_object_id NUMBER;
+    v_id NUMBER;
 BEGIN
-
-    v_string_id := json_store.create_json('"Hello, World!"');
-
-    v_object_id := json_store.create_json('{"hello":"world"}');
-
+    v_id := json_store.create_json('[
+        {
+            "name": "Bruce",
+            "surname": "Wayne",
+            "address": {
+                "city": "Gotham"
+            }
+        },
+        {
+            "name": "Clark",
+            "surname": "Kent",
+            "address": {
+                "city": "Metropolis"
+            }
+        },
+        {
+            "name": "Anthony",
+            "surname": "Stark",
+            "address": {
+                "city": "Malibu"
+            }
+        }
+    ]');
 END;
 ```
 
-CREATE_JSON_CLOB
---------------
 
-```
-FUNCTION create_json_clob (
-    p_content IN CLOB
-)
-RETURN NUMBER;
-```
-
-A CLOB version of [`CREATE_JSON`](#create_json).
 
 Almost all `JSON_STORE` subprograms take a [JSON-PATH](http://goessner.net/articles/JsonPath/)-like query string as the first argument. This query defines the location of the JSON values being addresses within the store. Currently the syntax of the Jodus JSON query conforms neither the complete JSON-PATH specification nor it's subset - more likely it resembles the way object properties are being referenced in JavaScript + some Jodus-unique features described below.
 

@@ -17,11 +17,13 @@ Table of contents
 * [Getting started](#getting-started)
 * [API reference](#api-reference)
     * [Overview](#overview)
-    * [Creating anonymous values](#creating-anonymous-values)
-    * [Modifying stored properties](#modifying-stored-properties)
-    * [Querying JSON data](#querying-json-data)
-    * [Locking stored values](#locking-stored-value)
-    * [Deleting values](#deleting-values)
+    * [Managing JSON data](#creating-anonymous-values)
+        * [Creating anonymous values](#creating-anonymous-values)
+        * [Setting object properties](#setting-object-properties)
+        * [Deleting stored values](#deleting-stored-values)
+        * [Managing arrays](#managing-arrays)
+        * [Locking stored values](#locking-stored-values)
+    * [Accessing JSON data](#accessing-json-data)
     * [Using the JSON parser](#using-the-json-parser)
 
 Prerequisites
@@ -40,7 +42,7 @@ Installation
 @install.sql
 ```
 
-3. All API methods are located in the `JSON_STORE` package, do the minimum access requirement is `EXECUTE` privilege on this program unit. To enable using [bind](#todo) variables `EXECUTE` privilege must be also granted on the `BIND` collection type.
+3. All API methods are located in the `JSON_STORE` package, so the minimum access requirement is `EXECUTE` privilege on this program unit. To enable using [bind](#todo) variables `EXECUTE` privilege must be also granted on the `BIND` collection type.
 
 ```
 GRANT EXECUTE ON json_store TO your_desired_user
@@ -62,7 +64,7 @@ BEGIN
 END;
 ```
 
-and here is how to create an empty object `author` in the root:
+And here is how to create an empty object `author` in the root:
 
 ```
 BEGIN
@@ -115,7 +117,7 @@ should return
 |------------------|
 |{"name":"Sergejs"}|
 
-Th `SET_JSON` routine allows to create a JSON structure of arbitrary complexity in one call:
+The `SET_JSON` routine allows to create a JSON structure of arbitrary complexity in one call:
 
 ```
 BEGIN
@@ -254,14 +256,17 @@ Another package which is safe to use is:
 
 :exclamation: All other objects are considered internal API so use them at you own risk! It is recommended to not grant any privileges on these objects to other users.
 
-Anonymous value creation
+Managing JSON data
+------------------
+
+Creating anonymous values
 ------------------------
 
 JSON values which don't reside in the common root `$` are called **anonymous**. Each anonymous object or array may serve as an alternative root if it is necessary to separate/hide some data from the generic JSON value tree. Anonymous JSON values do not have names associated with them and can only be accessed by internal IDs which are generated automatically by the system.
 
 `JSON_STORE` subprograms for anonymous value creation are `CREATE_STRING`, `CREATE_NUMBER`, `CREATE_BOOLEAN`, `CREATE_NULL`, `CREATE_OBJECT`, `CREATE_ARRAY`, `CREATE_JSON` and `CREATE_JSON_CLOB`.
 
-`CREATE_STRING`, `CREATE_NUMBER` and `CREATE_BOOLEAN` takes one input argument of equivalent PL/SQL type (`VARCHAR2`, `NUMBER` and `BOOLEAN` respectively) and create corresponding scalar values. For example:
+`CREATE_STRING`, `CREATE_NUMBER` and `CREATE_BOOLEAN` take one input argument of equivalent PL/SQL type (`VARCHAR2`, `NUMBER` and `BOOLEAN` respectively) and create corresponding scalar values. For example:
 
 ```
 DECLARE
@@ -273,9 +278,9 @@ BEGIN
 END;
 ```
 
-Please note that you do not need to surround the string with double-quotes nor do you need to escape any special characters - `CREATE_STRING` will store the string as-is.
+Please note that you do not need to surround the string with double-quotes nor is it necessary to escape any special characters - `CREATE_STRING` will store the string as-is.
 
-To create an anonymous `null` value call either `CREATE_NULL` or pass `NULL` value to one of `CREATE_STRING`, `CREATE_NUMBER` or `CREATE_BOOLEAN`. The next four calls are equivalent:
+To create an anonymous `null` value either call `CREATE_NULL` or pass `NULL` value to one of `CREATE_STRING`, `CREATE_NUMBER` or `CREATE_BOOLEAN`. The next four calls are equivalent:
 
 ```
 DECLARE
@@ -337,29 +342,32 @@ BEGIN
 END;
 ```
 
+Setting object properties
+-------------------------
 
+Anonymous value creation is the only JSON store operation which does not require addressing existing JSON values. All other actions, such as object property creation and modification, array extension and value deletion, require **accessing existing values** using [JSON-PATH](http://goessner.net/articles/JsonPath/)-like query expressions. Query syntax in Jodus conforms neither the complete JSON-PATH specification nor it's subset - more likely it resembles the way object properties are being referenced in JavaScript + some Jodus-unique features described below.
 
-Almost all `JSON_STORE` subprograms take a [JSON-PATH](http://goessner.net/articles/JsonPath/)-like query string as the first argument. This query defines the location of the JSON values being addresses within the store. Currently the syntax of the Jodus JSON query conforms neither the complete JSON-PATH specification nor it's subset - more likely it resembles the way object properties are being referenced in JavaScript + some Jodus-unique features described below.
-
-To refer a property somewhere deep in the object hierarchy, standard JavaScript dot notation can be used:
+To refer a property somewhere in the object hierarchy, standard JavaScript dot notation can be used:
 
 ```
 $.documents.invoice.issuer
 ```
 
-If property is not a "normal" JavaScript identifier (that is does not start with a letter, _ or $ and/or contains any character other than a letter, a digit, _ or $), it is possible to use the bracket notation with double-quotes:
+If property is not a "normal" JavaScript identifier (that is it does not start with a letter, _ or $ and/or contains any characters other than letters, digits, _ or $), it is possible to use the bracket notation with double-quotes:
 
 ```
 $.documents.["client invoice"].issuer
 ```
 
-Array elements can be referenced using the usual bracket notation (with positive integer index inside the brackets):
+Special characters in quoted property names can be escaped with `\`.
+
+Array elements can be referenced using the usual bracket notation (with positive integer index inside):
 
 ```
 $.document.invoice.lines[3].amount
 ```
 
-It is not necessary to always bind the query to the root `$`. It is allowed to start the path with any valid property name or array element index:
+It is not necessary to always bind the query to the root. It is allowed to start the path with any valid property name or array element index:
 
 ```
 persons[123].name
@@ -378,42 +386,180 @@ This, however, is potentially unsafe as parent of the first property in the path
 
 query `members[0]` would fail with the ambiguity error, while `$.members[0]` and `$.avengers.members[0]` would uniquely address each of the different `members` properties.
 
-Named JSON value creation
-------------------------
+Jodus allows accessing JSON values by internal IDs:
 
-Normally, the complete JSON store is one huge object called `root` or `$`. All other stored JSON structures are placed somewhere under the root. For example, if you were going to store some document metadata in the JSON store, you would create an object property `documents` in the root and place all you document metadata as nested objects of `$.documents`:
+```
+DECLARE
+    v_id NUMBER;
+BEGIN
+    v_id := json_store.create_json('{
+        "name": "Sergejs",
+        "address": {
+            "city": "Riga"
+        }
+    }');
+END;
+```
+
+If the example above returned `v_id = 12345`, then the `city` property of the address would be accessible by:
+
+```
+#12345.address.city
+```
+
+Note that the ID reference must not be bound to `$` when queried, because it is **NOT** located under the root, but rather is the root element itself. It is allowed, however, to include ID reference in any part of a query expression:
+
+```
+$.employees.#562736.name
+```
+
+However, usually there is no point in doing this since one ID uniquely identifies only one value.
+
+---
+
+`JSON_STORE` subprograms for creating and modifying object properties and array elements are `SET_STRING`, `SET_NUMBER`, `SET_BOOLEAN`, `SET_NULL`, `SET_OBJECT`, `SET_ARRAY`, `SET_JSON` and `SET_JSON_CLOB`.
+
+There are two overloaded versions for each `SET_...` subprogram:
+
+```
+PROCEDURE set_...(...);
+FUNCTION set_...(...) RETURN NUMBER;
+```
+
+`FUNCTION` versions will always return a new genreated internal ID of the property/element being affected.
+
+The first argument of any of the `SET_...` subprograms is a string expression containing a query to the property being created or modified. 
+
+:exclamation: The property itself may or may not exist at the moment of `SET_...` subprogram call. The parent of the property, however, must exist.
+
+The second argument fully resembles the first argument of the `CREATE_...` methods.
+
+Provided, that we have a fresh insallation of Jodus, the next statement will fail, because the property `person` of the root '$' does not exist:
+
+```
+BEGIN
+    json_store.set_string('$.person.name', 'Sergejs');
+END;
+```
+
+In order to be able to modify properties of the `person` object we must first create the object itself:
+
+```
+BEGIN
+    json_store.set_object('$.person');
+    json_store.set_string('$.person.name', 'Sergejs');
+END;
+```
+
+The next few examples demonstrate how to further build-up the `person` object:
+
+```
+BEGIN
+    json_store.set_boolean('$.person.married', TRUE);
+    json_store.set_json('$.person.emails', '["svinniks@email.com", "svinniks@gmail.net"]');
+END;
+```
+
+By this time the structure of `$.person` should look like this:
 
 ```json
 {
-    "documents": {
-        "1": {
-            "mimetype": "text/plain",
-            "filename": "readme.txt",
-            ...
-        },
-        "2": {
-            "mimetype": "image/jpeg",
-            "filename": "photo.jpg",
-            ...
-        },
-        ...
-    }
+    "name": "Sergejs",
+    "married": true,
+    "emails": [
+        "svinniks@email.com",
+        "svinniks@gmail.net"
+    ]
 }
 ```
 
-There is a set of `JSON_STORE` subprograms for creating and altering named properties anywhere in the store:
+When executing a `SET_...` subprogram, if the referenced property already exists, it will be **deleted** and a new property will be created with **different internal ID**. It doesn't matter how complex the old property was - the whole value tree will be erased. For example, if we now execute 
 
 ```
-set_string
-set_number
-set_boolean
-set_null
-set_object
-set_array
-set_json
-set_json_clob
+BEGIN
+    json_store.set_string('$.person.emails', 'svinniks@email.com, svinniks@gmail.net');
+END;
 ```
 
-There is both a `PROCEDURE` and a `FUNCTION` version of each method. The procedure version just creates a new value in the store, while the function version additionally returnes the internal ID of the created value record.
+the whole array will be replaced with just one string. To protect a property from accident replacement it can be locked. Please refer to the corresponding [chapter](#todo) for details.
 
-All of the methods accepts a path of the value being created
+Deleting stored values
+----------------------
+
+Deletion of stored JSON values is rather a simple task, which can be accomplished by executing the `DELETE_VALUE` subprogram of `JSON_STORE`. The first argument must specify a valid path to the property to be removed from the store. It doesn't matter how complex the underlying structure of the addressed value is - the whole value tree will be erased. 
+
+Here is how to remove the whole `person` object from the previous examples:
+
+```
+BEGIN
+    json_store.delete_value('$.person');
+END;
+```
+
+And here is how to delete an anonymous value with `ID = 54321`:
+
+```
+BEGIN
+    json_store.delete_value('#54321');
+END;
+```
+
+Managing arrays
+---------------
+
+Array elements can be accessed and modified by using the same set of `SET_...` subprograms. 
+However, there are some features which have to be considered when working with array elements:
+
+1. Deletion of an array element will actually replace it with a `null` value instead of complete removal. This is necessary to avoid forming empty gaps in the sequence of elements. For instance after running
+
+    ```
+    BEGIN
+        json_store.set_json('$.numbers', '[1, 2, 3, 4, 5]');
+        json_store.delete_value('$.numbers[1]);
+    END;
+    ```
+
+    the content of `$.numbers` will be
+
+    ```
+    [1, null, 3, 4, 5]
+    ```
+
+2. When modifying an element with an index which is beyond the upper bound (the length) of the array, the gap from the last existing element to the newly created one will be filled with `null` values. For example, after executing
+
+    ```
+    BEGIN
+        json_store.set_json('$.numbers', '[1, 2]);
+        json_store.set_number('$.numbers[4], 5);
+    END;
+    ```
+
+    the content of `$.numbers` will be
+
+    ```
+    [1, 2, null, nul, 5]
+    ```
+
+Additionally there is a set of `JSON_STORE` subprograms, which work only with arrays: `GET_LENGTH`, `PUSH_STRING`, `PUSH_NUMBER`, `PUSH_BOOLEAN`, `PUSH_NULL`, `PUSH_OBJECT`, `PUSH_JSON` and `PUSH_JSON_CLOB`.
+
+`GET_LENGTH` returns the length of an array and raise an exception for any other value. Provided that we have executed
+
+```
+BEGIN
+    json_store.set_json('$.numbers', '[1, 2, 3, 4, 5]');
+    json_store.set_string('$.hello', 'world');
+END;
+```
+
+`json_store.get_length('$.numbers')` will return `5`, while `json_store.get_length('$.hello')` will result in an exception.
+
+The `PUSH_...` subprorgams, similar to the JavaScript array `push()` method, add an element to the end of an array. Note that the expression in the first argument of `PUSH_...` must refer to the array itself:
+
+```
+BEGIN
+    json_store.set_json('$.numbers', [1, 2, 3]);
+    json_store.push_number('$.numbers', 4);
+END;
+```
+
+

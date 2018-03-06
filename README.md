@@ -1,6 +1,6 @@
 # Jodus
 
-**Jodus** stands for **J**s**o**n **d**oc**u**ment **s**tore and is a PL/SQL library for parsing, storing and querying JSON data.
+**Jodus** stands for **J**s**o**n **d**oc**u**ment **s**tore and is a PL/SQL library for parsing, storing and querying JSON data in Oracle Database.
 
 Since version 12c, Oracle database supports JSON data type and offers several methods and features for storing and working with textual JSON values in both SQL and PL/SQL. 
 
@@ -527,7 +527,7 @@ However, there are some features which have to be considered when working with a
     the content of `$.numbers` will be
 
     ```
-    [1, 2, null, nul, 5]
+    [1, 2, null, null, 5]
     ```
 
 Additionally there is a set of `JSON_STORE` subprograms, which work only with arrays: `GET_LENGTH`, `PUSH_STRING`, `PUSH_NUMBER`, `PUSH_BOOLEAN`, `PUSH_NULL`, `PUSH_OBJECT`, `PUSH_JSON` and `PUSH_JSON_CLOB`.
@@ -554,13 +554,13 @@ END;
 
 ### Locking stored values
 
-In order to protect data from accident owervriting, Jodus allows to lock values against direct modification. "Direct" means that the value of the locked property itself can't be deleted by `DELETE_VALUE` or replaced with a new one by using one of the `SET_...` subprograms. Any of the child properties of a locked object or array still can be deleted or modified.
+In order to protect data from accident overwriting, Jodus allows to lock values against direct modification. "Direct" means that the value of the locked property itself can't be deleted by `DELETE_VALUE` or replaced with a new one by using one of the `SET_...` subprograms. Any of the child properties of a locked object or array can still be deleted or modified.
 
-`LOCK_VALUE` and `UNLOCK_VALUE` subprograms are used for locking and unlocking stored values. Each of the subprograms takes one argument which is a path to the value being modified.
+`LOCK_VALUE` and `UNLOCK_VALUE` subprograms are used for locking and unlocking stored values. Each of the subprograms takes one argument which is a path to the value being locked/unlocked.
 
 Locking a property **always locks the whole chain of it's parents up to the very root**. The generic root `$` is locked by default.
 
-Unlocking of an object or array **is not possible while it has at leas one locked property**, therefore unlocking of a chain of parents can be done only by iterating through it from bottom to top and executing `UNLOCK_VALUE` separately for each property.
+Unlocking of an object or array **is not possible while it has at least one locked property**, therefore unlocking of a chain of parents can be done only by iterating through it from bottom to top and executing `UNLOCK_VALUE` separately for each property.
 
 Let's demonstrate behaviour of the locking mechanism in Jodus. First, create an object in the root with some levels of nested data:
 

@@ -571,135 +571,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
 
     END;
     
-    FUNCTION escape_string (
-        p_string IN VARCHAR2
-    )
-    RETURN VARCHAR2 IS
-
-        v_result VARCHAR2(4000);
-
-    BEGIN
-
-        v_result := REPLACE(p_string, '\', '\\');
-        v_result := REPLACE(v_result, '"', '\"');
-        v_result := REPLACE(v_result, '/', '\/');
-        v_result := REPLACE(v_result, CHR(8), '\b');
-        v_result := REPLACE(v_result, CHR(12), '\f');
-        v_result := REPLACE(v_result, CHR(10), '\n');
-        v_result := REPLACE(v_result, CHR(13), '\r');
-        v_result := REPLACE(v_result, CHR(9), '\t');
-
-        RETURN v_result;
-
-    END;
-    
-    PROCEDURE serialize_value (
-        p_parse_events IN json_parser.t_parse_events,
-        p_json IN OUT NOCOPY VARCHAR2,
-        p_json_clob IN OUT NOCOPY CLOB
-    ) IS
-        
-        v_value VARCHAR2(4000);
-        v_length PLS_INTEGER;
-
-        TYPE t_booleans IS 
-            TABLE OF BOOLEAN;
-            
-        v_comma_stack t_booleans;
-                
-    BEGIN
-      
-        v_comma_stack := t_booleans(FALSE);
-        v_length := 0;
-
-        FOR v_i IN 1..p_parse_events.COUNT LOOP
-        
-            IF p_parse_events(v_i).name IN ('END_OBJECT', 'END_ARRAY') THEN
-               
-                p_json := p_json || CASE p_parse_events(v_i).name WHEN 'END_OBJECT' THEN '}' ELSE ']' END;
-                
-                v_length := v_length + 1;
-                v_comma_stack.TRIM(1);
-                
-            ELSE
-            
-                IF v_comma_stack(v_comma_stack.COUNT) THEN
-                    p_json := p_json || ',';
-                    v_length := v_length + 1;
-                END IF;
-                
-                v_comma_stack(v_comma_stack.COUNT) := TRUE;
-            
-                IF p_parse_events(v_i).name IN ('START_OBJECT', 'START_ARRAY') THEN
-                
-                    p_json:= p_json || CASE p_parse_events(v_i).name WHEN 'START_OBJECT' THEN '{' ELSE '[' END;
-                
-                    v_length := v_length + 1;
-                                        
-                    v_comma_stack.EXTEND(1);
-                    v_comma_stack(v_comma_stack.COUNT) := FALSE;
-                
-                ELSE
-                
-                    CASE p_parse_events(v_i).name
-                    
-                        WHEN 'NAME' THEN
-                        
-                            v_value := escape_string(p_parse_events(v_i).value);
-                        
-                            p_json := p_json || '"' || v_value || '":';
-                            v_length := v_length + 3 + LENGTH(v_value);
-                            
-                            v_comma_stack(v_comma_stack.COUNT) := FALSE;
-                            
-                        WHEN 'STRING' THEN
-                      
-                            v_value := escape_string(p_parse_events(v_i).value);
-                                
-                            p_json := p_json || '"' || v_value || '"';
-                            v_length := v_length + 2 + LENGTH(v_value);
-                                
-                        WHEN 'NUMBER' THEN
-                              
-                            p_json := p_json || p_parse_events(v_i).value;
-                            v_length := v_length + 2 + LENGTH(p_parse_events(v_i).value);
-                                
-                        WHEN 'BOOLEAN' THEN
-                              
-                            p_json := p_json || p_parse_events(v_i).value;
-                            v_length := v_length + LENGTH(p_parse_events(v_i).value);
-                                
-                        WHEN 'NULL' THEN
-                              
-                            p_json := p_json || 'null';  
-                            v_length := v_length + 4;
-                    
-                    END CASE;
-                
-                END IF;
-                
-            END IF;
-            
-            
-            IF p_json_clob IS NOT NULL AND v_length >= 25000 THEN
-                
-                DBMS_LOB.APPEND(p_json_clob, p_json);
-                    
-                p_json := NULL;
-                v_length := 0;
-                    
-            END IF;
-            
-        
-        END LOOP;
-        
-        IF p_json_clob IS NOT NULL AND p_json IS NOT NULL THEN
-            DBMS_LOB.APPEND(p_json_clob, p_json);
-            p_json := NULL;
-        END IF;
-    
-    END;
-    
     FUNCTION get_json (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -714,7 +585,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
       
         json_core.get_parse_events(p_path, v_parse_events, p_bind);
-        serialize_value(v_parse_events, v_json, v_json_clob);
+        json_core.serialize_value(v_parse_events, v_json, v_json_clob);
         
         RETURN v_json;
     
@@ -737,7 +608,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         DBMS_LOB.CREATETEMPORARY(v_json_clob, TRUE);
         
         json_core.get_parse_events(p_path, v_parse_events, p_bind);
-        serialize_value(v_parse_events, v_json, v_json_clob);
+        json_core.serialize_value(v_parse_events, v_json, v_json_clob);
         
         RETURN v_json_clob;
     

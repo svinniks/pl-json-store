@@ -3386,7 +3386,7 @@ suite("Huge JSON document handling", function() {
         
         document = [];
 
-        for (var i = 0; i < 100000; i++)
+        for (var i = 0; i < 200000; i++)
             document[i] = i;
 
         documentJSON = JSON.stringify(document);

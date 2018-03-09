@@ -965,7 +965,15 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         ) IS
         BEGIN
         
-            v_signature := v_signature || p_query_elements(p_i).type || CASE WHEN p_query_elements(p_i).optional THEN '?' END;
+            IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_id' THEN
+                 v_signature := v_signature || 'q';
+            ELSIF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_key' THEN
+                v_signature := v_signature || 'w';
+            ELSIF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_value' THEN
+                v_signature := v_signature || 'e';
+            ELSE
+                v_signature := v_signature || p_query_elements(p_i).type || CASE WHEN p_query_elements(p_i).optional THEN '?' END;
+            END IF;
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
                 v_signature := v_signature || '(';
@@ -1117,7 +1125,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         ) IS
         BEGIN
         
-            IF p_query_elements(p_i).type IN ('N', 'I') THEN
+            IF p_query_elements(p_i).type IN ('N', 'I') AND p_query_elements(p_i).value NOT IN ('_id', '_key', '_value') THEN
                 v_values.EXTEND(1);
                 v_values(v_values.COUNT) := p_query_elements(p_i).value;
             END IF;
@@ -1198,9 +1206,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             v_table_instance PLS_INTEGER;
             
         BEGIN
-        
-            v_table_instance_counter := v_table_instance_counter + 1;
-            v_table_instance := v_table_instance_counter;
+            
+            IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value IN ('_id', '_key', '_value') THEN
+                v_table_instance := p_parent_table_instance;
+            ELSE
+                v_table_instance_counter := v_table_instance_counter + 1;
+                v_table_instance := v_table_instance_counter;
+            END IF;
                     
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
             
@@ -1212,7 +1224,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 IF p_query_type = c_VALUE_TABLE_QUERY OR (p_query_type = c_X_VALUE_TABLE_QUERY AND v_column_count <= NVL(p_column_count, v_column_count)) THEN
                 
-                    add_text(v_comma || 'j' || v_table_instance || '.value');
+                    IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_id' THEN
+                        add_text(v_comma || 'j' || v_table_instance || '.id');
+                    ELSIF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_key' THEN
+                        add_text(v_comma || 'j' || v_table_instance || '.name');
+                    ELSE
+                        add_text(v_comma || 'j' || v_table_instance || '.value');
+                    END IF;
                     
                 ELSIF p_query_type = c_VALUE_QUERY THEN
                 
@@ -1248,12 +1266,20 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
         BEGIN
         
-            v_table_instance_counter := v_table_instance_counter + 1;
-            v_table_instance := v_table_instance_counter;
-        
-            add_text(v_comma || 'json_values j' || v_table_instance);
+            IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value IN ('_id', '_key', '_value') THEN
+            
+                NULL;
+                
+            ELSE
+            
+                v_table_instance_counter := v_table_instance_counter + 1;
+                v_table_instance := v_table_instance_counter;
+                
+                add_text(v_comma || 'json_values j' || v_table_instance);
                         
-            v_comma := ',';
+                v_comma := ',';
+                
+            END IF;
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
                 from_list_visit(p_query_elements(p_i).first_child_i);
@@ -1274,71 +1300,80 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
         BEGIN
         
-            v_table_instance_counter := v_table_instance_counter + 1;
-            v_table_instance := v_table_instance_counter;
+            IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value IN ('_id', '_key', '_value') THEN
             
-            IF p_parent_table_instance IS NOT NULL THEN
-            
-                add_text(v_and || 'j' || v_table_instance || '.parent_id');
+                v_table_instance := p_parent_table_instance;
                 
-                IF p_query_elements(p_i).optional THEN
-                    add_text('(+)');
+            ELSE
+            
+                v_table_instance_counter := v_table_instance_counter + 1;
+                v_table_instance := v_table_instance_counter;
+                
+            
+                IF p_parent_table_instance IS NOT NULL THEN
+                
+                    add_text(v_and || 'j' || v_table_instance || '.parent_id');
+                    
+                    IF p_query_elements(p_i).optional THEN
+                        add_text('(+)');
+                    END IF;
+                    
+                    add_text('=j' || p_parent_table_instance || '.id');
+                    
+                    v_and := ' AND ';
+                    
                 END IF;
                 
-                add_text('=j' || p_parent_table_instance || '.id');
+                IF p_query_elements(p_i).type = 'R' THEN
                 
-                v_and := ' AND ';
+                    add_text(v_and || 'j' || v_table_instance || '.id=0');
+                    
+                    v_and := ' AND ';
                 
-            END IF;
-            
-            IF p_query_elements(p_i).type = 'R' THEN
-            
-                add_text(v_and || 'j' || v_table_instance || '.id=0');
+                ELSIF p_query_elements(p_i).type = 'N' THEN
                 
-                v_and := ' AND ';
-            
-            ELSIF p_query_elements(p_i).type = 'N' THEN
-            
-                add_text(v_and || 'j' || v_table_instance || '.name');
+                    add_text(v_and || 'j' || v_table_instance || '.name');
+                    
+                    IF p_query_elements(p_i).optional THEN
+                        add_text('(+)');
+                    END IF;
+                    
+                    v_auto_variable_number := v_auto_variable_number + 1;
+                    add_text('=:v' || v_auto_variable_number);
+                    
+                    v_and := ' AND ';
+                    
+                ELSIF p_query_elements(p_i).type = 'I' THEN
                 
-                IF p_query_elements(p_i).optional THEN
-                    add_text('(+)');
+                    add_text(v_and || 'j' || v_table_instance || '.id');
+                    
+                    IF p_query_elements(p_i).optional THEN
+                        add_text('(+)');
+                    END IF;
+                    
+                    v_auto_variable_number := v_auto_variable_number + 1;
+                    add_text('=TO_NUMBER(:v' || v_auto_variable_number || ')');
+                    
+                    v_and := ' AND ';
+                    
+                ELSIF p_query_elements(p_i).type = 'V' THEN
+                
+                    add_text(v_and || 'j' || v_table_instance || '.name');
+                    
+                    IF p_query_elements(p_i).optional THEN
+                        add_text('(+)');
+                    END IF;
+                    
+                    IF NOT v_variable_numbers.EXISTS(p_query_elements(p_i).value) THEN
+                        v_variable_number := v_variable_number + 1;
+                        v_variable_numbers(p_query_elements(p_i).value) := v_variable_number;
+                    END IF;
+                    
+                    add_text('=:' || v_variable_numbers(p_query_elements(p_i).value));
+                    
+                    v_and := ' AND ';
+                    
                 END IF;
-                
-                v_auto_variable_number := v_auto_variable_number + 1;
-                add_text('=:v' || v_auto_variable_number);
-                
-                v_and := ' AND ';
-                
-            ELSIF p_query_elements(p_i).type = 'I' THEN
-            
-                add_text(v_and || 'j' || v_table_instance || '.id');
-                
-                IF p_query_elements(p_i).optional THEN
-                    add_text('(+)');
-                END IF;
-                
-                v_auto_variable_number := v_auto_variable_number + 1;
-                add_text('=TO_NUMBER(:v' || v_auto_variable_number || ')');
-                
-                v_and := ' AND ';
-                
-            ELSIF p_query_elements(p_i).type = 'V' THEN
-            
-                add_text(v_and || 'j' || v_table_instance || '.name');
-                
-                IF p_query_elements(p_i).optional THEN
-                    add_text('(+)');
-                END IF;
-                
-                IF NOT v_variable_numbers.EXISTS(p_query_elements(p_i).value) THEN
-                    v_variable_number := v_variable_number + 1;
-                    v_variable_numbers(p_query_elements(p_i).value) := v_variable_number;
-                END IF;
-                
-                add_text('=:' || v_variable_numbers(p_query_elements(p_i).value));
-                
-                v_and := ' AND ';
                 
             END IF;
         
@@ -1421,7 +1456,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             DBMS_SQL.PARSE(v_cursor_id, p_query_statement.statement_clob, DBMS_SQL.NATIVE);
         ELSE
             DBMS_SQL.PARSE(v_cursor_id, p_query_statement.statement, DBMS_SQL.NATIVE);
-            dbms_output.put_line(p_query_statement.statement);
         END IF;
                
         IF p_bind IS NOT NULL THEN 
@@ -1891,7 +1925,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 ,p_content_parse_events);
             
         ELSE
-          
+        
             RETURN create_json
                 (v_parent_ids
                 ,v_properties(1).property_name
@@ -2400,6 +2434,135 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         RETURN;
         
+    END;
+    
+    FUNCTION escape_string (
+        p_string IN VARCHAR2
+    )
+    RETURN VARCHAR2 IS
+
+        v_result VARCHAR2(4000);
+
+    BEGIN
+
+        v_result := REPLACE(p_string, '\', '\\');
+        v_result := REPLACE(v_result, '"', '\"');
+        v_result := REPLACE(v_result, '/', '\/');
+        v_result := REPLACE(v_result, CHR(8), '\b');
+        v_result := REPLACE(v_result, CHR(12), '\f');
+        v_result := REPLACE(v_result, CHR(10), '\n');
+        v_result := REPLACE(v_result, CHR(13), '\r');
+        v_result := REPLACE(v_result, CHR(9), '\t');
+
+        RETURN v_result;
+
+    END;
+    
+    PROCEDURE serialize_value (
+        p_parse_events IN json_parser.t_parse_events,
+        p_json IN OUT NOCOPY VARCHAR2,
+        p_json_clob IN OUT NOCOPY CLOB
+    ) IS
+        
+        v_value VARCHAR2(4000);
+        v_length PLS_INTEGER;
+
+        TYPE t_booleans IS 
+            TABLE OF BOOLEAN;
+            
+        v_comma_stack t_booleans;
+                
+    BEGIN
+      
+        v_comma_stack := t_booleans(FALSE);
+        v_length := 0;
+
+        FOR v_i IN 1..p_parse_events.COUNT LOOP
+        
+            IF p_parse_events(v_i).name IN ('END_OBJECT', 'END_ARRAY') THEN
+               
+                p_json := p_json || CASE p_parse_events(v_i).name WHEN 'END_OBJECT' THEN '}' ELSE ']' END;
+                
+                v_length := v_length + 1;
+                v_comma_stack.TRIM(1);
+                
+            ELSE
+            
+                IF v_comma_stack(v_comma_stack.COUNT) THEN
+                    p_json := p_json || ',';
+                    v_length := v_length + 1;
+                END IF;
+                
+                v_comma_stack(v_comma_stack.COUNT) := TRUE;
+            
+                IF p_parse_events(v_i).name IN ('START_OBJECT', 'START_ARRAY') THEN
+                
+                    p_json:= p_json || CASE p_parse_events(v_i).name WHEN 'START_OBJECT' THEN '{' ELSE '[' END;
+                
+                    v_length := v_length + 1;
+                                        
+                    v_comma_stack.EXTEND(1);
+                    v_comma_stack(v_comma_stack.COUNT) := FALSE;
+                
+                ELSE
+                
+                    CASE p_parse_events(v_i).name
+                    
+                        WHEN 'NAME' THEN
+                        
+                            v_value := escape_string(p_parse_events(v_i).value);
+                        
+                            p_json := p_json || '"' || v_value || '":';
+                            v_length := v_length + 3 + LENGTH(v_value);
+                            
+                            v_comma_stack(v_comma_stack.COUNT) := FALSE;
+                            
+                        WHEN 'STRING' THEN
+                      
+                            v_value := escape_string(p_parse_events(v_i).value);
+                                
+                            p_json := p_json || '"' || v_value || '"';
+                            v_length := v_length + 2 + LENGTH(v_value);
+                                
+                        WHEN 'NUMBER' THEN
+                              
+                            p_json := p_json || p_parse_events(v_i).value;
+                            v_length := v_length + 2 + LENGTH(p_parse_events(v_i).value);
+                                
+                        WHEN 'BOOLEAN' THEN
+                              
+                            p_json := p_json || p_parse_events(v_i).value;
+                            v_length := v_length + LENGTH(p_parse_events(v_i).value);
+                                
+                        WHEN 'NULL' THEN
+                              
+                            p_json := p_json || 'null';  
+                            v_length := v_length + 4;
+                    
+                    END CASE;
+                
+                END IF;
+                
+            END IF;
+            
+            
+            IF p_json_clob IS NOT NULL AND v_length >= 25000 THEN
+                
+                DBMS_LOB.APPEND(p_json_clob, p_json);
+                    
+                p_json := NULL;
+                v_length := 0;
+                    
+            END IF;
+            
+        
+        END LOOP;
+        
+        IF p_json_clob IS NOT NULL AND p_json IS NOT NULL THEN
+            DBMS_LOB.APPEND(p_json_clob, p_json);
+            p_json := NULL;
+        END IF;
+    
     END;
     
 BEGIN

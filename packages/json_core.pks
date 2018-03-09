@@ -166,5 +166,11 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_exact IN BOOLEAN := TRUE
     )
     RETURN t_numbers;
+    
+    PROCEDURE serialize_value (
+        p_parse_events IN json_parser.t_parse_events,
+        p_json IN OUT NOCOPY VARCHAR2,
+        p_json_clob IN OUT NOCOPY CLOB
+    );
 
 END;

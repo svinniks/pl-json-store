@@ -367,17 +367,17 @@ suite("Query signature retrieval", function() {
     
     });
 
-    test("Single optional name", function() {
+    test("Optional name", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person?"
+            p_query: "person.name?"
         });
 
         var signature = database.call("json_core.get_query_signature", {
             p_query_elements: elements
         }); 
 
-        expect(signature).to.be('(N?)');
+        expect(signature).to.be('(N(N?))');
     
     });
 
@@ -392,6 +392,20 @@ suite("Query signature retrieval", function() {
         }); 
 
         expect(signature).to.be('(N(NN))');
+    
+    });
+
+    test("Reserved fields", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "person(._id, ._key, ._value)"
+        });
+
+        var signature = database.call("json_core.get_query_signature", {
+            p_query_elements: elements
+        }); 
+
+        expect(signature).to.be('(N(ikv))');
     
     });
 

@@ -56,9 +56,14 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00019', 'Alias not specified for a leaf wildcard property!');
         default_message_resolver.register_message('JDOC-00020', 'Variable name too long!');
         default_message_resolver.register_message('JDOC-00021', '');
-        default_message_resolver.register_message('JDOC-00022', 'Root can''t be optional!');
+        default_message_resolver.register_message('JDOC-00022', '');
         default_message_resolver.register_message('JDOC-00023', 'Column alias for a wildcard not specified!');
         default_message_resolver.register_message('JDOC-00024', 'Value :1 is locked!');
+        default_message_resolver.register_message('JDOC-00025', 'Reserved field reference can''t be optional!');
+        default_message_resolver.register_message('JDOC-00026', 'Reserved field reference can''t be branched!');
+        default_message_resolver.register_message('JDOC-00027', 'Reserved field reference can''t have child elements!');
+        default_message_resolver.register_message('JDOC-00028', 'Reserved field reference can''t be the topmost query element!');
+        default_message_resolver.register_message('JDOC-00029', 'The topmost query element can''t be optional!');
     END;
     
     FUNCTION parse_query (
@@ -107,6 +112,11 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
         BEGIN
         
+            IF v_stack.COUNT > 1 AND v_query_elements(v_stack(v_stack.COUNT).element_i).type = 'F' THEN
+                -- Reserved field reference can''t have child elements!
+                error$.raise('JDOC-00027');
+            END IF;
+        
             v_query_elements.EXTEND(1);
             v_element_i := v_query_elements.COUNT;
             
@@ -149,6 +159,15 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 END IF;
                 
                 push('R');
+            
+            ELSIF p_value IN ('_id', '_key', '_value') THEN
+            
+                IF v_stack.COUNT = 1 THEN
+                    -- Reserved field reference can''t be the topmost query element!
+                    error$.raise('JDOC-00028');
+                END IF;
+            
+                push('F', SUBSTR(p_value, 2));
             
             ELSE
             
@@ -214,10 +233,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         PROCEDURE set_optional IS
         BEGIN
         
-            
-            IF v_query_elements(v_stack(v_stack.COUNT).element_i).TYPE = 'R' THEN
-                -- Root can''t be optional!
-                error$.raise('JDOC-00022');
+            IF v_stack.COUNT = 2 THEN
+                -- The topmost query element can''t be optional!
+                error$.raise('JDOC-00029');
+            ELSIF v_query_elements(v_stack(v_stack.COUNT).element_i).TYPE = 'F' THEN
+                -- Reserved field reference can''t be optional!
+                error$.raise('JDOC-00025');
             END IF;
         
             v_query_elements(v_stack(v_stack.COUNT).element_i).optional := TRUE;
@@ -234,7 +255,14 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         PROCEDURE branch IS
         BEGIN
+        
+            IF v_stack.COUNT > 1 AND v_query_elements(v_stack(v_stack.COUNT).element_i).TYPE = 'F' THEN
+                -- Reserved field reference can''t be branched!
+                error$.raise('JDOC-00026');
+            END IF;
+        
             v_stack(v_stack.COUNT).branching := TRUE;
+            
         END;
         
         FUNCTION branching
@@ -965,12 +993,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         ) IS
         BEGIN
         
-            IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_id' THEN
-                 v_signature := v_signature || 'q';
-            ELSIF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_key' THEN
-                v_signature := v_signature || 'w';
-            ELSIF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_value' THEN
-                v_signature := v_signature || 'e';
+            IF p_query_elements(p_i).type = 'F' THEN
+                v_signature := v_signature || SUBSTR(p_query_elements(p_i).value, 1, 1); 
             ELSE
                 v_signature := v_signature || p_query_elements(p_i).type || CASE WHEN p_query_elements(p_i).optional THEN '?' END;
             END IF;
@@ -1125,7 +1149,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         ) IS
         BEGIN
         
-            IF p_query_elements(p_i).type IN ('N', 'I') AND p_query_elements(p_i).value NOT IN ('_id', '_key', '_value') THEN
+            IF p_query_elements(p_i).type IN ('N', 'I') THEN
                 v_values.EXTEND(1);
                 v_values(v_values.COUNT) := p_query_elements(p_i).value;
             END IF;
@@ -1207,7 +1231,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
         BEGIN
             
-            IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value IN ('_id', '_key', '_value') THEN
+            IF p_query_elements(p_i).type = 'F' THEN
                 v_table_instance := p_parent_table_instance;
             ELSE
                 v_table_instance_counter := v_table_instance_counter + 1;
@@ -1224,12 +1248,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 IF p_query_type = c_VALUE_TABLE_QUERY OR (p_query_type = c_X_VALUE_TABLE_QUERY AND v_column_count <= NVL(p_column_count, v_column_count)) THEN
                 
-                    IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_id' THEN
-                        add_text(v_comma || 'j' || v_table_instance || '.id');
-                    ELSIF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value = '_key' THEN
-                        add_text(v_comma || 'j' || v_table_instance || '.name');
+                    add_text(v_comma || 'j' || v_table_instance || '.');
+                
+                    IF p_query_elements(p_i).type = 'F' THEN
+                        add_text(CASE p_query_elements(p_i).value WHEN 'key' THEN 'name' ELSE p_query_elements(p_i).value END);
                     ELSE
-                        add_text(v_comma || 'j' || v_table_instance || '.value');
+                        add_text('value');
                     END IF;
                     
                 ELSIF p_query_type = c_VALUE_QUERY THEN
@@ -1266,11 +1290,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
         BEGIN
         
-            IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value IN ('_id', '_key', '_value') THEN
-            
-                NULL;
-                
-            ELSE
+            IF p_query_elements(p_i).type != 'F'  THEN
             
                 v_table_instance_counter := v_table_instance_counter + 1;
                 v_table_instance := v_table_instance_counter;
@@ -1300,7 +1320,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
         BEGIN
         
-            IF p_query_elements(p_i).type = 'N' AND p_query_elements(p_i).value IN ('_id', '_key', '_value') THEN
+            IF p_query_elements(p_i).type = 'F' THEN
             
                 v_table_instance := p_parent_table_instance;
                 

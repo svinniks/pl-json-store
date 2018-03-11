@@ -508,7 +508,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "name? surname"
+                    p_query: "person.name? surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -520,19 +520,19 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "#123 surname"
+                    p_query: "person.#123 surname"
                 });
             
             }).to.throw(/JDOC-00001/);
         
         });
 
-        test("Unexpected character after an optional ID refernce", function() {
+        test("Unexpected character after an optional ID reference", function() {
         
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "#123? surname"
+                    p_query: "person.#123? surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -955,7 +955,7 @@ suite("Invalid query tests", function() {
                     p_query: "$?"
                 });
             
-            }).to.throw(/JDOC-00022/);
+            }).to.throw(/JDOC-00029/);
         
         });
 
@@ -992,6 +992,66 @@ suite("Invalid query tests", function() {
                 });
             
             }).to.throw(/JDOC-00006/);
+
+        });
+
+        test("Branching reserved field", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_core.parse_query", {
+                    p_query: "field._key(._value)"
+                });
+            
+            }).to.throw(/JDOC-00026/);
+
+        });
+
+        test("Optional reserved field", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_core.parse_query", {
+                    p_query: "field._key?"
+                });
+            
+            }).to.throw(/JDOC-00025/);
+
+        });
+
+        test("Reserved field with a child", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_core.parse_query", {
+                    p_query: "field._key.name"
+                });
+            
+            }).to.throw(/JDOC-00027/);
+
+        });
+
+        test("Reserved field as the topmost element", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_core.parse_query", {
+                    p_query: "_key"
+                });
+            
+            }).to.throw(/JDOC-00028/);
+
+        });
+
+        test("Optional topmost element", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_core.parse_query", {
+                    p_query: "object?"
+                });
+            
+            }).to.throw(/JDOC-00029/);
 
         });
 
@@ -3035,13 +3095,21 @@ suite("Valid query tests", function() {
     
     });
 
-    test("Single optional wildcard", function() {
+    test("Optional wildcard", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '*?'
+            p_query: 'persons.*?'
         });
 
         expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
             {
                 type: "W",
                 value: null,
@@ -3054,13 +3122,21 @@ suite("Valid query tests", function() {
     
     });
 
-    test("Single optional wildcard, spaces after *", function() {
+    test("Optional wildcard, spaces after *", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '*   ?'
+            p_query: 'persons.*   ?'
         });
 
         expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
             {
                 type: "W",
                 value: null,
@@ -3427,13 +3503,21 @@ suite("Valid query tests", function() {
     
     });
 
-    test("Single optional variable", function() {
+    test("Optional variable", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: ':var?'
+            p_query: 'person.:var?'
         });
 
         expect(elements).to.eql([
+            {
+                type: "N",
+                value: "person",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
             {
                 type: "V",
                 value: "VAR",
@@ -3446,13 +3530,21 @@ suite("Valid query tests", function() {
     
     });
 
-    test("Single optional variable, spaces before ?", function() {
+    test("Optional variable, spaces before ?", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: ':var ?'
+            p_query: 'person.:var ?'
         });
 
         expect(elements).to.eql([
+            {
+                type: "N",
+                value: "person",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
             {
                 type: "V",
                 value: "VAR",
@@ -3836,6 +3928,57 @@ suite("Valid query tests", function() {
             {
                 type: "V",
                 value: "VAR2",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Reserved fields _id, _key and _value", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: 'persons.*(._id, ._key, ._value)'
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: 3,
+                next_sibling_i: null,
+                alias: null
+            },
+            {
+                type: "F",
+                value: "id",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 4,
+                alias: null
+            },
+            {
+                type: "F",
+                value: "key",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 5,
+                alias: null
+            },
+            {
+                type: "F",
+                value: "value",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,

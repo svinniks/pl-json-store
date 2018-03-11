@@ -160,7 +160,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
                 push('R');
             
-            ELSIF p_value IN ('_id', '_key', '_value') THEN
+            ELSIF p_value IN ('_id', '_key', '_value') AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
             
                 IF v_stack.COUNT = 1 THEN
                     -- Reserved field reference can''t be the topmost query element!

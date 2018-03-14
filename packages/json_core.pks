@@ -43,14 +43,8 @@ CREATE OR REPLACE PACKAGE json_core IS
        
     TYPE t_properties IS TABLE OF t_property;
     
-    TYPE t_value IS 
-        RECORD (
-            id NUMBER,
-            type CHAR,
-            value VARCHAR2(4000)
-        );
-        
-    TYPE t_values IS TABLE OF t_value;
+    TYPE t_values IS
+        TABLE OF t_json_value;
     
     c_VALUE_QUERY CONSTANT PLS_INTEGER := 1;
     c_PROPERTY_QUERY CONSTANT PLS_INTEGER := 2;
@@ -65,10 +59,41 @@ CREATE OR REPLACE PACKAGE json_core IS
     
     TYPE t_t_varchars IS 
         TABLE OF t_varchars;
-        
+    
+    FUNCTION string_events (
+        p_value IN VARCHAR2
+    )
+    RETURN json_parser.t_parse_events;
+    
+    FUNCTION number_events (
+        p_value IN NUMBER
+    )
+    RETURN json_parser.t_parse_events;
+    
+    FUNCTION boolean_events (
+        p_value IN BOOLEAN
+    )
+    RETURN json_parser.t_parse_events;
+    
+    FUNCTION null_events
+    RETURN json_parser.t_parse_events;
+    
+    FUNCTION object_events
+    RETURN json_parser.t_parse_events;
+    
+    FUNCTION array_events
+    RETURN json_parser.t_parse_events;
+    
     FUNCTION parse_query (
         p_query IN VARCHAR2,
-        p_query_type IN PLS_INTEGER := c_VALUE_TABLE_QUERY
+        p_query_type IN PLS_INTEGER
+    ) 
+    RETURN t_query_elements;
+        
+    FUNCTION parse_query (
+        p_anchor_value_id IN NUMBER,
+        p_query IN VARCHAR2,
+        p_query_type IN PLS_INTEGER
     ) 
     RETURN t_query_elements;
     
@@ -105,18 +130,13 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_bind IN bind
     )
     RETURN INTEGER;
-    
-    FUNCTION prepare_query (
-        p_query IN VARCHAR2,
-        p_bind IN bind,
-        p_query_type IN PLS_INTEGER
-    )
-    RETURN INTEGER;
-    
-    FUNCTION get_length (
-        p_array_id IN NUMBER
-    )
-    RETURN NUMBER;
+        
+    FUNCTION get_value_cursor (
+        p_anchor_value_id IN NUMBER,
+        p_path IN VARCHAR2,
+        p_bind IN bind
+    ) 
+    RETURN SYS_REFCURSOR;
     
     PROCEDURE request_properties (
         p_path IN VARCHAR2,
@@ -131,26 +151,26 @@ CREATE OR REPLACE PACKAGE json_core IS
     ); 
     
     FUNCTION create_json (
-        p_parent_ids IN t_numbers,
+        p_parent_id IN NUMBER,
         p_name IN VARCHAR2,
-        p_content_parse_events IN json_parser.t_parse_events,
-        p_id IN NUMBER := NULL
+        p_content_parse_events IN json_parser.t_parse_events
     ) 
-    RETURN t_numbers;
+    RETURN t_json_value;
     
     FUNCTION set_property (
         p_path IN VARCHAR2,
         p_bind IN bind,
-        p_content_parse_events IN json_parser.t_parse_events,
-        p_exact IN BOOLEAN := TRUE
+        p_content_parse_events IN json_parser.t_parse_events
     )
-    RETURN t_numbers;
+    RETURN t_json_value;
     
-    FUNCTION request_value (
+    FUNCTION set_property (
+        p_anchor_value_id IN NUMBER,
         p_path IN VARCHAR2,
-        p_bind IN bind
-    ) 
-    RETURN t_value;
+        p_bind IN bind,
+        p_content_parse_events IN json_parser.t_parse_events
+    )
+    RETURN t_json_value;
     
     PROCEDURE apply_json (
         p_path IN VARCHAR2,
@@ -158,14 +178,6 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_bind IN bind,
         p_check_types IN BOOLEAN
     );
-    
-    FUNCTION push_property (
-        p_path IN VARCHAR2,
-        p_bind IN bind,
-        p_content_parse_events IN json_parser.t_parse_events,
-        p_exact IN BOOLEAN := TRUE
-    )
-    RETURN t_numbers;
     
     PROCEDURE serialize_value (
         p_parse_events IN json_parser.t_parse_events,

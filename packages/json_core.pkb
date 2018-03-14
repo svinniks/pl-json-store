@@ -46,7 +46,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00007', 'No container for property at path :1 could be found!');
         default_message_resolver.register_message('JDOC-00008', 'Scalar values and null can''t have properties!');
         default_message_resolver.register_message('JDOC-00009', 'Value :1 does not exist!');
+        default_message_resolver.register_message('JDOC-00010', 'Type conversion error!');
         default_message_resolver.register_message('JDOC-00011', 'Property ":1" type mismatch!');
+        default_message_resolver.register_message('JDOC-00012', 'Value is not an array!');
         default_message_resolver.register_message('JDOC-00013', 'Invalid array element index :1!');
         default_message_resolver.register_message('JDOC-00014', 'Requested target is not an array!');
         default_message_resolver.register_message('JDOC-00015', 'Unexpected :1 in a non-branching query!');
@@ -55,8 +57,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00018', 'Property name ":1" is too long to be a column name!');
         default_message_resolver.register_message('JDOC-00019', 'Alias not specified for a leaf wildcard property!');
         default_message_resolver.register_message('JDOC-00020', 'Variable name too long!');
-        default_message_resolver.register_message('JDOC-00021', '');
-        default_message_resolver.register_message('JDOC-00022', '');
+        default_message_resolver.register_message('JDOC-00021', 'Value is not an object!');
+        default_message_resolver.register_message('JDOC-00022', 'Invalid property name!');
         default_message_resolver.register_message('JDOC-00023', 'Column alias for a wildcard not specified!');
         default_message_resolver.register_message('JDOC-00024', 'Value :1 is locked!');
         default_message_resolver.register_message('JDOC-00025', 'Reserved field reference can''t be optional!');
@@ -66,9 +68,124 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00029', 'The topmost query element can''t be optional!');
     END;
     
+    FUNCTION string_events (
+        p_value IN VARCHAR2
+    )
+    RETURN json_parser.t_parse_events IS
+    
+        v_parse_event json_parser.t_parse_event;
+    
+    BEGIN
+    
+        IF p_value IS NULL THEN
+            v_parse_event.name := 'NULL';
+        ELSE
+            v_parse_event.name := 'STRING';
+            v_parse_event.value := p_value;
+        END IF;
+        
+        RETURN json_parser.t_parse_events(v_parse_event);
+    
+    END;
+    
+    FUNCTION number_events (
+        p_value IN NUMBER
+    )
+    RETURN json_parser.t_parse_events IS
+    
+        v_parse_event json_parser.t_parse_event;
+    
+    BEGIN
+    
+        IF p_value IS NULL THEN
+            v_parse_event.name := 'NULL';
+        ELSE
+            v_parse_event.name := 'NUMBER';
+            v_parse_event.value := p_value;
+        END IF;
+        
+        RETURN json_parser.t_parse_events(v_parse_event);
+    
+    END;
+    
+    FUNCTION boolean_events (
+        p_value IN BOOLEAN
+    )
+    RETURN json_parser.t_parse_events IS
+    
+        v_parse_event json_parser.t_parse_event;
+    
+    BEGIN
+    
+        IF p_value IS NULL THEN
+            v_parse_event.name := 'NULL';
+        ELSE
+            v_parse_event.name := 'BOOLEAN';
+            v_parse_event.value := CASE WHEN p_value THEN 'true' ELSE 'false' END;
+        END IF;
+        
+        RETURN json_parser.t_parse_events(v_parse_event);
+    
+    END;
+    
+    FUNCTION null_events
+    RETURN json_parser.t_parse_events IS
+    
+        v_parse_event json_parser.t_parse_event;
+    
+    BEGIN
+    
+        v_parse_event.name := 'NULL';
+                
+        RETURN json_parser.t_parse_events(v_parse_event);
+    
+    END;
+    
+    FUNCTION object_events
+    RETURN json_parser.t_parse_events IS
+    
+        v_start_event json_parser.t_parse_event;
+        v_end_event json_parser.t_parse_event;
+
+    BEGIN
+
+        v_start_event.name := 'START_OBJECT';
+        v_end_event.name := 'END_OBJECT';
+        
+        RETURN json_parser.t_parse_events(v_start_event, v_end_event);
+        
+    END;
+    
+    FUNCTION array_events
+    RETURN json_parser.t_parse_events IS
+    
+        v_start_event json_parser.t_parse_event;
+        v_end_event json_parser.t_parse_event;
+
+    BEGIN
+
+        v_start_event.name := 'START_ARRAY';
+        v_end_event.name := 'END_ARRAY';
+        
+        RETURN json_parser.t_parse_events(v_start_event, v_end_event);
+        
+    END;
+    
     FUNCTION parse_query (
         p_query IN VARCHAR2,
-        p_query_type IN PLS_INTEGER := c_VALUE_TABLE_QUERY
+        p_query_type IN PLS_INTEGER
+    ) 
+    RETURN t_query_elements IS
+    BEGIN
+      
+        RETURN parse_query(NULL, p_query, p_query_type);
+    
+    END;
+    
+    FUNCTION parse_query (
+        p_anchor_value_id IN NUMBER,
+        p_query IN VARCHAR2,
+        p_query_type IN PLS_INTEGER
     )
     RETURN t_query_elements IS
     
@@ -911,7 +1028,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
     BEGIN
     
-        v_cache_key := p_query_type || p_query;
+        v_cache_key := p_query_type || CASE WHEN p_anchor_value_id IS NULL THEN 'A' ELSE 'R' END || p_query;
     
         IF v_query_element_cache.EXISTS(v_cache_key) THEN
             RETURN v_query_element_cache(v_cache_key);
@@ -919,6 +1036,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
         v_query_elements := t_query_elements();
         init_stack;
+        
+        IF p_anchor_value_id IS NOT NULL THEN
+            push('I', p_anchor_value_id);
+        END IF;
         
         v_state := 'lf_root';
         
@@ -1258,7 +1379,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     
                 ELSIF p_query_type = c_VALUE_QUERY THEN
                 
-                    add_text(v_comma || 'j' || v_table_instance || '.id,j' || v_table_instance || '.type,j' || v_table_instance || '.value');
+                    add_text(v_comma || 'j' || v_table_instance || '.id,j' || v_table_instance || '.parent_id,j' || v_table_instance || '.type,j' || v_table_instance || '.value');
                     
                 ELSIF p_query_type = c_PROPERTY_QUERY THEN
                 
@@ -1494,29 +1615,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     END;
     
-    FUNCTION prepare_query (
-        p_query IN VARCHAR2,
-        p_bind IN bind,
-        p_query_type IN PLS_INTEGER
-    )
-    RETURN INTEGER IS
-    
-        v_query_elements t_query_elements;
-        v_query_statement t_query_statement;
-    
-    BEGIN
-    
-        v_query_elements := parse_query(p_query, p_query_type);
-        v_query_statement := get_query_statement(v_query_elements, p_query_type);
-    
-        RETURN prepare_query (
-            v_query_elements,
-            v_query_statement,
-            p_bind
-        );     
-    
-    END;
-    
     PROCEDURE request_properties (
         p_query_elements IN t_query_elements,
         p_bind IN bind,
@@ -1607,19 +1705,16 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     END;
 
     PROCEDURE create_json (
-        p_parent_ids IN t_numbers,
+        p_parent_id IN NUMBER,
         p_name IN VARCHAR2,
         p_content_parse_events IN json_parser.t_parse_events,
         p_event_i IN OUT NOCOPY PLS_INTEGER,
-        p_created_ids IN OUT NOCOPY t_numbers,
-        p_id IN NUMBER := NULL
+        p_value OUT NOCOPY t_json_value
     ) IS
     
         v_json_values t_json_values;
 
-        v_event_i PLS_INTEGER;
         v_id NUMBER;
-
         v_id_map t_integer_indexed_numbers;
 
         FUNCTION next_id
@@ -1690,68 +1785,68 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             p_name IN VARCHAR2,
             p_id IN NUMBER := NULL
         )
-        RETURN NUMBER IS
+        RETURN t_json_value IS
 
             v_value json_values%ROWTYPE;
-            v_child_id NUMBER;
+            v_child_value t_json_value;
 
             v_name VARCHAR2(4000);
             v_i PLS_INTEGER;
 
         BEGIN
 
-            v_value.id := CASE WHEN p_id IS NULL THEN next_id ELSE p_id END;
+            v_value.id := next_id;
             v_value.parent_id := p_parent_id;
             v_value.name := p_name;
 
-            IF p_content_parse_events(v_event_i).name = 'STRING' THEN
+            IF p_content_parse_events(p_event_i).name = 'STRING' THEN
 
                 v_value.type := 'S';
-                v_value.value := p_content_parse_events(v_event_i).value;
+                v_value.value := p_content_parse_events(p_event_i).value;
 
                 insert_value(v_value);
 
-            ELSIF p_content_parse_events(v_event_i).name = 'NUMBER' THEN
+            ELSIF p_content_parse_events(p_event_i).name = 'NUMBER' THEN
 
                 v_value.type := 'N';
-                v_value.value := p_content_parse_events(v_event_i).value;
+                v_value.value := p_content_parse_events(p_event_i).value;
 
                 insert_value(v_value);
 
-            ELSIF p_content_parse_events(v_event_i).name = 'BOOLEAN' THEN
+            ELSIF p_content_parse_events(p_event_i).name = 'BOOLEAN' THEN
 
                 v_value.type := 'B';
-                v_value.value := p_content_parse_events(v_event_i).value;
+                v_value.value := p_content_parse_events(p_event_i).value;
 
                 insert_value(v_value);
 
-            ELSIF p_content_parse_events(v_event_i).name = 'NULL' THEN
+            ELSIF p_content_parse_events(p_event_i).name = 'NULL' THEN
 
                 v_value.type := 'E';
                 v_value.value := NULL;
 
                 insert_value(v_value);
 
-            ELSIF p_content_parse_events(v_event_i).name = 'START_OBJECT' THEN
+            ELSIF p_content_parse_events(p_event_i).name = 'START_OBJECT' THEN
 
                 v_value.type := 'O';
                 v_value.value := NULL;
 
                 insert_value(v_value);
 
-                v_event_i := v_event_i + 1;
+                p_event_i := p_event_i + 1;
 
-                WHILE p_content_parse_events(v_event_i).name != 'END_OBJECT' LOOP
+                WHILE p_content_parse_events(p_event_i).name != 'END_OBJECT' LOOP
 
-                    v_name := p_content_parse_events(v_event_i).value;
-                    v_event_i := v_event_i + 1;
+                    v_name := p_content_parse_events(p_event_i).value;
+                    p_event_i := p_event_i + 1;
 
-                    v_child_id := create_value(v_value.id, v_name);
-                    v_event_i := v_event_i + 1;
+                    v_child_value := create_value(v_value.id, v_name);
+                    p_event_i := p_event_i + 1;
 
                 END LOOP;
 
-            ELSIF p_content_parse_events(v_event_i).name = 'START_ARRAY' THEN
+            ELSIF p_content_parse_events(p_event_i).name = 'START_ARRAY' THEN
 
                 v_value.type := 'A';
                 v_value.value := NULL;
@@ -1759,20 +1854,20 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 insert_value(v_value);
 
                 v_i := 0;
-                v_event_i := v_event_i + 1;
+                p_event_i := p_event_i + 1;
 
-                WHILE p_content_parse_events(v_event_i).name != 'END_ARRAY' LOOP
+                WHILE p_content_parse_events(p_event_i).name != 'END_ARRAY' LOOP
 
-                    v_child_id := create_value(v_value.id, v_i);
+                    v_child_value := create_value(v_value.id, v_i);
 
-                    v_event_i := v_event_i + 1;
+                    p_event_i := p_event_i + 1;
                     v_i := v_i + 1;
 
                 END LOOP;
 
             END IF;
 
-            RETURN v_value.id;
+            RETURN t_json_value(v_value.id, p_parent_id, v_value.type, v_value.value);
 
         END;
 
@@ -1781,64 +1876,61 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_json_values := t_json_values();
         v_id := 0;
 
-        p_created_ids := t_numbers();
-
-        FOR v_i IN 1..p_parent_ids.COUNT LOOP
-
-            v_event_i := p_event_i;
-
-            p_created_ids.EXTEND(1);
-            p_created_ids(p_created_ids.COUNT) := create_value(p_parent_ids(v_i), p_name, p_id);
-
-        END LOOP;
+        p_value := create_value(p_parent_id, p_name);
 
         flush_values;
 
-        p_event_i := v_event_i;
-
-        FOR v_i IN 1..p_created_ids.COUNT LOOP
-            IF v_id_map.EXISTS(p_created_ids(v_i)) THEN
-                p_created_ids(v_i) := v_id_map(p_created_ids(v_i));
-            END IF;
-        END LOOP;
+        p_value.id := v_id_map(p_value.id);
 
     END;
 
     FUNCTION create_json (
-        p_parent_ids IN t_numbers,
+        p_parent_id IN NUMBER,
         p_name IN VARCHAR2,
-        p_content_parse_events IN json_parser.t_parse_events,
-        p_id IN NUMBER := NULL
+        p_content_parse_events IN json_parser.t_parse_events
     ) 
-    RETURN t_numbers IS
+    RETURN t_json_value IS
     
         v_event_i PLS_INTEGER;
-        v_created_ids t_numbers;
+        v_value t_json_value;
     
     BEGIN
     
         v_event_i := 1;
-        create_json(p_parent_ids, p_name, p_content_parse_events, v_event_i, v_created_ids, p_id);
+        create_json(p_parent_id, p_name, p_content_parse_events, v_event_i, v_value);
         
-        RETURN v_created_ids;
+        RETURN v_value;
     
     END;
     
     FUNCTION set_property (
         p_path IN VARCHAR2,
         p_bind IN bind,
-        p_content_parse_events IN json_parser.t_parse_events,
-        p_exact IN BOOLEAN := TRUE
+        p_content_parse_events IN json_parser.t_parse_events
     )
-    RETURN t_numbers IS
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_property(NULL, p_path, p_bind, p_content_parse_events);
+    
+    END;
+    
+    FUNCTION set_property (
+        p_anchor_value_id IN NUMBER,
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_content_parse_events IN json_parser.t_parse_events
+    )
+    RETURN t_json_value IS
 
         v_query_elements t_query_elements;
 
         c_properties SYS_REFCURSOR;
         v_properties t_properties;
+        v_property t_property;
 
         v_existing_ids t_numbers;
-        v_parent_ids t_numbers;
+        v_parent_id NUMBER;
         
         v_index NUMBER;
         v_length NUMBER;
@@ -1846,7 +1938,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
     BEGIN
 
-        v_query_elements := parse_query(p_path, c_PROPERTY_QUERY);
+        v_query_elements := parse_query(p_anchor_value_id, p_path, c_PROPERTY_QUERY);
+        
+        IF v_query_elements(v_query_elements.COUNT).type != 'N' THEN
+            -- Invalid property name!
+            error$.raise('JDOC-00022');
+        END IF;
         
         request_properties(
             v_query_elements, 
@@ -1859,7 +1956,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
         CLOSE c_properties;
 
-        IF p_exact AND v_properties.COUNT > 1 THEN
+        IF v_properties.COUNT > 1 THEN
             -- Multiple values found at the path :1!
             error$.raise('JDOC-00004', p_path);
         ELSIF v_properties.COUNT = 0 THEN
@@ -1867,59 +1964,51 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             error$.raise('JDOC-00007', p_path);
         END IF;
 
+        v_property := v_properties(1);
         v_index := to_index(v_query_elements(v_query_elements.COUNT).value);
         
         v_existing_ids := t_numbers();
         v_gap_values := t_json_values();
-        
-        v_parent_ids := t_numbers();
 
-        FOR v_i IN 1..v_properties.COUNT LOOP
+        IF v_property.property_locked = 'T' THEN
+            -- Value :1 is locked!
+            error$.raise('JDOC-00024');
+        END IF;
 
-            IF v_properties(v_i).property_locked = 'T' THEN
-                -- Value :1 is locked!
-                error$.raise('JDOC-00024');
-            END IF;
+        IF NVL(v_property.parent_type, 'R') NOT IN ('R', 'O', 'A') THEN
+            -- Scalar values and null can't have properties!
+            error$.raise('JDOC-00008');
+        END IF;
 
-            IF NVL(v_properties(v_i).parent_type, 'R') NOT IN ('R', 'O', 'A') THEN
-                -- Scalar values and null can't have properties!
-                error$.raise('JDOC-00008');
-            END IF;
+        IF v_property.property_id IS NOT NULL THEN
+            v_existing_ids.EXTEND(1);
+            v_existing_ids(v_existing_ids.COUNT) := v_property.property_id;
+        END IF;
 
-            IF v_properties(v_i).property_id IS NOT NULL THEN
-                v_existing_ids.EXTEND(1);
-                v_existing_ids(v_existing_ids.COUNT) := v_properties(v_i).property_id;
-            END IF;
-
-            v_parent_ids.EXTEND(1);
-            v_parent_ids(v_parent_ids.COUNT) := v_properties(v_i).parent_id;
-            
-            IF v_properties(v_i).parent_type = 'A' THEN
+        IF v_property.parent_type = 'A' THEN
                 
-                IF v_index IS NULL THEN
-                    -- Array element index must be a non-negative integer!
-                    error$.raise('JDOC-00013');
-                END IF;
+            IF v_index IS NULL THEN
+                -- Array element index must be a non-negative integer!
+                error$.raise('JDOC-00013');
+            END IF;
                 
-                v_length := get_length(v_properties(v_i).parent_id);
+            v_length := t_json_value(v_property.parent_id).get_length;
                 
-                IF v_index > v_length THEN
+            IF v_index > v_length THEN
                     
-                    FOR v_j IN v_length..v_index - 1 LOOP
+                FOR v_j IN v_length..v_index - 1 LOOP
                     
-                        v_gap_values.EXTEND(1);
+                    v_gap_values.EXTEND(1);
                         
-                        v_gap_values(v_gap_values.COUNT).parent_id := v_properties(v_i).parent_id;
-                        v_gap_values(v_gap_values.COUNT).type := 'E';
-                        v_gap_values(v_gap_values.COUNT).name := v_j;
+                    v_gap_values(v_gap_values.COUNT).parent_id := v_property.parent_id;
+                    v_gap_values(v_gap_values.COUNT).type := 'E';
+                    v_gap_values(v_gap_values.COUNT).name := v_j;
                     
-                    END LOOP;
+                END LOOP;
                 
-                END IF;
-            
             END IF;
-
-        END LOOP;
+            
+        END IF;
 
         IF v_existing_ids.COUNT > 0 THEN
 
@@ -1937,103 +2026,45 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         END IF;
 
-        IF v_query_elements(v_query_elements.COUNT).type = 'N' THEN
-          
-            RETURN create_json
-                (v_parent_ids
-                ,v_query_elements(v_query_elements.COUNT).value
-                ,p_content_parse_events);
-            
-        ELSE
-        
-            RETURN create_json
-                (v_parent_ids
-                ,v_properties(1).property_name
-                ,p_content_parse_events
-                ,v_query_elements(v_query_elements.COUNT).value);
-                
-        END IF;
+        RETURN create_json (
+            v_property.parent_id
+           ,v_query_elements(v_query_elements.COUNT).value
+           ,p_content_parse_events
+        );
 
     END;
     
-    PROCEDURE request_values (
+    FUNCTION get_value_cursor (
+        p_anchor_value_id IN NUMBER,
         p_path IN VARCHAR2,
-        p_bind IN bind,
-        p_values OUT SYS_REFCURSOR
-    ) IS
+        p_bind IN bind
+    ) 
+    RETURN SYS_REFCURSOR IS
+    
+        v_query_elements t_query_elements;
+        v_query_statement t_query_statement;
     
         v_cursor_id INTEGER;
     
     BEGIN
+
+        v_query_elements := parse_query(p_anchor_value_id, p_path, c_VALUE_QUERY);
+        v_query_statement := get_query_statement(v_query_elements, c_VALUE_QUERY);
     
-        v_cursor_id := prepare_query(p_path, p_bind, c_VALUE_QUERY);
-        p_values := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
+        v_cursor_id := prepare_query(v_query_elements, v_query_statement, p_bind);
+        RETURN DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
     END;
-        
-    FUNCTION request_values (
-        p_path IN VARCHAR2,
-        p_bind IN bind
-    )
-    RETURN t_values PIPELINED IS
     
-        c_values SYS_REFCURSOR;
-        
-        v_values t_values;
-        c_fetch_limit CONSTANT PLS_INTEGER := 1000;
-    
-    BEGIN
-
-        request_values(p_path, p_bind, c_values);
-        
-        LOOP
-        
-            v_values := t_values();
-            
-            FETCH c_values 
-            BULK COLLECT INTO v_values
-            LIMIT c_fetch_limit;
-            
-            FOR v_i IN 1..v_values.COUNT LOOP
-                PIPE ROW(v_values(v_i));
-            END LOOP;
-            
-            EXIT WHEN v_values.COUNT < c_fetch_limit;
-        
-        END LOOP;
-        
-        CLOSE c_values;
-
-    END;
-    
-    FUNCTION request_value (
+    FUNCTION get_value_cursor (
         p_path IN VARCHAR2,
         p_bind IN bind
     ) 
-    RETURN t_value IS
-    
-        c_values SYS_REFCURSOR;
-        v_values t_values;
-    
+    RETURN SYS_REFCURSOR IS
     BEGIN
-
-        request_values(p_path, p_bind, c_values);
+    
+        RETURN get_value_cursor(NULL, p_path, p_bind);
         
-        FETCH c_values
-        BULK COLLECT INTO v_values;
-        
-        CLOSE c_values;
-        
-        IF v_values.COUNT = 0 THEN
-            -- Value :1 does not exist!
-            error$.raise('JDOC-00009', p_path);
-        ELSIF v_values.COUNT > 1 THEN
-            -- Multiple values found at the path :1!
-            error$.raise('JDOC-00004', p_path);
-        END IF;
-        
-        RETURN v_values(1);
-
     END;
     
     PROCEDURE apply_value (
@@ -2044,7 +2075,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     ) IS
         
         v_event json_parser.t_parse_event;
-        v_created_ids t_numbers;
+        v_value t_json_value;
         
         v_child_value_name VARCHAR2(4000);
         v_child_value_row json_values%ROWTYPE;
@@ -2075,7 +2106,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
            DELETE FROM json_values
            WHERE id = p_value_row.id;
         
-           create_json(t_numbers(p_value_row.parent_id), p_value_row.name, p_content_parse_events, p_event_i, v_created_ids);
+           create_json(
+               p_value_row.parent_id, 
+               p_value_row.name, 
+               p_content_parse_events, 
+               p_event_i, 
+               v_value
+           );
         
         ELSIF p_value_row.type IN ('S', 'N', 'B') AND p_value_row.value != v_event.value THEN
             
@@ -2083,40 +2120,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             SET value = v_event.value
             WHERE id = p_value_row.id;
         
-        ELSIF p_value_row.type = 'R' THEN
-        
-            p_event_i := p_event_i + 1;
-            
-            WHILE p_content_parse_events(p_event_i).name != 'END_OBJECT' LOOP
-            
-                v_child_value_name := p_content_parse_events(p_event_i).value;
-            
-                BEGIN
-                
-                    SELECT *
-                    INTO v_child_value_row
-                    FROM json_values
-                    WHERE parent_id = 0
-                          AND name = v_child_value_name;
-                
-                    p_event_i := p_event_i + 1;
-                    
-                    apply_value(v_child_value_row, p_content_parse_events, p_event_i, p_check_types);               
-                
-                EXCEPTION
-                    WHEN NO_DATA_FOUND THEN
-                    
-                        p_event_i := p_event_i + 1;
-                        
-                        create_json(t_numbers(NULL), v_child_value_name, p_content_parse_events, p_event_i, v_created_ids);
-                
-                END;
-            
-                p_event_i := p_event_i + 1;
-            
-            END LOOP;
-        
-        ELSIF p_value_row.type = 'O' THEN
+        ELSIF p_value_row.type IN ('O', 'R') THEN
         
             p_event_i := p_event_i + 1;
             
@@ -2141,7 +2145,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     
                         p_event_i := p_event_i + 1;
                         
-                        create_json(t_numbers(p_value_row.id), v_child_value_name, p_content_parse_events, p_event_i, v_created_ids);
+                        create_json(
+                            p_value_row.id, 
+                            v_child_value_name, 
+                            p_content_parse_events, 
+                            p_event_i, 
+                            v_value
+                        );
                 
                 END;
             
@@ -2169,7 +2179,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 EXCEPTION
                     WHEN NO_DATA_FOUND THEN
                     
-                        create_json(t_numbers(p_value_row.id), v_item_i, p_content_parse_events, p_event_i, v_created_ids);
+                        create_json(
+                            p_value_row.id, 
+                            v_item_i, 
+                            p_content_parse_events, 
+                            p_event_i, 
+                            v_value
+                        );
                 
                 END;
             
@@ -2190,8 +2206,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         p_check_types IN BOOLEAN
     ) IS
         
-        c_values SYS_REFCURSOR;
-        v_values t_values;
+        v_value t_json_value;
         
         v_value_row json_values%ROWTYPE;
         
@@ -2199,114 +2214,16 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     BEGIN
 
-        request_values(p_path, p_bind, c_values);
+        v_value := t_json_value(p_path, p_bind);
         
-        FETCH c_values
-        BULK COLLECT INTO v_values;
-        
-        CLOSE c_values;
-        
-        IF v_values.COUNT = 0 THEN
-            -- Value :1 does not exist!
-            error$.raise('JDOC-00009', p_path);
-        END IF;
-        
-        FOR v_i IN 1..v_values.COUNT LOOP
-        
-            IF v_values(v_i).type = 'R' THEN
-            
-                v_value_row := NULL;
-                v_value_row.type := 'R';
-                v_value_row.name := '$';
-                
-            ELSE
-            
-                SELECT *
-                INTO v_value_row
-                FROM json_values
-                WHERE id = v_values(v_i).id;
-                
-            END IF;
-            
-            v_event_i := 1;
-        
-            apply_value(v_value_row, p_content_parse_events, v_event_i, p_check_types);
-            
-        END LOOP;
-    
-    END;
-    
-    FUNCTION get_length (
-        p_array_id IN NUMBER
-    )
-    RETURN NUMBER IS
-    
-        v_length NUMBER;
-    
-    BEGIN
-    
-        SELECT NVL(MAX(to_index(name)), -1)
-        INTO v_length
+        SELECT *
+        INTO v_value_row
         FROM json_values
-        WHERE parent_id = p_array_id;
+        WHERE id = v_value.id;
+                
+        v_event_i := 1;
         
-        RETURN v_length + 1;
-    
-    END;
-    
-    FUNCTION push_property (
-        p_path IN VARCHAR2,
-        p_bind IN bind,
-        p_content_parse_events IN json_parser.t_parse_events,
-        p_exact IN BOOLEAN := TRUE
-    )
-    RETURN t_numbers IS
-    
-        c_values SYS_REFCURSOR;
-        v_values t_values;
-        
-        v_ids t_numbers;
-        v_all_ids t_numbers;
-    
-    BEGIN
-    
-        request_values(p_path, p_bind, c_values);
-    
-        FETCH c_values
-        BULK COLLECT INTO v_values;
-        
-        CLOSE c_values;
-        
-        IF p_exact AND v_values.COUNT > 1 THEN
-            -- Multiple values found at the path :1!
-            error$.raise('JDOC-00004', p_path);
-        ELSIF v_values.COUNT = 0 THEN
-            -- Value :1 does not exist
-            error$.raise('JDOC-00009', p_path);
-        END IF;
-    
-        v_all_ids := t_numbers();
-        
-        FOR v_i IN 1..v_values.COUNT LOOP
-            
-            IF v_values(v_i).type != 'A' THEN
-                -- Requested target is not an array!
-                error$.raise('JDOC-00014');
-            END IF;
-            
-            v_ids := create_json(
-                t_numbers(v_values(v_i).id)
-               ,get_length(v_values(v_i).id) 
-               ,p_content_parse_events);
-            
-            FOR v_i IN 1..v_ids.COUNT LOOP
-                v_all_ids.EXTEND(1);
-                v_all_ids(v_all_ids.COUNT) := v_ids(v_i);
-            END LOOP;
-        
-        END LOOP;
-    
-        RETURN v_all_ids;
+        apply_value(v_value_row, p_content_parse_events, v_event_i, p_check_types);
         
     END;
     
@@ -2316,7 +2233,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         p_bind IN bind := NULL
     ) IS
     
-        v_path_value t_value;
+        v_path_value t_json_value;
         
         TYPE t_chars IS 
             TABLE OF CHAR;
@@ -2372,7 +2289,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
     BEGIN
         
-        v_path_value := request_value(p_path, p_bind);
+        v_path_value := t_json_value(p_path, p_bind);
     
         p_parse_events := json_parser.t_parse_events();
         v_json_stack := t_chars();

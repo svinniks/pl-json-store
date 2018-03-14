@@ -1,9 +1,15 @@
+const VALUE_QUERY = 1;
+const PROPERTY_QUERY = 2;
+const VALUE_TABLE_QUERY = 3;
+const X_VALUE_TABLE_QUERY = 4;
+
 suite("Query column name retrieval", function() {
 
     test("No alias for a wildcard", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person.*"
+            p_query: "person.*",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         expect(function() {
@@ -19,7 +25,8 @@ suite("Query column name retrieval", function() {
     test("Property name too long", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.name, .abcabcabcabcabcabcabcabcabcabcA)"
+            p_query: "person(.name, .abcabcabcabcabcabcabcabcabcabcA)",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         expect(function() {
@@ -35,7 +42,8 @@ suite("Query column name retrieval", function() {
     test("Duplicate porperty names", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.name, .name)"
+            p_query: "person(.name, .name)",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         expect(function() {
@@ -51,7 +59,8 @@ suite("Query column name retrieval", function() {
     test("Duplicate aliases", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.name as forename, .name as forename)"
+            p_query: "person(.name as forename, .name as forename)",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         expect(function() {
@@ -67,7 +76,8 @@ suite("Query column name retrieval", function() {
     test("Duplicate property and alias", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.NAME, .surname as name)"
+            p_query: "person(.NAME, .surname as name)",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         expect(function() {
@@ -83,7 +93,8 @@ suite("Query column name retrieval", function() {
     test("Duplicate variable and alias", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.:a, .surname as a)'
+            p_query: 'person(.:a, .surname as a)',
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         expect(function() {
@@ -99,7 +110,8 @@ suite("Query column name retrieval", function() {
     test("One simple property", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: "person"
+            p_query: "person",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var columnNames = database.call("json_core.get_query_column_names", {
@@ -115,7 +127,8 @@ suite("Query column name retrieval", function() {
     test("One variable", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: ":var"
+            p_query: ":var",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var columnNames = database.call("json_core.get_query_column_names", {
@@ -131,7 +144,8 @@ suite("Query column name retrieval", function() {
     test("One ID reference", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123"
+            p_query: "#123",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var columnNames = database.call("json_core.get_query_column_names", {
@@ -147,7 +161,8 @@ suite("Query column name retrieval", function() {
     test("One simple property with a case insensitive alias", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: "value as name"
+            p_query: "value as name",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var columnNames = database.call("json_core.get_query_column_names", {
@@ -163,7 +178,8 @@ suite("Query column name retrieval", function() {
     test("One simple property with a case sensitive alias", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'value as "name"'
+            p_query: 'value as "name"',
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var columnNames = database.call("json_core.get_query_column_names", {
@@ -179,7 +195,8 @@ suite("Query column name retrieval", function() {
     test("One wildcard with a case insesnsitive alias", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: '* as value'
+            p_query: '* as value',
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var columnNames = database.call("json_core.get_query_column_names", {
@@ -195,7 +212,8 @@ suite("Query column name retrieval", function() {
     test("Multiple simple names", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.name, .surname, .address(.street))'
+            p_query: 'person(.name, .surname, .address(.street))',
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var columnNames = database.call("json_core.get_query_column_names", {
@@ -213,7 +231,8 @@ suite("Query column name retrieval", function() {
     test("Combined column names", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.name as forename, .surname as "family_name", .address(.street, .:var, .#44))'
+            p_query: 'person(.name as forename, .surname as "family_name", .address(.street, .:var, .#44))',
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var columnNames = database.call("json_core.get_query_column_names", {
@@ -233,7 +252,8 @@ suite("Query column name retrieval", function() {
     test("Branching root columns", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: '(person.name, person.surname)'
+            p_query: '(person.name, person.surname)',
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var columnNames = database.call("json_core.get_query_column_names", {
@@ -254,7 +274,8 @@ suite("Query variable count retrieval", function() {
     test("Multiple different variables", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.:var1, .:name(.:detail))'
+            p_query: 'person(.:var1, .:name(.:detail))',
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var variableCount = database.call("json_core.get_query_variable_count", {
@@ -268,7 +289,8 @@ suite("Query variable count retrieval", function() {
     test("Multiple repeating variables", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.:var1, .:name(.:var1 as value), .:name)'
+            p_query: 'person(.:var1, .:name(.:var1 as value), .:name)',
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var variableCount = database.call("json_core.get_query_variable_count", {
@@ -286,7 +308,8 @@ suite("Query signature retrieval", function() {
     test("Single name", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person"
+            p_query: "person",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {
@@ -300,7 +323,8 @@ suite("Query signature retrieval", function() {
     test("Multiple property names", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person.address.street"
+            p_query: "person.address.street",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {
@@ -314,7 +338,8 @@ suite("Query signature retrieval", function() {
     test("Single ID reference", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123"
+            p_query: "#123",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {
@@ -328,7 +353,8 @@ suite("Query signature retrieval", function() {
     test("Single wildcard", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "*"
+            p_query: "*",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {
@@ -342,7 +368,8 @@ suite("Query signature retrieval", function() {
     test("Single variable", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: ":var1"
+            p_query: ":var1",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {
@@ -356,7 +383,8 @@ suite("Query signature retrieval", function() {
     test("Complex child property chain", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person.:var1.#123.*"
+            p_query: "person.:var1.#123.*",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {
@@ -370,7 +398,8 @@ suite("Query signature retrieval", function() {
     test("Optional name", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person.name?"
+            p_query: "person.name?",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {
@@ -384,7 +413,8 @@ suite("Query signature retrieval", function() {
     test("Branched names", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.name, .surname)"
+            p_query: "person(.name, .surname)",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {
@@ -398,7 +428,8 @@ suite("Query signature retrieval", function() {
     test("Reserved fields", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(._id, ._key, ._value)"
+            p_query: "person(._id, ._key, ._value)",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {
@@ -412,7 +443,8 @@ suite("Query signature retrieval", function() {
     test("Complex branched query", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.name, .:var1, .address?(.*), .surname)"
+            p_query: "person(.name, .:var1, .address?(.*), .surname)",
+            p_query_type: VALUE_TABLE_QUERY
         });
 
         var signature = database.call("json_core.get_query_signature", {

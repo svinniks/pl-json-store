@@ -279,6 +279,12 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
     );    
+    
+    FUNCTION get_keys (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_varchars;
         
     FUNCTION get_length (
         p_path IN VARCHAR2,

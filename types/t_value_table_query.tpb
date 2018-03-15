@@ -35,14 +35,20 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
     ) 
     RETURN PLS_INTEGER IS
     
+        v_query_elements json_core.t_query_elements;
+        v_query_statement json_core.t_query_statement;
+    
         v_columns DBMS_SQL.DESC_TAB;
     
     BEGIN
         
+        v_query_elements := json_core.parse_query(p_query, json_core.c_VALUE_TABLE_QUERY);
+        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_VALUE_TABLE_QUERY);
+    
         p_context.cursor_id := json_core.prepare_query(
-            p_query,
-            p_bind,
-            json_core.c_VALUE_TABLE_QUERY
+            v_query_elements,
+            v_query_statement, 
+            p_bind
         );
         
         DBMS_SQL.DESCRIBE_COLUMNS(p_context.cursor_id, p_context.column_count, v_columns); 

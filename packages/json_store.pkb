@@ -111,7 +111,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value.create_object().id;
+        RETURN t_json_value.create_array().id;
 
     END;
 

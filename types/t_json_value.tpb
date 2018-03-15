@@ -241,6 +241,42 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION as_json
+    RETURN VARCHAR2 IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+        v_json VARCHAR2(32000);
+        v_json_clob CLOB;
+    
+    BEGIN
+    
+        json_core.get_parse_events(id, v_parse_events);
+        json_core.serialize_value(v_parse_events, v_json, v_json_clob);
+        
+        RETURN v_json;
+    
+    END;
+    
+    MEMBER FUNCTION as_json_clob
+    RETURN CLOB IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+        v_json VARCHAR2(32000);
+        v_json_clob CLOB;
+    
+    BEGIN
+    
+        DBMS_LOB.CREATETEMPORARY(v_json_clob, TRUE);
+        
+        json_core.get_parse_events(id, v_parse_events);
+        json_core.serialize_value(v_parse_events, v_json, v_json_clob);
+        
+        RETURN v_json_clob;
+    
+    END;
+    
     MEMBER FUNCTION get_parent
     RETURN t_json_value IS
     BEGIN
@@ -334,14 +370,9 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_bind IN bind := NULL
     )
     RETURN t_json_value IS
-        v t_json_value;
     BEGIN
     
-        v := t_json_value.request_value(id, p_path, p_bind);
-        
-        
-    
-        RETURN v;
+        RETURN t_json_value.request_value(id, p_path, p_bind);
     
     END;
     

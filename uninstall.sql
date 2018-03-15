@@ -13,8 +13,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-
-DROP TYPE t_value_table_query
+DROP PACKAGE json_data_generator
+/
+DROP VIEW json_data_registered_types
 /
 
 DROP PACKAGE json_store
@@ -22,6 +23,11 @@ DROP PACKAGE json_store
 DROP PACKAGE json_core
 /
 DROP PACKAGE json_parser
+/
+
+DROP TYPE t_value_table_query
+/
+DROP TYPE t_json_value
 /
 
 DROP TABLE json_values

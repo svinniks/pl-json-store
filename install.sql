@@ -28,10 +28,12 @@
 
 INSERT INTO json_values (
     id,
-    type
+    type,
+    locked
 ) VALUES (
     0,
-    'R'
+    'R',
+    'T'
 )    
 /
 
@@ -48,21 +50,31 @@ COMMIT
 @@packages/json_parser.pkb
 /
 
-@@packages/json_core.pks
+@@types/t_json_value.tps
 /
-@@packages/json_core.pkb
-/
-
-
 @@types/t_value_table_query.tps
 /
 
+@@packages/json_core.pks
+/
 @@packages/json_store.pks
 /
 
+@@types/t_json_value.tpb
+/
 @@types/t_value_table_query.tpb
 /
 
+@@packages/json_core.pkb
+/
 @@packages/json_store.pkb
 /
+
+@@packages/json_data_generator.pks
+/
+@@views/json_data_registered_types.vw
+/
+@@packages/json_data_generator.pkb
+/
+
 

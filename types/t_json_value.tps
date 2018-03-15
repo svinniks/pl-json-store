@@ -69,6 +69,12 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER FUNCTION as_boolean
     RETURN BOOLEAN,
     
+    MEMBER FUNCTION as_json
+    RETURN VARCHAR2,
+    
+    MEMBER FUNCTION as_json_clob
+    RETURN CLOB,
+    
     MEMBER FUNCTION get_parent
     RETURN t_json_value,
 

@@ -7,7 +7,7 @@ suite("Retrieving JSON parse events from stored values", function() {
         });
 
         var result = database.call("json_core.get_parse_events", {
-            p_path: `#${id}`
+            p_value_id: id
         });
 
         expect(result.p_parse_events).to.eql([
@@ -26,7 +26,7 @@ suite("Retrieving JSON parse events from stored values", function() {
         });
 
         var result = database.call("json_core.get_parse_events", {
-            p_path: `#${id}`
+            p_value_id: id
         });
 
         expect(result.p_parse_events).to.eql([
@@ -45,7 +45,7 @@ suite("Retrieving JSON parse events from stored values", function() {
         });
 
         var result = database.call("json_core.get_parse_events", {
-            p_path: `#${id}`
+            p_value_id: id
         });
 
         expect(result.p_parse_events).to.eql([
@@ -62,7 +62,7 @@ suite("Retrieving JSON parse events from stored values", function() {
         var id = database.call("json_store.create_null");
 
         var result = database.call("json_core.get_parse_events", {
-            p_path: `#${id}`
+            p_value_id: id
         });
 
         expect(result.p_parse_events).to.eql([
@@ -79,7 +79,7 @@ suite("Retrieving JSON parse events from stored values", function() {
         var id = database.call("json_store.create_object");
 
         var result = database.call("json_core.get_parse_events", {
-            p_path: `#${id}`
+            p_value_id: id
         });
 
         expect(result.p_parse_events).to.eql([
@@ -100,7 +100,7 @@ suite("Retrieving JSON parse events from stored values", function() {
         var id = database.call("json_store.create_array");
 
         var result = database.call("json_core.get_parse_events", {
-            p_path: `#${id}`
+            p_value_id: id
         });
 
         expect(result.p_parse_events).to.eql([
@@ -127,7 +127,7 @@ suite("Retrieving JSON parse events from stored values", function() {
         });
 
         var result = database.call("json_core.get_parse_events", {
-            p_path: `#${id}`
+            p_value_id: id
         });
 
         expect(result.p_parse_events).to.eql([
@@ -176,7 +176,7 @@ suite("Retrieving JSON parse events from stored values", function() {
         });
 
         var result = database.call("json_core.get_parse_events", {
-            p_path: `#${id}`
+            p_value_id: id
         });
 
         expect(result.p_parse_events).to.eql([

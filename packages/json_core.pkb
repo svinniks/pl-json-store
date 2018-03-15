@@ -66,6 +66,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00027', 'Reserved field reference can''t have child elements!');
         default_message_resolver.register_message('JDOC-00028', 'Reserved field reference can''t be the topmost query element!');
         default_message_resolver.register_message('JDOC-00029', 'The topmost query element can''t be optional!');
+        default_message_resolver.register_message('JDOC-00030', 'Empty JSON specified!');
     END;
     
     FUNCTION string_events (
@@ -1877,6 +1878,11 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         END;
 
     BEGIN
+
+        IF p_content_parse_events.COUNT = 0 THEN
+            -- Empty JSON specified!
+            error$.raise('JDOC-00030');
+        END IF;
 
         v_json_values := t_json_values();
         v_id := 0;

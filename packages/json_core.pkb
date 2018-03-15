@@ -2239,12 +2239,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     END;
     
     PROCEDURE get_parse_events (
-        p_path IN VARCHAR2,
-        p_parse_events OUT json_parser.t_parse_events,
-        p_bind IN bind := NULL
+        p_value_id IN NUMBER,
+        p_parse_events OUT json_parser.t_parse_events
     ) IS
-    
-        v_path_value t_json_value;
         
         TYPE t_chars IS 
             TABLE OF CHAR;
@@ -2300,13 +2297,11 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
     BEGIN
         
-        v_path_value := t_json_value(p_path, p_bind);
-    
         p_parse_events := json_parser.t_parse_events();
         v_json_stack := t_chars();
         v_last_lvl := 0;
     
-        FOR v_value IN c_values(v_path_value.id) LOOP
+        FOR v_value IN c_values(p_value_Id) LOOP
         
             FOR v_i IN v_value.lvl..v_last_lvl LOOP
                   
@@ -2364,24 +2359,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         END LOOP;
     
-    END;
-    
-    FUNCTION get_parse_events (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    )
-    RETURN json_parser.t_parse_events PIPELINED IS
-        v_parse_events json_parser.t_parse_events;
-    BEGIN
-    
-        get_parse_events(p_path, v_parse_events, p_bind);
-        
-        FOR v_i IN 1..v_parse_events.COUNT LOOP
-            PIPE ROW(v_parse_events(v_i));
-        END LOOP;
-        
-        RETURN;
-        
     END;
     
     FUNCTION escape_string (

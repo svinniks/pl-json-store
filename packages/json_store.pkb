@@ -34,15 +34,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_content IN VARCHAR2
     )
     RETURN NUMBER IS
-    
-        v_parse_events json_parser.t_parse_events;
-        v_created_ids t_numbers;
-        
     BEGIN
     
-        json_parser.parse(p_content, v_parse_events);
-        
-        RETURN json_core.create_json(NULL, NULL, v_parse_events).id;
+        RETURN t_json_value.create_json(p_content).id;
         
     END;
     
@@ -50,14 +44,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_content IN CLOB
     )
     RETURN NUMBER IS
-    
-        v_parse_events json_parser.t_parse_events;
-        
     BEGIN
     
-        json_parser.parse(p_content, v_parse_events);
-        
-        RETURN json_core.create_json(NULL, NULL, v_parse_events).id;
+        RETURN t_json_value.create_json(p_content).id;
         
     END;
 
@@ -67,7 +56,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN json_core.create_json(NULL, NULL, json_core.string_events(p_value)).id;
+        RETURN t_json_value.create_string(p_value).id;
 
     END;
 
@@ -77,7 +66,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN json_core.create_json(NULL, NULL, json_core.number_events(p_value)).id;
+        RETURN t_json_value.create_number(p_value).id;
 
     END;
 
@@ -87,7 +76,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN json_core.create_json(NULL, NULL, json_core.boolean_events(p_value)).id;
+        RETURN t_json_value.create_boolean(p_value).id;
 
     END;
 
@@ -95,7 +84,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN json_core.create_json(NULL, NULL, json_core.null_events).id;
+        RETURN t_json_value.create_null().id;
 
     END;
 
@@ -428,18 +417,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     )
     RETURN VARCHAR2 IS
-    
-        v_parse_events json_parser.t_parse_events;
-    
-        v_json VARCHAR2(32000);
-        v_json_clob CLOB;
-    
     BEGIN
       
-        json_core.get_parse_events(p_path, v_parse_events, p_bind);
-        json_core.serialize_value(v_parse_events, v_json, v_json_clob);
-        
-        RETURN v_json;
+        RETURN t_json_value(p_path, p_bind).as_json;
     
     END;
     
@@ -448,21 +428,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     )
     RETURN CLOB IS
-        
-        v_parse_events json_parser.t_parse_events;
-    
-        v_json VARCHAR2(32000);
-        v_json_clob CLOB;
-    
     BEGIN
       
-        
-        DBMS_LOB.CREATETEMPORARY(v_json_clob, TRUE);
-        
-        json_core.get_parse_events(p_path, v_parse_events, p_bind);
-        json_core.serialize_value(v_parse_events, v_json, v_json_clob);
-        
-        RETURN v_json_clob;
+        RETURN t_json_value(p_path, p_bind).as_json_clob;
     
     END;
     

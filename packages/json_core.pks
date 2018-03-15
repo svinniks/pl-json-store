@@ -145,9 +145,8 @@ CREATE OR REPLACE PACKAGE json_core IS
     );
    
     PROCEDURE get_parse_events (
-        p_path IN VARCHAR2,
-        p_parse_events OUT json_parser.t_parse_events,
-        p_bind IN bind := NULL
+        p_value_id IN NUMBER,
+        p_parse_events OUT json_parser.t_parse_events
     ); 
     
     FUNCTION create_json (

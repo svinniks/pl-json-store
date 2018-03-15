@@ -1,5 +1,35 @@
 CREATE OR REPLACE TYPE BODY t_json_value IS 
     
+    STATIC FUNCTION create_string (
+        p_value IN VARCHAR2
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN json_core.create_json(NULL, NULL, json_core.string_events(p_value));
+    
+    END;
+    
+    STATIC FUNCTION create_number (
+        p_value IN NUMBER
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN json_core.create_json(NULL, NULL, json_core.number_events(p_value));
+    
+    END;
+    
+    STATIC FUNCTION create_boolean (
+        p_value IN BOOLEAN
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN json_core.create_json(NULL, NULL, json_core.boolean_events(p_value));
+    
+    END;
+
     STATIC FUNCTION create_object
     RETURN t_json_value IS
     BEGIN
@@ -16,13 +46,26 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    STATIC FUNCTION create_null
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN json_core.create_json(NULL, NULL, json_core.null_events);
+    
+    END;
+    
     STATIC FUNCTION create_json (
         p_content IN VARCHAR2
     )
     RETURN t_json_value IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
     BEGIN
     
-        NULL;
+        json_parser.parse(p_content, v_parse_events);
+        
+        RETURN json_core.create_json(NULL, NULL, v_parse_events);
     
     END;
     
@@ -30,9 +73,14 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_content IN CLOB
     )
     RETURN t_json_value IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
     BEGIN
     
-        NULL;
+        json_parser.parse(p_content, v_parse_events);
+        
+        RETURN json_core.create_json(NULL, NULL, v_parse_events);
     
     END;
 
@@ -302,9 +350,18 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_bind IN bind := NULL
     )
     RETURN VARCHAR2 IS
+    
+        v_property t_json_value;
+    
     BEGIN
     
-        RETURN get(p_path, p_bind).as_string;
+        v_property := get(p_path, p_bind);
+        
+        IF v_property IS NULL THEN
+            RETURN NULL;
+        ELSE 
+            RETURN v_property.as_string;
+        END IF;
     
     END;
     
@@ -313,9 +370,18 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_bind IN bind := NULL
     )
     RETURN NUMBER IS
+    
+        v_property t_json_value;
+    
     BEGIN
     
-        RETURN get(p_path, p_bind).as_number;
+        v_property := get(p_path, p_bind);
+        
+        IF v_property IS NULL THEN
+            RETURN NULL;
+        ELSE 
+            RETURN v_property.as_number;
+        END IF;
     
     END;
     
@@ -324,9 +390,18 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_bind IN bind := NULL
     )
     RETURN BOOLEAN IS
+    
+        v_property t_json_value;
+    
     BEGIN
     
-        RETURN get(p_path, p_bind).as_boolean;
+        v_property := get(p_path, p_bind);
+        
+        IF v_property IS NULL THEN
+            RETURN NULL;
+        ELSE 
+            RETURN v_property.as_boolean;
+        END IF;
     
     END;
     

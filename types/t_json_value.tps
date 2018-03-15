@@ -5,10 +5,28 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     type CHAR,
     value VARCHAR2(4000),
     
+    STATIC FUNCTION create_string (
+        p_value IN VARCHAR2
+    )
+    RETURN t_json_value,
+    
+    STATIC FUNCTION create_number (
+        p_value IN NUMBER
+    )
+    RETURN t_json_value,
+    
+    STATIC FUNCTION create_boolean (
+        p_value IN BOOLEAN
+    )
+    RETURN t_json_value,
+    
     STATIC FUNCTION create_object
     RETURN t_json_value,
     
     STATIC FUNCTION create_array
+    RETURN t_json_value,
+    
+    STATIC FUNCTION create_null
     RETURN t_json_value,
     
     STATIC FUNCTION create_json (

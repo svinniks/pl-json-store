@@ -1028,7 +1028,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
     BEGIN
     
-        v_cache_key := p_query_type || CASE WHEN p_anchor_value_id IS NULL THEN 'A' ELSE 'R' END || p_query;
+        v_cache_key := 
+            p_query_type || 
+            CASE WHEN p_anchor_value_id IS NOT NULL THEN 
+                'R(' ||  p_anchor_value_id || ')'
+            END 
+            || p_query;
     
         IF v_query_element_cache.EXISTS(v_cache_key) THEN
             RETURN v_query_element_cache(v_cache_key);

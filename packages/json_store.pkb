@@ -103,7 +103,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN json_core.create_json(NULL, NULL, json_core.object_events).id;
+        RETURN t_json_value.create_object().id;
 
     END;
 
@@ -111,7 +111,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN json_core.create_json(NULL, NULL, json_core.array_events).id;
+        RETURN t_json_value.create_object().id;
 
     END;
 

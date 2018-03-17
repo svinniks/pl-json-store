@@ -39,6 +39,11 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     )
     RETURN t_json_value,
     
+    STATIC FUNCTION create_copy (
+        p_value IN t_json_value
+    )
+    RETURN t_json_value,
+    
     STATIC FUNCTION request_value (
         p_anchor_value_id IN NUMBER,
         p_path IN VARCHAR2,
@@ -130,7 +135,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_value IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN t_json_value,
+    ) 
+    RETURN t_json_value,
     
     MEMBER PROCEDURE set_string (
         p_path IN VARCHAR2,
@@ -142,7 +148,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_value IN NUMBER,
         p_bind IN bind := NULL
-    ) RETURN t_json_value,
+    ) 
+    RETURN t_json_value,
     
     MEMBER PROCEDURE set_number (
         p_path IN VARCHAR2,
@@ -154,7 +161,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_value IN BOOLEAN,
         p_bind IN bind := NULL
-    ) RETURN t_json_value,
+    ) 
+    RETURN t_json_value,
     
     MEMBER PROCEDURE set_boolean (
         p_path IN VARCHAR2,
@@ -165,7 +173,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER FUNCTION set_object (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN t_json_value,
+    ) 
+    RETURN t_json_value,
     
     MEMBER PROCEDURE set_object (
         p_path IN VARCHAR2,
@@ -175,7 +184,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER FUNCTION set_array (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN t_json_value,
+    ) 
+    RETURN t_json_value,
     
     MEMBER PROCEDURE set_array (
         p_path IN VARCHAR2,
@@ -185,7 +195,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER FUNCTION set_null (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN t_json_value,
+    ) 
+    RETURN t_json_value,
     
     MEMBER PROCEDURE set_null (
         p_path IN VARCHAR2,
@@ -196,7 +207,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_content IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN t_json_value,
+    ) 
+    RETURN t_json_value,
     
     MEMBER PROCEDURE set_json (
         p_path IN VARCHAR2,
@@ -208,11 +220,25 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_content IN CLOB,
         p_bind IN bind := NULL
-    ) RETURN t_json_value,
+    ) 
+    RETURN t_json_value,
     
     MEMBER PROCEDURE set_json (
         p_path IN VARCHAR2,
         p_content IN CLOB,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION set_copy (
+        p_path IN VARCHAR2,
+        p_value IN t_json_value,
+        p_bind IN bind := NULL
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_copy (
+        p_path IN VARCHAR2,
+        p_value IN t_json_value,
         p_bind IN bind := NULL
     ),
     

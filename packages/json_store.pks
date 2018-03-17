@@ -130,6 +130,12 @@ CREATE OR REPLACE PACKAGE json_store IS
     FUNCTION create_array
     RETURN NUMBER;
     
+    FUNCTION create_copy (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
     FUNCTION set_json (
         p_path IN VARCHAR2,
         -- @json
@@ -230,6 +236,34 @@ CREATE OR REPLACE PACKAGE json_store IS
     PROCEDURE set_array (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
+    );
+    
+    FUNCTION set_copy (
+        p_path IN VARCHAR2,
+        p_source_path IN VARCHAR2,
+        p_source_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION set_copy (
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_source_path IN VARCHAR2,
+        p_source_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE set_copy (
+        p_path IN VARCHAR2,
+        p_source_path IN VARCHAR2,
+        p_source_bind IN bind := NULL
+    );
+    
+    PROCEDURE set_copy (
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_source_path IN VARCHAR2,
+        p_source_bind IN bind := NULL
     );
 
     FUNCTION get_string (

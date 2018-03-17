@@ -3041,6 +3041,144 @@ suite("JSON store management tests", function() {
     
     });
 
+    suite("JSON value copying tests", function() {
+    
+        test("Create anonymous copy of a scalar value", function() {
+    
+            let origin = "Hello, World!";
+
+            let originId = database.call("json_store.create_string", {
+                p_value: origin
+            });
+
+            let copyId = database.call("json_store.create_copy", {
+                p_path: `#${originId}`
+            });
+
+            expect(copyId).to.not.be(originId);
+
+            expect(database.call("json_store.get_json", {
+                p_path: `#${copyId}`
+            })).to.eql(origin);
+    
+        });
+
+        test("Create anonymous copy of a complex object", function() {
+    
+            let origin = {
+                name: "Sergejs",
+                surname: "Vinniks",
+                addresses: {
+                    home: {
+                        street: "Raunas",
+                        house: "41"
+                    }
+                },
+                phones: [
+                    {
+                        type: "mobile",
+                        number: "1234567"
+                    }
+                ]
+            };
+
+            let originId = database.call("json_store.create_json", {
+                p_content: origin
+            });
+
+            let copyId = database.call("json_store.create_copy", {
+                p_path: `#${originId}`
+            });
+
+            expect(copyId).to.not.be(originId);
+
+            expect(database.call("json_store.get_json", {
+                p_path: `#${copyId}`
+            })).to.eql(origin);
+    
+        });
+
+        test("Create named copy of a scalar value", function() {
+    
+            let origin = {
+                name: "Sergejs",
+                addresses: {
+                    home: {
+                        street: "Raunas",
+                        house: "41"
+                    }
+                }
+            };
+
+            let originId = database.call("json_store.create_json", {
+                p_content: origin
+            });
+
+            database.call("json_store.set_copy", {
+                p_path: `#${originId}.surname`,
+                p_source_path: `#${originId}.name`
+            });
+
+            let modified = database.call("json_store.get_json", {
+                p_path: `#${originId}`
+            });
+
+            expect(modified).to.eql({
+                name: "Sergejs",
+                surname: "Sergejs", 
+                addresses: {
+                    home: {
+                        street: "Raunas",
+                        house: "41"
+                    }
+                }
+            });
+    
+        });
+
+        test("Create named copy of a complex object", function() {
+    
+            let origin = {
+                name: "Sergejs",
+                addresses: {
+                    home: {
+                        street: "Raunas",
+                        house: "41"
+                    }
+                }
+            };
+
+            let originId = database.call("json_store.create_json", {
+                p_content: origin
+            });
+
+            database.call("json_store.set_copy", {
+                p_path: `#${originId}.addresses.work`,
+                p_source_path: `#${originId}.addresses.home`
+            });
+
+            let modified = database.call("json_store.get_json", {
+                p_path: `#${originId}`
+            });
+
+            expect(modified).to.eql({
+                name: "Sergejs",
+                addresses: {
+                    home: {
+                        street: "Raunas",
+                        house: "41"
+                    },
+                    work: {
+                        street: "Raunas",
+                        house: "41"
+                    }
+                }
+            });
+    
+        });
+    
+    });
+
     suite("JSON node locking tests", function() {
     
         test("Try to unlock the root", function() {

@@ -83,6 +83,21 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         RETURN json_core.create_json(NULL, NULL, v_parse_events);
     
     END;
+    
+    STATIC FUNCTION create_copy (
+        p_value IN t_json_value
+    )
+    RETURN t_json_value IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        json_core.get_parse_events(p_value.id, v_parse_events);
+        
+        RETURN json_core.create_json(NULL, NULL, v_parse_events);
+    
+    END;
 
     STATIC FUNCTION request_value (
         p_anchor_value_id IN NUMBER,
@@ -665,6 +680,42 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         v_dummy  := set_json(p_path, p_content, p_bind);
 
+    END;
+    
+    MEMBER FUNCTION set_copy (
+        p_path IN VARCHAR2,
+        p_value IN t_json_value,
+        p_bind IN bind := NULL
+    ) 
+    RETURN t_json_value IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        json_core.get_parse_events(p_value.id, v_parse_events);
+        
+        RETURN json_core.set_property(
+            p_anchor_value_id => id,
+            p_path => p_path,
+            p_bind => p_bind,
+            p_content_parse_events => v_parse_events
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE set_copy (
+        p_path IN VARCHAR2,
+        p_value IN t_json_value,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := set_copy(p_path, p_value, p_bind);
+    
     END;
     
     MEMBER PROCEDURE set_null (

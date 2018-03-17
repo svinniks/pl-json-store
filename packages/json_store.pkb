@@ -103,6 +103,17 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         RETURN t_json_value.create_array().id;
 
     END;
+    
+    FUNCTION create_copy (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN t_json_value.create_copy(t_json_value(p_path, p_bind)).id;
+    
+    END;
 
     FUNCTION set_json (
         p_path IN VARCHAR2,
@@ -377,6 +388,65 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             json_core.array_events
         ).id;
         
+    END;
+    
+    FUNCTION set_copy (
+        p_path IN VARCHAR2,
+        p_source_path IN VARCHAR2,
+        p_source_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN set_copy(p_path, NULL, p_source_path, p_source_bind);
+    
+    END;
+    
+    FUNCTION set_copy (
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_source_path IN VARCHAR2,
+        p_source_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        json_core.get_parse_events(
+            t_json_value(p_source_path, p_source_bind).id, 
+            v_parse_events
+        );
+    
+        RETURN json_core.set_property(p_path, p_bind, v_parse_events).id;
+    
+    END;
+    
+    PROCEDURE set_copy (
+        p_path IN VARCHAR2,
+        p_source_path IN VARCHAR2,
+        p_source_bind IN bind := NULL
+    ) IS
+    BEGIN
+    
+        set_copy(p_path, NULL, p_source_path, p_source_bind);
+    
+    END;
+    
+    PROCEDURE set_copy (
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_source_path IN VARCHAR2,
+        p_source_bind IN bind := NULL
+    ) IS
+    
+        v_dummy NUMBER;
+    
+    BEGIN
+    
+        v_dummy := set_copy(p_path, p_bind, p_source_path, p_source_bind);
+    
     END;
     
     FUNCTION get_string (

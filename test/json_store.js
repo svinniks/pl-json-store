@@ -216,7 +216,7 @@ suite("JSON store management tests", function() {
                     expect(value).to.eql({
                         id: id,
                         parent_id: null,
-                        type: 'E',
+                        type: 'S',
                         name: null,
                         value: null,
                         locked: null
@@ -595,7 +595,7 @@ suite("JSON store management tests", function() {
                     expect(value).to.eql({
                         id: id,
                         parent_id: 0,
-                        type: 'E',
+                        type: 'S',
                         name: "jodus_string",
                         value: null,
                         locked: null
@@ -2050,7 +2050,7 @@ suite("JSON store management tests", function() {
                     p_path: "$.jodus_document"
                 });
 
-                expect(document).to.eql([1, 2, 3, null])
+                expect(document).to.eql([1, 2, 3, ""])
 
                 database.rollback;
 
@@ -3524,8 +3524,13 @@ suite("Huge JSON document handling", function() {
         
         document = [];
 
-        for (var i = 0; i < 200000; i++)
-            document[i] = i;
+        for (var i = 0; i < 40000; i++)
+            document[i] = {
+                n: i,
+                s: `${i}`,
+                es: "",
+                e: null
+            };
 
         documentJSON = JSON.stringify(document);
 

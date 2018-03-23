@@ -77,13 +77,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_parse_event json_parser.t_parse_event;
     
     BEGIN
-    
-        IF p_value IS NULL THEN
-            v_parse_event.name := 'NULL';
-        ELSE
-            v_parse_event.name := 'STRING';
-            v_parse_event.value := p_value;
-        END IF;
+            
+        v_parse_event.name := 'STRING';
+        v_parse_event.value := p_value;
         
         RETURN json_parser.t_parse_events(v_parse_event);
     
@@ -2447,7 +2443,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                             v_value := escape_string(p_parse_events(v_i).value);
                                 
                             p_json := p_json || '"' || v_value || '"';
-                            v_length := v_length + 2 + LENGTH(v_value);
+                            v_length := v_length + 2 + NVL(LENGTH(v_value), 0);
                                 
                         WHEN 'NUMBER' THEN
                               

@@ -33,7 +33,7 @@ CREATE OR REPLACE PACKAGE json_core IS
         TABLE OF t_value_cache_entry
         INDEX BY VARCHAR2(30);
         
-    c_DEFAULT_CACHE_CAPACITY CONSTANT PLS_INTEGER := 1000;
+    c_VALUE_CACHE_DEFAULT_CAPACITY CONSTANT PLS_INTEGER := 1000;
     
     TYPE t_query_element IS 
         RECORD (

@@ -16,7 +16,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         limitations under the License.
     */
     
-    v_value_cache_capacity PLS_INTEGER := 0;
+    v_value_cache_capacity PLS_INTEGER := c_VALUE_CACHE_DEFAULT_CAPACITY;
     
     v_json_value_cache t_json_value_cache;
     
@@ -105,8 +105,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     END;
     
-    PROCEDURE remove_value_cache_entry (
-        p_id IN VARCHAR2
+    PROCEDURE unlink_value_cache_entry (
+        p_id IN VARCHAR2,
+        p_delete_entry IN BOOLEAN := TRUE
     ) IS
 
         v_entry_id VARCHAR2(30);    
@@ -131,7 +132,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             v_value_cache_tail_id := v_prev_entry_id;
         END IF;
         
-        v_value_cache_entries.DELETE(v_entry_id);
+        IF p_delete_entry THEN
+            v_value_cache_entries.DELETE(v_entry_id);
+        END IF;
     
     END;
     
@@ -147,19 +150,18 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         FOR v_i IN p_capacity + 1..v_json_value_cache.COUNT LOOP
             v_json_value_cache.DELETE(v_value_cache_tail_id);
-            remove_value_cache_entry(v_value_cache_tail_id);
+            unlink_value_cache_entry(v_value_cache_tail_id);
         END LOOP;
         
         v_value_cache_capacity := p_capacity;
     
     END;
     
-    PROCEDURE add_value_cache_entry (
+    PROCEDURE link_value_cache_entry (
         p_id IN VARCHAR2
     ) IS
     BEGIN
     
-        v_value_cache_entries(p_id) := NULL;
         v_value_cache_entries(p_id).prev_entry_id := NULL;
         v_value_cache_entries(p_id).next_entry_id := v_value_cache_head_id;
         
@@ -194,8 +196,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         IF v_json_value_cache.EXISTS(v_entry_id) THEN
         
             IF v_entry_id != v_value_cache_head_id THEN
-                remove_value_cache_entry(v_entry_id);
-                add_value_cache_entry(v_entry_id);
+                unlink_value_cache_entry(v_entry_id, FALSE);
+                link_value_cache_entry(v_entry_id);
             END IF;
         
         ELSE
@@ -215,11 +217,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF v_json_value_cache.COUNT > v_value_cache_capacity THEN
                 v_json_value_cache.DELETE(v_value_cache_tail_id);
-                dbms_output.put_line('tail ' || v_value_cache_tail_id);
-                remove_value_cache_entry(v_value_cache_tail_id);
+                unlink_value_cache_entry(v_value_cache_tail_id);
             END IF;
             
-            add_value_cache_entry(v_entry_id);
+            link_value_cache_entry(v_entry_id);
             
         END IF;
         

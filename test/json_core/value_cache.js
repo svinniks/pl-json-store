@@ -214,15 +214,25 @@ suite("JSON value LRU cache tests", function() {
             });
         }
 
+        let lastValueIds = [];
+        let i = operationCount;
+
+        while (lastValueIds.length < 4) {
+            if (lastValueIds.indexOf(valueIds[--i]) == -1) {
+                lastValueIds.push(valueIds[i]);
+            }
+        }
+
+        let valueMap = {};
+
+        for (i = 0; i < values.length; i++) {
+            valueMap[values[i].id] = values[i];
+        }
+
         let lastValues = [];
 
-        for (let i = operationCount - 1; i >= operationCount - 4; i--) {
-            for (let j = 0; j < values.length; j++) {
-                if (values[j].id == valueIds[i]) {
-                    lastValues.push(values[j]);
-                    break;
-                }
-            }
+        for (let id of lastValueIds) {
+            lastValues.push(valueMap[id]);
         }
 
         let cache = database.call("json_core.get_cached_values");

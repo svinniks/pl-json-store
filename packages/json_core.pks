@@ -16,6 +16,25 @@ CREATE OR REPLACE PACKAGE json_core IS
         limitations under the License.
     */
 
+    TYPE t_json_values IS 
+        TABLE OF json_values%ROWTYPE;
+        
+    TYPE t_json_value_cache IS
+        TABLE OF json_values%ROWTYPE
+        INDEX BY VARCHAR2(30);
+    
+    TYPE t_value_cache_entry IS
+        RECORD (
+            next_entry_id PLS_INTEGER,
+            prev_entry_id PLS_INTEGER
+        );
+        
+    TYPE t_value_cache_entries IS
+        TABLE OF t_value_cache_entry
+        INDEX BY VARCHAR2(30);
+        
+    c_DEFAULT_CACHE_CAPACITY CONSTANT PLS_INTEGER := 1000;
+    
     TYPE t_query_element IS 
         RECORD (
             type CHAR,
@@ -59,6 +78,20 @@ CREATE OR REPLACE PACKAGE json_core IS
     
     TYPE t_t_varchars IS 
         TABLE OF t_varchars;
+    
+    PROCEDURE reset_value_cache;
+    
+    FUNCTION get_cached_values
+    RETURN t_json_values PIPELINED;
+    
+    PROCEDURE set_value_cache_capacity (
+        p_capacity IN PLS_INTEGER
+    );
+    
+    FUNCTION get_value (
+        p_id IN NUMBER
+    )
+    RETURN json_values%ROWTYPE;
     
     FUNCTION string_events (
         p_value IN VARCHAR2

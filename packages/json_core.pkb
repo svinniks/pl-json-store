@@ -16,9 +16,14 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         limitations under the License.
     */
     
-    TYPE t_json_values IS 
-        TABLE OF json_values%ROWTYPE;
-
+    v_value_cache_capacity PLS_INTEGER := 0;
+    
+    v_json_value_cache t_json_value_cache;
+    
+    v_value_cache_entries t_value_cache_entries;
+    v_value_cache_head_id VARCHAR2(30);
+    v_value_cache_tail_id VARCHAR2(30);
+    
     TYPE t_integer_indexed_numbers IS 
         TABLE OF NUMBER 
         INDEX BY PLS_INTEGER;
@@ -67,6 +72,159 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00028', 'Reserved field reference can''t be the topmost query element!');
         default_message_resolver.register_message('JDOC-00029', 'The topmost query element can''t be optional!');
         default_message_resolver.register_message('JDOC-00030', 'Empty JSON specified!');
+        default_message_resolver.register_message('JDOC-00031', 'Value ID not specified!');
+        default_message_resolver.register_message('JDOC-00032', 'Invalid cache capacity :1!');
+    END;
+    
+    PROCEDURE reset_value_cache IS
+    BEGIN
+    
+        v_json_value_cache.DELETE;
+        v_value_cache_entries.DELETE;
+
+        v_value_cache_head_id := NULL;
+        v_value_cache_tail_id := NULL;
+        
+    END;
+    
+    FUNCTION get_cached_values
+    RETURN t_json_values PIPELINED IS
+    
+        v_id VARCHAR2(30);
+        
+    BEGIN
+    
+        v_id := v_value_cache_head_id;
+        
+        WHILE v_id IS NOT NULL LOOP
+            PIPE ROW(v_json_value_cache(v_id));
+            v_id := v_value_cache_entries(v_id).next_entry_id;
+        END LOOP;
+    
+        RETURN;
+    
+    END;
+    
+    PROCEDURE remove_value_cache_entry (
+        p_id IN VARCHAR2
+    ) IS
+
+        v_entry_id VARCHAR2(30);    
+        v_prev_entry_id VARCHAR2(30);
+        v_next_entry_id VARCHAR2(30);
+    
+    BEGIN
+
+        v_entry_id := p_id;    
+        v_prev_entry_id := v_value_cache_entries(v_entry_id).prev_entry_id;
+        v_next_entry_id := v_value_cache_entries(v_entry_id).next_entry_id;
+    
+        IF v_prev_entry_id IS NOT NULL THEN
+            v_value_cache_entries(v_prev_entry_id).next_entry_id := v_next_entry_id;
+        ELSE
+            v_value_cache_head_id := v_next_entry_id;
+        END IF;
+        
+        IF v_next_entry_id IS NOT NULL THEN
+            v_value_cache_entries(v_next_entry_id).prev_entry_id := v_prev_entry_id;
+        ELSE
+            v_value_cache_tail_id := v_prev_entry_id;
+        END IF;
+        
+        v_value_cache_entries.DELETE(v_entry_id);
+    
+    END;
+    
+    PROCEDURE set_value_cache_capacity (
+        p_capacity IN PLS_INTEGER
+    ) IS
+    BEGIN
+    
+        IF p_capacity IS NULL OR p_capacity < 1 THEN
+            -- Invalid cache capacity :1!
+            error$.raise('JDOC-00032', NVL(TO_CHAR(p_capacity), 'NULL'));
+        END IF;
+        
+        FOR v_i IN p_capacity + 1..v_json_value_cache.COUNT LOOP
+            v_json_value_cache.DELETE(v_value_cache_tail_id);
+            remove_value_cache_entry(v_value_cache_tail_id);
+        END LOOP;
+        
+        v_value_cache_capacity := p_capacity;
+    
+    END;
+    
+    PROCEDURE add_value_cache_entry (
+        p_id IN VARCHAR2
+    ) IS
+    BEGIN
+    
+        v_value_cache_entries(p_id) := NULL;
+        v_value_cache_entries(p_id).prev_entry_id := NULL;
+        v_value_cache_entries(p_id).next_entry_id := v_value_cache_head_id;
+        
+        IF v_value_cache_head_id IS NOT NULL THEN
+            v_value_cache_entries(v_value_cache_head_id).prev_entry_id := p_id;
+        END IF;
+        
+        v_value_cache_head_id := p_id;
+        
+        IF v_value_cache_tail_id IS NULL THEN
+            v_value_cache_tail_id := p_id;
+        END IF;
+    
+    END;
+    
+    FUNCTION get_value (
+        p_id IN NUMBER
+    )
+    RETURN json_values%ROWTYPE IS
+    
+        v_entry_id VARCHAR2(30);
+        
+    BEGIN
+    
+        IF p_id IS NULL THEN
+            -- Value ID not specified!
+            error$.raise('JDOC-00031');
+        END IF;
+    
+        v_entry_id := p_id;
+    
+        IF v_json_value_cache.EXISTS(v_entry_id) THEN
+        
+            IF v_entry_id != v_value_cache_head_id THEN
+                remove_value_cache_entry(v_entry_id);
+                add_value_cache_entry(v_entry_id);
+            END IF;
+        
+        ELSE
+        
+            BEGIN
+            
+                SELECT *
+                INTO v_json_value_cache(v_entry_id)
+                FROM json_values
+                WHERE id = p_id;
+            
+            EXCEPTION
+                WHEN NO_DATA_FOUND THEN
+                    -- Value :1 does not exist!
+                    error$.raise('JDOC-00009', '#' || v_entry_id);
+            END;
+        
+            IF v_json_value_cache.COUNT > v_value_cache_capacity THEN
+                v_json_value_cache.DELETE(v_value_cache_tail_id);
+                dbms_output.put_line('tail ' || v_value_cache_tail_id);
+                remove_value_cache_entry(v_value_cache_tail_id);
+            END IF;
+            
+            add_value_cache_entry(v_entry_id);
+            
+        END IF;
+        
+        RETURN v_json_value_cache(v_entry_id);
+    
     END;
     
     FUNCTION string_events (

@@ -132,7 +132,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path, 
             p_bind,
             v_parse_events
-        ).id;
+        );
         
     END;
     
@@ -171,7 +171,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path, 
             p_bind,
             v_parse_events
-        ).id;
+        );
         
     END;
 
@@ -205,7 +205,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path, 
             p_bind,
             json_core.string_events(p_value)
-        ).id;
+        );
 
     END;
     
@@ -239,7 +239,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path, 
             p_bind,
             json_core.number_events(p_value)
-        ).id;
+        );
 
     END;
     
@@ -273,7 +273,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path, 
             p_bind,
             json_core.boolean_events(p_value)
-        ).id;
+        );
 
     END;
     
@@ -306,7 +306,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path, 
             p_bind,
             json_core.null_events
-        ).id;
+        );
 
     END;
     
@@ -337,7 +337,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path, 
             p_bind,
             json_core.object_events
-        ).id;
+        );
 
     END;
     
@@ -354,7 +354,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path, 
             p_bind,
             json_core.object_events
-        ).id;
+        );
         
     END;
 
@@ -369,7 +369,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path, 
             p_bind, 
             json_core.array_events
-        ).id;
+        );
 
     END;
     
@@ -386,7 +386,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             p_path,
             p_bind,
             json_core.array_events
-        ).id;
+        );
         
     END;
     
@@ -419,7 +419,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
             v_parse_events
         );
     
-        RETURN json_core.set_property(p_path, p_bind, v_parse_events).id;
+        RETURN json_core.set_property(p_path, p_bind, v_parse_events);
     
     END;
     
@@ -811,12 +811,12 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     ) IS
     
-        v_value t_json_value;
+        v_value json_values%ROWTYPE;
         t_ids_to_lock t_numbers;
     
     BEGIN
     
-        v_value := t_json_value(p_path, p_bind);
+        v_value := json_core.get_value(t_json_value(p_path, p_bind).id);
     
         IF v_value.type = 'R' THEN
             RETURN;
@@ -842,7 +842,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     ) IS
     
-        v_value t_json_value;
+        v_value json_values%ROWTYPE;
         v_dummy NUMBER;
         
         CURSOR c_locked_child (
@@ -855,7 +855,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
         
-        v_value := t_json_value(p_path, p_bind);
+        v_value := json_core.get_value(t_json_value(p_path, p_bind).id);
         
         IF v_value.type = 'R' THEN
             -- Root can''t be unlocked!

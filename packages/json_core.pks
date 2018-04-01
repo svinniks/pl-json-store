@@ -187,14 +187,14 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_name IN VARCHAR2,
         p_content_parse_events IN json_parser.t_parse_events
     ) 
-    RETURN t_json_value;
+    RETURN NUMBER;
     
     FUNCTION set_property (
         p_path IN VARCHAR2,
         p_bind IN bind,
         p_content_parse_events IN json_parser.t_parse_events
     )
-    RETURN t_json_value;
+    RETURN NUMBER;
     
     FUNCTION set_property (
         p_anchor_value_id IN NUMBER,
@@ -202,7 +202,7 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_bind IN bind,
         p_content_parse_events IN json_parser.t_parse_events
     )
-    RETURN t_json_value;
+    RETURN NUMBER;
     
     PROCEDURE apply_json (
         p_path IN VARCHAR2,

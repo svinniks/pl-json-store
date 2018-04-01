@@ -1,9 +1,6 @@
 CREATE OR REPLACE TYPE t_json_value IS OBJECT (
 
     id NUMBER,
-    parent_id NUMBER,
-    type CHAR,
-    value VARCHAR2(4000),
     
     STATIC FUNCTION create_string (
         p_value IN VARCHAR2
@@ -59,10 +56,6 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_anchor_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN self AS RESULT,
-    
-    CONSTRUCTOR FUNCTION t_json_value (
-        p_id IN NUMBER
     ) RETURN self AS RESULT,
     
     MEMBER FUNCTION as_string
@@ -398,6 +391,14 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     
     MEMBER PROCEDURE push_json (
         p_content IN CLOB
-    )
+    ),
+    
+    MEMBER PROCEDURE "lock",
+    
+    MEMBER PROCEDURE lock_tree,
+    
+    MEMBER PROCEDURE unlock,
+    
+    MEMBER PROCEDURE unlock_tree
     
 );

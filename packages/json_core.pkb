@@ -1865,18 +1865,20 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
     END;
 
-    PROCEDURE create_json (
+    FUNCTION create_json (
         p_parent_id IN NUMBER,
         p_name IN VARCHAR2,
         p_content_parse_events IN json_parser.t_parse_events,
-        p_event_i IN OUT NOCOPY PLS_INTEGER,
-        p_value OUT NOCOPY t_json_value
-    ) IS
+        p_event_i IN OUT NOCOPY PLS_INTEGER
+    ) 
+    RETURN NUMBER IS
     
         v_json_values t_json_values;
 
         v_id NUMBER;
         v_id_map t_integer_indexed_numbers;
+        
+        v_value_id NUMBER;
 
         FUNCTION next_id
         RETURN NUMBER IS
@@ -1946,10 +1948,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             p_name IN VARCHAR2,
             p_id IN NUMBER := NULL
         )
-        RETURN t_json_value IS
+        RETURN NUMBER IS
 
             v_value json_values%ROWTYPE;
-            v_child_value t_json_value;
+            v_child_id NUMBER;
 
             v_name VARCHAR2(4000);
             v_i PLS_INTEGER;
@@ -2002,7 +2004,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     v_name := p_content_parse_events(p_event_i).value;
                     p_event_i := p_event_i + 1;
 
-                    v_child_value := create_value(v_value.id, v_name);
+                    v_child_id := create_value(v_value.id, v_name);
                     p_event_i := p_event_i + 1;
 
                 END LOOP;
@@ -2019,7 +2021,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
                 WHILE p_content_parse_events(p_event_i).name != 'END_ARRAY' LOOP
 
-                    v_child_value := create_value(v_value.id, v_i);
+                    v_child_id := create_value(v_value.id, v_i);
 
                     p_event_i := p_event_i + 1;
                     v_i := v_i + 1;
@@ -2028,7 +2030,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
             END IF;
 
-            RETURN t_json_value(v_value.id, p_parent_id, v_value.type, v_value.value);
+            RETURN v_value.id;
 
         END;
 
@@ -2042,11 +2044,11 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_json_values := t_json_values();
         v_id := 0;
 
-        p_value := create_value(p_parent_id, p_name);
+        v_value_id := create_value(p_parent_id, p_name);
 
         flush_values;
 
-        p_value.id := v_id_map(p_value.id);
+        RETURN v_id_map(v_value_id);
 
     END;
 
@@ -2055,7 +2057,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         p_name IN VARCHAR2,
         p_content_parse_events IN json_parser.t_parse_events
     ) 
-    RETURN t_json_value IS
+    RETURN NUMBER IS
     
         v_event_i PLS_INTEGER;
         v_value t_json_value;
@@ -2063,10 +2065,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     BEGIN
     
         v_event_i := 1;
-        create_json(p_parent_id, p_name, p_content_parse_events, v_event_i, v_value);
+        RETURN create_json(p_parent_id, p_name, p_content_parse_events, v_event_i);
         
-        RETURN v_value;
-    
     END;
     
     FUNCTION set_property (
@@ -2074,7 +2074,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         p_bind IN bind,
         p_content_parse_events IN json_parser.t_parse_events
     )
-    RETURN t_json_value IS
+    RETURN NUMBER IS
     BEGIN
     
         RETURN set_property(NULL, p_path, p_bind, p_content_parse_events);
@@ -2087,7 +2087,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         p_bind IN bind,
         p_content_parse_events IN json_parser.t_parse_events
     )
-    RETURN t_json_value IS
+    RETURN NUMBER IS
 
         v_query_elements t_query_elements;
 
@@ -2241,7 +2241,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     ) IS
         
         v_event json_parser.t_parse_event;
-        v_value t_json_value;
+        v_value_id NUMBER;
         
         v_child_value_name VARCHAR2(4000);
         v_child_value_row json_values%ROWTYPE;
@@ -2272,12 +2272,11 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
            DELETE FROM json_values
            WHERE id = p_value_row.id;
         
-           create_json(
+           v_value_id := create_json(
                p_value_row.parent_id, 
                p_value_row.name, 
                p_content_parse_events, 
-               p_event_i, 
-               v_value
+               p_event_i
            );
         
         ELSIF p_value_row.type IN ('S', 'N', 'B') AND p_value_row.value != v_event.value THEN
@@ -2311,12 +2310,11 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     
                         p_event_i := p_event_i + 1;
                         
-                        create_json(
+                        v_value_id := create_json(
                             p_value_row.id, 
                             v_child_value_name, 
                             p_content_parse_events, 
-                            p_event_i, 
-                            v_value
+                            p_event_i
                         );
                 
                 END;
@@ -2345,12 +2343,11 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 EXCEPTION
                     WHEN NO_DATA_FOUND THEN
                     
-                        create_json(
+                        v_value_id := create_json(
                             p_value_row.id, 
                             v_item_i, 
                             p_content_parse_events, 
-                            p_event_i, 
-                            v_value
+                            p_event_i
                         );
                 
                 END;

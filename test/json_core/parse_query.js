@@ -1,7 +1,7 @@
-const VALUE_QUERY = 1;
-const PROPERTY_QUERY = 2;
-const VALUE_TABLE_QUERY = 3;
-const X_VALUE_TABLE_QUERY = 4;
+const VALUE_QUERY = 'V';
+const PROPERTY_QUERY = 'P';
+const VALUE_TABLE_QUERY = 'T';
+const X_VALUE_TABLE_QUERY = 'X';
 
 suite("Invalid query tests", function() {
 

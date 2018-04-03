@@ -1,5 +1,7 @@
 CREATE OR REPLACE TYPE BODY t_json_value IS 
     
+    /* Anonymous JSON value creation static methods */
+
     STATIC FUNCTION create_string (
         p_value IN VARCHAR2
     )
@@ -7,7 +9,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.create_json(NULL, NULL, json_core.string_events(p_value))
+            json_core.create_json(json_core.string_events(p_value))
         );
     
     END;
@@ -19,7 +21,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.create_json(NULL, NULL, json_core.number_events(p_value))
+            json_core.create_json(json_core.number_events(p_value))
         );
     
     END;
@@ -31,7 +33,17 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.create_json(NULL, NULL, json_core.boolean_events(p_value))
+            json_core.create_json(json_core.boolean_events(p_value))
+        );
+    
+    END;
+
+    STATIC FUNCTION create_null
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.create_json(json_core.null_events)
         );
     
     END;
@@ -41,7 +53,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.create_json(NULL, NULL, json_core.object_events)
+            json_core.create_json(json_core.object_events)
         );
     
     END;
@@ -51,17 +63,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.create_json(NULL, NULL, json_core.array_events)
-        );
-    
-    END;
-    
-    STATIC FUNCTION create_null
-    RETURN t_json_value IS
-    BEGIN
-    
-        RETURN t_json_value(
-            json_core.create_json(NULL, NULL, json_core.null_events)
+            json_core.create_json(json_core.array_events)
         );
     
     END;
@@ -78,7 +80,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         json_parser.parse(p_content, v_parse_events);
         
         RETURN t_json_value(
-            json_core.create_json(NULL, NULL, v_parse_events)
+            json_core.create_json(v_parse_events)
         );
     
     END;
@@ -95,7 +97,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         json_parser.parse(p_content, v_parse_events);
         
         RETURN t_json_value(
-            json_core.create_json(NULL, NULL, v_parse_events)
+            json_core.create_json(v_parse_events)
         );
     
     END;
@@ -112,60 +114,18 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         json_core.get_parse_events(p_value.id, v_parse_events);
         
         RETURN t_json_value(
-            json_core.create_json(NULL, NULL, v_parse_events)
+            json_core.create_json(v_parse_events)
         );
     
     END;
 
-    STATIC FUNCTION request_value (
-        p_anchor_value_id IN NUMBER,
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) RETURN t_json_value IS
-    
-        c_values SYS_REFCURSOR;
-    
-        v_id NUMBER;
-        v_parent_id NUMBER;
-        v_type CHAR;
-        v_value VARCHAR2(4000);
-        
-        v_result t_json_value;
-    
-    BEGIN
-    
-        c_values := json_core.get_value_cursor(p_anchor_value_id, p_path, p_bind);
-    
-        LOOP
-    
-            FETCH c_values
-            INTO v_id, v_parent_id, v_type, v_value;
-        
-            EXIT WHEN c_values%NOTFOUND;
-        
-            v_result := t_json_value(v_id);
-        
-            IF c_values%ROWCOUNT > 1 THEN
-            
-                CLOSE c_values;
-            
-                -- Multiple values found at the path :1!
-                error$.raise('JDOC-00004', p_path);
-                
-            END IF;
-        
-        END LOOP;
-    
-        CLOSE c_values;
-    
-        RETURN v_result;
-    
-    END;
+    /* Constructors for retrieving JSON values by path */
 
     CONSTRUCTOR FUNCTION t_json_value (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN self AS RESULT IS
+    ) 
+    RETURN self AS RESULT IS
     BEGIN
     
         self := t_json_value(NULL, p_path, p_bind);
@@ -178,128 +138,59 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_anchor_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind
-    ) RETURN self AS RESULT IS
-    
-        v_value t_json_value;
-    
+    ) 
+    RETURN self AS RESULT IS
     BEGIN
     
-        v_value := t_json_value.request_value(p_anchor_value_id, p_path, p_bind);
-        
-        IF v_value IS NULL THEN
-            -- Value :1 does not exist!
-            error$.raise('JDOC-00009', p_path);
-        END IF;
-        
-        self := v_value;        
+        self.id := json_core.request_value(p_anchor_value_id, p_path, p_bind, TRUE);
         
         RETURN;
     
     END;
+    
+    /* Self casting to the scalar types and JSON */
         
     MEMBER FUNCTION as_string
     RETURN VARCHAR2 IS
-    
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type IN ('S', 'N', 'E') THEN
-            RETURN v_value.value;
-        ELSE
-            -- Type conversion error!
-            error$.raise('JDOC-00010');
-        END IF;
+        RETURN json_core.get_string(id);
     
     END;
     
     MEMBER FUNCTION as_number
     RETURN NUMBER IS
-    
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type IN ('N', 'E') THEN
-          
-            RETURN v_value.value;
-            
-        ELSIF v_value.type = 'S' THEN
-          
-            BEGIN
-                RETURN v_value.value;
-            EXCEPTION
-                WHEN OTHERS THEN
-                    -- Type conversion error!
-                    error$.raise('JDOC-00010');
-            END;
-            
-        ELSE
-          
-            -- Type conversion error!
-            error$.raise('JDOC-00010');
-            
-        END IF;
+        RETURN json_core.get_number(id);
     
     END;
     
     MEMBER FUNCTION as_boolean
     RETURN BOOLEAN IS
-    
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type IN ('B', 'E') THEN
-            RETURN v_value.value = 'true';
-        ELSE
-            -- Type conversion error!
-            error$.raise('JDOC-00010');
-        END IF;
+        RETURN json_core.get_boolean(id);
     
     END;
     
     MEMBER FUNCTION as_json
     RETURN VARCHAR2 IS
-    
-        v_parse_events json_parser.t_parse_events;
-    
-        v_json VARCHAR2(32000);
-        v_json_clob CLOB;
-    
     BEGIN
     
-        json_core.get_parse_events(id, v_parse_events);
-        json_core.serialize_value(v_parse_events, v_json, v_json_clob);
-        
-        RETURN v_json;
+        RETURN json_core.get_json(id);
     
     END;
     
     MEMBER FUNCTION as_json_clob
     RETURN CLOB IS
-    
-        v_parse_events json_parser.t_parse_events;
-    
-        v_json VARCHAR2(32000);
-        v_json_clob CLOB;
-    
     BEGIN
     
-        DBMS_LOB.CREATETEMPORARY(v_json_clob, TRUE);
-        
-        json_core.get_parse_events(id, v_parse_events);
-        json_core.serialize_value(v_parse_events, v_json, v_json_clob);
-        
-        RETURN v_json_clob;
+        RETURN json_core.get_json_clob(id);
     
     END;
+    
+    /* Some usefull generic methods */
     
     MEMBER FUNCTION get_parent
     RETURN t_json_value IS
@@ -318,88 +209,29 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
-    MEMBER FUNCTION get_keys
-    RETURN t_varchars IS
-    
-        v_keys t_varchars;
-        v_value json_values%ROWTYPE;
-    
-    BEGIN
-    
-        v_value := json_core.get_value(id);
-     
-        IF v_value.type NOT IN ('O', 'R') THEN
-            -- Value is not an object!
-            error$.raise('JDOC-00021');
-        END IF;
-        
-        SELECT name
-        BULK COLLECT INTO v_keys
-        FROM json_values
-        WHERE parent_id = self.id;
-        
-        RETURN v_keys;
-    
-    END;
-    
-    MEMBER FUNCTION get_length (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    )
-    RETURN PLS_INTEGER IS
-    BEGIN
-    
-        RETURN t_json_value.request_value(id, p_path, p_bind).get_length;
-    
-    END;
-    
-    MEMBER FUNCTION get_length
-    RETURN PLS_INTEGER IS
-    
-        v_value json_values%ROWTYPE;
-        v_length NUMBER;
-    
-    BEGIN
-    
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type != 'A' THEN
-            -- Value is not an array!
-            error$.raise('JDOC-00012');
-        END IF;
-        
-        SELECT NVL(MAX(to_index(name)), -1)
-        INTO v_length
-        FROM json_values 
-        WHERE parent_id = self.id;
-        
-        RETURN v_length + 1;
-    
-    END;
-    
     MEMBER FUNCTION is_object
     RETURN BOOLEAN IS
-    
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        RETURN v_value.type IN ('O', 'R');
+        RETURN json_core.is_object(id);
     
     END;
     
     MEMBER FUNCTION is_array
     RETURN BOOLEAN IS
-    
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
+        RETURN json_core.is_array(id);
     
-        RETURN v_value.type = 'A';
+    END;
+    
+    /* Special object methods */
+    
+    MEMBER FUNCTION get_keys
+    RETURN t_varchars IS
+    BEGIN
+    
+        RETURN json_core.get_keys(id);
     
     END;
     
@@ -410,18 +242,37 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN BOOLEAN IS
     BEGIN
     
-        RETURN get(p_path, p_bind) IS NOT NULL;
+        RETURN json_core.request_value(id, p_path, p_bind) IS NOT NULL;
     
     END;
+    
+    MEMBER FUNCTION get_length
+    RETURN PLS_INTEGER IS
+    BEGIN
+    
+        RETURN json_core.get_length(id);
+    
+    END;
+    
+    /* Child value retrieval methods */
     
     MEMBER FUNCTION get (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     )
     RETURN t_json_value IS
+    
+        v_value_id NUMBER;
+    
     BEGIN
     
-        RETURN t_json_value.request_value(id, p_path, p_bind);
+        v_value_id := json_core.request_value(id, p_path, p_bind);
+    
+        IF v_value_id IS NULL THEN
+            RETURN NULL;
+        ELSE
+            RETURN t_json_value(v_value_id);
+        END IF;
     
     END;
     
@@ -430,18 +281,11 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_bind IN bind := NULL
     )
     RETURN VARCHAR2 IS
-    
-        v_property t_json_value;
-    
     BEGIN
     
-        v_property := get(p_path, p_bind);
-        
-        IF v_property IS NULL THEN
-            RETURN NULL;
-        ELSE 
-            RETURN v_property.as_string;
-        END IF;
+        RETURN json_core.get_string (
+            json_core.request_value(id, p_path, p_bind)
+        );
     
     END;
     
@@ -450,18 +294,11 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_bind IN bind := NULL
     )
     RETURN NUMBER IS
-    
-        v_property t_json_value;
-    
     BEGIN
     
-        v_property := get(p_path, p_bind);
-        
-        IF v_property IS NULL THEN
-            RETURN NULL;
-        ELSE 
-            RETURN v_property.as_number;
-        END IF;
+        RETURN json_core.get_number(
+            json_core.request_value(id, p_path, p_bind)
+        );
     
     END;
     
@@ -470,20 +307,41 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_bind IN bind := NULL
     )
     RETURN BOOLEAN IS
-    
-        v_property t_json_value;
-    
     BEGIN
     
-        v_property := get(p_path, p_bind);
-        
-        IF v_property IS NULL THEN
-            RETURN NULL;
-        ELSE 
-            RETURN v_property.as_boolean;
-        END IF;
+        RETURN json_core.get_boolean(
+            json_core.request_value(id, p_path, p_bind)
+        );
     
     END;
+    
+    MEMBER FUNCTION get_json (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN VARCHAR2 IS
+    BEGIN
+    
+        RETURN json_core.get_json(
+            json_core.request_value(id, p_path, p_bind)
+        );
+    
+    END;
+    
+    MEMBER FUNCTION get_json_clob (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN VARCHAR2 IS
+    BEGIN
+    
+        RETURN json_core.get_json_clob(
+            json_core.request_value(id, p_path, p_bind)
+        );
+    
+    END;
+    
+    /* Property modification methods */
     
     MEMBER FUNCTION set_string (
         p_path IN VARCHAR2,
@@ -581,6 +439,36 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION set_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.set_property(
+                p_anchor_value_id => id,
+                p_path => p_path,
+                p_bind => p_bind,
+                p_content_parse_events => json_core.null_events
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE set_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := set_null(p_path, p_bind);
+        
+    END;
+    
     MEMBER FUNCTION set_object (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -639,23 +527,6 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         v_dummy := set_array(p_path, p_bind);
         
-    END;
-    
-    MEMBER FUNCTION set_null (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) RETURN t_json_value IS
-    BEGIN
-    
-        RETURN t_json_value(
-            json_core.set_property(
-                p_anchor_value_id => id,
-                p_path => p_path,
-                p_bind => p_bind,
-                p_content_parse_events => json_core.null_events
-            )
-        );
-    
     END;
     
     MEMBER FUNCTION set_json (
@@ -770,18 +641,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
-    MEMBER PROCEDURE set_null (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) IS
-    
-        v_dummy t_json_value;
-    
-    BEGIN
-    
-        v_dummy := set_null(p_path, p_bind);
-        
-    END;
+    /* Array push methods */
     
     MEMBER FUNCTION push_string (
         p_path IN VARCHAR2,
@@ -791,7 +651,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN t_json_value IS
     BEGIN
     
-        RETURN t_json_value.request_value(id, p_path, p_bind).push_string(p_value);
+        RETURN t_json_value(id, p_path, p_bind).push_string(p_value);
     
     END;
     
@@ -813,24 +673,10 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_value IN VARCHAR2
     ) 
     RETURN t_json_value IS
-    
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type != 'A' THEN
-            -- Value is not an array!
-            error$.raise('JDOC-00012');
-        END IF;
-        
         RETURN t_json_value(
-            json_core.create_json(
-                id
-               ,get_length
-               ,json_core.string_events(p_value)
-            )
+            json_core.push_json(id, json_core.string_events(p_value))
         );
     
     END;
@@ -855,7 +701,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN t_json_value IS
     BEGIN
     
-        RETURN t_json_value.request_value(id, p_path, p_bind).push_number(p_value);
+        RETURN t_json_value(id, p_path, p_bind).push_number(p_value);
     
     END;
     
@@ -877,24 +723,10 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_value IN NUMBER
     ) 
     RETURN t_json_value IS
-        
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type != 'A' THEN
-            -- Value is not an array!
-            error$.raise('JDOC-00012');
-        END IF;
-        
         RETURN t_json_value(
-            json_core.create_json(
-                id
-               ,get_length
-               ,json_core.number_events(p_value)
-            )
+            json_core.push_json(id, json_core.number_events(p_value))
         );
     
     END;
@@ -919,7 +751,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN t_json_value IS
     BEGIN
     
-        RETURN t_json_value.request_value(id, p_path, p_bind).push_boolean(p_value);
+        RETURN t_json_value(id, p_path, p_bind).push_boolean(p_value);
     
     END;
     
@@ -941,24 +773,10 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_value IN BOOLEAN
     ) 
     RETURN t_json_value IS
-    
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type != 'A' THEN
-            -- Value is not an array!
-            error$.raise('JDOC-00012');
-        END IF;
-        
         RETURN t_json_value(
-            json_core.create_json(
-                id
-               ,get_length
-               ,json_core.boolean_events(p_value)
-            )
+            json_core.push_json(id, json_core.boolean_events(p_value))
         );
     
     END;
@@ -975,6 +793,50 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION push_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(id, p_path, p_bind).push_null;
+    
+    END;
+    
+    MEMBER PROCEDURE push_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := push_null(p_path, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION push_null
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.push_json(id, json_core.null_events)
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE push_null IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := push_null;
+    
+    END;
+    
     MEMBER FUNCTION push_object (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -982,7 +844,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN t_json_value IS
     BEGIN
     
-        RETURN t_json_value.request_value(id, p_path, p_bind).push_object;
+        RETURN t_json_value(id, p_path, p_bind).push_object;
     
     END;
     
@@ -1001,24 +863,10 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     MEMBER FUNCTION push_object
     RETURN t_json_value IS
-    
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type != 'A' THEN
-            -- Value is not an array!
-            error$.raise('JDOC-00012');
-        END IF;
-        
         RETURN t_json_value(
-            json_core.create_json(
-                id
-               ,get_length
-               ,json_core.object_events
-            )
+            json_core.push_json(id, json_core.object_events)
         );
     
     END;
@@ -1040,7 +888,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN t_json_value IS
     BEGIN
     
-        RETURN t_json_value.request_value(id, p_path, p_bind).push_array;
+        RETURN t_json_value(id, p_path, p_bind).push_array;
     
     END;
     
@@ -1059,24 +907,10 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     MEMBER FUNCTION push_array
     RETURN t_json_value IS
-    
-        v_value json_values%ROWTYPE;
-    
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type != 'A' THEN
-            -- Value is not an array!
-            error$.raise('JDOC-00012');
-        END IF;
-        
         RETURN t_json_value(
-            json_core.create_json(
-                id
-               ,get_length
-               ,json_core.array_events
-            )
+            json_core.push_json(id, json_core.array_events)
         );
     
     END;
@@ -1091,64 +925,6 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
-    MEMBER FUNCTION push_null (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) 
-    RETURN t_json_value IS
-    BEGIN
-    
-        RETURN t_json_value.request_value(id, p_path, p_bind).push_null;
-    
-    END;
-    
-    MEMBER PROCEDURE push_null (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) IS
-    
-        v_dummy t_json_value;
-    
-    BEGIN
-    
-        v_dummy := push_null(p_path, p_bind);
-    
-    END;
-    
-    MEMBER FUNCTION push_null
-    RETURN t_json_value IS
-    
-        v_value json_values%ROWTYPE;
-    
-    BEGIN
-    
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type != 'A' THEN
-            -- Value is not an array!
-            error$.raise('JDOC-00012');
-        END IF;
-        
-        RETURN t_json_value(
-            json_core.create_json(
-                id
-               ,get_length
-               ,json_core.null_events
-            )
-        );
-    
-    END;
-    
-    MEMBER PROCEDURE push_null IS
-    
-        v_dummy t_json_value;
-    
-    BEGIN
-    
-        v_dummy := push_null;
-    
-    END;
-
     MEMBER FUNCTION push_json (
         p_path IN VARCHAR2,
         p_content IN VARCHAR2,
@@ -1157,7 +933,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN t_json_value IS
     BEGIN
     
-        RETURN t_json_value.request_value(id, p_path, p_bind).push_json(p_content);
+        RETURN t_json_value(id, p_path, p_bind).push_json(p_content);
     
     END;
     
@@ -1181,25 +957,13 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN t_json_value IS
       
         v_parse_events json_parser.t_parse_events;
-        v_value json_values%ROWTYPE;
     
     BEGIN
     
-        v_value := json_core.get_value(id);
-        
-        IF v_value.type != 'A' THEN
-            -- Value is not an array!
-            error$.raise('JDOC-00012');
-        END IF;
-        
         json_parser.parse(p_content, v_parse_events);
         
         RETURN t_json_value(
-            json_core.create_json(
-                id
-               ,get_length
-               ,v_parse_events
-            )
+            json_core.push_json(id, v_parse_events)
         );
     
     END;
@@ -1224,7 +988,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN t_json_value IS
     BEGIN
     
-        RETURN t_json_value.request_value(id, p_path, p_bind).push_json(p_content);
+        RETURN t_json_value(id, p_path, p_bind).push_json(p_content);
     
     END;
     
@@ -1248,25 +1012,13 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN t_json_value IS
       
         v_parse_events json_parser.t_parse_events;
-        v_value json_values%ROWTYPE;
     
     BEGIN
     
-        v_value := json_core.get_value(id);
-    
-        IF v_value.type != 'A' THEN
-            -- Value is not an array!
-            error$.raise('JDOC-00012');
-        END IF;
-        
         json_parser.parse(p_content, v_parse_events);
         
         RETURN t_json_value(
-            json_core.create_json(
-                id
-               ,get_length
-               ,v_parse_events
-            )
+            json_core.push_json(id, v_parse_events)
         );
     
     END;

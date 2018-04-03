@@ -2247,7 +2247,7 @@ suite("JSON store management tests", function() {
                     p_content: [1, 2, 3]
                 });
     
-                database.call("json_store.push_json_clob", {
+                database.call3("json_store.push_json", {
                     p_path: "$.jodus_document",
                     p_content: {
                         name: "Sergejs",
@@ -2275,7 +2275,7 @@ suite("JSON store management tests", function() {
                     p_content: [1, 2, 3]
                 });
     
-                database.call2("json_store.push_json_clob", {
+                database.call4("json_store.push_json", {
                     p_path: "$.jodus_document",
                     p_content: {
                         name: "Sergejs",
@@ -3035,7 +3035,7 @@ suite("JSON store management tests", function() {
                     p_path: "$"
                 });
 
-            }).to.throw(/JDOC-00006/);
+            }).to.throw(/JDOC-00035/);
 
         });
     
@@ -3189,7 +3189,7 @@ suite("JSON store management tests", function() {
                     p_path: "$"
                 });
             
-            }).to.throw(/JDOC-00026/);
+            }).to.throw(/JDOC-00034/);
         
         });
 
@@ -3444,7 +3444,7 @@ suite("JSON store management tests", function() {
                     p_path:  `$["${name}"].addresses.home`
                 });
             
-            }).to.throw(/JDOC-00025/);
+            }).to.throw(/JDOC-00033/);
         
         });
 
@@ -3536,6 +3536,7 @@ suite("Huge JSON document handling", function() {
 
     });
 
+    /*
     test("Save anonymous huge document via the VARCHAR method", function() {
 
         expect(function() {
@@ -3547,6 +3548,7 @@ suite("Huge JSON document handling", function() {
         }).to.throw(/./);
 
     });
+    */
 
     test("Parse huge document via the CLOB method", function() {
 
@@ -3558,7 +3560,7 @@ suite("Huge JSON document handling", function() {
 
     test("Save anonymous huge document via the CLOB method", function() {
 
-        documentId = database.call("json_store.create_json_clob", {
+        documentId = database.call2("json_store.create_json", {
             p_content: document
         });
         

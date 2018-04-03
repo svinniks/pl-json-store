@@ -2,6 +2,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
 
     id NUMBER,
     
+    /* Anonymous JSON value creation static methods */
+    
     STATIC FUNCTION create_string (
         p_value IN VARCHAR2
     )
@@ -17,13 +19,13 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     )
     RETURN t_json_value,
     
+    STATIC FUNCTION create_null
+    RETURN t_json_value,
+    
     STATIC FUNCTION create_object
     RETURN t_json_value,
     
     STATIC FUNCTION create_array
-    RETURN t_json_value,
-    
-    STATIC FUNCTION create_null
     RETURN t_json_value,
     
     STATIC FUNCTION create_json (
@@ -41,11 +43,7 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     )
     RETURN t_json_value,
     
-    STATIC FUNCTION request_value (
-        p_anchor_value_id IN NUMBER,
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) RETURN t_json_value,
+    /* Constructors for retrieving JSON values by path */
     
     CONSTRUCTOR FUNCTION t_json_value (
         p_path IN VARCHAR2,
@@ -57,6 +55,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) RETURN self AS RESULT,
+    
+    /* Self casting to the scalar types and JSON */
     
     MEMBER FUNCTION as_string
     RETURN VARCHAR2,
@@ -72,21 +72,11 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     
     MEMBER FUNCTION as_json_clob
     RETURN CLOB,
+     
+    /* Some usefull generic methods */
     
     MEMBER FUNCTION get_parent
     RETURN t_json_value,
-
-    MEMBER FUNCTION get_keys
-    RETURN t_varchars,
-    
-    MEMBER FUNCTION get_length (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    )
-    RETURN PLS_INTEGER,
-    
-    MEMBER FUNCTION get_length
-    RETURN PLS_INTEGER,
     
     MEMBER FUNCTION is_object
     RETURN BOOLEAN,
@@ -94,11 +84,23 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER FUNCTION is_array
     RETURN BOOLEAN,
     
+    /* Special object methods */
+
+    MEMBER FUNCTION get_keys
+    RETURN t_varchars,
+    
     MEMBER FUNCTION has (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) 
     RETURN BOOLEAN,
+    
+    /* Special array methods */
+    
+    MEMBER FUNCTION get_length
+    RETURN PLS_INTEGER,
+    
+    /* Child value retrieval methods */
         
     MEMBER FUNCTION get (
         p_path IN VARCHAR2,
@@ -123,6 +125,20 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_bind IN bind := NULL
     )
     RETURN BOOLEAN,
+    
+    MEMBER FUNCTION get_json (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN VARCHAR2,
+    
+    MEMBER FUNCTION get_json_clob (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN VARCHAR2,
+    
+    /* Property modification methods */
     
     MEMBER FUNCTION set_string (
         p_path IN VARCHAR2,
@@ -163,6 +179,17 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_bind IN bind := NULL
     ),
     
+    MEMBER FUNCTION set_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ),
+    
     MEMBER FUNCTION set_object (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -181,17 +208,6 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     RETURN t_json_value,
     
     MEMBER PROCEDURE set_array (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ),
-    
-    MEMBER FUNCTION set_null (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) 
-    RETURN t_json_value,
-    
-    MEMBER PROCEDURE set_null (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ),
@@ -235,6 +251,8 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_bind IN bind := NULL
     ),
     
+    /* Array push methods */
+    
     MEMBER FUNCTION push_string (
         p_path IN VARCHAR2,
         p_value IN VARCHAR2,
@@ -300,6 +318,22 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER PROCEDURE push_boolean (
         p_value IN BOOLEAN
     ),
+    
+    MEMBER FUNCTION push_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE push_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION push_null
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE push_null,
     
     MEMBER FUNCTION push_object (
         p_path IN VARCHAR2,
@@ -333,22 +367,6 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     
     MEMBER PROCEDURE push_array,
     
-    MEMBER FUNCTION push_null (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) 
-    RETURN t_json_value,
-    
-    MEMBER PROCEDURE push_null (
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ),
-    
-    MEMBER FUNCTION push_null
-    RETURN t_json_value,
-    
-    MEMBER PROCEDURE push_null,
-    
     MEMBER FUNCTION push_json (
         p_path IN VARCHAR2,
         p_content IN VARCHAR2,
@@ -391,8 +409,9 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     
     MEMBER PROCEDURE push_json (
         p_content IN CLOB
-    ),
+    )
     
+    /*
     MEMBER PROCEDURE "lock",
     
     MEMBER PROCEDURE lock_tree,
@@ -400,5 +419,6 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER PROCEDURE unlock,
     
     MEMBER PROCEDURE unlock_tree
+    */
     
 );

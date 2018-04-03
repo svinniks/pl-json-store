@@ -94,13 +94,15 @@ CREATE OR REPLACE PACKAGE json_store IS
     TYPE t_20_value_table IS 
         TABLE OF t_20_value_row;
 
+    /* Anonymous value creation API */
+
     FUNCTION create_json (
         -- @json
         p_content IN VARCHAR2
     ) 
     RETURN NUMBER;
     
-    FUNCTION create_json_clob (
+    FUNCTION create_json (
         -- @json
         p_content IN CLOB
     ) 
@@ -136,35 +138,7 @@ CREATE OR REPLACE PACKAGE json_store IS
     )
     RETURN NUMBER;
     
-    FUNCTION set_json (
-        p_path IN VARCHAR2,
-        -- @json
-        p_content IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) 
-    RETURN NUMBER;
-    
-    PROCEDURE set_json (
-        p_path IN VARCHAR2,
-        -- @json
-        p_content IN VARCHAR2,
-        p_bind IN bind := NULL
-    );
-    
-    FUNCTION set_json_clob (
-        p_path IN VARCHAR2,
-        -- @json
-        p_content IN CLOB,
-        p_bind IN bind := NULL
-    )
-    RETURN NUMBER;
-    
-    PROCEDURE set_json_clob (
-        p_path IN VARCHAR2,
-        -- @json
-        p_content IN CLOB,
-        p_bind IN bind := NULL
-    );
+    /* Named property modification API */
     
     FUNCTION set_string (
         p_path IN VARCHAR2,
@@ -235,6 +209,36 @@ CREATE OR REPLACE PACKAGE json_store IS
     
     PROCEDURE set_array (
         p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION set_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) 
+    RETURN NUMBER;
+    
+    PROCEDURE set_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION set_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN CLOB,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE set_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN CLOB,
         p_bind IN bind := NULL
     );
     
@@ -413,7 +417,7 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_bind IN bind := NULL
     );
         
-    FUNCTION push_json_clob (
+    FUNCTION push_json (
         p_path IN VARCHAR2,
         -- @json
         p_content IN CLOB,
@@ -421,7 +425,7 @@ CREATE OR REPLACE PACKAGE json_store IS
     )
     RETURN NUMBER;
         
-    PROCEDURE push_json_clob (
+    PROCEDURE push_json (
         p_path IN VARCHAR2,
         -- @json
         p_content IN CLOB,

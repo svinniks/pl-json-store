@@ -19,44 +19,17 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     e_no_more_rows_needed EXCEPTION;
     PRAGMA EXCEPTION_INIT(e_no_more_rows_needed, -6548);
     
-    PROCEDURE register_messages IS
-    BEGIN
-        default_message_resolver.register_message('JDOC-00004', 'Multiple values found at path :1!');
-        default_message_resolver.register_message('JDOC-00008', 'Scalar values and null can''t have properties!');
-        default_message_resolver.register_message('JDOC-00009', 'Value :1 does not exist!');
-        default_message_resolver.register_message('JDOC-00012', ':1 is not an array!');
-        default_message_resolver.register_message('JDOC-00024', 'Value :1 is locked!');
-        default_message_resolver.register_message('JDOC-00025', 'Value :1 has locked children!');
-        default_message_resolver.register_message('JDOC-00026', 'Root can''t be unlocked!');
-    END;
+    /* Anonymous value creation API */
     
-    FUNCTION create_json (
-        p_content IN VARCHAR2
-    )
-    RETURN NUMBER IS
-    BEGIN
-    
-        RETURN t_json_value.create_json(p_content).id;
-        
-    END;
-    
-    FUNCTION create_json_clob (
-        p_content IN CLOB
-    )
-    RETURN NUMBER IS
-    BEGIN
-    
-        RETURN t_json_value.create_json(p_content).id;
-        
-    END;
-
     FUNCTION create_string (
         p_value IN VARCHAR2
     )
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value.create_string(p_value).id;
+        RETURN json_core.create_json(
+            json_core.string_events(p_value)
+        );
 
     END;
 
@@ -66,7 +39,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value.create_number(p_value).id;
+        RETURN json_core.create_json(
+            json_core.number_events(p_value)
+        );
 
     END;
 
@@ -76,7 +51,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value.create_boolean(p_value).id;
+        RETURN json_core.create_json(
+            json_core.boolean_events(p_value)
+        );
 
     END;
 
@@ -84,7 +61,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value.create_null().id;
+        RETURN json_core.create_json(
+            json_core.null_events
+        );
 
     END;
 
@@ -92,7 +71,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value.create_object().id;
+        RETURN json_core.create_json(
+            json_core.object_events
+        );
 
     END;
 
@@ -100,8 +81,40 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value.create_array().id;
+        RETURN json_core.create_json(
+            json_core.array_events
+        );
 
+    END;
+    
+    FUNCTION create_json (
+        p_content IN VARCHAR2
+    )
+    RETURN NUMBER IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+    
+        RETURN json_core.create_json(v_parse_events);
+        
+    END;
+    
+    FUNCTION create_json (
+        p_content IN CLOB
+    )
+    RETURN NUMBER IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+    
+        RETURN json_core.create_json(v_parse_events);
+        
     END;
     
     FUNCTION create_copy (
@@ -109,89 +122,21 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     )
     RETURN NUMBER IS
+        
+        v_parse_events json_parser.t_parse_events;
+    
     BEGIN
     
-        RETURN t_json_value.create_copy(t_json_value(p_path, p_bind)).id;
+        json_core.get_parse_events(
+            json_core.request_value(NULL, p_path, p_bind, TRUE), 
+            v_parse_events
+        );
+    
+        RETURN json_core.create_json(v_parse_events);
     
     END;
 
-    FUNCTION set_json (
-        p_path IN VARCHAR2,
-        p_content IN VARCHAR2,
-        p_bind IN bind := NULL
-    )
-    RETURN NUMBER IS
-    
-        v_parse_events json_parser.t_parse_events;
-        
-    BEGIN
-    
-        json_parser.parse(p_content, v_parse_events);
-    
-        RETURN json_core.set_property(
-            p_path, 
-            p_bind,
-            v_parse_events
-        );
-        
-    END;
-    
-    PROCEDURE set_json (
-        p_path IN VARCHAR2,
-        p_content IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) IS
-        
-        v_dummy NUMBER;
-        
-    BEGIN
-    
-        v_dummy := set_json(
-            p_path,
-            p_content,
-            p_bind
-        );
-    
-    END;
-    
-    FUNCTION set_json_clob (
-        p_path IN VARCHAR2,
-        p_content IN CLOB,
-        p_bind IN bind := NULL
-    )
-    RETURN NUMBER IS
-    
-        v_parse_events json_parser.t_parse_events;
-        
-    BEGIN
-    
-        json_parser.parse(p_content, v_parse_events);
-    
-        RETURN json_core.set_property(
-            p_path, 
-            p_bind,
-            v_parse_events
-        );
-        
-    END;
-
-    PROCEDURE set_json_clob (
-        p_path IN VARCHAR2,
-        p_content IN CLOB,
-        p_bind IN bind := NULL
-    ) IS
-        
-        v_dummy NUMBER;
-        
-    BEGIN
-    
-        v_dummy := set_json_clob(
-            p_path, 
-            p_content,
-            p_bind
-        ); 
-    
-    END;
+    /* Named property modification API */
 
     FUNCTION set_string (
         p_path IN VARCHAR2,
@@ -202,6 +147,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
+            NULL,
             p_path, 
             p_bind,
             json_core.string_events(p_value)
@@ -236,6 +182,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
+            NULL,
             p_path, 
             p_bind,
             json_core.number_events(p_value)
@@ -270,6 +217,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
+            NULL,
             p_path, 
             p_bind,
             json_core.boolean_events(p_value)
@@ -303,6 +251,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
+            NULL,
             p_path, 
             p_bind,
             json_core.null_events
@@ -334,6 +283,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
+            NULL,
             p_path, 
             p_bind,
             json_core.object_events
@@ -351,6 +301,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         v_dummy := json_core.set_property(
+            NULL,
             p_path, 
             p_bind,
             json_core.object_events
@@ -366,6 +317,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
+            NULL,
             p_path, 
             p_bind, 
             json_core.array_events
@@ -383,11 +335,92 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         v_dummy := json_core.set_property(
+            NULL,
             p_path,
             p_bind,
             json_core.array_events
         );
         
+    END;
+    
+    FUNCTION set_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    
+        v_parse_events json_parser.t_parse_events;
+        
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+    
+        RETURN json_core.set_property(
+            NULL,
+            p_path, 
+            p_bind,
+            v_parse_events
+        );
+        
+    END;
+    
+    PROCEDURE set_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+    
+        v_dummy := set_json(
+            p_path,
+            p_content,
+            p_bind
+        );
+    
+    END;
+    
+    FUNCTION set_json (
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    
+        v_parse_events json_parser.t_parse_events;
+        
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+    
+        RETURN json_core.set_property(
+            NULL,
+            p_path, 
+            p_bind,
+            v_parse_events
+        );
+        
+    END;
+
+    PROCEDURE set_json (
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_bind IN bind := NULL
+    ) IS
+        
+        v_dummy NUMBER;
+        
+    BEGIN
+    
+        v_dummy := set_json(
+            p_path, 
+            p_content,
+            p_bind
+        ); 
+    
     END;
     
     FUNCTION set_copy (
@@ -415,11 +448,16 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         json_core.get_parse_events(
-            t_json_value(p_source_path, p_source_bind).id, 
+            json_core.request_value(NULL, p_source_path, p_source_bind), 
             v_parse_events
         );
     
-        RETURN json_core.set_property(p_path, p_bind, v_parse_events);
+        RETURN json_core.set_property(
+            NULL,
+            p_path, 
+            p_bind, 
+            v_parse_events
+        );
     
     END;
     
@@ -456,7 +494,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN VARCHAR2 IS
     BEGIN
 
-        RETURN t_json_value(p_path, p_bind).as_string;
+        RETURN json_core.get_string(
+            json_core.request_value(NULL, p_path, p_bind)
+        );
 
     END;
     
@@ -467,7 +507,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value(p_path, p_bind).as_number;
+        RETURN json_core.get_number(
+            json_core.request_value(NULL, p_path, p_bind)
+        );
 
     END;
     
@@ -478,7 +520,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN BOOLEAN IS
     BEGIN
 
-        RETURN t_json_value(p_path, p_bind).as_boolean;
+        RETURN json_core.get_boolean(
+            json_core.request_value(NULL, p_path, p_bind)
+        );
 
     END;
     
@@ -489,7 +533,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN VARCHAR2 IS
     BEGIN
       
-        RETURN t_json_value(p_path, p_bind).as_json;
+        RETURN json_core.get_json(
+            json_core.request_value(NULL, p_path, p_bind)
+        );
     
     END;
     
@@ -500,7 +546,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN CLOB IS
     BEGIN
       
-        RETURN t_json_value(p_path, p_bind).as_json_clob;
+        RETURN json_core.get_json_clob(
+            json_core.request_value(NULL, p_path, p_bind)
+        );
     
     END;
     
@@ -511,11 +559,20 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
     ) IS
+    
         v_parse_events json_parser.t_parse_events;
+        
     BEGIN
     
         json_parser.parse(p_content, v_parse_events);
-        json_core.apply_json(p_path, v_parse_events, p_bind, p_check_types);
+        
+        json_core.apply_json(
+            NULL,
+            p_path, 
+            p_bind,
+            v_parse_events, 
+            p_check_types
+         );
         
     END;
         
@@ -532,7 +589,14 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         json_parser.parse(p_content, v_parse_events);
-        json_core.apply_json(p_path, v_parse_events, p_bind, p_check_types);
+        
+        json_core.apply_json(
+            NULL,
+            p_path, 
+            p_bind,
+            v_parse_events, 
+            p_check_types
+         );
         
     END;
     
@@ -543,7 +607,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN t_varchars IS
     BEGIN
     
-        RETURN t_json_value(p_path, p_bind).get_keys; 
+        RETURN json_core.get_keys(
+            json_core.request_value(NULL, p_path, p_bind,TRUE)
+        ); 
     
     END;
         
@@ -555,7 +621,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
     
-        RETURN t_json_value(p_path, p_bind).get_length;
+        RETURN json_core.get_length(
+            json_core.request_value(NULL, p_path, p_bind,TRUE)
+        );
     
     END;
     
@@ -567,7 +635,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value(p_path, p_bind).push_string(p_value).id;
+        RETURN json_core.push_json(
+            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.string_events(p_value)
+        );
 
     END;
     
@@ -593,7 +664,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value(p_path, p_bind).push_number(p_value).id;
+        RETURN json_core.push_json(
+            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.number_events(p_value)
+        );
+
 
     END;
     
@@ -619,7 +694,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value(p_path, p_bind).push_boolean(p_value).id;
+        RETURN json_core.push_json(
+            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.boolean_events(p_value)
+        );
+
 
     END;
     
@@ -644,7 +723,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value(p_path, p_bind).push_null().id;
+        RETURN json_core.push_json(
+            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.null_events
+        );
 
     END;
         
@@ -666,7 +748,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value(p_path, p_bind).push_object().id;
+        RETURN json_core.push_json(
+            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.object_events
+        );
 
     END;
         
@@ -688,7 +773,10 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     RETURN NUMBER IS
     BEGIN
 
-        RETURN t_json_value(p_path, p_bind).push_array().id;
+        RETURN json_core.push_json(
+            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.array_events
+        );
 
     END;
         
@@ -711,9 +799,17 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_bind IN bind := NULL
     )
     RETURN NUMBER IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
     BEGIN
     
-        RETURN t_json_value(p_path, p_bind).push_json(p_content).id;
+        json_parser.parse(p_content, v_parse_events);
+    
+        RETURN json_core.push_json(
+            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            v_parse_events
+        );
         
     END;
         
@@ -731,19 +827,27 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
     END;
         
-    FUNCTION push_json_clob (
+    FUNCTION push_json (
         p_path IN VARCHAR2,
         p_content IN CLOB,
         p_bind IN bind := NULL
     )
     RETURN NUMBER IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
     BEGIN
     
-        RETURN t_json_value(p_path, p_bind).push_json(p_content).id;
+        json_parser.parse(p_content, v_parse_events);
+    
+        RETURN json_core.push_json(
+            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            v_parse_events
+        );
         
     END;
         
-    PROCEDURE push_json_clob (
+    PROCEDURE push_json (
         p_path IN VARCHAR2,
         p_content IN CLOB,
         p_bind IN bind := NULL
@@ -761,48 +865,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
-        
-        c_properties SYS_REFCURSOR;
-        v_properties json_core.t_properties;
-        
-        v_value t_json_value;
-        
     BEGIN
     
-        json_core.request_properties(p_path, p_bind, c_properties);
-        
-        FETCH c_properties
-        BULK COLLECT INTO v_properties;
-        
-        CLOSE c_properties;
-        
-        IF v_properties.COUNT > 1 THEN
-            -- Multiple values found at the path :1!
-            error$.raise('JDOC-00004', p_path);
-        ELSIF v_properties.COUNT = 0 OR v_properties(v_properties.COUNT).property_id IS NULL THEN
-            -- Value :1 does not exist!
-            error$.raise('JDOC-00009', p_path);
-        END IF;
-        
-        FOR v_i IN 1..v_properties.COUNT LOOP
-            
-            IF v_properties(v_i).property_locked = 'T' THEN
-                -- Value :1 is locked!
-                error$.raise('JDOC-00024');
-            END IF;
-        
-            DELETE FROM json_values
-            WHERE id = v_properties(v_i).property_id;
-        
-            IF v_properties(v_i).parent_type = 'A' THEN
-            
-                INSERT INTO json_values(id, parent_id, type, name)
-                VALUES(jsvl_id.NEXTVAL, v_properties(v_i).parent_id, 'E', v_properties(v_i).property_name);
-            
-            END IF;
-        
-        END LOOP;
-
+        json_core.delete_value(
+            json_core.request_value(NULL, p_path, p_bind, TRUE)
+        );
     
     END;
     
@@ -810,30 +877,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
-    
-        v_value json_values%ROWTYPE;
-        t_ids_to_lock t_numbers;
-    
     BEGIN
     
-        v_value := json_core.get_value(t_json_value(p_path, p_bind).id);
-    
-        IF v_value.type = 'R' THEN
-            RETURN;
-        END IF;
-    
-        SELECT id
-        BULK COLLECT INTO t_ids_to_lock
-        FROM json_values
-        START WITH id = v_value.id
-        CONNECT BY PRIOR parent_id = id
-                         AND id != 0
-        FOR UPDATE;
-        
-        FORALL v_i IN 1..t_ids_to_lock.COUNT
-            UPDATE json_values
-            SET locked = 'T'
-            WHERE id = t_ids_to_lock(v_i);
+        json_core.lock_value(
+            json_core.request_value(NULL, p_path, p_bind, TRUE)
+        );
     
     END;
     
@@ -841,41 +889,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
-    
-        v_value json_values%ROWTYPE;
-        v_dummy NUMBER;
-        
-        CURSOR c_locked_child (
-            p_parent_id IN NUMBER
-        ) IS
-        SELECT 1
-        FROM json_values
-        WHERE parent_id = p_parent_id
-              AND locked = 'T';
-    
     BEGIN
         
-        v_value := json_core.get_value(t_json_value(p_path, p_bind).id);
-        
-        IF v_value.type = 'R' THEN
-            -- Root can''t be unlocked!
-            error$.raise('JDOC-00026');
-        END IF;
-        
-        OPEN c_locked_child(v_value.id);
-        
-        FETCH c_locked_child
-        INTO v_dummy;
-        
-        IF c_locked_child%FOUND THEN
-            -- Value :1 has locked children!
-            error$.raise('JDOC-00025');
-        END IF;
-        
-        UPDATE json_values
-        SET locked = NULL
-        WHERE id = v_value.id;
-        
+        json_core.unlock_value(
+            json_core.request_value(NULL, p_path, p_bind, TRUE)
+        );
     
     END;
     
@@ -1102,7 +1120,5 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         
     END;
 
-BEGIN
-    register_messages;
 END;
 

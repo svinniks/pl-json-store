@@ -50,12 +50,6 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_bind IN bind := NULL
     ) RETURN self AS RESULT,
     
-    CONSTRUCTOR FUNCTION t_json_value (
-        p_anchor_value_id IN NUMBER,
-        p_path IN VARCHAR2,
-        p_bind IN bind := NULL
-    ) RETURN self AS RESULT,
-    
     /* Self casting to the scalar types and JSON */
     
     MEMBER FUNCTION as_string

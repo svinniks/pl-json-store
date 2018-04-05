@@ -1,8 +1,3 @@
-const VALUE_QUERY = 'V';
-const PROPERTY_QUERY = 'P';
-const VALUE_TABLE_QUERY = 'T';
-const X_VALUE_TABLE_QUERY = 'X';
-
 suite("Invalid query tests", function() {
 
     suite("Unexpected end of the input", function() {
@@ -12,8 +7,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: null,
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: null
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -25,8 +19,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "   ",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "   "
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -38,8 +31,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person."
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -51,8 +43,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.  ",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.  "
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -64,8 +55,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person[",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person["
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -77,8 +67,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person[   ",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person[   "
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -90,8 +79,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person["name',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person["name'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -103,8 +91,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person[123',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person[123'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -116,8 +103,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person[123   ',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person[123   '
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -129,8 +115,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person["name"',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person["name"'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -142,8 +127,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person["name"   ',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person["name"   '
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -155,8 +139,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person(.name,',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person(.name,'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -168,8 +151,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person(.name,   ',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person(.name,   '
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -181,8 +163,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person(.name',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person(.name'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -194,8 +175,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person(.name   ',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person(.name   '
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -207,8 +187,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person(',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person('
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -220,8 +199,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person(   ',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person(   '
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -233,8 +211,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: '#',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: '#'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -246,8 +223,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: '#',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: '#'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -259,8 +235,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person.name as',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person.name as'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -272,8 +247,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person.name as   ',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person.name as   '
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -285,8 +259,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person.name as "name',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person.name as "name'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -298,8 +271,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person["name\\',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person["name\\'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -311,8 +283,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person.name a',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person.name a'
                 });
             
             }).to.throw(/JDOC-00002/);
@@ -328,8 +299,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: ".name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: ".name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -341,8 +311,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "  .name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "  .name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -354,8 +323,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.(a",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.(a"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -367,8 +335,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.(.name,surname",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.(.name,surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -380,8 +347,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name^",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.name^"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -393,8 +359,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name,",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.name,"
                 });
             
             }).to.throw(/JDOC-00015/);
@@ -406,8 +371,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name  ,",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.name  ,"
                 });
             
             }).to.throw(/JDOC-00015/);
@@ -419,8 +383,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name)",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.name)"
                 });
             
             }).to.throw(/JDOC-00015/);
@@ -432,8 +395,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name  )",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.name  )"
                 });
             
             }).to.throw(/JDOC-00015/);
@@ -445,8 +407,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name^",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.name^"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -458,8 +419,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person(.name).surname",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person(.name).surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -471,8 +431,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person(.name)   .surname",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person(.name)   .surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -484,8 +443,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person as person  .surname",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person as person  .surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -497,8 +455,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person as "person".surname',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person as "person".surname'
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -510,8 +467,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: 'person as "person"  .surname',
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: 'person as "person"  .surname'
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -523,8 +479,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "* name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "* name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -536,8 +491,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "name surname",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "name surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -549,8 +503,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name? surname",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.name? surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -562,8 +515,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.#123 surname",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.#123 surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -575,8 +527,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person.#123? surname",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person.#123? surname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -588,8 +539,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[123] name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons[123] name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -601,8 +551,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[123]? name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons[123]? name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -614,8 +563,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: ":2 name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: ":2 name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -627,8 +575,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: ":2 name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: ":2 name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -640,21 +587,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: ":2?name",
-                    p_query_type: VALUE_TABLE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-        
-        });
-
-        test("Unexpected character after #", function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "#name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: ":2?name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -666,8 +599,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "#123n",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "#123n"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -679,8 +611,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons[name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -692,8 +623,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[123abc",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons[123abc"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -705,8 +635,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[123 123]",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons[123 123]"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -718,8 +647,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons.name ab name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons.name ab name"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -731,8 +659,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons.name asname",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons.name asname"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -744,8 +671,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons.name as 123",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons.name as 123"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -757,8 +683,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons.name as name^",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons.name as name^"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -770,8 +695,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons.:1a",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons.:1a"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -783,8 +707,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: ":ab12-",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: ":ab12-"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -796,8 +719,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[:1",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons[:1"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -809,8 +731,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[:123a",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons[:123a"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -822,8 +743,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[123]()",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "persons[123]()"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -835,172 +755,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[123](   )",
-                    p_query_type: VALUE_TABLE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-        
-        });
-
-        test("Optional property while optional are not allowed" , function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "persons.name?",
-                    p_query_type: VALUE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "persons.name?",
-                    p_query_type: PROPERTY_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-        
-        });
-
-        test("Optional property while optional are not allowed, spaces before ?" , function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "persons.name   ?",
-                    p_query_type: VALUE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "persons.name   ?",
-                    p_query_type: PROPERTY_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-        
-        });
-
-        test("Optional array element while optional are not allowed" , function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[1]?",
-                    p_query_type: VALUE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-
-
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "persons[1]?",
-                    p_query_type: PROPERTY_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-        
-        });
-
-        test("Optional wildcard while optional are not allowed" , function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "*?",
-                    p_query_type: VALUE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "*?",
-                    p_query_type: PROPERTY_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-        
-        });
-
-        test("Optional ID reference while optional are not allowed" , function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "#123?",
-                    p_query_type: VALUE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "#123?",
-                    p_query_type: PROPERTY_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-        
-        });
-
-        test("Optional variable while optional are not allowed" , function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: ":12?",
-                    p_query_type: VALUE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: ":12?",
-                    p_query_type: PROPERTY_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-        
-        });
-
-        test("Alias while aliases are not allowed" , function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name as forename",
-                    p_query_type: VALUE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name as forename",
-                    p_query_type: PROPERTY_QUERY
-                });
-            
-            }).to.throw(/JDOC-00001/);
-
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "person.name as forename",
-                    p_query_type: X_VALUE_TABLE_QUERY
+                    p_query: "persons[123](   )"
                 });
             
             }).to.throw(/JDOC-00001/);
@@ -1016,8 +771,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "$?",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "$?"
                 });
             
             }).to.throw(/JDOC-00029/);
@@ -1029,8 +783,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "person as abcabcabcabcabcabcabcabcabcabcA",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "person as abcabcabcabcabcabcabcabcabcabcA"
                 });
             
             }).to.throw(/JDOC-00017/);
@@ -1042,25 +795,11 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: ":abcabcabcabcabcabcabcabcabcabcA",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: ":abcabcabcabcabcabcabcabcabcabcA"
                 });
             
             }).to.throw(/JDOC-00020/);
         
-        });
-
-        test("Root requested as a property", function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "person.$",
-                    p_query_type: VALUE_TABLE_QUERY
-                });
-            
-            }).to.throw(/JDOC-00006/);
-
         });
 
         test("Branching reserved field", function() {
@@ -1068,8 +807,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "field._key(._value)",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "field._key(._value)"
                 });
             
             }).to.throw(/JDOC-00026/);
@@ -1081,8 +819,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "field._key?",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "field._key?"
                 });
             
             }).to.throw(/JDOC-00025/);
@@ -1094,8 +831,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "field._key.name",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "field._key.name"
                 });
             
             }).to.throw(/JDOC-00027/);
@@ -1107,8 +843,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "_key",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "_key"
                 });
             
             }).to.throw(/JDOC-00028/);
@@ -1120,8 +855,7 @@ suite("Invalid query tests", function() {
             expect(function() {
             
                 var elements = database.call("json_core.parse_query", {
-                    p_query: "object?",
-                    p_query_type: VALUE_TABLE_QUERY
+                    p_query: "object?"
                 });
             
             }).to.throw(/JDOC-00029/);
@@ -1137,14 +871,13 @@ suite("Valid query tests", function() {
     test("Root only", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "$",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "$"
         });
 
         expect(elements).to.eql([
             {
-                type: "R",
-                value: null,
+                type: "I",
+                value: "0",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -1157,14 +890,13 @@ suite("Valid query tests", function() {
     test("Root only, spaces before $", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "   $",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "   $"
         });
 
         expect(elements).to.eql([
             {
-                type: "R",
-                value: null,
+                type: "I",
+                value: "0",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -1177,14 +909,13 @@ suite("Valid query tests", function() {
     test("Root only, spaces after $", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "$   ",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "$   "
         });
 
         expect(elements).to.eql([
             {
-                type: "R",
-                value: null,
+                type: "I",
+                value: "0",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -1197,22 +928,21 @@ suite("Valid query tests", function() {
     test("Branched root with two roots", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: "($, $)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "($, $)"
         });    
 
         expect(elements).to.eql([
             {
-                type: "R",
-                value: null,
+                type: "I",
+                value: "0",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
                 alias: null
             },
             {
-                type: "R",
-                value: null,
+                type: "I",
+                value: "0",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
@@ -1225,8 +955,7 @@ suite("Valid query tests", function() {
     test("One simple name", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person"
         });
 
         expect(elements).to.eql([
@@ -1245,8 +974,7 @@ suite("Valid query tests", function() {
     test("One simple name with all allowed characters", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAXZXCVBNM1234567890_$",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAXZXCVBNM1234567890_$"
         });
 
         expect(elements).to.eql([
@@ -1265,8 +993,7 @@ suite("Valid query tests", function() {
     test("One simple name with spaces in the beginning", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "    person",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "    person"
         });
 
         expect(elements).to.eql([
@@ -1285,8 +1012,7 @@ suite("Valid query tests", function() {
     test("One simple name with spaces in the end", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person    ",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person    "
         });
 
         expect(elements).to.eql([
@@ -1305,8 +1031,7 @@ suite("Valid query tests", function() {
     test("Two simple names dot-separated", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person.name",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person.name"
         });
 
         expect(elements).to.eql([
@@ -1333,8 +1058,7 @@ suite("Valid query tests", function() {
     test("Two simple names dot-separated, spaces before the dot", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person   .name",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person   .name"
         });
 
         expect(elements).to.eql([
@@ -1361,8 +1085,7 @@ suite("Valid query tests", function() {
     test("Two simple names dot-separated, spaces after the dot", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person.   name",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person.   name"
         });
 
         expect(elements).to.eql([
@@ -1389,8 +1112,7 @@ suite("Valid query tests", function() {
     test("Multiple simple names dot-separated", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person   .  address .street.house   ",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person   .  address .street.house   "
         });
 
         expect(elements).to.eql([
@@ -1433,8 +1155,7 @@ suite("Valid query tests", function() {
     test("Branching root with one simple name", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "(name)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "(name)"
         });
 
         expect(elements).to.eql([
@@ -1453,8 +1174,7 @@ suite("Valid query tests", function() {
     test("Branching root with one simple name, spaces in the beginning", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "   (name)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "   (name)"
         });
 
         expect(elements).to.eql([
@@ -1473,8 +1193,7 @@ suite("Valid query tests", function() {
     test("Branching root with one simple name, spaces after the opening bracket", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "(   name)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "(   name)"
         });
 
         expect(elements).to.eql([
@@ -1493,8 +1212,7 @@ suite("Valid query tests", function() {
     test("Branching root with one simple name, spaces before the closing bracket", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "(name   )",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "(name   )"
         });
 
         expect(elements).to.eql([
@@ -1513,8 +1231,7 @@ suite("Valid query tests", function() {
     test("Branching root with one simple name, spaces in the end", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "(name)   ",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "(name)   "
         });
 
         expect(elements).to.eql([
@@ -1533,8 +1250,7 @@ suite("Valid query tests", function() {
     test("Branching root with two simple names", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "(name,surname)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "(name,surname)"
         });
 
         expect(elements).to.eql([
@@ -1561,8 +1277,7 @@ suite("Valid query tests", function() {
     test("Branching root with two simple names, spaces before the comma", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "(name   ,surname)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "(name   ,surname)"
         });
 
         expect(elements).to.eql([
@@ -1589,8 +1304,7 @@ suite("Valid query tests", function() {
     test("Branching root with two simple names, spaces after the comma", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "(name,   surname)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "(name,   surname)"
         });
 
         expect(elements).to.eql([
@@ -1617,8 +1331,7 @@ suite("Valid query tests", function() {
     test("Branching element with one simple name", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.name)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person(.name)"
         });
 
         expect(elements).to.eql([
@@ -1645,8 +1358,7 @@ suite("Valid query tests", function() {
     test("Branching element with one simple name, spaces before opening bracket", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person   (.name)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person   (.name)"
         });
 
         expect(elements).to.eql([
@@ -1673,8 +1385,7 @@ suite("Valid query tests", function() {
     test("Branching element with one simple name, spaces before the dot", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(   .name)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person(   .name)"
         });
 
         expect(elements).to.eql([
@@ -1701,8 +1412,7 @@ suite("Valid query tests", function() {
     test("Branching element with one simple name, spaces after the dot", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.   name)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person(.   name)"
         });
 
         expect(elements).to.eql([
@@ -1729,8 +1439,7 @@ suite("Valid query tests", function() {
     test("Branching element with two simple names", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.name, .surname)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person(.name, .surname)"
         });
 
         expect(elements).to.eql([
@@ -1765,8 +1474,7 @@ suite("Valid query tests", function() {
     test("Complex branching query with simple names 1", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.name, .surname, .address(.street, .city))",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person(.name, .surname, .address(.street, .city))"
         });
 
         expect(elements).to.eql([
@@ -1825,8 +1533,7 @@ suite("Valid query tests", function() {
     test("Complex branching query with simple names 2", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.name, .surname, .address(.street, .city), .birthDate)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person(.name, .surname, .address(.street, .city), .birthDate)"
         });
 
         expect(elements).to.eql([
@@ -1893,14 +1600,13 @@ suite("Valid query tests", function() {
     test("Property of the root", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "$.persons",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "$.persons"
         });
 
         expect(elements).to.eql([
             {
-                type: "R",
-                value: null,
+                type: "I",
+                value: "0",
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
@@ -1921,14 +1627,13 @@ suite("Valid query tests", function() {
     test("Property of the root, spaces after $", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "$.persons",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "$.persons"
         });
 
         expect(elements).to.eql([
             {
-                type: "R",
-                value: null,
+                type: "I",
+                value: "0",
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
@@ -1949,14 +1654,13 @@ suite("Valid query tests", function() {
     test("Array element of the root", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "$[123]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "$[123]"
         });
 
         expect(elements).to.eql([
             {
-                type: "R",
-                value: null,
+                type: "I",
+                value: "0",
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
@@ -1977,14 +1681,13 @@ suite("Valid query tests", function() {
     test("Array element of the root, spaces after $", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "$   [123]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "$   [123]"
         });
 
         expect(elements).to.eql([
             {
-                type: "R",
-                value: null,
+                type: "I",
+                value: "0",
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
@@ -2002,11 +1705,29 @@ suite("Valid query tests", function() {
     
     });
 
+    test("Single ID variable", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "#id"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "A",
+                value: "ID",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
     test("Single ID reference", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "#123"
         });
 
         expect(elements).to.eql([
@@ -2025,8 +1746,7 @@ suite("Valid query tests", function() {
     test("Single ID reference, spaces before #", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "   #123",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "   #123"
         });
 
         expect(elements).to.eql([
@@ -2045,8 +1765,7 @@ suite("Valid query tests", function() {
     test("Single ID reference, spaces after ID", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123   ",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "#123   "
         });
 
         expect(elements).to.eql([
@@ -2065,8 +1784,7 @@ suite("Valid query tests", function() {
     test("Simple name property of an ID reference", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123.name",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "#123.name"
         });
 
         expect(elements).to.eql([
@@ -2093,8 +1811,7 @@ suite("Valid query tests", function() {
     test("Simple name property of an ID reference, spaces before the dot", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123   .name",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "#123   .name"
         });
 
         expect(elements).to.eql([
@@ -2121,8 +1838,7 @@ suite("Valid query tests", function() {
     test("ID reference as a property", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person.#123",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person.#123"
         });
 
         expect(elements).to.eql([
@@ -2149,8 +1865,7 @@ suite("Valid query tests", function() {
     test("ID reference as a property, spaces before #", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person.   #123",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person.   #123"
         });
 
         expect(elements).to.eql([
@@ -2177,8 +1892,7 @@ suite("Valid query tests", function() {
     test("ID references as branched properties", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "person(.#123, .#321)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "person(.#123, .#321)"
         });
 
         expect(elements).to.eql([
@@ -2213,8 +1927,7 @@ suite("Valid query tests", function() {
     test("ID reference parent of a branch", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123(.name, .surname)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "#123(.name, .surname)"
         });
 
         expect(elements).to.eql([
@@ -2249,8 +1962,7 @@ suite("Valid query tests", function() {
     test("ID reference parent of a branch, spaces before (", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123   (.name, .surname)",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "#123   (.name, .surname)"
         });
 
         expect(elements).to.eql([
@@ -2285,8 +1997,7 @@ suite("Valid query tests", function() {
     test("Single array element", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "[123]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "[123]"
         });
 
         expect(elements).to.eql([
@@ -2305,8 +2016,7 @@ suite("Valid query tests", function() {
     test("Single array element, spaces before [", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "   [123]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "   [123]"
         });
 
         expect(elements).to.eql([
@@ -2325,8 +2035,7 @@ suite("Valid query tests", function() {
     test("Single array element, spaces after [", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "[   123]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "[   123]"
         });
 
         expect(elements).to.eql([
@@ -2345,8 +2054,7 @@ suite("Valid query tests", function() {
     test("Single array element, spaces before ]", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "[123    ]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "[123    ]"
         });
 
         expect(elements).to.eql([
@@ -2365,8 +2073,7 @@ suite("Valid query tests", function() {
     test("Single array element, spaces after ]", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "[123]  ",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "[123]  "
         });
 
         expect(elements).to.eql([
@@ -2385,8 +2092,7 @@ suite("Valid query tests", function() {
     test("Array element of a name", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "persons[123]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "persons[123]"
         });
 
         expect(elements).to.eql([
@@ -2413,8 +2119,7 @@ suite("Valid query tests", function() {
     test("Array element of a name,spaces before [", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "persons   [123]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "persons   [123]"
         });
 
         expect(elements).to.eql([
@@ -2441,8 +2146,7 @@ suite("Valid query tests", function() {
     test("Array element of an ID reference", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123[321]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "#123[321]"
         });
 
         expect(elements).to.eql([
@@ -2469,8 +2173,7 @@ suite("Valid query tests", function() {
     test("Array element of an ID reference, spaces before [", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "#123   [321]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "#123   [321]"
         });
 
         expect(elements).to.eql([
@@ -2497,8 +2200,7 @@ suite("Valid query tests", function() {
     test("Array element of an array element", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "[123][321]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "[123][321]"
         });
 
         expect(elements).to.eql([
@@ -2525,8 +2227,7 @@ suite("Valid query tests", function() {
     test("Array element of an array element, spaces between elements", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: "[123]   [321]",
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: "[123]   [321]"
         });
 
         expect(elements).to.eql([
@@ -2553,8 +2254,7 @@ suite("Valid query tests", function() {
     test("Single quoted name", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '["person"]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '["person"]'
         });
 
         expect(elements).to.eql([
@@ -2573,8 +2273,7 @@ suite("Valid query tests", function() {
     test("Single quoted name, spaces after [", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '[   "person"]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '[   "person"]'
         });
 
         expect(elements).to.eql([
@@ -2593,8 +2292,7 @@ suite("Valid query tests", function() {
     test("Single quoted name, spaces before ]", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '["person"   ]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '["person"   ]'
         });
 
         expect(elements).to.eql([
@@ -2613,8 +2311,7 @@ suite("Valid query tests", function() {
     test("Single quoted name, spaces before ]", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '["person"   ]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '["person"   ]'
         });
 
         expect(elements).to.eql([
@@ -2633,8 +2330,7 @@ suite("Valid query tests", function() {
     test("Single quoted name with escaped characters", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '["\\\\\\""]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '["\\\\\\""]'
         });
 
         expect(elements).to.eql([
@@ -2653,8 +2349,7 @@ suite("Valid query tests", function() {
     test("Branched query with combined element types", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '["persons"][123](.name, ["surname"], .#321)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '["persons"][123](.name, ["surname"], .#321)'
         });
 
         expect(elements).to.eql([
@@ -2705,8 +2400,7 @@ suite("Valid query tests", function() {
     test("Simple name with an alias, lower case 'as'", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person as human',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person as human'
         });
 
         expect(elements).to.eql([
@@ -2725,8 +2419,7 @@ suite("Valid query tests", function() {
     test("Simple name with an alias, mixed case 'as'", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person aS human',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person aS human'
         });
 
         expect(elements).to.eql([
@@ -2745,8 +2438,7 @@ suite("Valid query tests", function() {
     test("Simple name with a quoted alias", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person as "human"',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person as "human"'
         });
 
         expect(elements).to.eql([
@@ -2765,8 +2457,7 @@ suite("Valid query tests", function() {
     test("ID reference with an alias", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '#123 as human',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '#123 as human'
         });
 
         expect(elements).to.eql([
@@ -2785,8 +2476,7 @@ suite("Valid query tests", function() {
     test("Simple name property with an alias", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.name as person_name',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.name as person_name'
         });
 
         expect(elements).to.eql([
@@ -2813,8 +2503,7 @@ suite("Valid query tests", function() {
     test("Quoted name property with an alias", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person["name"] as person_name',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person["name"] as person_name'
         });
 
         expect(elements).to.eql([
@@ -2849,8 +2538,7 @@ suite("Valid query tests", function() {
                         .type as phone_type,
                         .number as phone_number 
                     )
-                )`,
-            p_query_type: VALUE_TABLE_QUERY           
+                )`          
         });
 
         expect(elements).to.eql([
@@ -2917,8 +2605,7 @@ suite("Valid query tests", function() {
     test("Optional simple name property", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.name?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.name?'
         });
 
         expect(elements).to.eql([
@@ -2945,8 +2632,7 @@ suite("Valid query tests", function() {
     test("Optional simple name property, spaces before ?", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.name   ?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.name   ?'
         });
 
         expect(elements).to.eql([
@@ -2973,8 +2659,7 @@ suite("Valid query tests", function() {
     test("Optional simple name property, spaces after ?", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.name?   ',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.name?   '
         });
 
         expect(elements).to.eql([
@@ -3001,8 +2686,7 @@ suite("Valid query tests", function() {
     test("Optional ID reference property", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.#123?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.#123?'
         });
 
         expect(elements).to.eql([
@@ -3029,8 +2713,7 @@ suite("Valid query tests", function() {
     test("Optional ID reference property, spaces before ?", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.#123   ?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.#123   ?'
         });
 
         expect(elements).to.eql([
@@ -3057,8 +2740,7 @@ suite("Valid query tests", function() {
     test("Optional ID reference property, spaces after ?", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.#123?   ',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.#123?   '
         });
 
         expect(elements).to.eql([
@@ -3085,8 +2767,7 @@ suite("Valid query tests", function() {
     test("Optional array element property", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person["name"]?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person["name"]?'
         });
 
         expect(elements).to.eql([
@@ -3113,8 +2794,7 @@ suite("Valid query tests", function() {
     test("Optional array element property, spaces before ?", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person["name"]   ?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person["name"]   ?'
         });
 
         expect(elements).to.eql([
@@ -3141,8 +2821,7 @@ suite("Valid query tests", function() {
     test("Optional array element property, spaces after ?", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person["name"]?   ',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person["name"]?   '
         });
 
         expect(elements).to.eql([
@@ -3169,8 +2848,7 @@ suite("Valid query tests", function() {
     test("Single wildcard", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '*',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '*'
         });
 
         expect(elements).to.eql([
@@ -3189,8 +2867,7 @@ suite("Valid query tests", function() {
     test("Single wildcard, spaces before", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '   *',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '   *'
         });
 
         expect(elements).to.eql([
@@ -3209,8 +2886,7 @@ suite("Valid query tests", function() {
     test("Single wildcard, spaces after", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '*   ',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '*   '
         });
 
         expect(elements).to.eql([
@@ -3229,8 +2905,7 @@ suite("Valid query tests", function() {
     test("Single wildcard with an alias", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '* as something',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '* as something'
         });
 
         expect(elements).to.eql([
@@ -3249,8 +2924,7 @@ suite("Valid query tests", function() {
     test("Optional wildcard", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons.*?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons.*?'
         });
 
         expect(elements).to.eql([
@@ -3277,8 +2951,7 @@ suite("Valid query tests", function() {
     test("Optional wildcard, spaces after *", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons.*   ?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons.*   ?'
         });
 
         expect(elements).to.eql([
@@ -3305,8 +2978,7 @@ suite("Valid query tests", function() {
     test("Two wildcards in a branching root", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '(*,*)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '(*,*)'
         });
 
         expect(elements).to.eql([
@@ -3333,8 +3005,7 @@ suite("Valid query tests", function() {
     test("Two wildcards in a branching root, spaces before the comma", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '(*   ,*)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '(*   ,*)'
         });
 
         expect(elements).to.eql([
@@ -3361,8 +3032,7 @@ suite("Valid query tests", function() {
     test("Two wildcards in a branching root, spaces after the comma", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '(*,   *)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '(*,   *)'
         });
 
         expect(elements).to.eql([
@@ -3389,8 +3059,7 @@ suite("Valid query tests", function() {
     test("Two wildcards in a branching root, spaces after (", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '(   *,*)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '(   *,*)'
         });
 
         expect(elements).to.eql([
@@ -3417,8 +3086,7 @@ suite("Valid query tests", function() {
     test("Two wildcards in a branching root, spaces before )", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '(*,*   )',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '(*,*   )'
         });
 
         expect(elements).to.eql([
@@ -3445,8 +3113,7 @@ suite("Valid query tests", function() {
     test("Wildcard property", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.*',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.*'
         });
 
         expect(elements).to.eql([
@@ -3473,8 +3140,7 @@ suite("Valid query tests", function() {
     test("Wildcard property, spaces after the dot", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.   *',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.   *'
         });
 
         expect(elements).to.eql([
@@ -3501,8 +3167,7 @@ suite("Valid query tests", function() {
     test("Wildcard array elements", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person[*]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person[*]'
         });
 
         expect(elements).to.eql([
@@ -3529,8 +3194,7 @@ suite("Valid query tests", function() {
     test("Wildcard array elements, spaces after [", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person[   *]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person[   *]'
         });
 
         expect(elements).to.eql([
@@ -3557,8 +3221,7 @@ suite("Valid query tests", function() {
     test("Wildcard array elements, spaces before ]", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person[*   ]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person[*   ]'
         });
 
         expect(elements).to.eql([
@@ -3585,8 +3248,7 @@ suite("Valid query tests", function() {
     test("Optional wildcard property with an alias", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.*? as person_property',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.*? as person_property'
         });
 
         expect(elements).to.eql([
@@ -3613,8 +3275,7 @@ suite("Valid query tests", function() {
     test("Single variable", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: ':var',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: ':var'
         });
 
         expect(elements).to.eql([
@@ -3633,8 +3294,7 @@ suite("Valid query tests", function() {
     test("Single variable, spaces before :", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: '   :var',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: '   :var'
         });
 
         expect(elements).to.eql([
@@ -3653,8 +3313,7 @@ suite("Valid query tests", function() {
     test("Single variable, spaces after", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: ':var  ',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: ':var  '
         });
 
         expect(elements).to.eql([
@@ -3673,8 +3332,7 @@ suite("Valid query tests", function() {
     test("Optional variable", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.:var?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.:var?'
         });
 
         expect(elements).to.eql([
@@ -3701,8 +3359,7 @@ suite("Valid query tests", function() {
     test("Optional variable, spaces before ?", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person.:var ?',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'person.:var ?'
         });
 
         expect(elements).to.eql([
@@ -3729,8 +3386,7 @@ suite("Valid query tests", function() {
     test("Variable as a property", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons.:var',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons.:var'
         });
 
         expect(elements).to.eql([
@@ -3757,8 +3413,7 @@ suite("Valid query tests", function() {
     test("Variable as a property, spaces after the dot", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons. :var',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons. :var'
         });
 
         expect(elements).to.eql([
@@ -3785,8 +3440,7 @@ suite("Valid query tests", function() {
     test("Variable as an array element", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons[:var]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons[:var]'
         });
 
         expect(elements).to.eql([
@@ -3813,8 +3467,7 @@ suite("Valid query tests", function() {
     test("Variable as an array element, spaces after [", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons[   :var]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons[   :var]'
         });
 
         expect(elements).to.eql([
@@ -3841,8 +3494,7 @@ suite("Valid query tests", function() {
     test("Variable as an array element, spaces before ]", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons[:var   ]',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons[:var   ]'
         });
 
         expect(elements).to.eql([
@@ -3869,8 +3521,7 @@ suite("Valid query tests", function() {
     test("Property of a variable", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons.:var.name',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons.:var.name'
         });
 
         expect(elements).to.eql([
@@ -3905,8 +3556,7 @@ suite("Valid query tests", function() {
     test("Property of a variable, spaces after the variable", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons.:var   .name',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons.:var   .name'
         });
 
         expect(elements).to.eql([
@@ -3941,8 +3591,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons(.:var1,.:var2)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons(.:var1,.:var2)'
         });
 
         expect(elements).to.eql([
@@ -3977,8 +3626,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch, spaces after (", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons(   .:var1,.:var2)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons(   .:var1,.:var2)'
         });
 
         expect(elements).to.eql([
@@ -4013,8 +3661,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch, spaces before the comma", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons(.:var1   ,.:var2)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons(.:var1   ,.:var2)'
         });
 
         expect(elements).to.eql([
@@ -4049,8 +3696,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch, spaces after the comma", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons(.:var1,   .:var2)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons(.:var1,   .:var2)'
         });
 
         expect(elements).to.eql([
@@ -4085,8 +3731,7 @@ suite("Valid query tests", function() {
     test("Variable property in a branch, spaces before )", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons(.:var1,.:var2   )',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons(.:var1,.:var2   )'
         });
 
         expect(elements).to.eql([
@@ -4121,8 +3766,7 @@ suite("Valid query tests", function() {
     test("Reserved fields _id, _key and _value", function() {
     
         var elements = database.call("json_core.parse_query", {
-            p_query: 'persons.*(._id, ._key, ._value)',
-            p_query_type: VALUE_TABLE_QUERY
+            p_query: 'persons.*(._id, ._key, ._value)'
         });
 
         expect(elements).to.eql([

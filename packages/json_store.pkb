@@ -128,7 +128,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         json_core.get_parse_events(
-            json_core.request_value(NULL, p_path, p_bind, TRUE), 
+            json_core.request_value(p_path, p_bind, TRUE), 
             v_parse_events
         );
     
@@ -147,7 +147,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
-            NULL,
             p_path, 
             p_bind,
             json_core.string_events(p_value)
@@ -182,7 +181,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
-            NULL,
             p_path, 
             p_bind,
             json_core.number_events(p_value)
@@ -217,7 +215,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
-            NULL,
             p_path, 
             p_bind,
             json_core.boolean_events(p_value)
@@ -251,7 +248,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
-            NULL,
             p_path, 
             p_bind,
             json_core.null_events
@@ -283,7 +279,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
-            NULL,
             p_path, 
             p_bind,
             json_core.object_events
@@ -301,7 +296,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         v_dummy := json_core.set_property(
-            NULL,
             p_path, 
             p_bind,
             json_core.object_events
@@ -317,7 +311,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.set_property(
-            NULL,
             p_path, 
             p_bind, 
             json_core.array_events
@@ -335,7 +328,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         v_dummy := json_core.set_property(
-            NULL,
             p_path,
             p_bind,
             json_core.array_events
@@ -357,7 +349,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         json_parser.parse(p_content, v_parse_events);
     
         RETURN json_core.set_property(
-            NULL,
             p_path, 
             p_bind,
             v_parse_events
@@ -397,7 +388,6 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         json_parser.parse(p_content, v_parse_events);
     
         RETURN json_core.set_property(
-            NULL,
             p_path, 
             p_bind,
             v_parse_events
@@ -448,12 +438,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         json_core.get_parse_events(
-            json_core.request_value(NULL, p_source_path, p_source_bind), 
+            json_core.request_value(p_source_path, p_source_bind), 
             v_parse_events
         );
     
         RETURN json_core.set_property(
-            NULL,
             p_path, 
             p_bind, 
             v_parse_events
@@ -495,7 +484,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.get_string(
-            json_core.request_value(NULL, p_path, p_bind)
+            json_core.request_value( p_path, p_bind)
         );
 
     END;
@@ -508,7 +497,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.get_number(
-            json_core.request_value(NULL, p_path, p_bind)
+            json_core.request_value(p_path, p_bind)
         );
 
     END;
@@ -521,7 +510,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.get_boolean(
-            json_core.request_value(NULL, p_path, p_bind)
+            json_core.request_value(p_path, p_bind)
         );
 
     END;
@@ -534,7 +523,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
       
         RETURN json_core.get_json(
-            json_core.request_value(NULL, p_path, p_bind)
+            json_core.request_value(p_path, p_bind)
         );
     
     END;
@@ -547,7 +536,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
       
         RETURN json_core.get_json_clob(
-            json_core.request_value(NULL, p_path, p_bind)
+            json_core.request_value(p_path, p_bind)
         );
     
     END;
@@ -567,9 +556,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         json_parser.parse(p_content, v_parse_events);
         
         json_core.apply_json(
-            NULL,
-            p_path, 
-            p_bind,
+            json_core.request_value(p_path, p_bind, TRUE),
             v_parse_events, 
             p_check_types
          );
@@ -591,9 +578,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         json_parser.parse(p_content, v_parse_events);
         
         json_core.apply_json(
-            NULL,
-            p_path, 
-            p_bind,
+            json_core.request_value(p_path, p_bind, TRUE),
             v_parse_events, 
             p_check_types
          );
@@ -608,7 +593,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         RETURN json_core.get_keys(
-            json_core.request_value(NULL, p_path, p_bind,TRUE)
+            json_core.request_value(p_path, p_bind,TRUE)
         ); 
     
     END;
@@ -622,7 +607,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         RETURN json_core.get_length(
-            json_core.request_value(NULL, p_path, p_bind,TRUE)
+            json_core.request_value(p_path, p_bind,TRUE)
         );
     
     END;
@@ -636,7 +621,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.push_json(
-            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.request_value(p_path, p_bind, TRUE),
             json_core.string_events(p_value)
         );
 
@@ -665,7 +650,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.push_json(
-            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.request_value(p_path, p_bind, TRUE),
             json_core.number_events(p_value)
         );
 
@@ -695,7 +680,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.push_json(
-            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.request_value(p_path, p_bind, TRUE),
             json_core.boolean_events(p_value)
         );
 
@@ -724,7 +709,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.push_json(
-            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.request_value(p_path, p_bind, TRUE),
             json_core.null_events
         );
 
@@ -749,7 +734,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.push_json(
-            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.request_value(p_path, p_bind, TRUE),
             json_core.object_events
         );
 
@@ -774,7 +759,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
 
         RETURN json_core.push_json(
-            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.request_value(p_path, p_bind, TRUE),
             json_core.array_events
         );
 
@@ -807,7 +792,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         json_parser.parse(p_content, v_parse_events);
     
         RETURN json_core.push_json(
-            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.request_value(p_path, p_bind, TRUE),
             v_parse_events
         );
         
@@ -841,7 +826,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
         json_parser.parse(p_content, v_parse_events);
     
         RETURN json_core.push_json(
-            json_core.request_value(NULL, p_path, p_bind, TRUE),
+            json_core.request_value(p_path, p_bind, TRUE),
             v_parse_events
         );
         
@@ -868,7 +853,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         json_core.delete_value(
-            json_core.request_value(NULL, p_path, p_bind, TRUE)
+            json_core.request_value(p_path, p_bind, TRUE)
         );
     
     END;
@@ -880,7 +865,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         json_core.lock_value(
-            json_core.request_value(NULL, p_path, p_bind, TRUE)
+            json_core.request_value(p_path, p_bind, TRUE)
         );
     
     END;
@@ -892,7 +877,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
         
         json_core.unlock_value(
-            json_core.request_value(NULL, p_path, p_bind, TRUE)
+            json_core.request_value(p_path, p_bind, TRUE)
         );
     
     END;
@@ -914,7 +899,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
-        v_query_elements := json_core.parse_query(p_query, json_core.c_X_VALUE_TABLE_QUERY);
+        v_query_elements := json_core.parse_query(p_query);
         v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_X_VALUE_TABLE_QUERY, 5);
     
         v_cursor_id := json_core.prepare_query (
@@ -966,7 +951,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
-        v_query_elements := json_core.parse_query(p_query, json_core.c_X_VALUE_TABLE_QUERY);
+        v_query_elements := json_core.parse_query(p_query);
         v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_X_VALUE_TABLE_QUERY, 10);
     
         v_cursor_id := json_core.prepare_query (
@@ -1018,7 +1003,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
-        v_query_elements := json_core.parse_query(p_query, json_core.c_X_VALUE_TABLE_QUERY);
+        v_query_elements := json_core.parse_query(p_query);
         v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_X_VALUE_TABLE_QUERY, 15);
     
         v_cursor_id := json_core.prepare_query (
@@ -1070,7 +1055,7 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     BEGIN
     
-        v_query_elements := json_core.parse_query(p_query, json_core.c_X_VALUE_TABLE_QUERY);
+        v_query_elements := json_core.parse_query(p_query);
         v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_X_VALUE_TABLE_QUERY, 20);
     
         v_cursor_id := json_core.prepare_query (

@@ -33,6 +33,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         INDEX BY VARCHAR2(32000); 
         
     v_query_element_cache t_query_element_cache;
+    
+    TYPE t_varchar_indexed_booleans IS
+        TABLE OF BOOLEAN
+        INDEX BY VARCHAR2(32000);
+        
+    v_valid_paths t_varchar_indexed_booleans;
         
     TYPE t_query_statement_cache IS
         TABLE OF t_query_statement
@@ -77,6 +83,25 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00033', 'Value has locked children!');
         default_message_resolver.register_message('JDOC-00034', 'Root can''t be unlocked!');
         default_message_resolver.register_message('JDOC-00035', 'Root can''t be deleted!');
+        default_message_resolver.register_message('JDOC-00036', 'Optional elements are not allowed in path expressions!');
+        default_message_resolver.register_message('JDOC-00037', 'Branching is not allowed in path expressions!');
+        default_message_resolver.register_message('JDOC-00038', 'Aliases are not allowed in path expressions!');
+    END;
+    
+    /* Some usefull functions */
+    
+    FUNCTION iif (
+         p_condition IN BOOLEAN,
+         p_value_if_true IN VARCHAR2,
+         p_value_if_false IN VARCHAR2 := NULL
+    ) 
+    RETURN VARCHAR2 IS
+    BEGIN
+        IF p_condition THEN
+            RETURN p_value_if_true;
+        ELSE
+            RETURN p_value_if_false;
+        END IF;
     END;
     
     /* Generic JSON value parse event constant functions */
@@ -337,24 +362,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     /* JSON query API methods */
     
     FUNCTION parse_query (
-        p_query IN VARCHAR2,
-        p_query_type IN CHAR
+        p_query IN VARCHAR2
     ) 
     RETURN t_query_elements IS
-    BEGIN
-      
-        RETURN parse_query(NULL, p_query, p_query_type);
     
-    END;
-    
-    FUNCTION parse_query (
-        p_anchor_value_id IN NUMBER,
-        p_query IN VARCHAR2,
-        p_query_type IN CHAR
-    )
-    RETURN t_query_elements IS
-    
-        v_cache_key VARCHAR2(32000);
         v_query_elements t_query_elements;
         
         v_char CHAR;
@@ -435,14 +446,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF p_simple AND p_value = '$' THEN
             
-                IF v_stack.COUNT > 1 THEN
-                    -- 'Root requested as a property!'
-                    error$.raise('JDOC-00006');
-                END IF;
-                
-                push('R');
+                push('I', 0);
             
-            ELSIF p_value IN ('_id', '_key', '_value') AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
+            ELSIF p_value IN ('_id', '_key', '_value') THEN
             
                 IF v_stack.COUNT = 1 THEN
                     -- Reserved field reference can''t be the topmost query element!
@@ -459,11 +465,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         END;
         
-        PROCEDURE push_variable
-            (p_value IN VARCHAR2) IS
-            
-            v_variable NUMBER;
-            
+        PROCEDURE push_name_variable (
+            p_value IN VARCHAR2
+        ) IS
         BEGIN
         
             IF LENGTH(p_value) > 30 THEN
@@ -472,6 +476,20 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             END IF;
          
             push('V', UPPER(p_value));
+        
+        END;
+        
+        PROCEDURE push_anchor_variable (
+            p_value IN VARCHAR2
+        ) IS
+        BEGIN
+        
+            IF LENGTH(p_value) > 30 THEN
+                -- Variable name too long
+                error$.raise('JDOC-00020');
+            END IF;
+         
+            push('A', UPPER(p_value));
         
         END;
         
@@ -567,6 +585,43 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             RETURN v_char IN (' ', CHR(9), CHR(10), CHR(13));
         END;
         
+        PROCEDURE lf_element;
+        
+        PROCEDURE lf_root_branch IS
+        BEGIN
+        
+            IF v_char = '(' THEN
+            
+                branch;
+                v_state := 'lf_root_element';
+            
+            ELSIF v_char = '[' THEN
+            
+                v_state := 'lf_array_element';
+                
+            ELSE
+            
+                lf_element;
+                
+            END IF;
+        
+        END;
+        
+        PROCEDURE lf_root_element IS
+        BEGIN
+        
+            IF v_char = '[' THEN
+                
+                v_state := 'lf_array_element';
+                
+            ELSE
+            
+                lf_element;
+            
+            END IF;
+        
+        END;
+        
         PROCEDURE lf_element IS
         BEGIN
         
@@ -578,7 +633,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF v_char = '#' THEN
             
                 v_value := NULL;
-                v_state := 'lf_id';  
+                v_state := 'lf_anchor';    
                 
             ELSIF v_char = '*' THEN
             
@@ -588,32 +643,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF v_char = ':' THEN
             
                 v_value := NULL;
-                v_state := 'lf_variable';
+                v_state := 'lf_name_variable';
                             
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
                 error$.raise('JDOC-00001', v_char);
-                
-            END IF;
-        
-        END;
-        
-        PROCEDURE lf_root IS
-        BEGIN
-        
-            IF v_char = '(' AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
-            
-                branch;
-                v_state := 'lf_element';
-                
-            ELSIF v_char = '[' THEN
-            
-                v_state := 'lf_array_element';
-                
-            ELSE
-            
-                lf_element;
                 
             END IF;
         
@@ -673,7 +708,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 push_name(v_value, TRUE);
                 v_state := 'lf_array_element';    
                 
-            ELSIF v_char = '(' AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
+            ELSIF v_char = '(' THEN
             
                 push_name(v_value, TRUE);
                 branch;
@@ -684,7 +719,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 push_name(v_value, TRUE);
                 v_state := 'lf_separator';
                 
-            ELSIF v_char = '?' AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
+            ELSIF v_char = '?' THEN
             
                 push_name(v_value, TRUE);
                 set_optional;
@@ -744,16 +779,16 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 END IF;
                 
                 
-            ELSIF v_char = '(' AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
+            ELSIF v_char = '(' THEN
             
                 branch;
                 v_state := 'lf_child';  
                 
-            ELSIF LOWER(v_char) = 'a' AND p_query_type IN (c_VALUE_TABLE_QUERY) THEN
+            ELSIF LOWER(v_char) = 'a' THEN
             
                 v_state := 'lf_as_s';
                 
-            ELSIF v_char = '?' AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
+            ELSIF v_char = '?' THEN
             
                 IF optional THEN
                     -- Unexpected character ":1"!
@@ -770,13 +805,18 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         END;
         
-        PROCEDURE lf_id IS
+        PROCEDURE lf_anchor IS
         BEGIN
         
             IF INSTR('1234567890', v_char) > 0 THEN
             
                 v_value := v_char;
-                v_state := 'r_id';
+                v_state := 'r_anchor_id';
+                
+            ELSIF INSTR('qwertyuioplkjhgfdsazxcvbnm', LOWER(v_char)) > 0 THEN
+            
+                v_value := v_char;
+                v_state := 'r_anchor_variable';
                 
             ELSIF NOT space THEN
             
@@ -787,7 +827,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         END;
         
-        PROCEDURE r_id IS
+        PROCEDURE r_anchor_id IS
         BEGIN
         
             IF INSTR('1234567890', v_char) > 0 THEN
@@ -805,7 +845,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 pop_sibling;
                 
                 IF (v_stack.COUNT = 1) THEN
-                    v_state := 'lf_element';
+                    v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
                 END IF;
@@ -821,7 +861,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 push('I', v_value);
                 v_state := 'lf_array_element'; 
                 
-            ELSIF v_char = '(' AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
+            ELSIF v_char = '(' THEN
             
                 push('I', v_value);
                 branch;
@@ -832,9 +872,69 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 push('I', v_value);
                 v_state := 'lf_separator';
                 
-            ELSIF v_char = '?' AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
+            ELSIF v_char = '?' THEN
             
                 push('I', v_value);
+                set_optional;
+                v_state := 'lf_separator';
+                
+            ELSE
+            
+                -- Unexpected character ":1"!
+                error$.raise('JDOC-00001', v_char);
+                
+            END IF;
+                    
+        END;
+        
+        PROCEDURE r_anchor_variable IS
+        BEGIN
+        
+            IF INSTR('qwertyuioplkjhgfdsazxcvbnm1234567890_$#', LOWER(v_char)) > 0 THEN
+            
+                v_value := v_value || v_char;
+                
+            ELSIF v_char = '.' THEN
+            
+                push_anchor_variable(v_value);
+                v_state := 'lf_element';
+                
+            ELSIF v_char = ',' THEN
+            
+                push_anchor_variable(v_value);
+                pop_sibling;
+                
+                IF (v_stack.COUNT = 1) THEN
+                    v_state := 'lf_root_element';
+                ELSE
+                    v_state := 'lf_child';
+                END IF;
+                
+            ELSIF v_char = ')' THEN
+            
+                push_anchor_variable(v_value);
+                pop_branch;
+                v_state := 'lf_comma';
+                
+            ELSIF v_char = '[' THEN
+            
+                push_anchor_variable(v_value);
+                v_state := 'lf_array_element'; 
+                
+            ELSIF v_char = '(' THEN
+            
+                push_anchor_variable(v_value);
+                branch;
+                v_state := 'lf_child'; 
+                
+            ELSIF space THEN
+            
+                push_anchor_variable(v_value);
+                v_state := 'lf_separator';
+                
+            ELSIF v_char = '?' THEN
+            
+                push_anchor_variable(v_value);
                 set_optional;
                 v_state := 'lf_separator';
                 
@@ -1071,13 +1171,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         END;
         
-        PROCEDURE lf_variable IS
+        PROCEDURE lf_name_variable IS
         BEGIN
         
             IF INSTR('qwertyuioplkjhgfdsazxcvbnm', LOWER(v_char)) > 0 THEN
             
                 v_value := v_char;
-                v_state := 'r_variable';
+                v_state := 'r_name_variable';
                 
             ELSE
             
@@ -1088,7 +1188,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         END;
         
-        PROCEDURE r_variable IS
+        PROCEDURE r_name_variable IS
         BEGIN
         
             IF INSTR('qwertyuioplkjhgfdsazxcvbnm1234567890_$#', LOWER(v_char)) > 0 THEN
@@ -1097,12 +1197,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
             ELSIF v_char = '.' THEN
             
-                push_variable(v_value);
+                push_name_variable(v_value);
                 v_state := 'lf_element';
                 
             ELSIF v_char = ',' THEN
             
-                push_variable(v_value);
+                push_name_variable(v_value);
                 pop_sibling;
                 
                 IF (v_stack.COUNT = 1) THEN
@@ -1113,29 +1213,29 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
             ELSIF v_char = ')' THEN
             
-                push_variable(v_value);
+                push_name_variable(v_value);
                 pop_branch;
                 v_state := 'lf_comma';
                 
             ELSIF v_char = '[' THEN
             
-                push_variable(v_value);
+                push_name_variable(v_value);
                 v_state := 'lf_array_element'; 
                 
-            ELSIF v_char = '(' AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
+            ELSIF v_char = '(' THEN
             
-                push_variable(v_value);
+                push_name_variable(v_value);
                 branch;
                 v_state := 'lf_child'; 
                 
             ELSIF space THEN
             
-                push_variable(v_value);
+                push_name_variable(v_value);
                 v_state := 'lf_separator';
                 
-            ELSIF v_char = '?' AND p_query_type IN (c_VALUE_TABLE_QUERY, c_X_VALUE_TABLE_QUERY) THEN
+            ELSIF v_char = '?' THEN
             
-                push_variable(v_value);
+                push_name_variable(v_value);
                 set_optional;
                 v_state := 'lf_separator';
                 
@@ -1174,12 +1274,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
             ELSIF v_char = ']' THEN
             
-                push_variable(v_value);
+                push_name_variable(v_value);
                 v_state := 'lf_separator';
             
             ELSIF space THEN
             
-                push_variable(v_value);
+                push_name_variable(v_value);
                 v_state := 'lf_array_element_end';
                 
             ELSE
@@ -1193,39 +1293,30 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
     BEGIN
     
-        v_cache_key := 
-            p_query_type || 
-            CASE WHEN p_anchor_value_id IS NOT NULL THEN 
-                'R(' ||  p_anchor_value_id || ')'
-            END 
-            || p_query;
-    
-        IF v_query_element_cache.EXISTS(v_cache_key) THEN
-            RETURN v_query_element_cache(v_cache_key);
+        IF v_query_element_cache.EXISTS(p_query) THEN
+            RETURN v_query_element_cache(p_query);
         END IF;
     
         v_query_elements := t_query_elements();
         init_stack;
         
-        IF p_anchor_value_id IS NOT NULL THEN
-            push('I', p_anchor_value_id);
-        END IF;
-        
-        v_state := 'lf_root';
+        v_state := 'lf_root_branch';
         
         FOR v_i IN 1..NVL(LENGTH(p_query), 0) LOOP
         
             v_char := SUBSTR(p_query, v_i, 1);
             
             CASE v_state
-                WHEN 'lf_root' THEN lf_root;
-                WHEN 'lf_child' THEN lf_child;
+                WHEN 'lf_root_branch' THEN lf_root_branch;
+                WHEN 'lf_root_element' THEN lf_root_element;
                 WHEN 'lf_element' THEN lf_element;
+                WHEN 'lf_child' THEN lf_child;
                 WHEN 'r_name' THEN r_name;
                 WHEN 'lf_comma' THEN lf_comma;
                 WHEN 'lf_separator' THEN lf_separator;
-                WHEN 'lf_id' THEN lf_id;
-                WHEN 'r_id' THEN r_id;
+                WHEN 'lf_anchor' THEN lf_anchor;
+                WHEN 'r_anchor_id' THEN r_anchor_id;
+                WHEN 'r_anchor_variable' THEN r_anchor_variable;
                 WHEN 'lf_array_element' THEN lf_array_element;
                 WHEN 'r_array_element' THEN r_array_element;
                 WHEN 'lf_array_element_end' THEN lf_array_element_end;
@@ -1236,8 +1327,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 WHEN 'lf_alias' THEN lf_alias;
                 WHEN 'r_alias' THEN r_alias;
                 WHEN 'r_quoted_alias' THEN r_quoted_alias;
-                WHEN 'lf_variable' THEN lf_variable;
-                WHEN 'r_variable' THEN r_variable;
+                WHEN 'lf_name_variable' THEN lf_name_variable;
+                WHEN 'r_name_variable' THEN r_name_variable;
                 WHEN 'lf_array_variable' THEN lf_array_variable;
                 WHEN 'r_array_variable' THEN r_array_variable;
             END CASE;
@@ -1246,12 +1337,14 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         IF v_state = 'r_name' THEN
             push_name(v_value, TRUE);
-        ELSIF v_state = 'r_id' THEN
-            push('I', v_value);
         ELSIF v_state = 'r_alias' THEN
             set_alias(UPPER(v_value));
-        ELSIF v_state = 'r_variable' THEN
-            push_variable(v_value);
+        ELSIF v_state = 'r_anchor_id' THEN
+            push('I', v_value);
+        ELSIF v_state = 'r_anchor_variable' THEN
+            push_anchor_variable(v_value);
+        ELSIF v_state = 'r_name_variable' THEN
+            push_name_variable(v_value);
         ELSIF v_state NOT IN ('lf_separator', 'lf_comma') THEN 
             -- Unexpected end of the input!
             error$.raise('JDOC-00002');
@@ -1262,13 +1355,54 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             error$.raise('JDOC-00002');
         END IF;
     
-        IF p_query_type = c_PROPERTY_QUERY AND v_query_elements.COUNT > 1 THEN
-            v_query_elements(v_query_elements.COUNT).optional := TRUE;
-        END IF;
-        
-        v_query_element_cache(v_cache_key) := v_query_elements;
+        v_query_element_cache(p_query) := v_query_elements;
         
         RETURN v_query_elements;
+    
+    END;
+    
+    FUNCTION parse_path (
+        p_path IN VARCHAR2
+    )
+    RETURN t_query_elements IS
+    
+        v_path_elements t_query_elements;
+                
+        PROCEDURE validate_element (
+            p_i IN PLS_INTEGER
+        ) IS
+        BEGIN
+        
+            IF v_path_elements(p_i).optional THEN
+                -- Optional elements are not allowed in path expressions!
+                error$.raise('JDOC-00036');
+            ELSIF v_path_elements(p_i).next_sibling_i IS NOT NULL THEN
+                -- Branching is not allowed in path expressions!
+                error$.raise('JDOC-00037');
+            ELSIF v_path_elements(p_i).alias IS NOT NULL THEN
+                -- Aliases are not allowed in path expressions!
+                error$.raise('JDOC-00038');
+            END IF;
+            
+            IF v_path_elements(p_i).first_child_i IS NOT NULL THEN
+                validate_element(v_path_elements(p_i).first_child_i);
+            END IF;
+        
+        END;
+    
+    BEGIN
+    
+        v_path_elements := parse_query(p_path);
+        
+        IF NOT v_valid_paths.EXISTS(p_path) THEN
+            
+            validate_element(1);
+        
+            v_valid_paths(p_path) := TRUE;
+        
+        END IF;
+        
+        RETURN v_path_elements;
     
     END;
     
@@ -1406,7 +1540,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         ) IS
         BEGIN
         
-            IF p_query_elements(p_i).type = 'V' THEN
+            IF p_query_elements(p_i).type IN ('V', 'A') THEN
                 v_unique_variable_names(p_query_elements(p_i).value) := TRUE;
             END IF;
         
@@ -1533,7 +1667,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 v_auto_variable_number := v_auto_variable_number + 1;
                 
-            ELSIF p_query_elements(p_i).type = 'V' THEN
+            ELSIF p_query_elements(p_i).type IN ('A', 'V') THEN
             
                 IF NOT v_variable_numbers.EXISTS(p_query_elements(p_i).value) THEN
                     v_variable_number := v_variable_number + 1;
@@ -1645,7 +1779,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
                     add_text(v_and || 'j' || v_table_instance || '.parent_id');
                     
-                    IF p_query_elements(p_i).optional THEN
+                    IF p_query_elements(p_i).optional 
+                       OR (p_query_type = c_PROPERTY_QUERY AND p_query_elements(p_i).first_child_i IS NULL) THEN
                         add_text('(+)');
                     END IF;
                     
@@ -1655,17 +1790,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     
                 END IF;
                 
-                IF p_query_elements(p_i).type = 'R' THEN
-                
-                    add_text(v_and || 'j' || v_table_instance || '.id=0');
-                    
-                    v_and := ' AND ';
-                
-                ELSIF p_query_elements(p_i).type = 'N' THEN
+                IF p_query_elements(p_i).type = 'N' THEN
                 
                     add_text(v_and || 'j' || v_table_instance || '.name');
                     
-                    IF p_query_elements(p_i).optional THEN
+                    IF p_query_elements(p_i).optional 
+                       OR (p_query_type = c_PROPERTY_QUERY AND p_query_elements(p_i).first_child_i IS NULL) THEN
                         add_text('(+)');
                     END IF;
                     
@@ -1691,11 +1821,24 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
                     add_text(v_and || 'j' || v_table_instance || '.name');
                     
-                    IF p_query_elements(p_i).optional THEN
+                    IF p_query_elements(p_i).optional 
+                       OR (p_query_type = c_PROPERTY_QUERY AND p_query_elements(p_i).first_child_i IS NULL) THEN
                         add_text('(+)');
                     END IF;
                                         
                     add_text('=:' || v_variable_numbers(p_query_elements(p_i).value));
+                    
+                    v_and := ' AND ';
+                    
+                ELSIF p_query_elements(p_i).type = 'A' THEN
+                
+                    add_text(v_and || 'j' || v_table_instance || '.id');
+                    
+                    IF p_query_elements(p_i).optional THEN
+                        add_text('(+)');
+                    END IF;
+                                        
+                    add_text('=TO_NUMBER(:' || v_variable_numbers(p_query_elements(p_i).value) || ')');
                     
                     v_and := ' AND ';
                     
@@ -1804,14 +1947,15 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     /* JSON value retrieval and serialization */
     
     FUNCTION request_value (
-        p_anchor_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind,
         p_raise_not_found IN BOOLEAN := FALSE
     ) 
     RETURN NUMBER IS
     
-        v_query_elements t_query_elements;
+        v_anchor VARCHAR2(30);
+    
+        v_path_elements t_query_elements;
         v_query_statement t_query_statement;
     
         v_cursor_id INTEGER;
@@ -1821,10 +1965,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     BEGIN
 
-        v_query_elements := parse_query(p_anchor_value_id, p_path, c_VALUE_QUERY);
-        v_query_statement := get_query_statement(v_query_elements, c_VALUE_QUERY);
+        v_path_elements := parse_path(p_path);
+        v_query_statement := get_query_statement(v_path_elements, c_VALUE_QUERY);
     
-        v_cursor_id := prepare_query(v_query_elements, v_query_statement, p_bind);
+        v_cursor_id := prepare_query(v_path_elements, v_query_statement, p_bind);
         c_values := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
         FETCH c_values
@@ -1852,14 +1996,57 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
     END;
     
+    FUNCTION request_child_value (
+        p_parent_value_id IN NUMBER,
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_raise_not_found IN BOOLEAN := FALSE
+    ) 
+    RETURN NUMBER IS
+    
+        v_parent_value t_value;
+        v_path VARCHAR2(32000);
+        v_bind bind;
+    
+    BEGIN
+    
+        v_parent_value := get_value(p_parent_value_id);
+        v_path := '#PARENT_ID';
+        
+        IF SUBSTR(TRIM(p_path), 1, 1) IN ('(', '[') THEN
+            v_path := v_path || p_path;
+        ELSE
+            v_path := v_path || '.' || p_path;
+        END IF;
+        
+        IF p_bind IS NULL THEN
+            
+            RETURN request_value(v_path, bind(p_parent_value_id), p_raise_not_found);
+        
+        ELSE
+        
+            v_bind := bind();
+            v_bind.EXTEND(p_bind.COUNT + 1);
+            
+            v_bind(1) := p_parent_value_id;
+            
+            FOR v_i IN 1..p_bind.COUNT LOOP
+                v_bind(v_i + 1) := p_bind(v_i);
+            END LOOP;
+        
+            RETURN request_value(v_path, v_bind, p_raise_not_found);
+        
+        END IF;
+        
+    END;
+    
     FUNCTION request_property (
-        p_anchor_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind
     ) 
     RETURN t_property IS
     
-        v_query_elements t_query_elements;
+        v_path_elements t_query_elements;
         v_query_statement t_query_statement;
     
         v_cursor_id INTEGER;
@@ -1872,11 +2059,11 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
     BEGIN
     
-        v_query_elements := parse_query(p_anchor_value_id, p_path, c_PROPERTY_QUERY);
-        v_query_statement := get_query_statement(v_query_elements, c_PROPERTY_QUERY);
+        v_path_elements := parse_query(p_path);
+        v_query_statement := get_query_statement(v_path_elements, c_PROPERTY_QUERY);
     
         v_cursor_id := prepare_query(
-            v_query_elements, 
+            v_path_elements, 
             v_query_statement,
             p_bind
         );
@@ -1923,7 +2110,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                  FROM json_values
                  WHERE id = p_root_id
                  UNION ALL
-                 SELECT jsvl.id
+                 SELECT /*+ ORDERED USE_NL(jsvl) */
+                        jsvl.id
                        ,jsvl.type
                        ,jsvl.name
                        ,jsvl.value
@@ -2602,7 +2790,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     
     FUNCTION set_property (
-        p_anchor_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind,
         p_content_parse_events IN json_parser.t_parse_events
@@ -2620,7 +2807,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
     BEGIN
 
-        v_property := request_property(p_anchor_value_id, p_path, p_bind);
+        v_property := request_property(p_path, p_bind);
         v_index := to_index(v_property.property_name);
         
         v_existing_ids := t_numbers();
@@ -2690,6 +2877,49 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
     END;
     
+    FUNCTION set_child_property (
+        p_parent_value_id IN NUMBER,
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_content_parse_events IN json_parser.t_parse_events
+    )
+    RETURN NUMBER IS
+    
+        v_parent_value t_value;
+        v_path VARCHAR2(32000);
+        v_bind bind;
+    
+    BEGIN
+    
+        v_parent_value := get_value(p_parent_value_id);
+        
+        IF SUBSTR(TRIM(p_path), 1, 1) = '[' THEN
+            v_path := '#self' || p_path;
+        ELSE
+            v_path := '#self.' || p_path;
+        END IF;
+        
+        IF p_bind IS NULL THEN
+            
+            RETURN set_property(v_path, bind(p_parent_value_id), p_content_parse_events);
+        
+        ELSE
+        
+            v_bind := bind();
+            v_bind.EXTEND(p_bind.COUNT + 1);
+            
+            v_bind(1) := p_parent_value_id;
+            
+            FOR v_i IN 1..p_bind.COUNT LOOP
+                v_bind(v_i + 1) := p_bind(v_i);
+            END LOOP;
+        
+            RETURN set_property(v_path, v_bind, p_content_parse_events);
+        
+        END IF;
+        
+    END;
+    
     FUNCTION push_json (
         p_array_id IN NUMBER,
         p_content_parse_events IN json_parser.t_parse_events
@@ -2706,7 +2936,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     END;
     
     PROCEDURE apply_value (
-        p_value IN json_values%ROWTYPE,
+        p_value IN t_value,
         p_content_parse_events IN json_parser.t_parse_events,
         p_event_i IN OUT NOCOPY PLS_INTEGER,
         p_check_types IN BOOLEAN
@@ -2835,31 +3065,20 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     END;
     
     PROCEDURE apply_json (
-        p_anchor_value_id IN NUMBER,
-        p_path IN VARCHAR2,
-        p_bind IN bind,
+        p_value_id IN NUMBER,
         p_content_parse_events json_parser.t_parse_events,
         p_check_types IN BOOLEAN
     ) IS
         
-        v_value t_json_value;
-        
-        v_value_row json_values%ROWTYPE;
-        
+        v_value t_value;
         v_event_i PLS_INTEGER;
     
     BEGIN
 
-        v_value := t_json_value(p_path, p_bind);
-        
-        SELECT *
-        INTO v_value_row
-        FROM json_values
-        WHERE id = v_value.id;
-                
+        v_value := get_value(p_value_id);
         v_event_i := 1;
         
-        apply_value(v_value_row, p_content_parse_events, v_event_i, p_check_types);
+        apply_value(v_value, p_content_parse_events, v_event_i, p_check_types);
         
     END;
     

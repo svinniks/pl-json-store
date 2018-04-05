@@ -121,15 +121,12 @@ CREATE OR REPLACE PACKAGE json_core IS
     /* JSON query API methods */
     
     FUNCTION parse_query (
-        p_query IN VARCHAR2,
-        p_query_type IN CHAR
+        p_query IN VARCHAR2
     ) 
     RETURN t_query_elements;
-        
-    FUNCTION parse_query (
-        p_anchor_value_id IN NUMBER,
-        p_query IN VARCHAR2,
-        p_query_type IN CHAR
+    
+    FUNCTION parse_path (
+        p_path IN VARCHAR2
     ) 
     RETURN t_query_elements;
     
@@ -170,7 +167,14 @@ CREATE OR REPLACE PACKAGE json_core IS
     /* Generic methods for JSON value retrieval and serialization */
     
     FUNCTION request_value (
-        p_anchor_value_id IN NUMBER,
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_raise_not_found IN BOOLEAN := FALSE
+    ) 
+    RETURN NUMBER;
+    
+    FUNCTION request_child_value (
+        p_parent_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind,
         p_raise_not_found IN BOOLEAN := FALSE
@@ -249,7 +253,14 @@ CREATE OR REPLACE PACKAGE json_core IS
     RETURN NUMBER;
         
     FUNCTION set_property (
-        p_anchor_value_id IN NUMBER,
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_content_parse_events IN json_parser.t_parse_events
+    )
+    RETURN NUMBER;
+    
+    FUNCTION set_child_property (
+        p_parent_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind,
         p_content_parse_events IN json_parser.t_parse_events
@@ -263,9 +274,7 @@ CREATE OR REPLACE PACKAGE json_core IS
     RETURN NUMBER;
     
     PROCEDURE apply_json (
-        p_anchor_value_id IN NUMBER, 
-        p_path IN VARCHAR2,
-        p_bind IN bind,
+        p_value_id IN NUMBER,
         p_content_parse_events json_parser.t_parse_events,
         p_check_types IN BOOLEAN
     );

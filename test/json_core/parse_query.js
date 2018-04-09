@@ -766,18 +766,6 @@ suite("Invalid query tests", function() {
 
     suite("Other errors", function() {
     
-        test("Optional root", function() {
-        
-            expect(function() {
-            
-                var elements = database.call("json_core.parse_query", {
-                    p_query: "$?"
-                });
-            
-            }).to.throw(/JDOC-00029/);
-        
-        });
-
         test("Alias too long", function() {
         
             expect(function() {
@@ -796,6 +784,18 @@ suite("Invalid query tests", function() {
             
                 var elements = database.call("json_core.parse_query", {
                     p_query: ":abcabcabcabcabcabcabcabcabcabcA"
+                });
+            
+            }).to.throw(/JDOC-00020/);
+        
+        });
+
+        test("ID variable number too long", function() {
+        
+            expect(function() {
+            
+                var elements = database.call("json_core.parse_query", {
+                    p_query: "#abcabcabcabcabcabcabcabcabcabcA"
                 });
             
             }).to.throw(/JDOC-00020/);
@@ -1319,6 +1319,830 @@ suite("Valid query tests", function() {
             {
                 type: "N",
                 value: "surname",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with one array element", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "([123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two array elements", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "([123],[\"abc\"])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "abc",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two array elements, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "([123]   ,[\"abc\"])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "abc",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two array elements, spaces after the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "([123],   [\"abc\"])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "abc",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with one variable", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(:name)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two variables", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(:name,:name)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two variables, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(:name   ,:name)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two variables, spaces after the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(:name,   :name)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "V",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with one ID variable", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#name)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "A",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two ID variables", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#name,#name)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "A",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "A",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two IDvariables, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#name   ,#name)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "A",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "A",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two ID variables, spaces after the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#name,   #name)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "A",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "A",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with one ID reference", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#123)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "I",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two ID references", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#123,#321)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "I",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "I",
+                value: "321",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two ID references, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#123   ,#321)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "I",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "I",
+                value: "321",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two ID references, spaces after the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#123,   #321)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "I",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "I",
+                value: "321",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with one wildcard", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(*)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two wildcards", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(*,*)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two wildcards, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(*   ,*)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with two wildcards, spaces after the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(*,   *)"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with a simple name and an array element", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(person,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "person",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with a simple name and an array element, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(person   ,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "person",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with a variable and an array element", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(:name,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with a variable and an array element, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(:name   ,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "V",
+                value: "NAME",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with an ID variable and an array element", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#id,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "A",
+                value: "ID",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with an ID variable and an array element, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#id   ,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "A",
+                value: "ID",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with an ID reference and an array element", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#123,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "I",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with an ID reference and an array element, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(#123   ,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "I",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with a wildcard and an array element", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(*,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with a wildcard and an array element, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(*   ,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "W",
+                value: null,
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with a aliased name and an array element", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(name as name,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "name",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: "NAME"
+            },
+            {
+                type: "N",
+                value: "123",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null
+            }
+        ]);
+    
+    });
+
+    test("Branching root with an aliased name and an array element, spaces before the comma", function() {
+    
+        var elements = database.call("json_core.parse_query", {
+            p_query: "(name as name   ,[123])"
+        });
+
+        expect(elements).to.eql([
+            {
+                type: "N",
+                value: "name",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: 2,
+                alias: "NAME"
+            },
+            {
+                type: "N",
+                value: "123",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,

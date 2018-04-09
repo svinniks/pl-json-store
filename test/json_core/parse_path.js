@@ -36,4 +36,32 @@ suite("Invalid path tests", function() {
 
     });
 
+    test("Path with reserved field", function() {
+
+        expect(function() {
+        
+            database.call("json_core.parse_path", {
+                p_path: "person._id"
+            });
+        
+        }).to.throw(/JDOC-00039/);
+
+        expect(function() {
+        
+            database.call("json_core.parse_path", {
+                p_path: "person._key"
+            });
+        
+        }).to.throw(/JDOC-00039/);
+
+        expect(function() {
+        
+            database.call("json_core.parse_path", {
+                p_path: "person._value"
+            });
+        
+        }).to.throw(/JDOC-00039/);
+
+    });
+
 });

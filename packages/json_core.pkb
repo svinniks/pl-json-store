@@ -86,6 +86,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00036', 'Optional elements are not allowed in path expressions!');
         default_message_resolver.register_message('JDOC-00037', 'Branching is not allowed in path expressions!');
         default_message_resolver.register_message('JDOC-00038', 'Aliases are not allowed in path expressions!');
+        default_message_resolver.register_message('JDOC-00039', 'Reserved fields are not allowed in path expressions!');
+        default_message_resolver.register_message('JDOC-00040', 'Not all variables bound!');
+        default_message_resolver.register_message('JDOC-00041', 'Property name missing!');
     END;
     
     /* Some usefull functions */
@@ -692,7 +695,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 pop_sibling;
                 
                 IF (v_stack.COUNT = 1) THEN
-                    v_state := 'lf_element';
+                    v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
                 END IF;
@@ -742,7 +745,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 pop_sibling;
                 
                 IF (v_stack.COUNT = 1) THEN
-                    v_state := 'lf_element';
+                    v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
                 END IF;
@@ -773,7 +776,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 pop_sibling;
                 
                 IF (v_stack.COUNT = 1) THEN
-                    v_state := 'lf_element';
+                    v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
                 END IF;
@@ -1124,7 +1127,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 pop_sibling;
                 
                 IF (v_stack.COUNT = 1) THEN
-                    v_state := 'lf_element';
+                    v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
                 END IF;
@@ -1206,7 +1209,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 pop_sibling;
                 
                 IF (v_stack.COUNT = 1) THEN
-                    v_state := 'lf_element';
+                    v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
                 END IF;
@@ -1382,6 +1385,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF v_path_elements(p_i).alias IS NOT NULL THEN
                 -- Aliases are not allowed in path expressions!
                 error$.raise('JDOC-00038');
+            ELSIF v_path_elements(p_i).type = 'F' THEN
+                -- Reserved fields are not allowed in path expressions!
+                error$.raise('JDOC-00039');
             END IF;
             
             IF v_path_elements(p_i).first_child_i IS NOT NULL THEN
@@ -1524,16 +1530,17 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     END;
     
-    FUNCTION get_query_variable_count (
+    FUNCTION get_query_bind_numbers (
         p_query_elements IN t_query_elements
     )
-    RETURN PLS_INTEGER IS
+    RETURN t_numbers IS
     
-        TYPE t_unique_names IS 
-            TABLE OF BOOLEAN 
+        TYPE t_variable_numbers IS 
+            TABLE OF NUMBER 
             INDEX BY VARCHAR2(30);
             
-        v_unique_variable_names t_unique_names;
+        v_variable_numbers t_variable_numbers;
+        v_bind_numbers t_numbers;
         
         PROCEDURE visit_element (
             p_i IN PLS_INTEGER
@@ -1541,7 +1548,14 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         BEGIN
         
             IF p_query_elements(p_i).type IN ('V', 'A') THEN
-                v_unique_variable_names(p_query_elements(p_i).value) := TRUE;
+                
+                IF NOT v_variable_numbers.EXISTS(p_query_elements(p_i).value) THEN
+                    v_variable_numbers(p_query_elements(p_i).value) := v_variable_numbers.COUNT + 1;
+                END IF;
+                
+                v_bind_numbers.EXTEND(1);
+                v_bind_numbers(v_bind_numbers.COUNT) := v_variable_numbers(p_query_elements(p_i).value);
+            
             END IF;
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
@@ -1556,18 +1570,19 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
     BEGIN
     
+        v_bind_numbers := t_numbers();
         visit_element(1);
         
-        RETURN v_unique_variable_names.COUNT;
+        RETURN v_bind_numbers;
     
     END;    
     
-    FUNCTION get_query_values (
+    FUNCTION get_query_constants (
         p_query_elements IN t_query_elements
     )
     RETURN t_varchars IS
     
-        v_values t_varchars;
+        v_constants t_varchars;
     
         PROCEDURE visit_element (
             p_i IN PLS_INTEGER
@@ -1575,12 +1590,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         BEGIN
         
             IF p_query_elements(p_i).type IN ('N', 'I') THEN
-                v_values.EXTEND(1);
-                v_values(v_values.COUNT) := p_query_elements(p_i).value;
+                v_constants.EXTEND(1);
+                v_constants(v_constants.COUNT) := p_query_elements(p_i).value;
             END IF;
         
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
-                visit_element(p_query_elements(p_i).first_child_i);
+                visit_element(p_query_elements(p_i).first_child_i); 
             END IF;
             
             IF p_query_elements(p_i).next_sibling_i IS NOT NULL THEN
@@ -1591,11 +1606,11 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     BEGIN
     
-        v_values := t_varchars();
+        v_constants := t_varchars();
         
         visit_element(1);
         
-        RETURN v_values;
+        RETURN v_constants;
     
     END;
     
@@ -1610,18 +1625,17 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
         v_line VARCHAR2(32000);
         
+        v_constant_number PLS_INTEGER;
+        v_variable_number PLS_INTEGER;
+        
         v_table_instance_counter PLS_INTEGER;
-        v_auto_variable_number PLS_INTEGER;
         v_comma CHAR;
-        v_and VARCHAR2(5);
+        v_and VARCHAR2(10);
         v_column_count PLS_INTEGER;
         
         TYPE t_variable_numbers IS 
             TABLE OF PLS_INTEGER
             INDEX BY VARCHAR2(30);
-            
-        v_variable_numbers t_variable_numbers;
-        v_variable_number PLS_INTEGER;
         
         v_statement t_query_statement;
     
@@ -1664,16 +1678,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             END IF;
             
             IF p_query_elements(p_i).type IN ('I', 'N') THEN
-            
-                v_auto_variable_number := v_auto_variable_number + 1;
-                
+                v_constant_number := v_constant_number + 1;
             ELSIF p_query_elements(p_i).type IN ('A', 'V') THEN
-            
-                IF NOT v_variable_numbers.EXISTS(p_query_elements(p_i).value) THEN
-                    v_variable_number := v_variable_number + 1;
-                    v_variable_numbers(p_query_elements(p_i).value) := v_variable_number;
-                END IF;
-            
+                v_variable_number := v_variable_number + 1;
             END IF;
                     
             IF p_query_elements(p_i).first_child_i IS NOT NULL THEN
@@ -1684,14 +1691,25 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 v_column_count := v_column_count + 1;
             
-                IF p_query_type = c_VALUE_TABLE_QUERY OR (p_query_type = c_X_VALUE_TABLE_QUERY AND v_column_count <= NVL(p_column_count, v_column_count)) THEN
+                IF p_query_type = c_TABLE_QUERY AND v_column_count <= NVL(p_column_count, v_column_count) THEN
                 
                     add_text(v_comma || 'j' || v_table_instance || '.');
                 
                     IF p_query_elements(p_i).type = 'F' THEN
-                        add_text(CASE p_query_elements(p_i).value WHEN 'key' THEN 'name' ELSE p_query_elements(p_i).value END);
+                    
+                        add_text(
+                            CASE p_query_elements(p_i).value 
+                                WHEN 'key' THEN 
+                                    'name' 
+                                ELSE 
+                                    p_query_elements(p_i).value 
+                            END
+                        );
+                        
                     ELSE
+                    
                         add_text('value');
+                        
                     END IF;
                     
                 ELSIF p_query_type = c_VALUE_QUERY THEN
@@ -1700,21 +1718,15 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     
                 ELSIF p_query_type = c_PROPERTY_QUERY THEN
                 
-                    IF p_parent_table_instance IS NULL THEN
-                        add_text(v_comma || 'j' || v_table_instance || '.parent_id,(SELECT type FROM json_values WHERE id=j' || v_table_instance || '.parent_id)');
-                    ELSE 
-                        add_text(v_comma || 'j' || p_parent_table_instance || '.id,j' || p_parent_table_instance || '.type');
-                    END IF;
-                
-                    add_text(',j' || v_table_instance || '.id,j' || v_table_instance || '.type,:');
+                    add_text(v_comma || 'j' || p_parent_table_instance || '.id,j' || p_parent_table_instance || '.type,j' || v_table_instance || '.id,j' || v_table_instance || '.type,:');
                     
-                    IF p_query_elements(p_i).type IN ('I', 'N') THEN
-                        add_text('v' || v_auto_variable_number);
+                    IF p_query_elements(p_i).type = 'N' THEN
+                        add_text('const' || v_constant_number);
                     ELSE
-                        add_text(v_variable_numbers(p_query_elements(p_i).value));
+                        add_text('var' || v_variable_number);
                     END IF;
                     
-                    add_text(' as name,j' || v_table_instance || '.locked');
+                    add_text(' AS name,j' || v_table_instance || '.locked');
                     
                 END IF;    
                 
@@ -1799,8 +1811,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                         add_text('(+)');
                     END IF;
                     
-                    v_auto_variable_number := v_auto_variable_number + 1;
-                    add_text('=:v' || v_auto_variable_number);
+                    v_constant_number := v_constant_number + 1;
+                    add_text('=:const' || v_constant_number);
                     
                     v_and := ' AND ';
                     
@@ -1812,8 +1824,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                         add_text('(+)');
                     END IF;
                     
-                    v_auto_variable_number := v_auto_variable_number + 1;
-                    add_text('=TO_NUMBER(:v' || v_auto_variable_number || ')');
+                    v_constant_number := v_constant_number + 1;
+                    add_text('=TO_NUMBER(:const' || v_constant_number || ')');
                     
                     v_and := ' AND ';
                     
@@ -1825,8 +1837,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                        OR (p_query_type = c_PROPERTY_QUERY AND p_query_elements(p_i).first_child_i IS NULL) THEN
                         add_text('(+)');
                     END IF;
-                                        
-                    add_text('=:' || v_variable_numbers(p_query_elements(p_i).value));
+                                
+                    v_variable_number := v_variable_number + 1;        
+                    add_text('=:var' || v_variable_number);
                     
                     v_and := ' AND ';
                     
@@ -1838,7 +1851,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                         add_text('(+)');
                     END IF;
                                         
-                    add_text('=TO_NUMBER(:' || v_variable_numbers(p_query_elements(p_i).value) || ')');
+                    v_variable_number := v_variable_number + 1; 
+                    add_text('=TO_NUMBER(:var' || v_variable_number || ')');
                     
                     v_and := ' AND ';
                     
@@ -1865,7 +1879,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         END IF;    
     
         v_table_instance_counter := 0;
-        v_auto_variable_number := 0;
+        v_constant_number := 0;
         v_variable_number := 0;
         v_column_count := 0;
         v_comma := NULL; 
@@ -1883,9 +1897,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         from_list_visit(1);
         
         v_table_instance_counter := 0;
-        v_auto_variable_number := 0;
-        v_and := NULL; 
-        add_text(' WHERE ');
+        v_constant_number := 0;
+        v_variable_number := 0;
+        v_and := ' WHERE '; 
         where_list_visit(1, NULL);
         
         IF v_line IS NOT NULL AND v_statement.statement_clob IS NOT NULL THEN
@@ -1909,16 +1923,17 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     )
     RETURN INTEGER IS
     
-        v_variable_count PLS_INTEGER;
-        v_query_values t_varchars;
+        v_bind_numbers t_numbers;
+        v_constants t_varchars;
         
         v_cursor_id INTEGER;
         v_result INTEGER;
     
     BEGIN
         
-        v_variable_count := get_query_variable_count(p_query_elements);
-        v_query_values := get_query_values(p_query_elements);
+        
+        v_bind_numbers := get_query_bind_numbers(p_query_elements);
+        v_constants := get_query_constants(p_query_elements);
         
         v_cursor_id := DBMS_SQL.OPEN_CURSOR();
         
@@ -1928,14 +1943,30 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             DBMS_SQL.PARSE(v_cursor_id, p_query_statement.statement, DBMS_SQL.NATIVE);
         END IF;
                
-        IF p_bind IS NOT NULL THEN 
-            FOR v_i IN 1..LEAST(v_variable_count, p_bind.COUNT) LOOP
-                DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':' || v_i, p_bind(v_i));
+        IF p_bind IS NULL THEN
+        
+            IF v_bind_numbers.COUNT > 0 THEN
+                -- Not all variables bound!
+                error$.raise('JDOC-00040');
+            END IF;
+            
+        ELSE
+        
+            FOR v_i IN 1..v_bind_numbers.COUNT LOOP
+            
+                IF v_bind_numbers(v_i) > p_bind.COUNT THEN
+                    -- Not all variables bound!
+                    error$.raise('JDOC-00040');
+                END IF;
+                
+                DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':var' || v_i, p_bind(v_bind_numbers(v_i)));
+            
             END LOOP;
+            
         END IF;
         
-        FOR v_i IN 1..v_query_values.COUNT LOOP
-            DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':v' || v_i, v_query_values(v_i));
+        FOR v_i IN 1..v_constants.COUNT LOOP
+            DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':const' || v_i, v_constants(v_i));
         END LOOP;
         
         v_result := DBMS_SQL.EXECUTE(v_cursor_id);
@@ -1944,20 +1975,32 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     END;
     
+    FUNCTION to_refcursor (
+        p_cursor_id IN INTEGER
+    )
+    RETURN SYS_REFCURSOR IS
+    
+        v_cursor_id INTEGER;
+    
+    BEGIN
+    
+        v_cursor_id := p_cursor_id;
+        
+        RETURN DBMS_SQL.TO_REFCURSOR(v_cursor_id);
+    
+    END;
+    
     /* JSON value retrieval and serialization */
     
     FUNCTION request_value (
         p_path IN VARCHAR2,
-        p_bind IN bind,
-        p_raise_not_found IN BOOLEAN := FALSE
+        p_path_elements IN t_query_elements, 
+        p_bind IN bind
     ) 
     RETURN NUMBER IS
-    
-        v_anchor VARCHAR2(30);
-    
-        v_path_elements t_query_elements;
-        v_query_statement t_query_statement;
-    
+        
+        v_path_statement t_query_statement;
+        
         v_cursor_id INTEGER;
         c_values SYS_REFCURSOR;
         
@@ -1965,11 +2008,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     BEGIN
 
-        v_path_elements := parse_path(p_path);
-        v_query_statement := get_query_statement(v_path_elements, c_VALUE_QUERY);
-    
-        v_cursor_id := prepare_query(v_path_elements, v_query_statement, p_bind);
-        c_values := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
+        v_path_statement := get_query_statement(p_path_elements, c_VALUE_QUERY);
+        
+        v_cursor_id := prepare_query(p_path_elements, v_path_statement, p_bind);
+        c_values := to_refcursor(v_cursor_id);
         
         FETCH c_values
         BULK COLLECT INTO v_values
@@ -1979,6 +2021,35 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         CASE v_values.COUNT
             WHEN 0 THEN
+                RAISE NO_DATA_FOUND;
+            WHEN 1 THEN
+                RETURN v_values(1).id;
+            ELSE 
+                RAISE TOO_MANY_ROWS;
+        END CASE;
+        
+    END;
+    
+    FUNCTION request_value (
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_raise_not_found IN BOOLEAN := FALSE
+    ) 
+    RETURN NUMBER IS
+    
+        v_path_elements t_query_elements;
+    
+    BEGIN
+    
+        v_path_elements := parse_path(p_path);
+        
+        BEGIN
+        
+            RETURN request_value(p_path, v_path_elements, p_bind);
+            
+        EXCEPTION
+        
+            WHEN NO_DATA_FOUND THEN
             
                 IF p_raise_not_found THEN
                     -- Value :1 does not exist!
@@ -1987,13 +2058,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     RETURN NULL;
                 END IF;
                 
-            WHEN 1 THEN
-                RETURN v_values(1).id;
-            ELSE 
+            WHEN TOO_MANY_ROWS THEN
+            
                 -- Multiple values found at the path :1!
                 error$.raise('JDOC-00004', p_path);
-        END CASE;
-        
+                
+        END;
+    
     END;
     
     FUNCTION request_child_value (
@@ -2005,38 +2076,44 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     RETURN NUMBER IS
     
         v_parent_value t_value;
-        v_path VARCHAR2(32000);
+        v_path_elements t_query_elements;    
+    
         v_bind bind;
     
     BEGIN
     
         v_parent_value := get_value(p_parent_value_id);
-        v_path := '#PARENT_ID';
         
-        IF SUBSTR(TRIM(p_path), 1, 1) IN ('(', '[') THEN
-            v_path := v_path || p_path;
-        ELSE
-            v_path := v_path || '.' || p_path;
-        END IF;
+        v_path_elements := parse_query(p_path);
         
-        IF p_bind IS NULL THEN
+        v_path_elements.EXTEND(1);
+        v_path_elements(v_path_elements.COUNT) := v_path_elements(1);
+        
+        v_path_elements(1).type := 'I';
+        v_path_elements(1).value := p_parent_value_id;
+        v_path_elements(1).first_child_i := v_path_elements.COUNT;
+        
+        BEGIN
+        
+            RETURN request_value(p_path, v_path_elements, p_bind);
             
-            RETURN request_value(v_path, bind(p_parent_value_id), p_raise_not_found);
+        EXCEPTION
         
-        ELSE
-        
-            v_bind := bind();
-            v_bind.EXTEND(p_bind.COUNT + 1);
+            WHEN NO_DATA_FOUND THEN
             
-            v_bind(1) := p_parent_value_id;
+                IF p_raise_not_found THEN
+                    -- Value :1 does not exist!
+                    error$.raise('JDOC-00009', p_path);
+                ELSE
+                    RETURN NULL;
+                END IF;
+                
+            WHEN TOO_MANY_ROWS THEN
             
-            FOR v_i IN 1..p_bind.COUNT LOOP
-                v_bind(v_i + 1) := p_bind(v_i);
-            END LOOP;
-        
-            RETURN request_value(v_path, v_bind, p_raise_not_found);
-        
-        END IF;
+                -- Multiple values found at the path :1!
+                error$.raise('JDOC-00004', p_path);
+                
+        END; 
         
     END;
     
@@ -2047,7 +2124,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     RETURN t_property IS
     
         v_path_elements t_query_elements;
-        v_query_statement t_query_statement;
+        v_path_statement t_query_statement;
     
         v_cursor_id INTEGER;
         c_properties SYS_REFCURSOR;
@@ -2060,15 +2137,19 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     BEGIN
     
         v_path_elements := parse_query(p_path);
-        v_query_statement := get_query_statement(v_path_elements, c_PROPERTY_QUERY);
-    
-        v_cursor_id := prepare_query(
-            v_path_elements, 
-            v_query_statement,
-            p_bind
-        );
         
-        c_properties := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
+        IF v_path_elements.COUNT < 2 THEN
+            -- Property name missing!
+            error$.raise('JDOC-00041');
+        ELSIF v_path_elements(v_path_elements.COUNT).type NOT IN ('N', 'V') THEN
+            -- Invalid property name!
+            error$.raise('JDOC-00022');
+        END IF;
+        
+        v_path_statement := get_query_statement(v_path_elements, c_PROPERTY_QUERY);
+        
+        v_cursor_id := prepare_query(v_path_elements, v_path_statement, p_bind);
+        c_properties := to_refcursor(v_cursor_id);
         
         FETCH c_properties
         BULK COLLECT INTO v_properties

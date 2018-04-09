@@ -64,8 +64,7 @@ CREATE OR REPLACE PACKAGE json_core IS
     
     c_VALUE_QUERY CONSTANT CHAR := 'V';
     c_PROPERTY_QUERY CONSTANT CHAR := 'P';
-    c_VALUE_TABLE_QUERY CONSTANT CHAR := 'T';
-    c_X_VALUE_TABLE_QUERY CONSTANT CHAR := 'X';
+    c_TABLE_QUERY CONSTANT CHAR := 'T';
     
     TYPE t_query_statement IS
         RECORD (
@@ -140,12 +139,12 @@ CREATE OR REPLACE PACKAGE json_core IS
     )
     RETURN t_varchars;
     
-    FUNCTION get_query_variable_count (
+    FUNCTION get_query_bind_numbers (
         p_query_elements IN t_query_elements
     )
-    RETURN PLS_INTEGER;
+    RETURN t_numbers;
     
-    FUNCTION get_query_values (
+    FUNCTION get_query_constants (
         p_query_elements IN t_query_elements
     )
     RETURN t_varchars;
@@ -163,6 +162,11 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_bind IN bind
     )
     RETURN INTEGER;
+    
+    FUNCTION to_refcursor (
+        p_cursor_id IN INTEGER
+    )
+    RETURN SYS_REFCURSOR;
         
     /* Generic methods for JSON value retrieval and serialization */
     
@@ -180,6 +184,12 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_raise_not_found IN BOOLEAN := FALSE
     ) 
     RETURN NUMBER;
+    
+    FUNCTION request_property (
+        p_path IN VARCHAR2,
+        p_bind IN bind
+    ) 
+    RETURN t_property;
     
     PROCEDURE get_parse_events (
         p_value_id IN NUMBER,

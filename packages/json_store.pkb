@@ -900,14 +900,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         v_query_elements := json_core.parse_query(p_query);
-        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_X_VALUE_TABLE_QUERY, 5);
+        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_TABLE_QUERY, 5);
     
-        v_cursor_id := json_core.prepare_query (
-            v_query_elements,
-            v_query_statement,
-            p_bind
-        );
-    
+        v_cursor_id := json_core.prepare_query(v_query_elements, v_query_statement, p_bind);
         c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
         LOOP
@@ -952,14 +947,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         v_query_elements := json_core.parse_query(p_query);
-        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_X_VALUE_TABLE_QUERY, 10);
+        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_TABLE_QUERY, 10);
     
-        v_cursor_id := json_core.prepare_query (
-            v_query_elements,
-            v_query_statement,
-            p_bind
-        );
-    
+        v_cursor_id := json_core.prepare_query(v_query_elements, v_query_statement, p_bind);
         c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
         LOOP
@@ -1004,14 +994,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         v_query_elements := json_core.parse_query(p_query);
-        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_X_VALUE_TABLE_QUERY, 15);
+        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_TABLE_QUERY, 15);
     
-        v_cursor_id := json_core.prepare_query (
-            v_query_elements,
-            v_query_statement,
-            p_bind
-        );
-    
+        v_cursor_id := json_core.prepare_query(v_query_elements, v_query_statement, p_bind);
         c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
         LOOP
@@ -1056,14 +1041,9 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         v_query_elements := json_core.parse_query(p_query);
-        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_X_VALUE_TABLE_QUERY, 20);
+        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_TABLE_QUERY, 20);
     
-        v_cursor_id := json_core.prepare_query (
-            v_query_elements,
-            v_query_statement,
-            p_bind
-        );
-    
+        v_cursor_id := json_core.prepare_query(v_query_elements, v_query_statement, p_bind);
         c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
         LOOP

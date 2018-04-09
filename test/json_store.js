@@ -3218,27 +3218,6 @@ suite("JSON store management tests", function() {
     
         });
 
-        test("Try to modify locked anonymous scalar value", function() {
-    
-            let id = database.call("json_store.create_string", {
-                p_value: "Hello, World!"
-            });
-
-            database.call("json_store.lock_value", {
-                p_path: `#${id}`
-            });
-
-            expect(function() {
-            
-                database.call("json_store.set_string", {
-                    p_path: `#${id}`,
-                    p_value: "Good bye, World!"
-                });
-            
-            }).to.throw(/JDOC-00024/);
-
-        });
-
         test("Lock scalar property of the root", function() {
     
             let name = randomString(32);

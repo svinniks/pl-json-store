@@ -43,7 +43,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
     BEGIN
         
         v_query_elements := json_core.parse_query(p_query);
-        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_VALUE_TABLE_QUERY);
+        v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_TABLE_QUERY);
     
         p_context.cursor_id := json_core.prepare_query(
             v_query_elements,

@@ -287,105 +287,161 @@ suite("Query column name retrieval", function() {
 
 });
 
-suite("Query variable count retrieval", function() {
+suite("Query variable bind number retrieval", function() {
 
     test("Single variable", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.:var1)'
+            p_query: ':name'
         });
 
-        var variableCount = database.call("json_core.get_query_variable_count", {
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
             p_query_elements: elements
         });
 
-        expect(variableCount).to.be(1);
+        expect(bindNumbers).to.eql([1]);
 
     }); 
 
     test("Single ID variable", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.#var1)'
+            p_query: 'person(.#id)'
         });
 
-        var variableCount = database.call("json_core.get_query_variable_count", {
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
             p_query_elements: elements
         });
 
-        expect(variableCount).to.be(1);
+        expect(bindNumbers).to.eql([1]);
 
     }); 
 
     test("Multiple different variables", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.:var1, .:name(.:detail))'
+            p_query: ':name.:surname.:address'
         });
 
-        var variableCount = database.call("json_core.get_query_variable_count", {
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
             p_query_elements: elements
         });
 
-        expect(variableCount).to.be(3);
+        expect(bindNumbers).to.eql([1, 2, 3]);
 
     }); 
+
+    test("Two equal variables", function() {
+
+        var elements = database.call("json_core.parse_query", {
+            p_query: ':name.:name'
+        });
+
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
+            p_query_elements: elements
+        });
+
+        expect(bindNumbers).to.eql([1, 1]);
+
+    });
+
+    test("Two equal, one different variables", function() {
+
+        var elements = database.call("json_core.parse_query", {
+            p_query: ':name.:name.:surname'
+        });
+
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
+            p_query_elements: elements
+        });
+
+        expect(bindNumbers).to.eql([1, 1, 2]);
+
+    });
+
+    test("Two pairs of equal variables", function() {
+
+        var elements = database.call("json_core.parse_query", {
+            p_query: ':name.:surname.:name.:surname'
+        });
+
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
+            p_query_elements: elements
+        });
+
+        expect(bindNumbers).to.eql([1, 2, 1, 2]);
+
+    });
 
     test("Multiple different ID variables", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.#var1, .#name(.#detail))'
+            p_query: '#name.#surname.#address'
         });
 
-        var variableCount = database.call("json_core.get_query_variable_count", {
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
             p_query_elements: elements
         });
 
-        expect(variableCount).to.be(3);
+        expect(bindNumbers).to.eql([1, 2, 3]);
 
     }); 
 
-    test("Multiple repeating variables", function() {
+    test("Two equal ID variables", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.:var1, .:name(.:var1 as value), .:name)'
+            p_query: '#name.#name'
         });
 
-        var variableCount = database.call("json_core.get_query_variable_count", {
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
             p_query_elements: elements
         });
 
-        expect(variableCount).to.be(2);
-
-    }); 
-
-    test("Multiple repeating ID variables", function() {
-
-        var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.#var1, .#name(.#var1 as value), .#name)'
-        });
-
-        var variableCount = database.call("json_core.get_query_variable_count", {
-            p_query_elements: elements
-        });
-
-        expect(variableCount).to.be(2);
+        expect(bindNumbers).to.eql([1, 1]);
 
     });
-    
-    test("Multiple repeating simple and ID variables", function() {
+
+    test("Two equal, one different ID variables", function() {
 
         var elements = database.call("json_core.parse_query", {
-            p_query: 'person(.:var1, .:name(.#var1 as value), .:name)'
+            p_query: '#name.#name.#surname'
         });
 
-        var variableCount = database.call("json_core.get_query_variable_count", {
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
             p_query_elements: elements
         });
 
-        expect(variableCount).to.be(2);
+        expect(bindNumbers).to.eql([1, 1, 2]);
 
-    }); 
+    });
+
+    test("Two pairs of equal ID variables", function() {
+
+        var elements = database.call("json_core.parse_query", {
+            p_query: '#name.#surname.#name.#surname'
+        });
+
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
+            p_query_elements: elements
+        });
+
+        expect(bindNumbers).to.eql([1, 2, 1, 2]);
+
+    });
+
+    test("Complex example with multiple variables", function() {
+
+        var elements = database.call("json_core.parse_query", {
+            p_query: '($.#id.a(.b,.:c),:a.b(.:c.d.#c,.:id))'
+        });
+
+        var bindNumbers = database.call("json_core.get_query_bind_numbers", {
+            p_query_elements: elements
+        });
+
+        expect(bindNumbers).to.eql([1, 2, 3, 2, 2, 1]);
+
+    });
 
 });
 
@@ -543,6 +599,38 @@ suite("Query signature retrieval", function() {
 
         expect(signature).to.be('(N(NVN?(W(A))N))');
     
+    });
+
+});
+
+suite("Query constant retrieval", function() {
+
+    test("Query without constants", function() {
+
+        let elements = database.call("json_core.parse_query", {
+            p_query: "#id.:name1[:name2]"
+        });
+
+        let values = database.call("json_core.get_query_constants", {
+            p_query_elements: elements
+        });
+
+        expect(values).to.eql([]);
+
+    });
+
+    test("Query with constant", function() {
+
+        let elements = database.call("json_core.parse_query", {
+            p_query: "$.person.#123"
+        });
+
+        let values = database.call("json_core.get_query_constants", {
+            p_query_elements: elements
+        });
+
+        expect(values).to.eql(["0", "person", "123"]);
+
     });
 
 });

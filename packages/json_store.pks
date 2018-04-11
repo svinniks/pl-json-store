@@ -113,6 +113,11 @@ CREATE OR REPLACE PACKAGE json_store IS
     ) 
     RETURN NUMBER;
     
+    FUNCTION create_date (
+        p_value IN DATE
+    ) 
+    RETURN NUMBER;
+    
     FUNCTION create_number (
         p_value IN NUMBER
     ) 
@@ -150,6 +155,19 @@ CREATE OR REPLACE PACKAGE json_store IS
     PROCEDURE set_string (
         p_path IN VARCHAR2,
         p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION set_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    ) 
+    RETURN NUMBER;
+    
+    PROCEDURE set_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
         p_bind IN bind := NULL
     );
     
@@ -275,6 +293,12 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_bind IN bind := NULL
     ) 
     RETURN VARCHAR2;
+    
+    FUNCTION get_date (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) 
+    RETURN DATE;
     
     FUNCTION get_number (
         p_path IN VARCHAR2,

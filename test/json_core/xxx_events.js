@@ -32,6 +32,40 @@ suite("STRING_EVENTS", function() {
 
 });
 
+suite("DATE_EVENTS", function() {
+
+    test("NULL date", function() {
+
+        let events = database.call("json_core.date_events", {
+            p_value: null
+        });
+
+        expect(events).to.eql([
+            {
+                name: "NULL",
+                value: null
+            }
+        ]);
+
+    });
+
+    test("Not NULL date", function() {
+
+        let events = database.call("json_core.date_events", {
+            p_value: "1982-08-06"
+        });
+
+        expect(events).to.eql([
+            {
+                name: "STRING",
+                value: "1982-08-06"
+            }
+        ]);
+
+    });
+
+});
+
 suite("NUMBER_EVENTS", function() {
 
     test("NULL number", function() {

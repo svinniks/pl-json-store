@@ -9,6 +9,11 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     )
     RETURN t_json_value,
     
+    STATIC FUNCTION create_date (
+        p_value IN DATE
+    )
+    RETURN t_json_value,
+    
     STATIC FUNCTION create_number (
         p_value IN NUMBER
     )
@@ -55,6 +60,9 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER FUNCTION as_string
     RETURN VARCHAR2,
     
+    MEMBER FUNCTION as_date
+    RETURN DATE,
+    
     MEMBER FUNCTION as_number
     RETURN NUMBER,
     
@@ -71,6 +79,21 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     
     MEMBER FUNCTION get_parent
     RETURN t_json_value,
+    
+    MEMBER FUNCTION is_string
+    RETURN BOOLEAN,
+    
+    MEMBER FUNCTION is_date
+    RETURN BOOLEAN,
+    
+    MEMBER FUNCTION is_number
+    RETURN BOOLEAN,
+    
+    MEMBER FUNCTION is_boolean
+    RETURN BOOLEAN,
+    
+    MEMBER FUNCTION is_null
+    RETURN BOOLEAN,
     
     MEMBER FUNCTION is_object
     RETURN BOOLEAN,
@@ -108,6 +131,12 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     )
     RETURN VARCHAR2,
     
+    MEMBER FUNCTION get_date (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN DATE,
+    
     MEMBER FUNCTION get_number (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -144,6 +173,19 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER PROCEDURE set_string (
         p_path IN VARCHAR2,
         p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION set_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
         p_bind IN bind := NULL
     ),
     

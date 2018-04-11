@@ -124,6 +124,78 @@ suite("GET_STRING", function() {
 
 });
 
+suite("GET_DATE", function() {
+
+    test("NULL value ID", function() {
+    
+        let value = database.call("json_core.get_date", {
+            p_value_id: null
+        });
+
+        expect(value).to.be(null);
+    
+    });
+    
+    test("Non-existing value ID", function() {
+    
+        expect(function() {
+        
+            database.call("json_core.get_date", {
+                p_value_id: -1   
+            });
+        
+        }).to.throw(/JDOC-00009/);
+    
+    });
+
+    test("Try getting a non-string as date", function() {
+    
+        let valueId = database.call("json_store.create_boolean", {
+            p_value: true
+        });
+
+        expect(function() {
+        
+            database.call("json_core.get_date", {
+                p_value_id: valueId
+            });
+        
+        }).to.throw(/JDOC-00010/);
+    
+    });
+
+    test("Try getting a non-date string as date", function() {
+    
+        let valueId = database.call("json_store.create_string", {
+            p_value: "2018-AA-BB"
+        });
+
+        expect(function() {
+        
+            database.call("json_core.get_date", {
+                p_value_id: valueId
+            });
+        
+        }).to.throw(/JDOC-00010/);
+    
+    });
+
+    test("Get a valid date string as date", function() {
+    
+        let valueId = database.call("json_store.create_string", {
+            p_value: "2018-01-18"
+        });
+
+        let value = database.call("json_core.get_date", {
+            p_value_id: valueId
+        });
+    
+        expect(value).to.be("2018-01-18");
+    
+    });
+
+});    
+
 suite("GET_NUMBER", function() {
 
     test("NULL value ID", function() {

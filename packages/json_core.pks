@@ -82,6 +82,11 @@ CREATE OR REPLACE PACKAGE json_core IS
     )
     RETURN json_parser.t_parse_events;
     
+    FUNCTION date_events (
+        p_value IN DATE
+    )
+    RETURN json_parser.t_parse_events;
+    
     FUNCTION number_events (
         p_value IN NUMBER
     )
@@ -210,6 +215,11 @@ CREATE OR REPLACE PACKAGE json_core IS
     ) 
     RETURN VARCHAR2;
     
+    FUNCTION get_date (
+        p_value_id IN NUMBER
+    )
+    RETURN DATE;
+    
     FUNCTION get_number (
         p_value_id IN NUMBER
     ) 
@@ -231,6 +241,31 @@ CREATE OR REPLACE PACKAGE json_core IS
     RETURN CLOB;
     
     /* Some usefull generic methods */
+    
+    FUNCTION is_string (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN;
+    
+    FUNCTION is_date (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN;
+    
+    FUNCTION is_number (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN;
+    
+    FUNCTION is_boolean (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN;
+    
+    FUNCTION is_null (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN;
     
     FUNCTION is_object (
         p_value_id IN NUMBER

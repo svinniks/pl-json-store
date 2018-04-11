@@ -46,6 +46,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
     v_query_statement_cache t_query_statement_cache;
     
+    c_DATE_FORMAT CONSTANT VARCHAR2(4000) := 'FXYYYY-MM-DD';
+    
     PROCEDURE register_messages IS
     BEGIN
         default_message_resolver.register_message('JDOC-00001', 'Unexpected character ":1"!');
@@ -120,6 +122,26 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
         v_parse_event.name := 'STRING';
         v_parse_event.value := p_value;
+        
+        RETURN json_parser.t_parse_events(v_parse_event);
+    
+    END;
+    
+    FUNCTION date_events (
+        p_value IN DATE
+    )
+    RETURN json_parser.t_parse_events IS
+    
+        v_parse_event json_parser.t_parse_event;
+    
+    BEGIN
+            
+        IF p_value IS NULL THEN
+            v_parse_event.name := 'NULL';
+        ELSE
+            v_parse_event.name := 'STRING';
+            v_parse_event.value := TO_CHAR(p_value, 'YYYY-MM-DD');
+        END IF;
         
         RETURN json_parser.t_parse_events(v_parse_event);
     
@@ -2444,6 +2466,31 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     END;
     
+    FUNCTION get_date (
+        p_value_id IN NUMBER
+    )
+    RETURN DATE IS
+    
+        v_string_value VARCHAR2(4000);
+    
+    BEGIN
+    
+        v_string_value := get_string(p_value_id);
+        
+        IF v_string_value IS NULL THEN
+            RETURN NULL;
+        END IF;
+        
+        BEGIN
+            RETURN TO_DATE(v_string_value, c_DATE_FORMAT);
+        EXCEPTION
+            WHEN OTHERS THEN
+                -- Type conversion error!
+                error$.raise('JDOC-00010');
+        END;
+    
+    END;
+   
     FUNCTION get_number (
         p_value_id IN NUMBER
     ) 
@@ -2563,6 +2610,101 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     END;
     
     /* Some usefull generic methods */
+    
+    FUNCTION is_string (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN IS
+    
+        v_value t_value;
+    
+    BEGIN
+    
+        v_value := get_value(p_value_id);
+        
+        RETURN v_value.type = 'S';
+    
+    END;
+    
+    FUNCTION is_date (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN IS
+    
+        v_value t_value;
+        v_dummy DATE;
+    
+    BEGIN
+    
+        v_value := get_value(p_value_id);
+        
+        IF v_value.type != 'S' THEN
+        
+            RETURN FALSE;
+            
+        ELSE
+        
+            BEGIN
+            
+                v_dummy := TO_DATE(v_value.value, c_DATE_FORMAT);
+                
+                RETURN TRUE;
+                
+            EXCEPTION
+                WHEN OTHERS THEN
+                
+                    RETURN FALSE;
+                    
+            END;
+        
+        END IF;
+    
+    END;
+    
+    FUNCTION is_number (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN IS
+    
+        v_value t_value;
+    
+    BEGIN
+    
+        v_value := get_value(p_value_id);
+        
+        RETURN v_value.type = 'N';
+    
+    END;
+    
+    FUNCTION is_boolean (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN IS
+    
+        v_value t_value;
+    
+    BEGIN
+    
+        v_value := get_value(p_value_id);
+        
+        RETURN v_value.type = 'B';
+    
+    END;
+    
+    FUNCTION is_null (
+        p_value_id IN NUMBER
+    )
+    RETURN BOOLEAN IS
+    
+        v_value t_value;
+    
+    BEGIN
+    
+        v_value := get_value(p_value_id);
+        
+        RETURN v_value.type = 'E';
+    
+    END;
     
     FUNCTION is_object (
         p_value_id IN NUMBER

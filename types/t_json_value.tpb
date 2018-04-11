@@ -14,6 +14,18 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    STATIC FUNCTION create_date (
+        p_value IN DATE
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.create_json(json_core.date_events(p_value))
+        );
+    
+    END;
+    
     STATIC FUNCTION create_number (
         p_value IN NUMBER
     )
@@ -144,6 +156,14 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION as_date
+    RETURN DATE IS
+    BEGIN
+    
+        RETURN json_core.get_date(id);
+    
+    END;
+    
     MEMBER FUNCTION as_number
     RETURN NUMBER IS
     BEGIN
@@ -192,6 +212,46 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         ELSE
             RETURN t_json_value(v_value.parent_id);
         END IF;
+    
+    END;
+    
+    MEMBER FUNCTION is_string
+    RETURN BOOLEAN IS
+    BEGIN
+    
+        RETURN json_core.is_string(id);
+    
+    END;
+    
+    MEMBER FUNCTION is_date
+    RETURN BOOLEAN IS
+    BEGIN
+    
+        RETURN json_core.is_date(id);
+    
+    END;
+    
+    MEMBER FUNCTION is_number
+    RETURN BOOLEAN IS
+    BEGIN
+    
+        RETURN json_core.is_number(id);
+    
+    END;
+    
+    MEMBER FUNCTION is_boolean
+    RETURN BOOLEAN IS
+    BEGIN
+    
+        RETURN json_core.is_boolean(id);
+    
+    END;
+    
+    MEMBER FUNCTION is_null
+    RETURN BOOLEAN IS
+    BEGIN
+    
+        RETURN json_core.is_null(id);
     
     END;
     
@@ -270,6 +330,19 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN json_core.get_string (
+            json_core.request_value(id, p_path, p_bind)
+        );
+    
+    END;
+    
+    MEMBER FUNCTION get_date (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN DATE IS
+    BEGIN
+    
+        RETURN json_core.get_date (
             json_core.request_value(id, p_path, p_bind)
         );
     
@@ -358,6 +431,38 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         v_dummy  := set_string(p_path, p_value, p_bind);
+
+    END;
+    
+    MEMBER FUNCTION set_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    ) RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.set_property(
+                id,
+                p_path,
+                p_bind,
+                json_core.date_events(p_value)
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE set_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    ) IS 
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy  := set_date(p_path, p_value, p_bind);
 
     END;
     

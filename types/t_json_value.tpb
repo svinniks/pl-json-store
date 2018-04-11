@@ -228,7 +228,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     RETURN BOOLEAN IS
     BEGIN
     
-        RETURN json_core.request_child_value(id, p_path, p_bind) IS NOT NULL;
+        RETURN json_core.request_value(id, p_path, p_bind) IS NOT NULL;
     
     END;
     
@@ -252,7 +252,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     BEGIN
     
-        v_value_id := json_core.request_child_value(id, p_path, p_bind);
+        v_value_id := json_core.request_value(id, p_path, p_bind);
     
         IF v_value_id IS NULL THEN
             RETURN NULL;
@@ -270,7 +270,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN json_core.get_string (
-            json_core.request_child_value(id, p_path, p_bind)
+            json_core.request_value(id, p_path, p_bind)
         );
     
     END;
@@ -283,7 +283,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN json_core.get_number(
-            json_core.request_child_value(id, p_path, p_bind)
+            json_core.request_value(id, p_path, p_bind)
         );
     
     END;
@@ -296,7 +296,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN json_core.get_boolean(
-            json_core.request_child_value(id, p_path, p_bind)
+            json_core.request_value(id, p_path, p_bind)
         );
     
     END;
@@ -309,7 +309,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN json_core.get_json(
-            json_core.request_child_value(id, p_path, p_bind)
+            json_core.request_value(id, p_path, p_bind)
         );
     
     END;
@@ -322,7 +322,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN json_core.get_json_clob(
-            json_core.request_child_value(id, p_path, p_bind)
+            json_core.request_value(id, p_path, p_bind)
         );
     
     END;
@@ -337,7 +337,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.set_child_property(
+            json_core.set_property(
                 id,
                 p_path,
                 p_bind,
@@ -369,7 +369,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.set_child_property(
+            json_core.set_property(
                 id,
                 p_path,
                 p_bind,
@@ -401,7 +401,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.set_child_property(
+            json_core.set_property(
                 id,
                 p_path,
                 p_bind,
@@ -432,7 +432,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.set_child_property(
+            json_core.set_property(
                 id,
                 p_path,
                 p_bind,
@@ -462,7 +462,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.set_child_property(
+            json_core.set_property(
                 id,
                 p_path,
                 p_bind,
@@ -492,7 +492,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN t_json_value(
-            json_core.set_child_property(
+            json_core.set_property(
                 id,
                 p_path,
                 p_bind,
@@ -528,7 +528,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         json_parser.parse(p_content, v_parse_events);
     
         RETURN t_json_value(
-            json_core.set_child_property(
+            json_core.set_property(
                 id,
                 p_path,
                 p_bind,
@@ -565,7 +565,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         json_parser.parse(p_content, v_parse_events);
     
         RETURN t_json_value(
-            json_core.set_child_property(
+            json_core.set_property(
                 id,
                 p_path,
                 p_bind,
@@ -603,7 +603,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         json_core.get_parse_events(p_value.id, v_parse_events);
         
         RETURN t_json_value(
-            json_core.set_child_property(
+            json_core.set_property(
                 id,
                 p_path,
                 p_bind,
@@ -639,7 +639,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         RETURN t_json_value(
             json_core.push_json(
-                json_core.request_child_value(id, p_path, p_bind, TRUE), 
+                json_core.request_value(id, p_path, p_bind, TRUE), 
                 json_core.string_events(p_value)
             )
         );
@@ -694,7 +694,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         RETURN t_json_value(
             json_core.push_json(    
-                json_core.request_child_value(id, p_path, p_bind, TRUE), 
+                json_core.request_value(id, p_path, p_bind, TRUE), 
                 json_core.number_events(p_value)
             )
         );
@@ -749,7 +749,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         RETURN t_json_value(
             json_core.push_json(
-                json_core.request_child_value(id, p_path, p_bind, TRUE), 
+                json_core.request_value(id, p_path, p_bind, TRUE), 
                 json_core.boolean_events(p_value)
             )
         );
@@ -803,7 +803,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         RETURN t_json_value(
             json_core.push_json(
-                json_core.request_child_value(id, p_path, p_bind, TRUE), 
+                json_core.request_value(id, p_path, p_bind, TRUE), 
                 json_core.null_events
             )
         );
@@ -852,7 +852,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         RETURN t_json_value(
             json_core.push_json(
-                json_core.request_child_value(id, p_path, p_bind, TRUE), 
+                json_core.request_value(id, p_path, p_bind, TRUE), 
                 json_core.object_events
             )
         );
@@ -901,7 +901,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         RETURN t_json_value(
             json_core.push_json(
-                json_core.request_child_value(id, p_path, p_bind, TRUE), 
+                json_core.request_value(id, p_path, p_bind, TRUE), 
                 json_core.array_events
             )
         );
@@ -956,7 +956,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         
         RETURN t_json_value(
             json_core.push_json(
-                json_core.request_child_value(id, p_path, p_bind, TRUE), 
+                json_core.request_value(id, p_path, p_bind, TRUE), 
                 v_parse_events
             )
         );
@@ -1021,7 +1021,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         
         RETURN t_json_value(
             json_core.push_json(
-                json_core.request_child_value(id, p_path, p_bind, TRUE), 
+                json_core.request_value(id, p_path, p_bind, TRUE), 
                 v_parse_events
             )
         );

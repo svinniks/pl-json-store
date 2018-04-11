@@ -177,7 +177,7 @@ CREATE OR REPLACE PACKAGE json_core IS
     ) 
     RETURN NUMBER;
     
-    FUNCTION request_child_value (
+    FUNCTION request_value (
         p_parent_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind,
@@ -186,6 +186,7 @@ CREATE OR REPLACE PACKAGE json_core IS
     RETURN NUMBER;
     
     FUNCTION request_property (
+        p_parent_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind
     ) 
@@ -269,7 +270,7 @@ CREATE OR REPLACE PACKAGE json_core IS
     )
     RETURN NUMBER;
     
-    FUNCTION set_child_property (
+    FUNCTION set_property (
         p_parent_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind,

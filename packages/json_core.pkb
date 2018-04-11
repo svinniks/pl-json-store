@@ -2036,38 +2036,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         p_raise_not_found IN BOOLEAN := FALSE
     ) 
     RETURN NUMBER IS
-    
-        v_path_elements t_query_elements;
-    
     BEGIN
     
-        v_path_elements := parse_path(p_path);
-        
-        BEGIN
-        
-            RETURN request_value(p_path, v_path_elements, p_bind);
-            
-        EXCEPTION
-        
-            WHEN NO_DATA_FOUND THEN
-            
-                IF p_raise_not_found THEN
-                    -- Value :1 does not exist!
-                    error$.raise('JDOC-00009', p_path);
-                ELSE
-                    RETURN NULL;
-                END IF;
-                
-            WHEN TOO_MANY_ROWS THEN
-            
-                -- Multiple values found at the path :1!
-                error$.raise('JDOC-00004', p_path);
-                
-        END;
+        RETURN request_value(NULL, p_path, p_bind, p_raise_not_found);
     
     END;
     
-    FUNCTION request_child_value (
+    FUNCTION request_value (
         p_parent_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind,
@@ -2082,16 +2057,20 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     BEGIN
     
-        v_parent_value := get_value(p_parent_value_id);
+        v_path_elements := parse_path(p_path);
+    
+        IF p_parent_value_id IS NOT NULL THEN
         
-        v_path_elements := parse_query(p_path);
-        
-        v_path_elements.EXTEND(1);
-        v_path_elements(v_path_elements.COUNT) := v_path_elements(1);
-        
-        v_path_elements(1).type := 'I';
-        v_path_elements(1).value := p_parent_value_id;
-        v_path_elements(1).first_child_i := v_path_elements.COUNT;
+            v_parent_value := get_value(p_parent_value_id);
+            
+            v_path_elements.EXTEND(1);
+            v_path_elements(v_path_elements.COUNT) := v_path_elements(1);
+            
+            v_path_elements(1).type := 'I';
+            v_path_elements(1).value := p_parent_value_id;
+            v_path_elements(1).first_child_i := v_path_elements.COUNT;
+            
+        END IF;
         
         BEGIN
         
@@ -2118,10 +2097,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     END;
     
     FUNCTION request_property (
+        p_parent_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind
     ) 
     RETURN t_property IS
+    
+        v_parent_value t_value;
     
         v_path_elements t_query_elements;
         v_path_statement t_query_statement;
@@ -2136,14 +2118,29 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
     BEGIN
     
-        v_path_elements := parse_query(p_path);
+        v_path_elements := parse_path(p_path);
+        
+        IF v_path_elements(v_path_elements.COUNT).type NOT IN ('N', 'V') THEN
+            -- Invalid property name!
+            error$.raise('JDOC-00022');
+        END IF;
+        
+        IF p_parent_value_id IS NOT NULL THEN
+        
+            v_parent_value := get_value(p_parent_value_id);
+            
+            v_path_elements.EXTEND(1);
+            v_path_elements(v_path_elements.COUNT) := v_path_elements(1);
+            
+            v_path_elements(1).type := 'I';
+            v_path_elements(1).value := p_parent_value_id;
+            v_path_elements(1).first_child_i := v_path_elements.COUNT;
+            
+        END IF;
         
         IF v_path_elements.COUNT < 2 THEN
             -- Property name missing!
             error$.raise('JDOC-00041');
-        ELSIF v_path_elements(v_path_elements.COUNT).type NOT IN ('N', 'V') THEN
-            -- Invalid property name!
-            error$.raise('JDOC-00022');
         END IF;
         
         v_path_statement := get_query_statement(v_path_elements, c_PROPERTY_QUERY);
@@ -2644,12 +2641,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             error$.raise('JDOC-00012');
         END IF;
         
-        SELECT NVL(MAX(to_index(name)), -1)
+        SELECT NVL(MAX(to_index(name)) + 1, 0)
         INTO v_length
         FROM json_values 
         WHERE parent_id = p_array_id;
         
-        RETURN v_length + 1;
+        RETURN v_length;
     
     END;
     
@@ -2869,8 +2866,20 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
     END;
     
+    FUNCTION set_property (
+        p_path IN VARCHAR2,
+        p_bind IN bind,
+        p_content_parse_events IN json_parser.t_parse_events
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN set_property(NULL, p_path, p_bind, p_content_parse_events);
+    
+    END;
     
     FUNCTION set_property (
+        p_parent_value_id IN NUMBER,
         p_path IN VARCHAR2,
         p_bind IN bind,
         p_content_parse_events IN json_parser.t_parse_events
@@ -2888,7 +2897,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
     BEGIN
 
-        v_property := request_property(p_path, p_bind);
+        v_property := request_property(p_parent_value_id, p_path, p_bind);
         v_index := to_index(v_property.property_name);
         
         v_existing_ids := t_numbers();
@@ -2897,16 +2906,16 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         IF v_property.property_locked = 'T' THEN
             -- Value :1 is locked!
             error$.raise('JDOC-00024', p_path);
-        END IF;
-
-        IF NVL(v_property.parent_type, 'R') NOT IN ('R', 'O', 'A') THEN
+        ELSIF NVL(v_property.parent_type, 'R') NOT IN ('R', 'O', 'A') THEN
             -- Scalar values and null can't have properties!
             error$.raise('JDOC-00008');
         END IF;
 
         IF v_property.property_id IS NOT NULL THEN
-            v_existing_ids.EXTEND(1);
-            v_existing_ids(v_existing_ids.COUNT) := v_property.property_id;
+            
+            DELETE FROM json_values
+            WHERE id = v_property.property_id;
+            
         END IF;
 
         IF v_property.parent_type = 'A' THEN
@@ -2916,7 +2925,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 error$.raise('JDOC-00013');
             END IF;
                 
-            v_length := t_json_value(v_property.parent_id).get_length;
+            v_length := get_length(v_property.parent_id);
                 
             IF v_index > v_length THEN
                     
@@ -2933,14 +2942,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             END IF;
             
         END IF;
-
-        IF v_existing_ids.COUNT > 0 THEN
-
-            FORALL v_i IN 1..v_existing_ids.COUNT
-                DELETE FROM json_values
-                WHERE id = v_existing_ids(v_i);
-
-        END IF;
                 
         IF v_gap_values.COUNT > 0 THEN
         
@@ -2956,49 +2957,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
            ,p_content_parse_events
         );
 
-    END;
-    
-    FUNCTION set_child_property (
-        p_parent_value_id IN NUMBER,
-        p_path IN VARCHAR2,
-        p_bind IN bind,
-        p_content_parse_events IN json_parser.t_parse_events
-    )
-    RETURN NUMBER IS
-    
-        v_parent_value t_value;
-        v_path VARCHAR2(32000);
-        v_bind bind;
-    
-    BEGIN
-    
-        v_parent_value := get_value(p_parent_value_id);
-        
-        IF SUBSTR(TRIM(p_path), 1, 1) = '[' THEN
-            v_path := '#self' || p_path;
-        ELSE
-            v_path := '#self.' || p_path;
-        END IF;
-        
-        IF p_bind IS NULL THEN
-            
-            RETURN set_property(v_path, bind(p_parent_value_id), p_content_parse_events);
-        
-        ELSE
-        
-            v_bind := bind();
-            v_bind.EXTEND(p_bind.COUNT + 1);
-            
-            v_bind(1) := p_parent_value_id;
-            
-            FOR v_i IN 1..p_bind.COUNT LOOP
-                v_bind(v_i + 1) := p_bind(v_i);
-            END LOOP;
-        
-            RETURN set_property(v_path, v_bind, p_content_parse_events);
-        
-        END IF;
-        
     END;
     
     FUNCTION push_json (

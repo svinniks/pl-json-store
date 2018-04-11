@@ -322,6 +322,16 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION get (
+        p_index IN NUMBER
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN get(':i', bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION get_string (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -332,6 +342,16 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         RETURN json_core.get_string (
             json_core.request_value(id, p_path, p_bind)
         );
+    
+    END;
+    
+    MEMBER FUNCTION get_string (
+        p_index IN NUMBER
+    )
+    RETURN VARCHAR2 IS
+    BEGIN
+    
+        RETURN get_string(':i', bind(p_index));
     
     END;
     
@@ -348,6 +368,16 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION get_date (
+        p_index IN NUMBER
+    )
+    RETURN DATE IS
+    BEGIN
+    
+        RETURN get_date(':i', bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION get_number (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -358,6 +388,16 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         RETURN json_core.get_number(
             json_core.request_value(id, p_path, p_bind)
         );
+    
+    END;
+    
+    MEMBER FUNCTION get_number (
+        p_index IN NUMBER
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN get_number(':i', bind(p_index));
     
     END;
     
@@ -374,6 +414,16 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION get_boolean (
+        p_index IN NUMBER
+    )
+    RETURN BOOLEAN IS
+    BEGIN
+    
+        RETURN get_boolean(':i', bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION get_json (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -387,16 +437,36 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION get_json (
+        p_index IN NUMBER
+    )
+    RETURN VARCHAR2 IS
+    BEGIN
+    
+        RETURN get_json(':i', bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION get_json_clob (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     )
-    RETURN VARCHAR2 IS
+    RETURN CLOB IS
     BEGIN
     
         RETURN json_core.get_json_clob(
             json_core.request_value(id, p_path, p_bind)
         );
+    
+    END;
+    
+    MEMBER FUNCTION get_json_clob (
+        p_index IN NUMBER
+    )
+    RETURN CLOB IS
+    BEGIN
+    
+        RETURN get_json_clob(':i', bind(p_index));
     
     END;
     
@@ -406,7 +476,8 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_path IN VARCHAR2,
         p_value IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN t_json_value IS
+    ) 
+    RETURN t_json_value IS
     BEGIN
     
         RETURN t_json_value(
@@ -434,11 +505,33 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
 
     END;
     
+    MEMBER FUNCTION set_string (
+        p_index IN NUMBER,
+        p_value IN VARCHAR2
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_string(':i', p_value, bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_string (
+        p_index IN NUMBER,
+        p_value IN VARCHAR2
+    ) IS
+    BEGIN
+    
+        set_string(':i', p_value, bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION set_date (
         p_path IN VARCHAR2,
         p_value IN DATE,
         p_bind IN bind := NULL
-    ) RETURN t_json_value IS
+    ) 
+    RETURN t_json_value IS
     BEGIN
     
         RETURN t_json_value(
@@ -466,11 +559,33 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
 
     END;
     
+    MEMBER FUNCTION set_date (
+        p_index IN NUMBER,
+        p_value IN DATE
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_date(':i', p_value, bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_date (
+        p_index IN NUMBER,
+        p_value IN DATE
+    ) IS
+    BEGIN
+    
+        set_date(':i', p_value, bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION set_number (
         p_path IN VARCHAR2,
         p_value IN NUMBER,
         p_bind IN bind := NULL
-    ) RETURN t_json_value IS
+    ) 
+    RETURN t_json_value IS
     BEGIN
     
         RETURN t_json_value(
@@ -498,11 +613,33 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION set_number (
+        p_index IN NUMBER,
+        p_value IN NUMBER
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_number(':i', p_value, bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_number (
+        p_index IN NUMBER,
+        p_value IN NUMBER
+    ) IS
+    BEGIN
+    
+        set_number(':i', p_value, bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION set_boolean (
         p_path IN VARCHAR2,
         p_value IN BOOLEAN,
         p_bind IN bind := NULL
-    ) RETURN t_json_value IS
+    ) 
+    RETURN t_json_value IS
     BEGIN
     
         RETURN t_json_value(
@@ -530,10 +667,32 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION set_boolean (
+        p_index IN NUMBER,
+        p_value IN BOOLEAN
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_boolean(':i', p_value, bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_boolean (
+        p_index IN NUMBER,
+        p_value IN BOOLEAN
+    ) IS
+    BEGIN
+    
+        set_boolean(':i', p_value, bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION set_null (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN t_json_value IS
+    ) 
+    RETURN t_json_value IS
     BEGIN
     
         RETURN t_json_value(
@@ -560,10 +719,30 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         
     END;
     
+    MEMBER FUNCTION set_null (
+        p_index IN NUMBER
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_null(':i', bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_null (
+        p_index IN NUMBER
+    ) IS
+    BEGIN
+    
+        set_null(':i', bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION set_object (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN t_json_value IS
+    ) 
+    RETURN t_json_value IS
     BEGIN
     
         RETURN t_json_value(
@@ -587,6 +766,25 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         v_dummy := set_object(p_path, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION set_object (
+        p_index IN NUMBER
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_object(':i', bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_object (
+        p_index IN NUMBER
+    ) IS
+    BEGIN
+    
+        set_object(':i', bind(p_index));
     
     END;
     
@@ -620,6 +818,25 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         
     END;
     
+    MEMBER FUNCTION set_array (
+        p_index IN NUMBER
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_array(':i', bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_array (
+        p_index IN NUMBER
+    ) IS
+    BEGIN
+    
+        set_array(':i', bind(p_index));
+    
+    END;
+    
     MEMBER FUNCTION set_json (
         p_path IN VARCHAR2,
         p_content IN VARCHAR2,
@@ -658,6 +875,27 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER FUNCTION set_json (
+        p_index IN NUMBER,
+        p_content IN VARCHAR2
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_json(':i', p_content, bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_json (
+        p_index IN NUMBER,
+        p_content IN VARCHAR2
+    ) IS
+    BEGIN
+    
+        set_json(':i', p_content, bind(p_index));
+    
+    END;
+    
+    MEMBER FUNCTION set_json (
         p_path IN VARCHAR2,
         p_content IN CLOB,
         p_bind IN bind := NULL
@@ -692,6 +930,27 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         v_dummy  := set_json(p_path, p_content, p_bind);
 
+    END;
+    
+    MEMBER FUNCTION set_json (
+        p_index IN NUMBER,
+        p_content IN CLOB
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_json(':i', p_content, bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_json (
+        p_index IN NUMBER,
+        p_content IN CLOB
+    ) IS
+    BEGIN
+    
+        set_json(':i', p_content, bind(p_index));
+    
     END;
     
     MEMBER FUNCTION set_copy (
@@ -729,6 +988,27 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         v_dummy := set_copy(p_path, p_value, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION set_copy (
+        p_index IN NUMBER,
+        p_value IN t_json_value
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_copy(':i', p_value, bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_copy (
+        p_index IN NUMBER,
+        p_value IN t_json_value
+    ) IS
+    BEGIN
+    
+        set_copy(':i', p_value, bind(p_index));
     
     END;
     

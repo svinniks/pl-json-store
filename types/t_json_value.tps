@@ -125,9 +125,19 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     )
     RETURN t_json_value,
     
+    MEMBER FUNCTION get (
+        p_index IN NUMBER
+    )
+    RETURN t_json_value,
+    
     MEMBER FUNCTION get_string (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
+    )
+    RETURN VARCHAR2,
+    
+    MEMBER FUNCTION get_string (
+        p_index IN NUMBER
     )
     RETURN VARCHAR2,
     
@@ -137,9 +147,19 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     )
     RETURN DATE,
     
+    MEMBER FUNCTION get_date (
+        p_index IN NUMBER
+    )
+    RETURN DATE,
+    
     MEMBER FUNCTION get_number (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
+    )
+    RETURN NUMBER,
+    
+    MEMBER FUNCTION get_number (
+        p_index IN NUMBER
     )
     RETURN NUMBER,
     
@@ -149,9 +169,19 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     )
     RETURN BOOLEAN,
     
+    MEMBER FUNCTION get_boolean (
+        p_index IN NUMBER
+    )
+    RETURN BOOLEAN,
+    
     MEMBER FUNCTION get_json (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
+    )
+    RETURN VARCHAR2,
+    
+    MEMBER FUNCTION get_json (
+        p_index IN NUMBER
     )
     RETURN VARCHAR2,
     
@@ -159,7 +189,12 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     )
-    RETURN VARCHAR2,
+    RETURN CLOB,
+    
+    MEMBER FUNCTION get_json_clob (
+        p_index IN NUMBER
+    )
+    RETURN CLOB,
     
     /* Property modification methods */
     
@@ -176,6 +211,17 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_bind IN bind := NULL
     ),
     
+    MEMBER FUNCTION set_string (
+        p_index IN NUMBER,
+        p_value IN VARCHAR2
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_string (
+        p_index IN NUMBER,
+        p_value IN VARCHAR2
+    ),
+    
     MEMBER FUNCTION set_date (
         p_path IN VARCHAR2,
         p_value IN DATE,
@@ -187,6 +233,17 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_value IN DATE,
         p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION set_date (
+        p_index IN NUMBER,
+        p_value IN DATE
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_date (
+        p_index IN NUMBER,
+        p_value IN DATE
     ),
     
     MEMBER FUNCTION set_number (
@@ -202,6 +259,17 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_bind IN bind := NULL
     ),
     
+    MEMBER FUNCTION set_number (
+        p_index IN NUMBER,
+        p_value IN NUMBER
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_number (
+        p_index IN NUMBER,
+        p_value IN NUMBER
+    ),
+    
     MEMBER FUNCTION set_boolean (
         p_path IN VARCHAR2,
         p_value IN BOOLEAN,
@@ -215,6 +283,17 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_bind IN bind := NULL
     ),
     
+    MEMBER FUNCTION set_boolean (
+        p_index IN NUMBER,
+        p_value IN BOOLEAN
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_boolean (
+        p_index IN NUMBER,
+        p_value IN BOOLEAN
+    ),
+    
     MEMBER FUNCTION set_null (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -224,6 +303,15 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER PROCEDURE set_null (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION set_null (
+        p_index IN NUMBER
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_null (
+        p_index IN NUMBER
     ),
     
     MEMBER FUNCTION set_object (
@@ -237,6 +325,15 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_bind IN bind := NULL
     ),
     
+    MEMBER FUNCTION set_object (
+        p_index IN NUMBER
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_object (
+        p_index IN NUMBER
+    ),
+    
     MEMBER FUNCTION set_array (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
@@ -248,6 +345,15 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_bind IN bind := NULL
     ),
     
+    MEMBER FUNCTION set_array (
+        p_index IN NUMBER
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_array (
+        p_index IN NUMBER
+    ),
+    
     MEMBER FUNCTION set_json (
         p_path IN VARCHAR2,
         p_content IN VARCHAR2,
@@ -262,6 +368,17 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     ),
     
     MEMBER FUNCTION set_json (
+        p_index IN NUMBER,
+        p_content IN VARCHAR2
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_json (
+        p_index IN NUMBER,
+        p_content IN VARCHAR2
+    ),
+    
+    MEMBER FUNCTION set_json (
         p_path IN VARCHAR2,
         p_content IN CLOB,
         p_bind IN bind := NULL
@@ -272,6 +389,17 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_content IN CLOB,
         p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION set_json (
+        p_index IN NUMBER,
+        p_content IN CLOB
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_json (
+        p_index IN NUMBER,
+        p_content IN CLOB
     ),
     
     MEMBER FUNCTION set_copy (
@@ -285,6 +413,17 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_value IN t_json_value,
         p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION set_copy (
+        p_index IN NUMBER,
+        p_value IN t_json_value
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_copy (
+        p_index IN NUMBER,
+        p_value IN t_json_value
     ),
     
     /* Array push methods */

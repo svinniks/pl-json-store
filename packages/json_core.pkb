@@ -3030,7 +3030,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
         v_property t_property;
 
-        v_existing_ids t_numbers;
         v_parent_id NUMBER;
         
         v_index NUMBER;
@@ -3042,13 +3041,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_property := request_property(p_parent_value_id, p_path, p_bind);
         v_index := to_index(v_property.property_name);
         
-        v_existing_ids := t_numbers();
         v_gap_values := t_json_values();
 
         IF v_property.property_locked = 'T' THEN
             -- Value :1 is locked!
             error$.raise('JDOC-00024', p_path);
-        ELSIF NVL(v_property.parent_type, 'R') NOT IN ('R', 'O', 'A') THEN
+        ELSIF v_property.parent_type NOT IN ('R', 'O', 'A') THEN
             -- Scalar values and null can't have properties!
             error$.raise('JDOC-00008');
         END IF;

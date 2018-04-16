@@ -584,6 +584,13 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     
     MEMBER PROCEDURE push_json (
         p_content IN CLOB
+    ),
+    
+    /* Property deletion */
+    
+    MEMBER PROCEDURE remove (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
     )
     
     /*

@@ -1455,5 +1455,17 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         v_dummy := push_json(p_content);
     
     END;
+    
+    MEMBER PROCEDURE remove (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    BEGIN
+    
+        json_core.delete_value(
+            json_core.request_value(id, p_path, p_bind)
+        );
+    
+    END;
 
 END;

@@ -1460,11 +1460,16 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
+    
+        v_value_id NUMBER;
+    
     BEGIN
     
-        json_core.delete_value(
-            json_core.request_value(id, p_path, p_bind)
-        );
+        v_value_id := json_core.request_value(id, p_path, p_bind);
+    
+        IF v_value_id IS NOT NULL THEN
+            json_core.delete_value(v_value_id);
+        END IF;
     
     END;
 

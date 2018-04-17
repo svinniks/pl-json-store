@@ -2989,7 +2989,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     RETURN NUMBER IS
     
         v_event_i PLS_INTEGER;
-        v_value t_json_value;
     
     BEGIN
     

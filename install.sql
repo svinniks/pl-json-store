@@ -50,24 +50,35 @@ COMMIT
 @@packages/json_parser.pkb
 /
 
-@@types/t_json_value.tps
-/
-@@types/t_value_table_query.tps
-/
-
 @@packages/json_core.pks
 /
-@@packages/json_store.pks
+@@packages/json_core.pkb
 /
 
+@@types/t_json_value.tps
+/
 @@types/t_json_value.tpb
+/
+
+@@types/t_value_table_query.tps
 /
 @@types/t_value_table_query.tpb
 /
 
-@@packages/json_core.pkb
+@@packages/json_store.pks
 /
 @@packages/json_store.pkb
+/
+
+@@functions/json_table.fnc
+/
+@@functions/json_table_5.fnc
+/
+@@functions/json_table_10.fnc
+/
+@@functions/json_table_15.fnc
+/
+@@functions/json_table_20.fnc
 /
 
 @@packages/json_data_generator.pks
@@ -77,4 +88,4 @@ COMMIT
 @@packages/json_data_generator.pkb
 /
 
-
+@@public_synonyms.sql

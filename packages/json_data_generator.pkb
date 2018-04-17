@@ -212,7 +212,7 @@ END;';
             
             SELECT value_1 
             INTO v_dummy
-            FROM TABLE(json_store.get_5_value_table(c_type_register_path));
+            FROM TABLE(json_table_5(c_type_register_path));
         
         EXCEPTION
             WHEN NO_DATA_FOUND THEN

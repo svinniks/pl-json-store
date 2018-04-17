@@ -13,9 +13,38 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
+DROP PUBLIC SYNONYM json_table
+/
+DROP PUBLIC SYNONYM json_table_5
+/
+DROP PUBLIC SYNONYM json_table_10
+/
+DROP PUBLIC SYNONYM json_table_15
+/
+DROP PUBLIC SYNONYM json_table_20
+/
+DROP PUBLIC SYNONYM json
+/
+DROP PUBLIC SYNONYM json_store
+/
+DROP PUBLIC SYNONYM bind
+/
+
 DROP PACKAGE json_data_generator
 /
 DROP VIEW json_data_registered_types
+/
+
+DROP FUNCTION json_table
+/
+DROP FUNCTION json_table_5
+/
+DROP FUNCTION json_table_10
+/
+DROP FUNCTION json_table_15
+/
+DROP FUNCTION json_table_20
 /
 
 DROP PACKAGE json_store

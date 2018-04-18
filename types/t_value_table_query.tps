@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE t_value_table_query AUTHID CURRENT_USER AS OBJECT (
+CREATE OR REPLACE TYPE t_value_table_query IS OBJECT (
 
     /* 
         Copyright 2018 Sergejs Vinniks

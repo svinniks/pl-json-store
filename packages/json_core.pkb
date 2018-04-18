@@ -2015,6 +2015,21 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     END;
     
+    FUNCTION to_refcursor (
+        p_cursor_id IN INTEGER
+    )
+    RETURN SYS_REFCURSOR IS
+    
+        v_cursor_id INTEGER;
+    
+    BEGIN
+    
+        v_cursor_id := p_cursor_id;
+        
+        RETURN DBMS_SQL.TO_REFCURSOR(v_cursor_id);
+    
+    END;
+    
     /* JSON value retrieval and serialization */
     
     FUNCTION request_value (

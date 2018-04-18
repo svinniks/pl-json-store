@@ -245,6 +245,11 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_bind IN bind
     )
     RETURN INTEGER;
+    
+    FUNCTION to_refcursor (
+        p_cursor_id IN INTEGER
+    )
+    RETURN SYS_REFCURSOR;
         
     /* Generic methods for JSON value retrieval and serialization */
     

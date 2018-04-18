@@ -159,6 +159,14 @@ test("Data fetching from a query without bind variables", function() {
 
     expect(cursorId).to.not.be(null);
     
+    database.run(`
+        DECLARE
+            v_result INTEGER;
+        BEGIN
+            v_result := DBMS_SQL.EXECUTE(${cursorId});
+        END;
+    `);
+
     let objects = database.selectValue(`
         json_core.to_refcursor(${cursorId}) AS "VALUES"
     FROM dual`);
@@ -203,6 +211,14 @@ test("Data fetching from a query with bind variables", function() {
     });
 
     expect(cursorId).to.not.be(null);
+
+    database.run(`
+        DECLARE
+            v_result INTEGER;
+        BEGIN
+            v_result := DBMS_SQL.EXECUTE(${cursorId});
+        END;
+    `);
     
     let objects = database.selectValue(`
         json_core.to_refcursor(${cursorId}) AS "VALUES"
@@ -243,11 +259,19 @@ test("Pass non-number into ID bind variable", function() {
 
     expect(function() {
     
-        database.call("json_core.prepare_query", {
+        let cursorId = database.call("json_core.prepare_query", {
             p_query_elements: elements,
             p_query_statement: statement,
             p_bind: ["abc", "city"]
-        });        
+        });    
+        
+        database.run(`
+            DECLARE
+                v_result INTEGER;
+            BEGIN
+                v_result := DBMS_SQL.EXECUTE(${cursorId});
+            END;
+        `);
     
     }).to.throw(/ORA-01722/);
 

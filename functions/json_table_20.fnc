@@ -11,6 +11,7 @@ RETURN json_core.t_20_value_table PIPELINED IS
     v_query_statement json_core.t_query_statement;
     
     v_cursor_id INTEGER;
+    v_result INTEGER;
     c_rows SYS_REFCURSOR;
     
     v_row_buffer json_core.t_20_value_table;
@@ -22,6 +23,7 @@ BEGIN
     v_query_statement := json_core.get_query_statement(v_query_elements, json_core.c_TABLE_QUERY, 20);
     
     v_cursor_id := json_core.prepare_query(v_query_elements, v_query_statement, p_bind);
+    v_result := DBMS_SQL.EXECUTE(v_cursor_id);
     c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
         
     LOOP

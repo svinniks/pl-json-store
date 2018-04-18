@@ -38,6 +38,8 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
         v_query_elements json_core.t_query_elements;
         v_query_statement json_core.t_query_statement;
     
+        v_result INTEGER;
+    
         v_columns DBMS_SQL.DESC_TAB;
     
     BEGIN
@@ -51,6 +53,7 @@ CREATE OR REPLACE TYPE BODY t_value_table_query IS
             p_bind
         );
         
+        v_result := DBMS_SQL.EXECUTE(p_context.cursor_id);
         DBMS_SQL.DESCRIBE_COLUMNS(p_context.cursor_id, p_context.column_count, v_columns); 
         
         p_context.fetched_row_count := NULL;

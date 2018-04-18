@@ -342,14 +342,26 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     BEGIN
     
         v_entry_id := p_value.id;
-        v_json_value_cache(v_entry_id) := p_value;
         
-        IF v_json_value_cache.COUNT > v_value_cache_capacity THEN
-            v_json_value_cache.DELETE(v_value_cache_tail_id);
-            unlink_value_cache_entry(v_value_cache_tail_id);
-        END IF;
+        IF v_json_value_cache.EXISTS(v_entry_id) THEN
+        
+            IF v_entry_id != v_value_cache_head_id THEN
+                unlink_value_cache_entry(v_entry_id, FALSE);
+                link_value_cache_entry(v_entry_id);
+            END IF;
             
-        link_value_cache_entry(v_entry_id);
+        ELSE
+        
+            v_json_value_cache(v_entry_id) := p_value;
+            
+            IF v_json_value_cache.COUNT > v_value_cache_capacity THEN
+                v_json_value_cache.DELETE(v_value_cache_tail_id);
+                unlink_value_cache_entry(v_value_cache_tail_id);
+            END IF;
+                
+            link_value_cache_entry(v_entry_id);
+            
+        END IF;
     
     END;
     
@@ -394,7 +406,14 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     error$.raise('JDOC-00009', '#' || v_entry_id);
             END;
         
-            cache_value(v_value);
+            v_json_value_cache(v_entry_id) := v_value;
+        
+            IF v_json_value_cache.COUNT > v_value_cache_capacity THEN
+                v_json_value_cache.DELETE(v_value_cache_tail_id);
+                unlink_value_cache_entry(v_value_cache_tail_id);
+            END IF;
+                
+            link_value_cache_entry(v_entry_id);
             
             RETURN v_value;
         
@@ -1967,7 +1986,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_constants t_varchars;
         
         v_cursor_id INTEGER;
-        v_result INTEGER;
     
     BEGIN
         
@@ -2009,8 +2027,6 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':const' || v_i, v_constants(v_i));
         END LOOP;
         
-        v_result := DBMS_SQL.EXECUTE(v_cursor_id);
-        
         RETURN v_cursor_id;
     
     END;
@@ -2042,10 +2058,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_path_statement t_query_statement;
         
         v_cursor_id INTEGER;
+        v_result INTEGER;
         v_fetched_row_count INTEGER;
         
-        v_number_values DBMS_SQL.NUMBER_TABLE;
-        v_string_values DBMS_SQL.VARCHAR2_TABLE;
+        v_number NUMBER;
+        v_string VARCHAR2(4000);
+        v_char CHAR;
         
         v_value t_value;
     
@@ -2054,48 +2072,33 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_path_statement := get_query_statement(p_path_elements, c_VALUE_QUERY);
         v_cursor_id := prepare_query(p_path_elements, v_path_statement, p_bind);
         
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 1, v_number_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 2, v_number_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 3, v_string_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 4, v_string_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 5, v_string_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 6, v_string_values, 2, 1);
+        DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 1, v_number);
+        DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 2, v_number);
+        DBMS_SQL.DEFINE_COLUMN_CHAR(v_cursor_id, 3, v_char, 1);
+        DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 4, v_string, 4000);
+        DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 5, v_string, 4000);
+        DBMS_SQL.DEFINE_COLUMN_CHAR(v_cursor_id, 6, v_char, 1);
         
-        v_fetched_row_count := DBMS_SQL.FETCH_ROWS(v_cursor_id);
+        BEGIN
         
-        IF v_fetched_row_count = 0 THEN
-        
-            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
-        
-            RAISE NO_DATA_FOUND;
+            v_fetched_row_count := DBMS_SQL.EXECUTE_AND_FETCH(v_cursor_id, TRUE);
             
-        ELSIF v_fetched_row_count = 2 THEN
+        EXCEPTION
+            WHEN NO_DATA_FOUND OR TOO_MANY_ROWS THEN
+                DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+                RAISE;
+        END;
         
-            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
-        
-            RAISE TOO_MANY_ROWS;
-            
-        END IF;
-        
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 1, v_number_values);
-        v_value.id := v_number_values(1);
-        
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 2, v_number_values);
-        v_value.parent_id := v_number_values(1);
-        
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 3, v_string_values);
-        v_value.type := v_string_values(1);
-        
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 4, v_string_values);
-        v_value.name := v_string_values(1);
-        
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 5, v_string_values);
-        v_value.value := v_string_values(1);
-        
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 6, v_string_values);
-        v_value.locked := v_string_values(1);
+        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 1, v_value.id);
+        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 2, v_value.parent_id);
+        DBMS_SQL.COLUMN_VALUE_CHAR(v_cursor_id, 3, v_value.type);
+        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 4, v_value.name);
+        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 5, v_value.value);
+        DBMS_SQL.COLUMN_VALUE_CHAR(v_cursor_id, 6, v_value.locked);
         
         DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+        
+        cache_value(v_value);
         
         RETURN v_value.id;
         
@@ -2182,8 +2185,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_cursor_id INTEGER;
         v_fetched_row_count INTEGER;
         
-        v_number_values DBMS_SQL.NUMBER_TABLE;
-        v_string_values DBMS_SQL.VARCHAR2_TABLE;
+        v_number NUMBER;
+        v_char CHAR;
+        v_string VARCHAR2(4000);
         
         v_property t_property;
             
@@ -2217,48 +2221,41 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_path_statement := get_query_statement(v_path_elements, c_PROPERTY_QUERY);
         v_cursor_id := prepare_query(v_path_elements, v_path_statement, p_bind);
         
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 1, v_number_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 2, v_string_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 3, v_number_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 4, v_string_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 5, v_string_values, 2, 1);
-        DBMS_SQL.DEFINE_ARRAY(v_cursor_id, 6, v_string_values, 2, 1);
+        DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 1, v_number);
+        DBMS_SQL.DEFINE_COLUMN_CHAR(v_cursor_id, 2, v_char, 1);
+        DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 3, v_number);
+        DBMS_SQL.DEFINE_COLUMN_CHAR(v_cursor_id, 4, v_char, 1);
+        DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 5, v_string, 4000);
+        DBMS_SQL.DEFINE_COLUMN_CHAR(v_cursor_id, 6, v_char, 1);
         
-        v_fetched_row_count := DBMS_SQL.FETCH_ROWS(v_cursor_id);
+        BEGIN
         
-        IF v_fetched_row_count = 0 THEN
-        
-            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
-        
-            -- No container for property at path :1 could be found!
-            error$.raise('JDOC-00007', p_path);
+            v_fetched_row_count := DBMS_SQL.EXECUTE_AND_FETCH(v_cursor_id, TRUE);
             
-        ELSIF v_fetched_row_count = 2 THEN
+        EXCEPTION
         
-            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
-        
-            -- Multiple values found at the path :1!
-            error$.raise('JDOC-00004', p_path);
+            WHEN NO_DATA_FOUND THEN
             
-        END IF;
+                DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
         
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 1, v_number_values);
-        v_property.parent_id := v_number_values(1);
+                -- No container for property at path :1 could be found!
+                error$.raise('JDOC-00007', p_path);
+            
+            WHEN TOO_MANY_ROWS THEN
+            
+                DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
         
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 2, v_string_values);
-        v_property.parent_type := v_string_values(1);
+                -- Multiple values found at the path :1!
+                error$.raise('JDOC-00004', p_path);
+                
+        END;
         
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 3, v_number_values);
-        v_property.property_id := v_number_values(1);
-        
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 4, v_string_values);
-        v_property.property_type := v_string_values(1);
-        
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 5, v_string_values);
-        v_property.property_name := v_string_values(1);
-        
-        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 6, v_string_values);
-        v_property.property_locked := v_string_values(1);
+        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 1, v_property.parent_id);
+        DBMS_SQL.COLUMN_VALUE_CHAR(v_cursor_id, 2, v_property.parent_type);
+        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 3, v_property.property_id);
+        DBMS_SQL.COLUMN_VALUE_CHAR(v_cursor_id, 4, v_property.property_type);
+        DBMS_SQL.COLUMN_VALUE(v_cursor_id, 5, v_property.property_name);
+        DBMS_SQL.COLUMN_VALUE_CHAR(v_cursor_id, 6, v_property.property_locked);
         
         DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
         

@@ -198,7 +198,7 @@ CREATE OR REPLACE PACKAGE json_core IS
     FUNCTION get_value (
         p_id IN NUMBER
     )
-    RETURN json_values%ROWTYPE;
+    RETURN t_value;
     
     /* JSON query API methods */
     
@@ -245,11 +245,6 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_bind IN bind
     )
     RETURN INTEGER;
-    
-    FUNCTION to_refcursor (
-        p_cursor_id IN INTEGER
-    )
-    RETURN SYS_REFCURSOR;
         
     /* Generic methods for JSON value retrieval and serialization */
     

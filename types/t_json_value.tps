@@ -591,16 +591,44 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER PROCEDURE remove (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
+    ),
+    
+    /* Value pinning */
+    
+    MEMBER PROCEDURE pin (
+        self IN t_json_value,
+        p_pin_tree IN BOOLEAN := FALSE
+    ),
+    
+    MEMBER PROCEDURE pin (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER PROCEDURE pin (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_pin_tree IN BOOLEAN,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER PROCEDURE unpin (
+        self IN t_json_value,
+        p_unpin_tree IN BOOLEAN := FALSE
+    ),
+    
+    MEMBER PROCEDURE unpin (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER PROCEDURE unpin (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_unpin_tree IN BOOLEAN,
+        p_bind IN bind := NULL
     )
-    
-    /*
-    MEMBER PROCEDURE "lock",
-    
-    MEMBER PROCEDURE lock_tree,
-    
-    MEMBER PROCEDURE unlock,
-    
-    MEMBER PROCEDURE unlock_tree
-    */
-    
+        
 );

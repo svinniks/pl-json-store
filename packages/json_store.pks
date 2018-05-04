@@ -383,14 +383,28 @@ CREATE OR REPLACE PACKAGE json_store IS
         p_bind IN bind := NULL
     );
     
-    PROCEDURE lock_value (
+    /* Value pinning */
+    
+    PROCEDURE pin (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     );
     
-    PROCEDURE unlock_value (
+    PROCEDURE pin (
+        p_path IN VARCHAR2,
+        p_pin_tree IN BOOLEAN,
+        p_bind IN bind := NULL
+    );
+    
+    PROCEDURE unpin (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     );
-
+    
+    PROCEDURE unpin (
+        p_path IN VARCHAR2,
+        p_unpin_tree IN BOOLEAN,
+        p_bind IN bind := NULL
+    );
+    
 END;

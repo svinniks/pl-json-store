@@ -73,7 +73,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00021', 'Value is not an object!');
         default_message_resolver.register_message('JDOC-00022', 'Invalid property name!');
         default_message_resolver.register_message('JDOC-00023', 'Column alias for a wildcard not specified!');
-        default_message_resolver.register_message('JDOC-00024', 'Value :1 is locked!');
+        default_message_resolver.register_message('JDOC-00024', 'Value :1 is pinned!');
         default_message_resolver.register_message('JDOC-00025', 'Reserved field reference can''t be optional!');
         default_message_resolver.register_message('JDOC-00026', 'Reserved field reference can''t be branched!');
         default_message_resolver.register_message('JDOC-00027', 'Reserved field reference can''t have child elements!');
@@ -82,8 +82,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00030', 'Empty JSON specified!');
         default_message_resolver.register_message('JDOC-00031', 'Value ID not specified!');
         default_message_resolver.register_message('JDOC-00032', 'Invalid cache capacity :1!');
-        default_message_resolver.register_message('JDOC-00033', 'Value has locked children!');
-        default_message_resolver.register_message('JDOC-00034', 'Root can''t be unlocked!');
+        default_message_resolver.register_message('JDOC-00033', 'Value has pinned children!');
+        default_message_resolver.register_message('JDOC-00034', 'Root can''t be unpinned!');
         default_message_resolver.register_message('JDOC-00035', 'Root can''t be deleted!');
         default_message_resolver.register_message('JDOC-00036', 'Optional elements are not allowed in path expressions!');
         default_message_resolver.register_message('JDOC-00037', 'Branching is not allowed in path expressions!');
@@ -3375,48 +3375,72 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     /* Value locking/unlocking methods */
     
-    PROCEDURE lock_value (
-        p_value_id IN NUMBER
+    PROCEDURE pin (
+        p_value_id IN NUMBER,
+        p_pin_tree IN BOOLEAN := FALSE
     ) IS
     
         v_value t_value;
-        t_ids_to_lock t_numbers;
+        
+        v_parent_ids t_numbers;
+        v_child_ids t_numbers;
+        v_ids_to_pin t_numbers;
     
     BEGIN
     
         v_value := get_value(p_value_id);
         
         SELECT id
-        BULK COLLECT INTO t_ids_to_lock
+        BULK COLLECT INTO v_parent_ids
         FROM json_values
         START WITH id = p_value_id
-                   AND locked IS NULL
         CONNECT BY PRIOR parent_id = id
-                         AND locked IS NULL
+                   AND locked IS NULL
         FOR UPDATE;
         
-        FORALL v_i IN 1..t_ids_to_lock.COUNT
+        IF p_pin_tree THEN
+        
+            SELECT id
+            BULK COLLECT INTO v_child_ids
+            FROM json_values
+            WHERE locked IS NULL
+            START WITH parent_id = p_value_id
+            CONNECT BY PRIOR id = parent_id
+            FOR UPDATE;
+            
+        ELSE
+        
+            v_child_ids := t_numbers();
+        
+        END IF;
+        
+        v_ids_to_pin := v_parent_ids MULTISET UNION v_child_ids;
+        
+        FORALL v_i IN 1..v_ids_to_pin.COUNT
             UPDATE json_values
             SET locked = 'T'
-            WHERE id = t_ids_to_lock(v_i);
+            WHERE id = v_ids_to_pin(v_i);
     
     END;
     
-    PROCEDURE unlock_value (
-        p_value_id IN NUMBER
+    PROCEDURE unpin (
+        p_value_id IN NUMBER,
+        p_unpin_tree IN BOOLEAN
     ) IS
     
         v_value t_value;
         
-        v_dummy NUMBER;
-        
-        CURSOR c_locked_child (
+        CURSOR c_pinned_child (
             p_parent_id IN NUMBER
         ) IS
         SELECT 1
         FROM json_values
         WHERE parent_id = p_parent_id
               AND locked = 'T';
+        
+        v_dummy NUMBER;
+        
+        v_ids_to_unpin t_numbers;
     
     BEGIN
     
@@ -3427,19 +3451,36 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             error$.raise('JDOC-00034');
         END IF;
         
-        OPEN c_locked_child(v_value.id);
+        IF p_unpin_tree THEN
         
-        FETCH c_locked_child
-        INTO v_dummy;
+            SELECT id
+            BULK COLLECT INTO v_ids_to_unpin
+            FROM json_values
+            WHERE locked = 'T'
+            START WITH id = p_value_id
+            CONNECT BY PRIOR id = parent_id
+            FOR UPDATE;
+            
+        ELSE
         
-        IF c_locked_child%FOUND THEN
-            -- Value has locked children!
-            error$.raise('JDOC-00033');
+            OPEN c_pinned_child(p_value_id);
+        
+            FETCH c_pinned_child
+            INTO v_dummy;
+            
+            IF c_pinned_child%FOUND THEN
+                -- Value has locked children!
+                error$.raise('JDOC-00033');
+            END IF;  
+            
+            v_ids_to_unpin := t_numbers(p_value_id);
+            
         END IF;
         
-        UPDATE json_values
-        SET locked = NULL
-        WHERE id = v_value.id;
+        FORALL v_i IN 1..v_ids_to_unpin.COUNT
+            UPDATE json_values
+            SET locked = NULL
+            WHERE id = v_ids_to_unpin(v_i);
     
     END;
     

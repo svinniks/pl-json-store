@@ -1472,5 +1472,83 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         END IF;
     
     END;
-
+    
+    /* Value pinning */
+    
+    MEMBER PROCEDURE pin (
+        self IN t_json_value,
+        p_pin_tree IN BOOLEAN := FALSE
+    ) IS
+    BEGIN
+    
+        json_core.pin(id, p_pin_tree);
+    
+    END;
+    
+    MEMBER PROCEDURE pin (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    BEGIN
+    
+        json_core.pin(
+            json_core.request_value(id, p_path, p_bind, TRUE)
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE pin (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_pin_tree IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    BEGIN
+    
+        json_core.pin(
+            json_core.request_value(id, p_path, p_bind, TRUE),
+            p_pin_tree
+        );
+        
+    END;    
+    
+    MEMBER PROCEDURE unpin (
+        self IN t_json_value,
+        p_unpin_tree IN BOOLEAN := FALSE
+    ) IS
+    BEGIN
+    
+        json_core.unpin(id);
+    
+    END;
+    
+    MEMBER PROCEDURE unpin (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    BEGIN
+    
+        json_core.unpin(
+            json_core.request_value(id, p_path, p_bind, TRUE)
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE unpin (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_unpin_tree IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    BEGIN
+    
+        json_core.unpin(
+            json_core.request_value(id, p_path, p_bind, TRUE),
+            p_unpin_tree
+        );
+    
+    END;
+    
 END;

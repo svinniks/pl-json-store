@@ -407,14 +407,16 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_value_id IN NUMBER
     );
     
-    /* Value locking/unlocking methods */
+    /* Value pinning/unpinning methods */
     
-    PROCEDURE lock_value (
-        p_value_id IN NUMBER
+    PROCEDURE pin (
+        p_value_id IN NUMBER,
+        p_pin_tree IN BOOLEAN := FALSE
     );
     
-    PROCEDURE unlock_value (
-        p_value_id IN NUMBER
+    PROCEDURE unpin (
+        p_value_id IN NUMBER,
+        p_unpin_tree IN BOOLEAN := FALSE
     );
     
 END;

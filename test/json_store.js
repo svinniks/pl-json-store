@@ -3179,13 +3179,13 @@ suite("JSON store management tests", function() {
     
     });
 
-    suite("JSON node locking tests", function() {
+    suite("JSON node pinning tests", function() {
     
-        test("Try to unlock the root", function() {
+        test("Try to unpin the root", function() {
         
             expect(function() {
             
-                database.call("json_store.unlock_value", {
+                database.call("json_store.unpin", {
                     p_path: "$"
                 });
             
@@ -3193,13 +3193,13 @@ suite("JSON store management tests", function() {
         
         });
 
-        test("Lock anonymous scalar value", function() {
+        test("Pin anonymous scalar value", function() {
     
             let id = database.call("json_store.create_string", {
                 p_value: "Hello, World!"
             });
 
-            database.call("json_store.lock_value", {
+            database.call("json_store.pin", {
                 p_path: `#${id}`
             });
 
@@ -3218,7 +3218,7 @@ suite("JSON store management tests", function() {
     
         });
 
-        test("Lock scalar property of the root", function() {
+        test("Pin scalar property of the root", function() {
     
             let name = randomString(32);
 
@@ -3227,7 +3227,7 @@ suite("JSON store management tests", function() {
                 p_value: "Hello, World!"
             });
 
-            database.call("json_store.lock_value", {
+            database.call("json_store.pin", {
                 p_path: `$["${name}"]`
             });
 
@@ -3247,7 +3247,7 @@ suite("JSON store management tests", function() {
     
         });
 
-        test("Try to modify locked anonymous value", function() {
+        test("Try to modify pinned scalar property of the root", function() {
     
             let name = randomString(32);
 
@@ -3256,7 +3256,7 @@ suite("JSON store management tests", function() {
                 p_value: "Hello, World!"
             });
 
-            database.call("json_store.lock_value", {
+            database.call("json_store.pin", {
                 p_path: `$["${name}"]`
             });
 
@@ -3271,7 +3271,7 @@ suite("JSON store management tests", function() {
 
         });
 
-        test("Lock child property", function() {
+        test("Pin child property", function() {
         
             let name = randomString(32);
 
@@ -3287,7 +3287,7 @@ suite("JSON store management tests", function() {
                 }
             });
 
-            database.call("json_store.lock_value", {
+            database.call("json_store.pin", {
                 p_path: `$["${name}"].addresses.home.city`
             });
 
@@ -3309,7 +3309,7 @@ suite("JSON store management tests", function() {
         
         });
           
-        test("Delete locked property", function() {
+        test("Delete pinned property", function() {
         
             let name = randomString(32);
 
@@ -3325,7 +3325,7 @@ suite("JSON store management tests", function() {
                 }
             });
 
-            database.call("json_store.lock_value", {
+            database.call("json_store.pin", {
                 p_path: `$["${name}"].addresses.home.city`
             });
 
@@ -3339,13 +3339,13 @@ suite("JSON store management tests", function() {
         
         });
 
-        test("Unlock anonymous scalar value", function() {
+        test("Unpin anonymous scalar value", function() {
     
             let id = database.call("json_store.create_string", {
                 p_value: "Hello, World!"
             });
 
-            database.call("json_store.lock_value", {
+            database.call("json_store.pin", {
                 p_path: `#${id}`
             });
 
@@ -3362,7 +3362,7 @@ suite("JSON store management tests", function() {
                 locked: "T"
             });
 
-            database.call("json_store.unlock_value", {
+            database.call("json_store.unpin", {
                 p_path: `#${id}`
             });
 
@@ -3381,7 +3381,7 @@ suite("JSON store management tests", function() {
     
         });
 
-        test("Try to unlock a value with locked children", function() {
+        test("Try to unpin a value with pinned children", function() {
         
             let name = randomString(32);
 
@@ -3397,7 +3397,7 @@ suite("JSON store management tests", function() {
                 }
             });
 
-            database.call("json_store.lock_value", {
+            database.call("json_store.pin", {
                 p_path: `$["${name}"].addresses.home.city`
             });
 
@@ -3419,7 +3419,7 @@ suite("JSON store management tests", function() {
 
             expect(function() {
             
-                database.call("json_store.unlock_value", {
+                database.call("json_store.unpin", {
                     p_path:  `$["${name}"].addresses.home`
                 });
             
@@ -3427,7 +3427,7 @@ suite("JSON store management tests", function() {
         
         });
 
-        test("Unlock a value with all children unlocked", function() {
+        test("Unpin a value with all children unpinned", function() {
         
             let name = randomString(32);
 
@@ -3443,7 +3443,7 @@ suite("JSON store management tests", function() {
                 }
             });
 
-            database.call("json_store.lock_value", {
+            database.call("json_store.pin", {
                 p_path: `$["${name}"].addresses.home.city`
             });
 
@@ -3463,11 +3463,11 @@ suite("JSON store management tests", function() {
                 ["name", null]
             ]);
 
-            database.call("json_store.unlock_value", {
+            database.call("json_store.unpin", {
                 p_path:  `$["${name}"].addresses.home.city`
             });
 
-            database.call("json_store.unlock_value", {
+            database.call("json_store.unpin", {
                 p_path:  `$["${name}"].addresses.home`
             });
 

@@ -914,26 +914,54 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    PROCEDURE lock_value (
+    PROCEDURE pin (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
     BEGIN
     
-        json_core.lock_value(
+        json_core.pin(
             json_core.request_value(p_path, p_bind, TRUE)
         );
     
     END;
     
-    PROCEDURE unlock_value (
+    PROCEDURE pin (
+        p_path IN VARCHAR2,
+        p_pin_tree IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    BEGIN
+    
+        json_core.pin(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_pin_tree
+        );
+    
+    END;
+    
+    PROCEDURE unpin (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
     BEGIN
         
-        json_core.unlock_value(
+        json_core.unpin(
             json_core.request_value(p_path, p_bind, TRUE)
+        );
+    
+    END;
+    
+    PROCEDURE unpin (
+        p_path IN VARCHAR2,
+        p_unpin_tree IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    BEGIN
+        
+        json_core.unpin(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_unpin_tree
         );
     
     END;

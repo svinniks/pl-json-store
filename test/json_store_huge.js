@@ -8,7 +8,7 @@ suite("Huge JSON document handling", function() {
         
         document = [];
 
-        for (var i = 0; i < 40000; i++)
+        for (var i = 0; i < 25000; i++)
             document[i] = {
                 n: i,
                 s: `${i}`,

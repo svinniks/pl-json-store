@@ -411,12 +411,12 @@ CREATE OR REPLACE PACKAGE json_core IS
     
     PROCEDURE pin (
         p_value_id IN NUMBER,
-        p_pin_tree IN BOOLEAN := FALSE
+        p_pin_tree IN BOOLEAN
     );
     
     PROCEDURE unpin (
         p_value_id IN NUMBER,
-        p_unpin_tree IN BOOLEAN := FALSE
+        p_unpin_tree IN BOOLEAN
     );
     
 END;

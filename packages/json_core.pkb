@@ -3377,7 +3377,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     PROCEDURE pin (
         p_value_id IN NUMBER,
-        p_pin_tree IN BOOLEAN := FALSE
+        p_pin_tree IN BOOLEAN
     ) IS
     
         v_value t_value;

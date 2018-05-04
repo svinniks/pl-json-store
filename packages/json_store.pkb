@@ -921,7 +921,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
     
         json_core.pin(
-            json_core.request_value(p_path, p_bind, TRUE)
+            json_core.request_value(p_path, p_bind, TRUE),
+            FALSE
         );
     
     END;
@@ -947,7 +948,8 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
         
         json_core.unpin(
-            json_core.request_value(p_path, p_bind, TRUE)
+            json_core.request_value(p_path, p_bind, TRUE),
+            FALSE
         );
     
     END;

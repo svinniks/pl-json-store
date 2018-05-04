@@ -1490,13 +1490,18 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
+    
+        v_value_id NUMBER;
+    
     BEGIN
     
-        json_core.pin(
-            json_core.request_value(id, p_path, p_bind, TRUE)
-        );
-    
-    END;
+        v_value_id := json_core.request_value(id, p_path, p_bind);
+        
+        IF v_value_id IS NOT NULL THEN
+            json_core.pin(v_value_id, FALSE);
+        END IF;
+        
+    END; 
     
     MEMBER PROCEDURE pin (
         self IN t_json_value,
@@ -1504,12 +1509,16 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_pin_tree IN BOOLEAN,
         p_bind IN bind := NULL
     ) IS
+    
+        v_value_id NUMBER;
+    
     BEGIN
     
-        json_core.pin(
-            json_core.request_value(id, p_path, p_bind, TRUE),
-            p_pin_tree
-        );
+        v_value_id := json_core.request_value(id, p_path, p_bind);
+        
+        IF v_value_id IS NOT NULL THEN
+            json_core.pin(v_value_id, p_pin_tree);
+        END IF;
         
     END;    
     
@@ -1519,7 +1528,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     ) IS
     BEGIN
     
-        json_core.unpin(id);
+        json_core.unpin(id, p_unpin_tree);
     
     END;
     
@@ -1528,13 +1537,18 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
+    
+        v_value_id NUMBER;
+    
     BEGIN
     
-        json_core.unpin(
-            json_core.request_value(id, p_path, p_bind, TRUE)
-        );
-    
-    END;
+        v_value_id := json_core.request_value(id, p_path, p_bind);
+        
+        IF v_value_id IS NOT NULL THEN
+            json_core.unpin(v_value_id, FALSE);
+        END IF;
+        
+    END; 
     
     MEMBER PROCEDURE unpin (
         self IN t_json_value,
@@ -1542,13 +1556,17 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_unpin_tree IN BOOLEAN,
         p_bind IN bind := NULL
     ) IS
+    
+        v_value_id NUMBER;
+    
     BEGIN
     
-        json_core.unpin(
-            json_core.request_value(id, p_path, p_bind, TRUE),
-            p_unpin_tree
-        );
-    
-    END;
+        v_value_id := json_core.request_value(id, p_path, p_bind);
+        
+        IF v_value_id IS NOT NULL THEN
+            json_core.unpin(v_value_id, p_unpin_tree);
+        END IF;
+        
+    END; 
     
 END;

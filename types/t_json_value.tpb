@@ -492,6 +492,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_string (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_value IN VARCHAR2,
         p_bind IN bind := NULL
@@ -517,6 +518,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_string (
+        self IN t_json_value,
         p_index IN NUMBER,
         p_value IN VARCHAR2
     ) IS
@@ -546,6 +548,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_date (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_value IN DATE,
         p_bind IN bind := NULL
@@ -571,6 +574,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_date (
+        self IN t_json_value,
         p_index IN NUMBER,
         p_value IN DATE
     ) IS
@@ -600,6 +604,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_number (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_value IN NUMBER,
         p_bind IN bind := NULL
@@ -625,6 +630,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_number (
+        self IN t_json_value,
         p_index IN NUMBER,
         p_value IN NUMBER
     ) IS
@@ -654,6 +660,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_boolean (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_value IN BOOLEAN,
         p_bind IN bind := NULL
@@ -679,6 +686,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_boolean (
+        self IN t_json_value,
         p_index IN NUMBER,
         p_value IN BOOLEAN
     ) IS
@@ -707,6 +715,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_null (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
@@ -730,6 +739,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_null (
+        self IN t_json_value,
         p_index IN NUMBER
     ) IS
     BEGIN
@@ -757,6 +767,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_object (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
@@ -780,6 +791,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_object (
+        self IN t_json_value,
         p_index IN NUMBER
     ) IS
     BEGIN
@@ -806,6 +818,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_array (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
@@ -829,6 +842,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_array (
+        self IN t_json_value,
         p_index IN NUMBER
     ) IS
     BEGIN
@@ -861,6 +875,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_json (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_content IN VARCHAR2,
         p_bind IN bind := NULL
@@ -886,6 +901,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_json (
+        self IN t_json_value,
         p_index IN NUMBER,
         p_content IN VARCHAR2
     ) IS
@@ -919,6 +935,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_json (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_content IN CLOB,
         p_bind IN bind := NULL
@@ -944,6 +961,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_json (
+        self IN t_json_value,
         p_index IN NUMBER,
         p_content IN CLOB
     ) IS
@@ -978,6 +996,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_copy (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_value IN t_json_value,
         p_bind IN bind := NULL
@@ -1003,6 +1022,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE set_copy (
+        self IN t_json_value,
         p_index IN NUMBER,
         p_value IN t_json_value
     ) IS
@@ -1032,6 +1052,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_string (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_value IN VARCHAR2,
         p_bind IN bind := NULL
@@ -1058,6 +1079,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_string (
+        self IN t_json_value,
         p_value IN VARCHAR2
     ) IS
     
@@ -1087,6 +1109,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_number (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_value IN NUMBER,
         p_bind IN bind := NULL
@@ -1113,6 +1136,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_number (
+        self IN t_json_value,
         p_value IN NUMBER
     ) IS
     
@@ -1142,6 +1166,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_boolean (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_value IN BOOLEAN,
         p_bind IN bind := NULL
@@ -1168,6 +1193,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_boolean (
+        self IN t_json_value,
         p_value IN BOOLEAN
     ) IS
     
@@ -1196,6 +1222,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_null (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
@@ -1218,7 +1245,9 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
-    MEMBER PROCEDURE push_null IS
+    MEMBER PROCEDURE push_null (
+        self IN t_json_value
+    ) IS
     
         v_dummy t_json_value;
     
@@ -1245,6 +1274,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_object (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
@@ -1267,7 +1297,9 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
-    MEMBER PROCEDURE push_object IS
+    MEMBER PROCEDURE push_object (
+        self IN t_json_value
+    ) IS
     
         v_dummy t_json_value;
     
@@ -1294,6 +1326,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_array (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS
@@ -1316,7 +1349,9 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
-    MEMBER PROCEDURE push_array IS
+    MEMBER PROCEDURE push_array (
+        self IN t_json_value
+    ) IS
     
         v_dummy t_json_value;
     
@@ -1349,6 +1384,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_json (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_content IN VARCHAR2,
         p_bind IN bind := NULL
@@ -1380,6 +1416,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_json (
+        self IN t_json_value,
         p_content IN VARCHAR2
     ) IS
     
@@ -1414,6 +1451,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_json (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_content IN CLOB,
         p_bind IN bind := NULL
@@ -1445,6 +1483,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE push_json (
+        self IN t_json_value,
         p_content IN CLOB
     ) IS
     
@@ -1457,6 +1496,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     END;
     
     MEMBER PROCEDURE remove (
+        self IN t_json_value,
         p_path IN VARCHAR2,
         p_bind IN bind := NULL
     ) IS

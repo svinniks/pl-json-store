@@ -421,6 +421,38 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     END;
     
+    PROCEDURE pin_cached_value (
+        p_value_id IN NUMBER
+    ) IS
+    
+        v_entry_id VARCHAR2(30);
+    
+    BEGIN
+    
+        v_entry_id := p_value_id;
+    
+        IF v_json_value_cache.EXISTS(v_entry_id) THEN
+            v_json_value_cache(v_entry_id).locked := 'T';
+        END IF;
+    
+    END;
+    
+    PROCEDURE unpin_cached_value (
+        p_value_id IN NUMBER
+    ) IS
+    
+        v_entry_id VARCHAR2(30);
+    
+    BEGIN
+    
+        v_entry_id := p_value_id;
+    
+        IF v_json_value_cache.EXISTS(v_entry_id) THEN
+            v_json_value_cache(v_entry_id).locked := NULL;
+        END IF;
+    
+    END;
+    
     /* JSON query API methods */
     
     FUNCTION parse_query (
@@ -3420,6 +3452,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             UPDATE json_values
             SET locked = 'T'
             WHERE id = v_ids_to_pin(v_i);
+            
+        FOR v_i IN 1..v_ids_to_pin.COUNT LOOP
+            pin_cached_value(v_ids_to_pin(v_i));
+        END LOOP;
     
     END;
     
@@ -3481,6 +3517,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             UPDATE json_values
             SET locked = NULL
             WHERE id = v_ids_to_unpin(v_i);
+            
+        FOR v_i IN 1..v_ids_to_unpin.COUNT LOOP
+            unpin_cached_value(v_ids_to_unpin(v_i));
+        END LOOP;
     
     END;
     

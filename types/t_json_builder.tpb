@@ -1,0 +1,119 @@
+CREATE OR REPLACE TYPE BODY t_json_builder IS
+    
+    CONSTRUCTOR FUNCTION t_json_builder
+    RETURN self AS RESULT IS
+    BEGIN
+    
+        id := json_builder.create_builder;
+    
+        RETURN;
+    
+    END;
+    
+    MEMBER FUNCTION value (
+        p_value IN VARCHAR2
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.value(id, p_value);
+        
+        RETURN self;
+    
+    END;
+    
+    MEMBER FUNCTION value (
+        p_value IN DATE
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.value(id, p_value);
+        
+        RETURN self;
+    
+    END;
+    
+    MEMBER FUNCTION value (
+        p_value IN NUMBER
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.value(id, p_value);
+        
+        RETURN self;
+    
+    END;
+    
+    MEMBER FUNCTION value (
+        p_value IN BOOLEAN
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.value(id, p_value);
+        
+        RETURN self;
+    
+    END;
+    
+    MEMBER FUNCTION object
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.object(id);
+        
+        RETURN self;
+    
+    END;
+    
+    MEMBER FUNCTION name (
+        p_name IN VARCHAR2
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.name(id, p_name);
+        
+        RETURN self;
+    
+    END;
+    
+    MEMBER FUNCTION array
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.array(id);
+        
+        RETURN self;
+    
+    END;
+    
+    MEMBER FUNCTION close
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.close(id);
+        
+        RETURN self;
+    
+    END;
+    
+    MEMBER FUNCTION build_json
+    RETURN VARCHAR2 IS
+    BEGIN
+    
+        RETURN json_builder.build_json(id);
+    
+    END;
+    
+    MEMBER FUNCTION build_json_clob
+    RETURN CLOB IS
+    BEGIN
+    
+        RETURN json_builder.build_json_clob(id);
+    
+    END;
+    
+END;

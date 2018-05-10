@@ -669,6 +669,34 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_path IN VARCHAR2,
         p_unpin_tree IN BOOLEAN,
         p_bind IN bind := NULL
+    ),
+    
+    /* JSON builder instantiation methods */
+  
+    STATIC FUNCTION value (
+        p_value IN VARCHAR2
     )
+    RETURN t_json_builder,
+    
+    STATIC FUNCTION value (
+        p_value IN DATE
+    )
+    RETURN t_json_builder,
+    
+    STATIC FUNCTION value (
+        p_value IN NUMBER
+    )
+    RETURN t_json_builder,
+    
+    STATIC FUNCTION value (
+        p_value IN BOOLEAN
+    )
+    RETURN t_json_builder,
+    
+    STATIC FUNCTION object
+    RETURN t_json_builder,
+    
+    STATIC FUNCTION array
+    RETURN t_json_builder
         
 );

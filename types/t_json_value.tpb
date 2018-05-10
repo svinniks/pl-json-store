@@ -1607,6 +1607,64 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
             json_core.unpin(v_value_id, p_unpin_tree);
         END IF;
         
-    END; 
+    END;
+    
+    /* JSON builder instantiation methods */
+  
+    STATIC FUNCTION value (
+        p_value IN VARCHAR2
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        RETURN t_json_builder().value(p_value);
+    
+    END;
+    
+    STATIC FUNCTION value (
+        p_value IN DATE
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        RETURN t_json_builder().value(p_value);
+    
+    END;
+    
+    STATIC FUNCTION value (
+        p_value IN NUMBER
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        RETURN t_json_builder().value(p_value);
+    
+    END;
+    
+    STATIC FUNCTION value (
+        p_value IN BOOLEAN
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        RETURN t_json_builder().value(p_value);
+    
+    END;
+    
+    STATIC FUNCTION object
+    RETURN t_json_builder IS
+    BEGIN
+    
+        RETURN t_json_builder().object;
+    
+    END;
+    
+    STATIC FUNCTION array
+    RETURN t_json_builder IS
+    BEGIN
+    
+        RETURN t_json_builder().array;
+    
+    END;
     
 END;

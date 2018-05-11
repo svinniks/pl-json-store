@@ -1366,5 +1366,4 @@ suite("JSON builder tests", function() {
     
     });
     
-    
 });

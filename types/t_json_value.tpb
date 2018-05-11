@@ -114,6 +114,20 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    STATIC FUNCTION create_json (
+        p_builder IN t_json_builder
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.create_json(
+                json_builder.build_parse_events(p_builder.id)
+            )
+        );
+    
+    END;
+    
     STATIC FUNCTION create_copy (
         p_value IN t_json_value
     )
@@ -968,6 +982,62 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         set_json(':i', p_content, bind(p_index));
+    
+    END;
+    
+    MEMBER FUNCTION set_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.set_property(
+                id,
+                p_path,
+                p_bind,
+                json_builder.build_parse_events(p_builder.id)
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE set_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := set_json(p_path, p_builder, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION set_json (
+        p_index IN NUMBER,
+        p_builder IN t_json_builder
+    ) 
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN set_json(':i', p_builder, bind(p_index));
+    
+    END;
+    
+    MEMBER PROCEDURE set_json (
+        self IN t_json_value,
+        p_index IN NUMBER,
+        p_builder IN t_json_builder
+    ) IS
+    BEGIN
+    
+        set_json(':i', p_builder, bind(p_index));
     
     END;
     

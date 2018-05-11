@@ -22,6 +22,16 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     
     END;
     
+    MEMBER PROCEDURE value (
+        self IN t_json_builder,
+        p_value IN VARCHAR2
+    ) IS
+    BEGIN
+    
+        json_builder.value(id, p_value);
+    
+    END;
+    
     MEMBER FUNCTION value (
         p_value IN DATE
     )
@@ -31,6 +41,16 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
         json_builder.value(id, p_value);
         
         RETURN self;
+    
+    END;
+    
+    MEMBER PROCEDURE value (
+        self IN t_json_builder,
+        p_value IN DATE
+    ) IS
+    BEGIN
+    
+        json_builder.value(id, p_value);
     
     END;
     
@@ -46,6 +66,16 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     
     END;
     
+    MEMBER PROCEDURE value (
+        self IN t_json_builder,
+        p_value IN NUMBER
+    ) IS
+    BEGIN
+    
+        json_builder.value(id, p_value);
+        
+    END;
+    
     MEMBER FUNCTION value (
         p_value IN BOOLEAN
     )
@@ -58,6 +88,16 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     
     END;
     
+    MEMBER PROCEDURE value (
+        self IN t_json_builder,
+        p_value IN BOOLEAN
+    ) IS
+    BEGIN
+    
+        json_builder.value(id, p_value);
+    
+    END;
+    
     MEMBER FUNCTION object
     RETURN t_json_builder IS
     BEGIN
@@ -65,6 +105,15 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
         json_builder.object(id);
         
         RETURN self;
+    
+    END;
+    
+    MEMBER PROCEDURE object (
+        self IN t_json_builder
+    ) IS
+    BEGIN
+    
+        json_builder.object(id);
     
     END;
     
@@ -80,6 +129,16 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     
     END;
     
+    MEMBER PROCEDURE name (
+        self IN t_json_builder,
+        p_name IN VARCHAR2
+    ) IS
+    BEGIN
+    
+        json_builder.name(id, p_name);
+    
+    END;
+    
     MEMBER FUNCTION array
     RETURN t_json_builder IS
     BEGIN
@@ -90,6 +149,16 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     
     END;
     
+    MEMBER PROCEDURE array (
+        self IN t_json_builder
+    ) IS    
+    BEGIN
+    
+        json_builder.array(id);
+    
+    END;
+
+    
     MEMBER FUNCTION close
     RETURN t_json_builder IS
     BEGIN
@@ -97,6 +166,15 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
         json_builder.close(id);
         
         RETURN self;
+    
+    END;
+    
+    MEMBER PROCEDURE close (
+        self IN t_json_builder
+    ) IS
+    BEGIN
+    
+        json_builder.close(id);
     
     END;
     

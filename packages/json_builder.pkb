@@ -16,11 +16,48 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
         limitations under the License.
     */
     
-    v_builders t_json_builders;
-    
     TYPE t_integers IS
         TABLE OF PLS_INTEGER;
     
+    TYPE t_composite_stack_element IS
+        RECORD (
+            type CHAR,
+            next_element_i PLS_INTEGER
+        );
+        
+    TYPE t_composite_stack IS
+        TABLE OF t_composite_stack_element;
+        
+    v_composite_stack t_composite_stack := t_composite_stack();
+    v_released_composite_stack_is t_integers := t_integers();    
+        
+    TYPE t_parse_event IS
+        RECORD (
+            name VARCHAR2(4000),
+            value VARCHAR2(4000),
+            next_event_i PLS_INTEGER
+        );
+        
+    TYPE t_parse_events IS
+        TABLE OF t_parse_event;
+        
+    v_parse_events t_parse_events := t_parse_events();
+    v_released_parse_event_is t_integers := t_integers();    
+        
+    TYPE t_json_builder IS
+        RECORD (
+            id PLS_INTEGER,
+            state VARCHAR2(30),
+            composite_stack_top_i PLS_INTEGER,
+            first_parse_event_i PLS_INTEGER,
+            last_parse_event_i PLS_INTEGER
+        );
+        
+    TYPE t_json_builders IS
+        TABLE OF t_json_builder
+        INDEX BY PLS_INTEGER;
+    
+    v_builders t_json_builders;
     v_released_builder_ids t_integers := t_integers();
     
     PROCEDURE register_messages IS
@@ -33,7 +70,7 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
         default_message_resolver.register_message('JBLR-00006', 'Unexpected end of composite!');
         default_message_resolver.register_message('JBLR-00007', 'Unexpected start of object!');
         default_message_resolver.register_message('JBLR-00008', 'Property name can''t be NULL!');
-        default_message_resolver.register_message('JBLR-00009', 'Unexpected propoerty name!');
+        default_message_resolver.register_message('JBLR-00009', 'Unexpected property name!');
         default_message_resolver.register_message('JBLR-00010', 'Unexpected end of object!');
         default_message_resolver.register_message('JBLR-00011', 'Duplicate property :1!');
     END;
@@ -57,30 +94,55 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
         END IF;
         
         v_builders(v_id) := NULL;
+        v_builders(v_id).id := v_id;
         v_builders(v_id).state := 'wf_value';
-        v_builders(v_id).composite_stack := t_varchars();
-        v_builders(v_id).object_property_stack := t_object_property_stack();
-        v_builders(v_id).parse_events := json_parser.t_parse_events();
         
         RETURN v_id;
     
     END;
     
-    PROCEDURE do_destroy_builder (
-        p_id IN PLS_INTEGER
+    PROCEDURE destroy_builder (
+        p_builder IN OUT NOCOPY t_json_builder
     ) IS
+    
+        v_composite_stack_i PLS_INTEGER;
+        v_parse_event_i PLS_INTEGER;
+    
     BEGIN
     
-        v_released_builder_ids.EXTEND(1);
-        v_released_builder_ids(v_released_builder_ids.COUNT) := p_id;
+        v_composite_stack_i := p_builder.composite_stack_top_i;
         
-        v_builders.DELETE(p_id);
+        WHILE v_composite_stack_i IS NOT NULL LOOP
+        
+            v_released_composite_stack_is.EXTEND(1);
+            v_released_composite_stack_is(v_released_composite_stack_is.COUNT) := v_composite_stack_i;
+            
+            v_composite_stack_i := v_composite_stack(v_composite_stack_i).next_element_i;
+        
+        END LOOP;
+        
+        v_parse_event_i := p_builder.first_parse_event_i;
+        
+        WHILE v_parse_event_i IS NOT NULL LOOP
+        
+            v_released_parse_event_is.EXTEND(1);
+            v_released_parse_event_is(v_released_parse_event_is.COUNT) := v_parse_event_i;
+            
+            v_parse_event_i := v_parse_events(v_parse_event_i).next_event_i;
+        
+        END LOOP;
+    
+        v_released_builder_ids.EXTEND(1);
+        v_released_builder_ids(v_released_builder_ids.COUNT) := p_builder.id;
+        
+        v_builders.DELETE(p_builder.id);
     
     END;
     
-    PROCEDURE destroy_builder (
+    FUNCTION get_builder (
         p_id IN PLS_INTEGER
-    ) IS
+    ) 
+    RETURN t_json_builder IS
     BEGIN
     
         IF p_id IS NULL THEN
@@ -91,7 +153,21 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
             error$.raise('JBLR-00002');
         END IF;
         
-        do_destroy_builder(p_id);
+        RETURN v_builders(p_id);
+    
+    END; 
+    
+    PROCEDURE destroy_builder (
+        p_id IN PLS_INTEGER
+    ) IS
+    
+        v_builder t_json_builder;
+    
+    BEGIN
+    
+        v_builder := get_builder(p_id);
+    
+        destroy_builder(v_builder);
     
     END;
     
@@ -100,62 +176,106 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
     )
     RETURN json_parser.t_parse_events IS
     
-        v_parse_events json_parser.t_parse_events;
+        v_builder t_json_builder;
+        
+        v_result json_parser.t_parse_events;
+        v_event_i PLS_INTEGER;
     
     BEGIN
     
-        IF p_builder_id IS NULL THEN
-            -- JSON builder ID not specified!
-            error$.raise('JBLR-00001');
-        ELSIF NOT v_builders.EXISTS(p_builder_id) THEN
-            -- Invalid JSON builder!
-            error$.raise('JBLR-00002');
-        ELSIF v_builders(p_builder_id).state != 'wf_eof' THEN
+        v_builder := get_builder(p_builder_id);
+    
+        IF v_builder.state != 'wf_eof' THEN
             -- JSON builder is in an incomplete state!
             error$.raise('JBLR-00004');
         END IF;
     
-        v_parse_events := v_builders(p_builder_id).parse_events;
-        do_destroy_builder(p_builder_id);
+        v_result := json_parser.t_parse_events();
+        v_event_i := v_builder.first_parse_event_i;
         
-        RETURN v_parse_events;
+        WHILE v_event_i IS NOT NULL LOOP
+        
+            v_result.EXTEND(1);
+            v_result(v_result.COUNT).name := v_parse_events(v_event_i).name;
+            v_result(v_result.COUNT).value := v_parse_events(v_event_i).value;
+            
+            v_event_i := v_parse_events(v_event_i).next_event_i;
+        
+        END LOOP;
+        
+        destroy_builder(v_builder);
+        
+        RETURN v_result;
     
     END;
+    
+    PROCEDURE add_parse_event (
+         p_builder IN OUT NOCOPY t_json_builder,
+         p_name IN VARCHAR2,
+         p_value IN VARCHAR2 := NULL
+    ) IS
+    
+        v_new_event_i PLS_INTEGER;
+    
+    BEGIN
+    
+        IF v_released_parse_event_is.COUNT > 0 THEN
+            v_new_event_i := v_released_parse_event_is(v_released_parse_event_is.COUNT);
+            v_released_parse_event_is.TRIM(1);
+        ELSE
+            v_parse_events.EXTEND(1);
+            v_new_event_i := v_parse_events.COUNT;
+        END IF;
+        
+        v_parse_events(v_new_event_i).name := p_name;
+        v_parse_events(v_new_event_i).value := p_value;
+        v_parse_events(v_new_event_i).next_event_i := NULL;
+        
+        IF p_builder.first_parse_event_i IS NULL THEN
+            p_builder.first_parse_event_i := v_new_event_i;
+        END IF;
+        
+        IF p_builder.last_parse_event_i IS NOT NULL THEN
+            v_parse_events(p_builder.last_parse_event_i).next_event_i := v_new_event_i;
+        END IF;
+        
+        p_builder.last_parse_event_i := v_new_event_i;
+        
+    END;
+    
     
     PROCEDURE value (
         p_builder_id IN PLS_INTEGER,
         p_type IN VARCHAR2,
         p_value IN VARCHAR2
     ) IS
+    
+        v_builder t_json_builder;
+    
     BEGIN
     
-        IF p_builder_id IS NULL THEN
-            -- JSON builder ID not specified!
-            error$.raise('JBLR-00001');
-        ELSIF NOT v_builders.EXISTS(p_builder_id) THEN
-            -- Invalid JSON builder!
-            error$.raise('JBLR-00002');
-        ELSIF v_builders(p_builder_id).state != 'wf_value' THEN
+        v_builder := get_builder(p_builder_id);
+    
+        IF v_builder.state != 'wf_value' THEN
             -- Unexpected value!
             error$.raise('JBLR-00003');
         END IF;
         
-        v_builders(p_builder_id).parse_events.EXTEND(1);
-        
         IF p_value IS NULL THEN
-            v_builders(p_builder_id).parse_events(v_builders(p_builder_id).parse_events.COUNT).name := 'NULL';
+            add_parse_event(v_builder, 'NULL');
         ELSE
-            v_builders(p_builder_id).parse_events(v_builders(p_builder_id).parse_events.COUNT).name := p_type;
-            v_builders(p_builder_id).parse_events(v_builders(p_builder_id).parse_events.COUNT).value := p_value;
+            add_parse_event(v_builder, p_type, p_value);
         END IF;
         
-        IF v_builders(p_builder_id).composite_stack.COUNT = 0 THEN
-            v_builders(p_builder_id).state := 'wf_eof';
-        ELSIF v_builders(p_builder_id).composite_stack(v_builders(p_builder_id).composite_stack.COUNT) = 'A' THEN
-            v_builders(p_builder_id).state := 'wf_value';
+        IF v_builder.composite_stack_top_i IS NULL THEN
+            v_builder.state := 'wf_eof';
+        ELSIF v_composite_stack(v_builder.composite_stack_top_i).type = 'A' THEN
+            v_builder.state := 'wf_value';
         ELSE
-            v_builders(p_builder_id).state := 'wf_name';
+            v_builder.state := 'wf_name';
         END IF;
+        
+        v_builders(p_builder_id) := v_builder;
     
     END;
     
@@ -219,55 +339,72 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
     
     END;
     
+    PROCEDURE push_composite (
+        p_builder IN OUT NOCOPY t_json_builder,
+        p_type IN CHAR
+    ) IS
+    
+        v_new_element_i PLS_INTEGER;
+    
+    BEGIN
+    
+        IF v_released_composite_stack_is.COUNT > 0 THEN
+            v_new_element_i := v_released_composite_stack_is(v_released_composite_stack_is.COUNT);
+            v_released_composite_stack_is.TRIM(1);
+        ELSE
+            v_composite_stack.EXTEND(1);
+            v_new_element_i := v_composite_stack.COUNT;
+        END IF;
+        
+        v_composite_stack(v_new_element_i).type := p_type;
+        v_composite_stack(v_new_element_i).next_element_i := p_builder.composite_stack_top_i;
+        
+        p_builder.composite_stack_top_i := v_new_element_i;
+    
+    END;
+    
     PROCEDURE array(
         p_builder_id IN PLS_INTEGER
     ) IS
+    
+        v_builder t_json_builder;
+    
     BEGIN
     
-        IF p_builder_id IS NULL THEN
-            -- JSON builder ID not specified!
-            error$.raise('JBLR-00001');
-        ELSIF NOT v_builders.EXISTS(p_builder_id) THEN
-            -- Invalid JSON builder!
-            error$.raise('JBLR-00002');
-        ELSIF v_builders(p_builder_id).state != 'wf_value' THEN
+        v_builder := get_builder(p_builder_id);
+    
+        IF v_builder.state != 'wf_value' THEN
             -- Unexpected start of array!
             error$.raise('JBLR-00005');
         END IF;
     
-        v_builders(p_builder_id).composite_stack.EXTEND(1);
-        v_builders(p_builder_id).composite_stack(v_builders(p_builder_id).composite_stack.COUNT) := 'A';
+        push_composite(v_builder, 'A');
+        add_parse_event(v_builder, 'START_ARRAY');
         
-        v_builders(p_builder_id).parse_events.EXTEND(1);
-        v_builders(p_builder_id).parse_events(v_builders(p_builder_id).parse_events.COUNT).name := 'START_ARRAY';
+        v_builders(p_builder_id) := v_builder;
     
     END;
     
     PROCEDURE object (
         p_builder_id IN PLS_INTEGER
     ) IS
+    
+        v_builder t_json_builder;
+    
     BEGIN
     
-        IF p_builder_id IS NULL THEN
-            -- JSON builder ID not specified!
-            error$.raise('JBLR-00001');
-        ELSIF NOT v_builders.EXISTS(p_builder_id) THEN
-            -- Invalid JSON builder!
-            error$.raise('JBLR-00002');
-        ELSIF v_builders(p_builder_id).state != 'wf_value' THEN
+        v_builder := get_builder(p_builder_id);
+    
+        IF v_builder.state != 'wf_value' THEN
             -- Unexpected start of object!
             error$.raise('JBLR-00007');
         END IF;
         
-        v_builders(p_builder_id).composite_stack.EXTEND(1);
-        v_builders(p_builder_id).composite_stack(v_builders(p_builder_id).composite_stack.COUNT) := 'O';
+        push_composite(v_builder, 'O');
+        add_parse_event(v_builder, 'START_OBJECT');
+        v_builder.state := 'wf_name';
         
-        v_builders(p_builder_id).parse_events.EXTEND(1);
-        v_builders(p_builder_id).parse_events(v_builders(p_builder_id).parse_events.COUNT).name := 'START_OBJECT';
-        
-        v_builders(p_builder_id).object_property_stack.EXTEND(1);
-        
-        v_builders(p_builder_id).state := 'wf_name';
+        v_builders(p_builder_id) := v_builder;
     
     END;
     
@@ -275,81 +412,79 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
         p_builder_id IN PLS_INTEGER,
         p_name IN VARCHAR2
     ) IS
+    
+        v_builder t_json_builder;
+    
     BEGIN
     
-        IF p_builder_id IS NULL THEN
-            -- JSON builder ID not specified!
-            error$.raise('JBLR-00001');
-        ELSIF NOT v_builders.EXISTS(p_builder_id) THEN
-            -- Invalid JSON builder!
-            error$.raise('JBLR-00002');
-        ELSIF p_name IS NULL THEN
+        v_builder := get_builder(p_builder_id);
+    
+        IF p_name IS NULL THEN
             -- Property name can't be NULL!
             error$.raise('JBLR-00008');
-        ELSIF v_builders(p_builder_id).state != 'wf_name' THEN
+        ELSIF v_builder.state != 'wf_name' THEN
             -- Unexpected property name!
             error$.raise('JBLR-00009');
-        ELSIF v_builders(p_builder_id).object_property_stack(v_builders(p_builder_id).object_property_stack.COUNT).EXISTS(p_name) THEN
-            -- Duplicate property :1!
-            error$.raise('JBLR-00011', p_name);
         END IF;
         
-        v_builders(p_builder_id).parse_events.EXTEND(1);
-        v_builders(p_builder_id).parse_events(v_builders(p_builder_id).parse_events.COUNT).name := 'NAME';    
-        v_builders(p_builder_id).parse_events(v_builders(p_builder_id).parse_events.COUNT).value := p_name;
+        /*ELSIF v_builders(p_builder_id).object_property_stack(v_builders(p_builder_id).object_property_stack.COUNT).EXISTS(p_name) THEN
+            -- Duplicate property :1!
+            error$.raise('JBLR-00011', p_name);
+        END IF;*/
         
-        v_builders(p_builder_id).object_property_stack(v_builders(p_builder_id).object_property_stack.COUNT)(p_name) := NULL;
+        add_parse_event(v_builder, 'NAME', p_name);
+        v_builder.state := 'wf_value';
         
-        v_builders(p_builder_id).state := 'wf_value';
+        v_builders(p_builder_id) := v_builder;
     
     END;
     
     PROCEDURE close (
         p_builder_id IN PLS_INTEGER
     ) IS
+    
+        v_builder t_json_builder;
+    
     BEGIN
     
-        IF p_builder_id IS NULL THEN
-            -- JSON builder ID not specified!
-            error$.raise('JBLR-00001');
-        ELSIF NOT v_builders.EXISTS(p_builder_id) THEN
-            -- Invalid JSON builder!
-            error$.raise('JBLR-00002');
-        ELSIF v_builders(p_builder_id).composite_stack.COUNT = 0 THEN
+        v_builder := get_builder(p_builder_id);
+    
+        IF v_builder.composite_stack_top_i IS NULL THEN
             -- Unexpected end of composite!
             error$.raise('JBLR-00006');
         END IF;
         
-        CASE v_builders(p_builder_id).composite_stack(v_builders(p_builder_id).composite_stack.COUNT)
+        CASE v_composite_stack(v_builder.composite_stack_top_i).type
         
             WHEN 'A' THEN
                 
-                v_builders(p_builder_id).parse_events.EXTEND(1);
-                v_builders(p_builder_id).parse_events(v_builders(p_builder_id).parse_events.COUNT).name := 'END_ARRAY';
+                add_parse_event(v_builder, 'END_ARRAY');
                 
             WHEN 'O' THEN 
               
-                IF v_builders(p_builder_id).state != 'wf_name' THEN
+                IF v_builder.state != 'wf_name' THEN
                     -- Unexpected end of object!
                     error$.raise('JBLR-00010');
                 END IF;
                 
-                v_builders(p_builder_id).parse_events.EXTEND(1);
-                v_builders(p_builder_id).parse_events(v_builders(p_builder_id).parse_events.COUNT).name := 'END_OBJECT';
-                
-                v_builders(p_builder_id).object_property_stack.TRIM(1);
+                add_parse_event(v_builder, 'END_OBJECT');
                 
         END CASE;
 
-        v_builders(p_builder_id).composite_stack.TRIM(1);
+        v_released_composite_stack_is.EXTEND(1);
+        v_released_composite_stack_is(v_released_composite_stack_is.COUNT) := v_builder.composite_stack_top_i;
         
-        IF v_builders(p_builder_id).composite_stack.COUNT = 0 THEN
-            v_builders(p_builder_id).state := 'wf_eof';
-        ELSIF v_builders(p_builder_id).composite_stack(v_builders(p_builder_id).composite_stack.COUNT) = 'A' THEN
-            v_builders(p_builder_id).state := 'wf_value';
+        v_builder.composite_stack_top_i := v_composite_stack(v_builder.composite_stack_top_i).next_element_i;
+        
+        IF v_builder.composite_stack_top_i IS NULL THEN
+            v_builder.state := 'wf_eof';
+        ELSIF v_composite_stack(v_builder.composite_stack_top_i).type = 'A' THEN
+            v_builder.state := 'wf_value';
         ELSE
-            v_builders(p_builder_id).state := 'wf_name';
+            v_builder.state := 'wf_name';
         END IF;
+    
+        v_builders(p_builder_id) := v_builder;
     
     END;
     

@@ -43,6 +43,11 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     )
     RETURN t_json_value,
     
+    STATIC FUNCTION create_json (
+        p_builder IN t_json_builder
+    )
+    RETURN t_json_value,
+    
     STATIC FUNCTION create_copy (
         p_value IN t_json_value
     )
@@ -418,6 +423,32 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         self IN t_json_value,
         p_index IN NUMBER,
         p_content IN CLOB
+    ),
+    
+    MEMBER FUNCTION set_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION set_json (
+        p_index IN NUMBER,
+        p_builder IN t_json_builder
+    ) 
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE set_json (
+        self IN t_json_value,
+        p_index IN NUMBER,
+        p_builder IN t_json_builder
     ),
     
     MEMBER FUNCTION set_copy (

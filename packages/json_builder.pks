@@ -15,25 +15,6 @@ CREATE OR REPLACE PACKAGE json_builder IS
         See the License for the specific language governing permissions and
         limitations under the License.
     */
-    
-    TYPE t_object_properties IS
-        TABLE OF CHAR
-        INDEX BY VARCHAR2(4000);
-        
-    TYPE t_object_property_stack IS
-        TABLE OF t_object_properties;
-        
-    TYPE t_json_builder IS
-        RECORD (
-            state VARCHAR2(30),
-            composite_stack t_varchars,
-            object_property_stack t_object_property_stack,
-            parse_events json_parser.t_parse_events
-        );
-        
-    TYPE t_json_builders IS
-        TABLE OF t_json_builder
-        INDEX BY PLS_INTEGER;
         
     FUNCTION create_builder
     RETURN PLS_INTEGER;

@@ -656,6 +656,16 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_content IN CLOB
     ),
     
+    MEMBER FUNCTION push_json (
+        p_builder IN t_json_builder
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE push_json (
+        self IN t_json_value,
+        p_builder IN t_json_builder
+    ),
+    
     /* Property deletion */
     
     MEMBER PROCEDURE remove (

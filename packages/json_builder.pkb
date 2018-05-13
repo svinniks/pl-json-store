@@ -28,8 +28,13 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
     TYPE t_composite_stack IS
         TABLE OF t_composite_stack_element;
         
+    TYPE t_object_property_name_stack IS
+        TABLE OF CHAR
+        INDEX BY VARCHAR2(32000);
+        
     v_composite_stack t_composite_stack := t_composite_stack();
-    v_released_composite_stack_is t_integers := t_integers();    
+    v_released_composite_stack_is t_integers := t_integers();
+    v_object_property_name_stack t_object_property_name_stack;    
         
     TYPE t_parse_event IS
         RECORD (
@@ -48,6 +53,7 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
         RECORD (
             id PLS_INTEGER,
             state VARCHAR2(30),
+            object_level PLS_INTEGER,
             composite_stack_top_i PLS_INTEGER,
             first_parse_event_i PLS_INTEGER,
             last_parse_event_i PLS_INTEGER
@@ -95,6 +101,7 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
         
         v_builders(v_id) := NULL;
         v_builders(v_id).id := v_id;
+        v_builders(v_id).object_level := 0;
         v_builders(v_id).state := 'wf_value';
         
         RETURN v_id;
@@ -402,6 +409,7 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
         
         push_composite(v_builder, 'O');
         add_parse_event(v_builder, 'START_OBJECT');
+        v_builder.object_level := v_builder.object_level + 1;
         v_builder.state := 'wf_name';
         
         v_builders(p_builder_id) := v_builder;
@@ -414,6 +422,8 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
     ) IS
     
         v_builder t_json_builder;
+        
+        v_property_name VARCHAR2(32000);
     
     BEGIN
     
@@ -427,10 +437,14 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
             error$.raise('JBLR-00009');
         END IF;
         
-        /*ELSIF v_builders(p_builder_id).object_property_stack(v_builders(p_builder_id).object_property_stack.COUNT).EXISTS(p_name) THEN
+        v_property_name := v_builder.id || '_' || v_builder.object_level || '.' || p_name;
+        
+        IF v_object_property_name_stack.EXISTS(v_property_name) THEN
             -- Duplicate property :1!
             error$.raise('JBLR-00011', p_name);
-        END IF;*/
+        END IF;
+        
+        v_object_property_name_stack(v_property_name) := NULL;
         
         add_parse_event(v_builder, 'NAME', p_name);
         v_builder.state := 'wf_value';
@@ -444,6 +458,9 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
     ) IS
     
         v_builder t_json_builder;
+        
+        v_object_name VARCHAR2(32000);
+        v_property_name VARCHAR2(32000);
     
     BEGIN
     
@@ -467,7 +484,20 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
                     error$.raise('JBLR-00010');
                 END IF;
                 
+                v_object_name := p_builder_id || '_' || v_builder.object_level;
+                v_property_name := v_object_property_name_stack.NEXT(v_object_name);
+                
+                WHILE v_property_name IS NOT NULL AND v_property_name LIKE v_object_name || '%' LOOP
+                
+                    v_object_property_name_stack.DELETE(v_property_name);
+                
+                    v_property_name := v_object_property_name_stack.NEXT(v_property_name);
+                
+                END LOOP;
+                
                 add_parse_event(v_builder, 'END_OBJECT');
+                v_builder.object_level := v_builder.object_level - 1;
+                
                 
         END CASE;
 

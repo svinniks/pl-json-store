@@ -542,7 +542,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 push('I', 0);
             
-            ELSIF p_value IN ('_id', '_key', '_value') THEN
+            ELSIF p_value IN ('_id', '_key', '_value', '_path') THEN
             
                 IF v_stack.COUNT = 1 THEN
                     -- Reserved field reference can''t be the topmost query element!
@@ -1784,16 +1784,16 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 IF p_query_type = c_TABLE_QUERY AND v_column_count <= NVL(p_column_count, v_column_count) THEN
                 
-                    add_text(v_comma || 'j' || v_table_instance || '.');
-                
                     IF p_query_elements(p_i).type = 'F' THEN
                     
                         add_text(
                             CASE p_query_elements(p_i).value 
                                 WHEN 'key' THEN 
-                                    'name' 
+                                    v_comma || 'j' || v_table_instance || '.name' 
+                                WHEN 'path' THEN
+                                    v_comma || 'NULL'
                                 ELSE 
-                                    p_query_elements(p_i).value 
+                                    v_comma || 'j' || v_table_instance || '.' || p_query_elements(p_i).value 
                             END
                         );
                         

@@ -1565,6 +1565,34 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION push_json (
+        p_builder IN t_json_builder
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.push_json(
+                id,
+                json_builder.build_parse_events(p_builder.id)
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE push_json (
+        self IN t_json_value,
+        p_builder IN t_json_builder
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := push_json(p_builder);
+     
+    END;
+    
     MEMBER PROCEDURE remove (
         self IN t_json_value,
         p_path IN VARCHAR2,

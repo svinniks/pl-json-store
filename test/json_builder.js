@@ -1160,6 +1160,71 @@ suite("JSON builder tests", function() {
 
     });
 
+    test("Two subobjects with equal property names", function() {
+    
+        let builderId = database.call("json_builder.create_builder");
+    
+        database.call("json_builder.object", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builder.name", {
+            p_builder_id: builderId,
+            p_name: "object1"
+        });
+
+        database.call("json_builder.object", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builder.name", {
+            p_builder_id: builderId,
+            p_name: "hello"
+        });
+
+        database.call("json_builder.value", {
+            p_builder_id: builderId,
+            p_value: "world"
+        });
+
+        database.call("json_builder.close", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builder.name", {
+            p_builder_id: builderId,
+            p_name: "object2"
+        });
+
+        database.call("json_builder.object", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builder.name", {
+            p_builder_id: builderId,
+            p_name: "hello"
+        });
+
+        database.call("json_builder.value", {
+            p_builder_id: builderId,
+            p_value: "world"
+        });
+
+        database.call("json_builder.close", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builder.close", {
+            p_builder_id: builderId
+        });
+
+        let events = database.call("json_builder.build_parse_events", {
+            p_builder_id: builderId
+        });
+
+    });
+    
+
     test("Nested objects with equal property names on different levels", function() {
     
         let builderId = database.call("json_builder.create_builder");

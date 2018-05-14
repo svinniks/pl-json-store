@@ -1799,7 +1799,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                         
                     ELSE
                     
-                        add_text('value');
+                        add_text(v_comma || 'j' || v_table_instance || '.value');
                         
                     END IF;
                     
@@ -2905,203 +2905,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     FUNCTION create_json (
         p_parent_id IN NUMBER,
         p_name IN VARCHAR2,
-        p_content_parse_events IN json_parser.t_parse_events,
-        p_event_i IN OUT NOCOPY PLS_INTEGER
-    ) 
-    RETURN NUMBER IS
-    
-        v_json_values t_json_values;
-
-        v_id NUMBER;
-        v_id_map t_integer_indexed_numbers;
-        
-        v_value_id NUMBER;
-
-        FUNCTION next_id
-        RETURN NUMBER IS
-        BEGIN
-            -- Local "artifitial" identifiers must be negative to not overlap with the existing ones!
-            v_id := v_id - 1;
-            RETURN v_id;
-        END;
-
-        PROCEDURE flush_values IS
-
-            v_ids t_numbers;
-            v_id_count NUMBER;
-
-        BEGIN
-
-            v_id_count := NVL(v_id_map.FIRST, 0) - v_id;
-
-            SELECT jsvl_id.NEXTVAL
-            BULK COLLECT INTO v_ids
-            FROM dual
-            CONNECT BY LEVEL <= v_id_count;
-
-            FOR v_i IN 1..v_ids.COUNT LOOP
-                v_id_map(NVL(v_id_map.FIRST, 0) - 1) := v_ids(v_i);
-            END LOOP;
-
-            FOR v_i IN 1..v_json_values.COUNT LOOP
-
-                IF v_id_map.EXISTS(v_json_values(v_i).id) THEN
-                    v_json_values(v_i).id := v_id_map(v_json_values(v_i).id);
-                END IF;
-
-                IF v_id_map.EXISTS(v_json_values(v_i).parent_id) THEN
-                    v_json_values(v_i).parent_id := v_id_map(v_json_values(v_i).parent_id);
-                END IF;
-
-            END LOOP;
-
-            FORALL v_i IN 1..v_json_values.COUNT
-                INSERT INTO json_values
-                VALUES v_json_values(v_i);
-
-            v_json_values := t_json_values();
-
-        END;
-
-        PROCEDURE insert_value (
-            p_value json_values%ROWTYPE
-        ) IS
-
-            c_flush_amount CONSTANT PLS_INTEGER := 200;
-
-        BEGIN
-
-            v_json_values.EXTEND(1);
-            v_json_values(v_json_values.COUNT) := p_value;
-
-            IF v_json_values.COUNT = c_flush_amount THEN
-                flush_values;
-            END IF;
-
-        END;
-
-        FUNCTION create_value (
-            p_parent_id IN NUMBER,
-            p_name IN VARCHAR2,
-            p_id IN NUMBER := NULL
-        )
-        RETURN NUMBER IS
-
-            v_value json_values%ROWTYPE;
-            v_child_id NUMBER;
-
-            v_name VARCHAR2(4000);
-            v_i PLS_INTEGER;
-
-        BEGIN
-
-            v_value.id := next_id;
-            v_value.parent_id := p_parent_id;
-            v_value.name := p_name;
-
-            IF p_content_parse_events(p_event_i).name = 'STRING' THEN
-
-                v_value.type := 'S';
-                v_value.value := p_content_parse_events(p_event_i).value;
-
-                insert_value(v_value);
-
-            ELSIF p_content_parse_events(p_event_i).name = 'NUMBER' THEN
-
-                v_value.type := 'N';
-                v_value.value := p_content_parse_events(p_event_i).value;
-
-                insert_value(v_value);
-
-            ELSIF p_content_parse_events(p_event_i).name = 'BOOLEAN' THEN
-
-                v_value.type := 'B';
-                v_value.value := p_content_parse_events(p_event_i).value;
-
-                insert_value(v_value);
-
-            ELSIF p_content_parse_events(p_event_i).name = 'NULL' THEN
-
-                v_value.type := 'E';
-                v_value.value := NULL;
-
-                insert_value(v_value);
-
-            ELSIF p_content_parse_events(p_event_i).name = 'START_OBJECT' THEN
-
-                v_value.type := 'O';
-                v_value.value := NULL;
-
-                insert_value(v_value);
-
-                p_event_i := p_event_i + 1;
-
-                WHILE p_content_parse_events(p_event_i).name != 'END_OBJECT' LOOP
-
-                    v_name := p_content_parse_events(p_event_i).value;
-                    p_event_i := p_event_i + 1;
-
-                    v_child_id := create_value(v_value.id, v_name);
-                    p_event_i := p_event_i + 1;
-
-                END LOOP;
-
-            ELSIF p_content_parse_events(p_event_i).name = 'START_ARRAY' THEN
-
-                v_value.type := 'A';
-                v_value.value := NULL;
-
-                insert_value(v_value);
-
-                v_i := 0;
-                p_event_i := p_event_i + 1;
-
-                WHILE p_content_parse_events(p_event_i).name != 'END_ARRAY' LOOP
-
-                    v_child_id := create_value(v_value.id, v_i);
-
-                    p_event_i := p_event_i + 1;
-                    v_i := v_i + 1;
-
-                END LOOP;
-
-            END IF;
-
-            RETURN v_value.id;
-
-        END;
-
-    BEGIN
-
-        IF p_content_parse_events.COUNT = 0 THEN
-            -- Empty JSON specified!
-            error$.raise('JDOC-00030');
-        END IF;
-
-        v_json_values := t_json_values();
-        v_id := 0;
-
-        v_value_id := create_value(p_parent_id, p_name);
-
-        flush_values;
-
-        RETURN v_id_map(v_value_id);
-
-    END;
-
-    FUNCTION create_json (
-        p_parent_id IN NUMBER,
-        p_name IN VARCHAR2,
         p_content_parse_events IN json_parser.t_parse_events
     ) 
     RETURN NUMBER IS
-    
-        v_event_i PLS_INTEGER;
-    
     BEGIN
     
-        v_event_i := 1;
-        RETURN create_json(p_parent_id, p_name, p_content_parse_events, v_event_i);
+        RETURN json_writer.write_json(p_parent_id, p_name, p_content_parse_events, 1);
         
     END;
     
@@ -3260,7 +3069,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
            DELETE FROM json_values
            WHERE id = p_value.id;
         
-           v_value_id := create_json(
+           v_value_id := json_writer.write_json(
                p_value.parent_id, 
                p_value.name, 
                p_content_parse_events, 
@@ -3298,7 +3107,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     
                         p_event_i := p_event_i + 1;
                         
-                        v_value_id := create_json(
+                        v_value_id := json_writer.write_json(
                             p_value.id, 
                             v_child_value_name, 
                             p_content_parse_events, 
@@ -3331,7 +3140,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 EXCEPTION
                     WHEN NO_DATA_FOUND THEN
                     
-                        v_value_id := create_json(
+                        v_value_id := json_writer.write_json(
                             p_value.id, 
                             v_item_i, 
                             p_content_parse_events, 

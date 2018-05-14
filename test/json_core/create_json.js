@@ -1,17 +1,5 @@
 suite("Anonymous value creation", function() {
 
-    test("Try creating empty JSON", function() {
-    
-        expect(function() {
-        
-            database.call("json_core.create_json", {
-                p_content_parse_events: []
-            });
-        
-        }).to.throw(/JDOC-00030/);
-    
-    });
-    
     test("Create a string", function() {
     
         let valueId = database.call("json_core.create_json", {

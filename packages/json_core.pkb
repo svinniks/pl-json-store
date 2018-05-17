@@ -91,6 +91,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00039', 'Reserved fields are not allowed in path expressions!');
         default_message_resolver.register_message('JDOC-00040', 'Not all variables bound!');
         default_message_resolver.register_message('JDOC-00041', 'Property name missing!');
+        default_message_resolver.register_message('JDOC-00042', 'Can''t apply to an anonymous scalar value!');
+        default_message_resolver.register_message('JDOC-00043', 'Can''t replace anonymous composite!');
+        default_message_resolver.register_message('JDOC-00044', 'Can''t replace the root!');
     END;
     
     /* Some usefull functions */
@@ -3174,6 +3177,445 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         v_event_i := 1;
         
         apply_value(v_value, p_content_parse_events, v_event_i, p_check_types);
+        
+    END;
+    
+    PROCEDURE apply_json_new (
+        p_value_id IN NUMBER,
+        p_content_parse_events json_parser.t_parse_events,
+        p_check_types IN BOOLEAN
+    ) IS
+    
+        v_value t_value;
+        
+        CURSOR c_existing_values IS
+            SELECT SYS_CONNECT_BY_PATH(parent_id, '_') || '.' || name AS path,
+                   jsvl.*
+            FROM json_values jsvl
+            START WITH parent_id = p_value_id
+            CONNECT BY PRIOR id = parent_id
+            FOR UPDATE;
+            
+        TYPE t_existing_values IS
+            TABLE OF c_existing_values%ROWTYPE
+            INDEX BY VARCHAR2(32000);
+            
+        v_existing_value c_existing_values%ROWTYPE;
+        v_existing_values t_existing_values;
+        
+        TYPE t_composite_stack_element IS
+            RECORD (
+                id NUMBER,
+                type CHAR,
+                array_index PLS_INTEGER,
+                path VARCHAR2(32000)
+            );
+            
+        TYPE t_composite_stack IS
+            TABLE OF t_composite_stack_element;
+        
+        v_composite_stack t_composite_stack;
+        v_top_composite t_composite_stack_element;
+        
+        v_delete_ids t_numbers;
+        
+        v_event_i PLS_INTEGER;
+        v_event json_parser.t_parse_event;
+        
+        v_replace BOOLEAN;
+        
+        TYPE t_create_value IS
+            RECORD (
+                parent_id NUMBER,
+                name VARCHAR2(4000),
+                event_i PLS_INTEGER
+            );
+            
+        TYPE t_create_values IS
+            TABLE OF t_create_value;
+            
+        v_create_values t_create_values; 
+        
+        PROCEDURE create_value (
+            p_parent_id IN NUMBER,
+            p_name IN VARCHAR2,
+            p_event_i IN PLS_INTEGER
+        ) IS
+        
+            v_create_value t_create_value;
+            v_composite_depth PLS_INTEGER;
+        
+        BEGIN
+        
+            v_create_value.parent_id := p_parent_id;
+            v_create_value.name := p_name;
+            v_create_value.event_i := p_event_i;
+        
+            v_create_values.EXTEND(1);
+            v_create_values(v_create_values.COUNT) := v_create_value;
+            
+            v_composite_depth := 0;
+            
+            LOOP
+            
+                IF p_content_parse_events(v_event_i).name IN ('START_OBJECT', 'START_ARRAY') THEN
+                    v_composite_depth := v_composite_depth + 1;
+                ELSIF p_content_parse_events(v_event_i).name IN ('END_OBJECT', 'END_ARRAY') THEN
+                    v_composite_depth := v_composite_depth - 1;
+                END IF;
+                
+                EXIT WHEN v_composite_depth = 0;
+                
+                v_event_i := v_event_i + 1;
+            
+            END LOOP;
+        
+        END;
+        
+        PROCEDURE delete_existing_value IS
+        BEGIN
+        
+            IF v_existing_value.locked = 'T' THEN
+                -- Value :1 is locked!
+                error$.raise('JDOC-00024', v_existing_value.name);
+            END IF;
+        
+            v_delete_ids.EXTEND(1);
+            v_delete_ids(v_delete_ids.COUNT) := v_existing_value.id;
+        
+        END;
+        
+        FUNCTION in_array
+        RETURN BOOLEAN IS
+        BEGIN
+        
+            RETURN NOT (v_composite_stack.COUNT = 0 OR v_composite_stack(v_composite_stack.COUNT).type != 'A');
+        
+        END;
+        
+        PROCEDURE push (
+            p_id IN NUMBER,
+            p_type IN CHAR
+        ) IS
+        
+            v_element t_composite_stack_element;
+        
+        BEGIN
+        
+            v_element.id := p_id;
+            v_element.type := p_type;
+            
+            IF p_type = 'A' THEN
+                v_element.array_index := 0;
+            END IF;
+            
+            IF v_composite_stack.COUNT > 0 THEN
+                v_element.path := v_composite_stack(v_composite_stack.COUNT).path;
+            END IF;
+            
+            v_element.path := v_element.path || '_' || p_id;
+            
+            v_composite_stack.EXTEND(1);
+            v_composite_stack(v_composite_stack.COUNT) := v_element;
+        
+        END;
+        
+        PROCEDURE pop IS
+        BEGIN
+        
+            v_composite_stack.TRIM(1);
+        
+        END;
+        
+    BEGIN
+    
+        v_value := get_value(p_value_id); 
+        
+        IF v_value.parent_id IS NULL AND v_value.type IN ('S', 'N', 'B', 'E') THEN
+            -- Can''t apply to an anonymous scalar value!')
+            error$.raise('JDOC-00042');
+        END IF;
+        
+        v_existing_value.path := '.' || v_value.name;
+        v_existing_value.id := v_value.id;
+        v_existing_value.parent_id := v_value.parent_id;
+        v_existing_value.type := v_value.type;
+        v_existing_value.name := v_value.name;
+        v_existing_value.value := v_value.value;
+        v_existing_value.locked := v_value.locked;
+                
+        FOR v_existing_value IN c_existing_values LOOP
+            v_existing_values(v_existing_value.path) := v_existing_value;
+        END LOOP;
+        
+        v_composite_stack := t_composite_stack();
+
+        v_delete_ids := t_numbers();
+        v_create_values := t_create_values();
+        
+        v_event_i := 1;
+        
+        WHILE v_event_i <= p_content_parse_events.COUNT LOOP
+        
+            v_event := p_content_parse_events(v_event_i);
+            
+            IF v_event.name = 'STRING' THEN
+
+                IF v_existing_value.type = 'S' THEN
+                
+                    IF v_existing_value.value IS NOT NULL AND v_event.value IS NOT NULL THEN
+                        v_replace := v_existing_value.value != v_event.value;
+                    ELSE
+                        v_replace := NOT (v_existing_value.value IS NULL AND v_event.value IS NULL); 
+                    END IF;
+                     
+                ELSIF v_existing_value.type = 'R' THEN
+                    -- Can''t replace the root!
+                    error$.raise('JDOC-00044');
+                ELSIF v_existing_value.type IN ('O', 'A') AND v_existing_value.parent_id IS NULL THEN
+                    -- Can''t replace anonymous composite!
+                    error$.raise('JDOC-00043');   
+                ELSIF NVL(p_check_types, FALSE) AND v_existing_value.type != 'E' THEN
+                    -- Property :1 type mismatch!
+                    error$.raise('JDOC-00011', v_existing_value.name);
+                ELSE
+                    v_replace := TRUE;
+                END IF;
+                
+                IF v_replace THEN
+                
+                    delete_existing_value;
+                    
+                    create_value(
+                        v_existing_value.parent_id,
+                        v_existing_value.name,
+                        v_event_i
+                    );
+                    
+                    
+                END IF;
+                
+            ELSIF v_event.name = 'NUMBER' THEN
+            
+                IF v_existing_value.type = 'N' THEN
+                    v_replace := v_existing_value.value != v_event.value;
+                ELSIF v_existing_value.type = 'R' THEN
+                    -- Can''t replace the root!
+                    error$.raise('JDOC-00044');
+                ELSIF v_existing_value.type IN ('O', 'A') AND v_existing_value.parent_id IS NULL THEN
+                    -- Can''t replace anonymous composite!
+                    error$.raise('JDOC-00043');
+                ELSIF NVL(p_check_types, FALSE) AND v_existing_value.type != 'E' THEN
+                    -- Property :1 type mismatch!
+                    error$.raise('JDOC-00011', v_existing_value.name);
+                ELSE
+                    v_replace := TRUE;
+                END IF;
+                
+                IF v_replace THEN
+                
+                    delete_existing_value;
+                    
+                    create_value(
+                        v_existing_value.parent_id,
+                        v_existing_value.name,
+                        v_event_i
+                    );
+                    
+                END IF;
+            
+            ELSIF v_event.name = 'BOOLEAN' THEN
+            
+                IF v_existing_value.type = 'B' THEN
+                    v_replace := v_existing_value.value != v_event.value;
+                ELSIF v_existing_value.type = 'R' THEN
+                    -- Can''t replace the root!
+                    error$.raise('JDOC-00044');
+                ELSIF v_existing_value.type IN ('O', 'A') AND v_existing_value.parent_id IS NULL THEN
+                    -- Can''t replace anonymous composite!
+                    error$.raise('JDOC-00043');
+                ELSIF NVL(p_check_types, FALSE) AND v_existing_value.type != 'E' THEN
+                    -- Property :1 type mismatch!
+                    error$.raise('JDOC-00011', v_existing_value.name);
+                ELSE
+                    v_replace := TRUE;
+                END IF;
+                
+                IF v_replace THEN
+                
+                    delete_existing_value;
+                    
+                    create_value(
+                        v_existing_value.parent_id,
+                        v_existing_value.name,
+                        v_event_i
+                    );
+                    
+                END IF;
+                
+            ELSIF v_event.name = 'NULL' THEN
+                
+                IF v_existing_value.type = 'R' THEN
+                    -- Can''t replace the root!
+                    error$.raise('JDOC-00044');
+                ELSIF v_existing_value.type IN ('O', 'A') AND v_existing_value.parent_id IS NULL THEN
+                    -- Can''t replace anonymous composite!
+                    error$.raise('JDOC-00043');
+                ELSIF v_existing_value.type != 'E' THEN
+                
+                    delete_existing_value;
+                    
+                    create_value(
+                        v_existing_value.parent_id,
+                        v_existing_value.name,
+                        v_event_i
+                    );
+                    
+                END IF;
+                
+            ELSIF v_event.name = 'START_OBJECT' THEN
+            
+                IF v_existing_value.type = 'A' AND v_existing_value.parent_id IS NULL THEN
+                
+                    -- Can''t replace anonymous composite!
+                    error$.raise('JDOC-00043');
+                  
+                ELSIF v_existing_value.type IN ('O', 'R') THEN
+                
+                    push(v_existing_value.id, 'O');
+                
+                ELSIF NVL(p_check_types, FALSE)  THEN
+                
+                    -- Property :1 type mismatch!
+                    error$.raise('JDOC-00011', v_existing_value.name);
+                    
+                ELSE
+                    
+                    delete_existing_value;
+                    
+                    create_value(
+                        v_existing_value.parent_id,
+                        v_existing_value.name,
+                        v_event_i
+                    );
+                
+                END IF;
+                
+            ELSIF v_event.name = 'END_OBJECT' THEN
+            
+                pop;
+                
+            ELSIF v_event.name = 'NAME' THEN
+            
+                v_top_composite := v_composite_stack(v_composite_stack.COUNT);
+            
+                IF v_existing_values.EXISTS(v_top_composite.path || '.' || v_event.value) THEN
+                
+                    v_existing_value := v_existing_values(v_top_composite.path || '.' || v_event.value);
+                    
+                ELSE
+                
+                    v_event_i := v_event_i + 1;
+                    
+                    create_value(
+                        v_composite_stack(v_composite_stack.COUNT).id,
+                        v_event.value,
+                        v_event_i
+                    );
+                    
+                END IF;
+                
+            ELSIF v_event.name = 'START_ARRAY' THEN
+            
+                IF v_existing_value.type = 'R' THEN
+                
+                    -- Can''t replace the root!
+                    error$.raise('JDOC-00044');
+                    
+                ELSIF v_existing_value.type = 'O' AND v_existing_value.parent_id IS NULL THEN
+                
+                    -- Can''t replace anonymous composite!
+                    error$.raise('JDOC-00043');
+                    
+                ELSIF v_existing_value.type = 'A' THEN
+                    
+                    push(v_existing_value.id, 'A');
+                    
+                ELSIF NVL(p_check_types, FALSE)  THEN
+                
+                    -- Property :1 type mismatch!
+                    error$.raise('JDOC-00011', v_existing_value.name);
+                                    
+                ELSE
+                    
+                    delete_existing_value;
+                    
+                    create_value(
+                        v_existing_value.parent_id,
+                        v_existing_value.name,
+                        v_event_i
+                    );
+                
+                END IF;
+                
+            ELSIF v_event.name = 'END_ARRAY' THEN
+            
+                pop;
+            
+            END IF; 
+            
+            v_event_i := v_event_i + 1;
+            
+            IF in_array THEN
+            
+                v_top_composite := v_composite_stack(v_composite_stack.COUNT);
+            
+                WHILE p_content_parse_events(v_event_i).name != 'END_ARRAY' LOOP
+                
+                    IF v_existing_values.EXISTS(v_top_composite.path || '.' || v_top_composite.array_index) THEN
+                
+                        v_existing_value := v_existing_values(v_top_composite.path || '.' || v_top_composite.array_index);
+                        v_top_composite.array_index := v_top_composite.array_index + 1;
+                        
+                        EXIT;
+                        
+                    ELSE
+                    
+                        create_value(
+                            v_top_composite.id,
+                            v_top_composite.array_index,
+                            v_event_i
+                        );
+                        
+                        v_top_composite.array_index := v_top_composite.array_index + 1;
+                        v_event_i := v_event_i + 1;
+                        
+                    END IF;
+                
+                END LOOP;
+                
+                v_composite_stack(v_composite_stack.COUNT) := v_top_composite;
+            
+            END IF;
+        
+        END LOOP;
+        
+        FORALL v_i IN 1..v_delete_ids.COUNT
+            DELETE FROM json_values
+            WHERE id = v_delete_ids(v_i);
+            
+        FOR v_i IN 1..v_create_values.COUNT LOOP
+        
+            json_writer.write_json(
+                v_create_values(v_i).parent_id, 
+                v_create_values(v_i).name, 
+                p_content_parse_events,
+                v_create_values(v_i).event_i
+            );
+            
+        END LOOP;
+        
+        json_writer.flush;
         
     END;
     

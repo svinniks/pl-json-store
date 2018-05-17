@@ -403,6 +403,12 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_check_types IN BOOLEAN
     );
     
+    PROCEDURE apply_json_new (
+        p_value_id IN NUMBER,
+        p_content_parse_events json_parser.t_parse_events,
+        p_check_types IN BOOLEAN
+    );
+    
     PROCEDURE delete_value (
         p_value_id IN NUMBER
     );

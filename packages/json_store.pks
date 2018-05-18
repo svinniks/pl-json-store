@@ -248,21 +248,23 @@ CREATE OR REPLACE PACKAGE json_store IS
     -- @json
     RETURN CLOB;
     
-    PROCEDURE apply_json (
+    FUNCTION apply_json (
         p_path IN VARCHAR2,
         -- @json
         p_content IN VARCHAR2,
         p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
-    );
+    )
+    RETURN NUMBER;
         
-    PROCEDURE apply_json_clob (
+    FUNCTION apply_json_clob (
         p_path IN VARCHAR2,
         -- @json
         p_content IN CLOB,
         p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
-    );    
+    )
+    RETURN NUMBER;    
     
     FUNCTION get_keys (
         p_path IN VARCHAR2,

@@ -48,6 +48,10 @@ CREATE OR REPLACE PACKAGE json_builder IS
         p_value IN BOOLEAN
     );
     
+    PROCEDURE null_value (
+        p_builder_id IN PLS_INTEGER
+    );
+    
     PROCEDURE array (
         p_builder_id IN PLS_INTEGER
     );

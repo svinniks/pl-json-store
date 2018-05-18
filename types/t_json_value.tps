@@ -666,6 +666,211 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_builder IN t_json_builder
     ),
     
+    /* JSON applying methods */
+    
+    MEMBER FUNCTION apply_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE apply_string (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION apply_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE apply_date (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION apply_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE apply_number (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION apply_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE apply_boolean (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION apply_object (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE apply_object (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION apply_array (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE apply_array (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value,
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_content IN VARCHAR2
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_content IN CLOB
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_builder IN t_json_builder
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN
+    ),
+    
     /* Property deletion */
     
     MEMBER PROCEDURE remove (

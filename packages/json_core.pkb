@@ -94,6 +94,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDOC-00042', 'Can''t apply to an anonymous scalar value!');
         default_message_resolver.register_message('JDOC-00043', 'Can''t replace anonymous composite!');
         default_message_resolver.register_message('JDOC-00044', 'Can''t replace the root!');
+        default_message_resolver.register_message('JDOC-00045', 'Applying which alters value ID is not allowed!');
     END;
     
     /* Some usefull functions */
@@ -3033,158 +3034,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     END;
     
-    PROCEDURE apply_value (
-        p_value IN t_value,
-        p_content_parse_events IN json_parser.t_parse_events,
-        p_event_i IN OUT NOCOPY PLS_INTEGER,
-        p_check_types IN BOOLEAN
-    ) IS
-        
-        v_event json_parser.t_parse_event;
-        v_value_id NUMBER;
-        
-        v_child_value_name VARCHAR2(4000);
-        v_child_value_row json_values%ROWTYPE;
-        
-        v_item_i PLS_INTEGER;
-        
-    BEGIN
-    
-        v_event := p_content_parse_events(p_event_i);
-        
-        IF p_value.type = 'R' AND v_event.name != 'START_OBJECT' THEN
-        
-            -- Property :1 type mismatch!
-            error$.raise('JDOC-00011', p_value.name);
-        
-        ELSIF (p_value.type = 'S' AND v_event.name != 'STRING')
-           OR (p_value.type = 'N' AND v_event.name != 'NUMBER')
-           OR (p_value.type = 'B' AND v_event.name != 'BOOLEAN')
-           OR (p_value.type = 'E' AND v_event.name != 'NULL')
-           OR (p_value.type = 'O' AND v_event.name != 'START_OBJECT')
-           OR (p_value.type = 'A' AND v_event.name != 'START_ARRAY') THEN
-           
-           IF p_check_types AND p_value.type != 'E' AND v_event.name != 'NULL' THEN
-               -- Property :1 type mismatch!
-               error$.raise('JDOC-00011', p_value.name);
-           END IF;
-           
-           DELETE FROM json_values
-           WHERE id = p_value.id;
-        
-           v_value_id := json_writer.write_json(
-               p_value.parent_id, 
-               p_value.name, 
-               p_content_parse_events, 
-               p_event_i
-           );
-        
-        ELSIF p_value.type IN ('S', 'N', 'B') AND p_value.value != v_event.value THEN
-            
-            UPDATE json_values
-            SET value = v_event.value
-            WHERE id = p_value.id;
-        
-        ELSIF p_value.type IN ('O', 'R') THEN
-        
-            p_event_i := p_event_i + 1;
-            
-            WHILE p_content_parse_events(p_event_i).name != 'END_OBJECT' LOOP
-            
-                v_child_value_name := p_content_parse_events(p_event_i).value;
-            
-                BEGIN
-                
-                    SELECT *
-                    INTO v_child_value_row
-                    FROM json_values
-                    WHERE parent_id = p_value.id
-                          AND name = v_child_value_name;
-                
-                    p_event_i := p_event_i + 1;
-                    
-                    apply_value(v_child_value_row, p_content_parse_events, p_event_i, p_check_types);               
-                
-                EXCEPTION
-                    WHEN NO_DATA_FOUND THEN
-                    
-                        p_event_i := p_event_i + 1;
-                        
-                        v_value_id := json_writer.write_json(
-                            p_value.id, 
-                            v_child_value_name, 
-                            p_content_parse_events, 
-                            p_event_i
-                        );
-                
-                END;
-            
-                p_event_i := p_event_i + 1;
-            
-            END LOOP;
-        
-        ELSIF p_value.type = 'A' THEN
-       
-            v_item_i := 0;
-            p_event_i := p_event_i + 1;
-            
-            WHILE p_content_parse_events(p_event_i).name != 'END_ARRAY' LOOP
-            
-                BEGIN
-                
-                    SELECT *
-                    INTO v_child_value_row
-                    FROM json_values
-                    WHERE parent_id = p_value.id
-                          AND name = TO_CHAR(v_item_i);
-                    
-                    apply_value(v_child_value_row, p_content_parse_events, p_event_i, p_check_types);               
-                
-                EXCEPTION
-                    WHEN NO_DATA_FOUND THEN
-                    
-                        v_value_id := json_writer.write_json(
-                            p_value.id, 
-                            v_item_i, 
-                            p_content_parse_events, 
-                            p_event_i
-                        );
-                
-                END;
-            
-                p_event_i := p_event_i + 1;
-                v_item_i := v_item_i + 1;
-            
-            END LOOP;
-    
-        END IF;
-        
-    
-    END;
-    
-    PROCEDURE apply_json (
+    FUNCTION apply_json (
         p_value_id IN NUMBER,
         p_content_parse_events json_parser.t_parse_events,
         p_check_types IN BOOLEAN
-    ) IS
-        
-        v_value t_value;
-        v_event_i PLS_INTEGER;
-    
-    BEGIN
-
-        v_value := get_value(p_value_id);
-        v_event_i := 1;
-        
-        apply_value(v_value, p_content_parse_events, v_event_i, p_check_types);
-        
-    END;
-    
-    PROCEDURE apply_json_new (
-        p_value_id IN NUMBER,
-        p_content_parse_events json_parser.t_parse_events,
-        p_check_types IN BOOLEAN
-    ) IS
+    ) 
+    RETURN NUMBER IS
     
         v_value t_value;
         
@@ -3616,6 +3471,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         END LOOP;
         
         json_writer.flush;
+        
+        RETURN NULL;
         
     END;
     

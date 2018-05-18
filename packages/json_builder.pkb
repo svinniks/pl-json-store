@@ -268,11 +268,7 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
             error$.raise('JBLR-00003');
         END IF;
         
-        IF p_value IS NULL THEN
-            add_parse_event(v_builder, 'NULL');
-        ELSE
-            add_parse_event(v_builder, p_type, p_value);
-        END IF;
+        add_parse_event(v_builder, p_type, p_value);
         
         IF v_builder.composite_stack_top_i IS NULL THEN
             v_builder.state := 'wf_eof';
@@ -302,7 +298,11 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
     ) IS
     BEGIN
     
-        value(p_builder_id, 'STRING', TO_CHAR(p_value, 'yyyy-mm-dd'));
+        IF p_value IS NULL THEN
+            value(p_builder_id, 'NULL', NULL);
+        ELSE
+            value(p_builder_id, 'STRING', TO_CHAR(p_value, 'yyyy-mm-dd'));
+        END IF;
     
     END;
     
@@ -315,13 +315,19 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
     
     BEGIN
     
-        v_value_string := TO_CHAR(p_value, 'TM', 'NLS_NUMERIC_CHARACTERS=''.,''');
-        
-        IF v_value_string LIKE '.%' THEN
-            v_value_string := '0' || v_value_string;
-        END IF;
+        IF p_value IS NULL THEN
+            value(p_builder_id, 'NULL', NULL);
+        ELSE
     
-        value(p_builder_id, 'NUMBER', v_value_string);
+            v_value_string := TO_CHAR(p_value, 'TM', 'NLS_NUMERIC_CHARACTERS=''.,''');
+            
+            IF v_value_string LIKE '.%' THEN
+                v_value_string := '0' || v_value_string;
+            END IF;
+        
+            value(p_builder_id, 'NUMBER', v_value_string);
+            
+        END IF;
     
     END;
     
@@ -331,18 +337,33 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
     ) IS
     BEGIN
     
-        value(
-            p_builder_id, 
-            'BOOLEAN', 
-            CASE
-                WHEN p_value IS NULL THEN
-                    NULL
-                WHEN p_value THEN
-                    'true'
-                ELSE
-                    'false'
-            END
-        );
+        IF p_value IS NULL THEN
+            value(p_builder_id, 'NULL', NULL);
+        ELSE
+    
+            value(
+                p_builder_id, 
+                'BOOLEAN', 
+                CASE
+                    WHEN p_value IS NULL THEN
+                        NULL
+                    WHEN p_value THEN
+                        'true'
+                    ELSE
+                        'false'
+                END
+            );
+            
+        END IF;
+    
+    END;
+    
+    PROCEDURE null_value (
+        p_builder_id IN PLS_INTEGER
+    ) IS
+    BEGIN
+    
+        value(p_builder_id, 'NULL', NULL);
     
     END;
     

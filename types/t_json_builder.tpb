@@ -98,6 +98,25 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     
     END;
     
+    MEMBER FUNCTION null_value
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.null_value(id);
+        
+        RETURN self;
+    
+    END;
+    
+    MEMBER PROCEDURE null_value (
+        self IN t_json_builder
+    ) IS
+    BEGIN
+    
+        json_builder.null_value(id);
+        
+    END;
+    
     MEMBER FUNCTION object
     RETURN t_json_builder IS
     BEGIN

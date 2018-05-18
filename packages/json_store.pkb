@@ -597,13 +597,14 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
-    PROCEDURE apply_json (
+    FUNCTION apply_json (
         p_path IN VARCHAR2,
         -- @json
         p_content IN VARCHAR2,
         p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
-    ) IS
+    ) 
+    RETURN NUMBER IS
     
         v_parse_events json_parser.t_parse_events;
         
@@ -611,21 +612,22 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
         json_parser.parse(p_content, v_parse_events);
         
-        json_core.apply_json(
+        RETURN json_core.apply_json(
             json_core.request_value(p_path, p_bind, TRUE),
             v_parse_events, 
             p_check_types
-         );
+        );
         
     END;
         
-    PROCEDURE apply_json_clob (
+    FUNCTION apply_json_clob (
         p_path IN VARCHAR2,
         -- @json
         p_content IN CLOB,
         p_bind IN bind := NULL,
         p_check_types IN BOOLEAN := FALSE
-    ) IS
+    ) 
+    RETURN NUMBER IS
     
         v_parse_events json_parser.t_parse_events;
         
@@ -633,11 +635,11 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
         json_parser.parse(p_content, v_parse_events);
         
-        json_core.apply_json(
+        RETURN json_core.apply_json(
             json_core.request_value(p_path, p_bind, TRUE),
             v_parse_events, 
             p_check_types
-         );
+        );
         
     END;
     

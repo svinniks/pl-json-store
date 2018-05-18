@@ -45,6 +45,13 @@ CREATE OR REPLACE TYPE t_json_builder IS OBJECT (
         p_value IN BOOLEAN
     ),
     
+    MEMBER FUNCTION null_value
+    RETURN t_json_builder,
+    
+    MEMBER PROCEDURE null_value (
+        self IN t_json_builder
+    ),
+    
     MEMBER FUNCTION object
     RETURN t_json_builder,
     

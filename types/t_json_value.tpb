@@ -869,7 +869,8 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         p_path IN VARCHAR2,
         p_content IN VARCHAR2,
         p_bind IN bind := NULL
-    ) RETURN t_json_value IS
+    ) 
+    RETURN t_json_value IS
     
         v_parse_events json_parser.t_parse_events;
     
@@ -1592,6 +1593,517 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         v_dummy := push_json(p_builder);
      
     END;
+    
+    /* JSON applying methods */
+    
+    MEMBER FUNCTION apply_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.apply_json(
+                json_core.request_value(id, p_path, p_bind, TRUE),
+                json_core.string_events(p_value),
+                TRUE
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_string (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_string(p_path, p_value, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.apply_json(
+                json_core.request_value(id, p_path, p_bind, TRUE),
+                json_core.date_events(p_value),
+                TRUE
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_date (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_date(p_path, p_value, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.apply_json(
+                json_core.request_value(id, p_path, p_bind, TRUE),
+                json_core.number_events(p_value),
+                TRUE
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_number (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_number(p_path, p_value, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.apply_json(
+                json_core.request_value(id, p_path, p_bind, TRUE),
+                json_core.boolean_events(p_value),
+                TRUE
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_boolean (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_boolean(p_path, p_value, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_object (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.apply_json(
+                json_core.request_value(id, p_path, p_bind, TRUE),
+                json_core.object_events(),
+                TRUE
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_object (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_object(p_path, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_array (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN  t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.apply_json(
+                json_core.request_value(id, p_path, p_bind, TRUE),
+                json_core.array_events(),
+                TRUE
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_array (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_array(p_path, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN apply_json(p_path, p_content, FALSE, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+    
+        RETURN t_json_value(
+            json_core.apply_json(
+                json_core.request_value(id, p_path, p_bind, TRUE),
+                v_parse_events,
+                p_check_types
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_content, p_bind);
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_content, p_check_types, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN apply_json(p_path, p_content, FALSE, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+    
+        RETURN t_json_value(
+            json_core.apply_json(
+                json_core.request_value(id, p_path, p_bind, TRUE),
+                v_parse_events,
+                p_check_types
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_content, p_bind);
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_content, p_check_types, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN apply_json(p_path, p_builder, FALSE, p_bind);
+    
+    END;
+    
+    MEMBER FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN t_json_value IS
+    BEGIN
+    
+        RETURN t_json_value(
+            json_core.apply_json(
+                json_core.request_value(id, p_path, p_bind, TRUE),
+                json_builder.build_parse_events(p_builder.id),
+                p_check_types
+            )
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_builder, p_bind);
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy t_json_value;
+    
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_builder, p_check_types, p_bind);
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,        
+        p_content IN VARCHAR2
+    ) IS
+    BEGIN
+    
+        apply_json(p_content, FALSE);
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN
+    ) IS
+    
+        v_parse_events json_parser.t_parse_events;
+        v_dummy NUMBER;
+    
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+        
+        IF NOT (v_parse_events(1).name = 'START_OBJECT' AND is_object
+                OR v_parse_events(1).name = 'START_ARRAY' AND is_array) THEN
+               
+            -- Applying which alters value ID is not allowed!
+            error$.raise('JDOC-00045'); 
+                
+        END IF;
+        
+        v_dummy := json_core.apply_json(
+            id,
+            v_parse_events,
+            p_check_types
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_content IN CLOB
+    ) IS
+    BEGIN
+    
+        apply_json(p_content, FALSE);
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN
+    ) IS
+    
+        v_parse_events json_parser.t_parse_events;
+        v_dummy NUMBER;
+    
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+        
+        IF NOT (v_parse_events(1).name = 'START_OBJECT' AND is_object
+                OR v_parse_events(1).name = 'START_ARRAY' AND is_array) THEN
+               
+            -- Applying which alters value ID is not allowed!
+            error$.raise('JDOC-00045'); 
+                
+        END IF;
+        
+        v_dummy := json_core.apply_json(
+            id,
+            v_parse_events,
+            p_check_types
+        );
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_builder IN t_json_builder
+    ) IS
+    BEGIN
+    
+        apply_json(p_builder, FALSE);
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        self IN t_json_value,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN
+    ) IS
+    
+        v_parse_events json_parser.t_parse_events;
+        v_dummy NUMBER;
+    
+    BEGIN
+    
+        v_parse_events := json_builder.build_parse_events(p_builder.id);
+        
+        IF NOT (v_parse_events(1).name = 'START_OBJECT' AND is_object
+                OR v_parse_events(1).name = 'START_ARRAY' AND is_array) THEN
+               
+            -- Applying which alters value ID is not allowed!
+            error$.raise('JDOC-00045'); 
+                
+        END IF;
+        
+        v_dummy := json_core.apply_json(
+            id,
+            v_parse_events,
+            p_check_types
+        );
+    
+    END;
+    
+    /* Property deletion */
     
     MEMBER PROCEDURE remove (
         self IN t_json_value,

@@ -14,7 +14,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -36,7 +36,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -58,7 +58,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -78,7 +78,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -100,7 +100,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: 0,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -120,7 +120,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -140,7 +140,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -171,7 +171,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -195,7 +195,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -224,7 +224,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -253,7 +253,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -284,7 +284,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -320,7 +320,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("people")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -350,7 +350,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -380,7 +380,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -413,7 +413,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -437,7 +437,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -468,7 +468,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -504,7 +504,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -533,7 +533,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: 0,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -553,7 +553,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -573,7 +573,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -604,7 +604,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -628,7 +628,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(123.321)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -657,7 +657,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(321.123)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -687,7 +687,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(321.123)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -717,7 +717,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(321.123)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -750,7 +750,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -774,7 +774,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(123.321)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -803,7 +803,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: 0,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -823,7 +823,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -843,7 +843,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -874,7 +874,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -898,7 +898,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(true)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -927,7 +927,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(false)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -957,7 +957,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(false)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -987,7 +987,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(false)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1020,7 +1020,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -1044,7 +1044,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(true)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1073,7 +1073,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: 0,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -1093,7 +1093,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -1113,7 +1113,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -1144,7 +1144,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -1167,7 +1167,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(null)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -1196,7 +1196,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(null)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1227,7 +1227,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -1258,7 +1258,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -1284,7 +1284,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -1308,7 +1308,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify({})
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1338,7 +1338,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify({})
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
@@ -1366,7 +1366,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1398,7 +1398,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1432,7 +1432,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1466,7 +1466,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1499,7 +1499,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1544,7 +1544,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1624,7 +1624,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1679,7 +1679,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1739,7 +1739,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1792,7 +1792,7 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(object)
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: 0,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1819,7 +1819,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: 0,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -1839,7 +1839,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: objectId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -1870,7 +1870,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: false
@@ -1896,7 +1896,7 @@ suite("JSON applying tests", function() {
 
             expect(function() {
             
-                database.call("json_core.apply_json_new", {
+                database.call("json_core.apply_json", {
                     p_value_id: valueId,
                     p_content_parse_events: parseEvents,
                     p_check_types: true
@@ -1919,7 +1919,7 @@ suite("JSON applying tests", function() {
                 ])
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1951,7 +1951,7 @@ suite("JSON applying tests", function() {
                 ])
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -1996,7 +1996,7 @@ suite("JSON applying tests", function() {
                 ])
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -2043,7 +2043,7 @@ suite("JSON applying tests", function() {
                 ])
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -2082,7 +2082,7 @@ suite("JSON applying tests", function() {
                 ])
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
@@ -2152,7 +2152,7 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json_new", {
+            database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false

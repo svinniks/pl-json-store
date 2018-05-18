@@ -209,7 +209,7 @@ suite("JSON builder tests", function() {
 
         expect(events).to.eql([
             {
-                name: "NULL",
+                name: "STRING",
                 value: null
             }
         ])
@@ -355,6 +355,27 @@ suite("JSON builder tests", function() {
         database.call4("json_builder.value", {
             p_builder_id: builderId,
             p_value: null
+        });
+    
+        let events = database.call("json_builder.build_parse_events", {
+            p_builder_id: builderId
+        });
+
+        expect(events).to.eql([
+            {
+                name: "NULL",
+                value: null
+            }
+        ])
+
+    });
+
+    test("Single NULL value builder", function() {
+    
+        let builderId = database.call("json_builder.create_builder");
+
+        database.call("json_builder.null_value", {
+            p_builder_id: builderId
         });
     
         let events = database.call("json_builder.build_parse_events", {

@@ -597,51 +597,326 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
+    FUNCTION apply_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.apply_json (
+            json_core.request_value(p_path, p_bind, TRUE),
+            json_core.string_events(p_value),
+            TRUE
+        );
+    
+    END;
+    
+    PROCEDURE apply_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+      
+        v_dummy NUMBER;
+       
+    BEGIN
+    
+        v_dummy := apply_string(p_path, p_value, p_bind);
+    
+    END;
+    
+    FUNCTION apply_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.apply_json (
+            json_core.request_value(p_path, p_bind, TRUE),
+            json_core.date_events(p_value),
+            TRUE
+        );
+    
+    END;
+    
+    PROCEDURE apply_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    ) IS
+      
+        v_dummy NUMBER;
+       
+    BEGIN
+    
+        v_dummy := apply_date(p_path, p_value, p_bind);
+    
+    END;
+    
+    FUNCTION apply_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.apply_json (
+            json_core.request_value(p_path, p_bind, TRUE),
+            json_core.number_events(p_value),
+            TRUE
+        );
+    
+    END;
+    
+    PROCEDURE apply_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    ) IS
+      
+        v_dummy NUMBER;
+       
+    BEGIN
+    
+        v_dummy := apply_number(p_path, p_value, p_bind);
+    
+    END;
+    
+    FUNCTION apply_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.apply_json (
+            json_core.request_value(p_path, p_bind, TRUE),
+            json_core.boolean_events(p_value),
+            TRUE
+        );
+    
+    END;
+    
+    PROCEDURE apply_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+      
+        v_dummy NUMBER;
+       
+    BEGIN
+    
+        v_dummy := apply_boolean(p_path, p_value, p_bind);
+    
+    END;
+    
     FUNCTION apply_json (
         p_path IN VARCHAR2,
         -- @json
         p_content IN VARCHAR2,
-        p_bind IN bind := NULL,
-        p_check_types IN BOOLEAN := FALSE
-    ) 
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN apply_json(p_path, p_content, FALSE, p_bind);
+    
+    END;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy NUMBER;
+        
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_content, p_bind);
+    
+    END;
+    
+    FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
     RETURN NUMBER IS
     
         v_parse_events json_parser.t_parse_events;
-        
+    
     BEGIN
     
         json_parser.parse(p_content, v_parse_events);
         
         RETURN json_core.apply_json(
             json_core.request_value(p_path, p_bind, TRUE),
-            v_parse_events, 
+            v_parse_events,
             p_check_types
         );
-        
+    
     END;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy NUMBER;
         
-    FUNCTION apply_json_clob (
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_content, p_check_types, p_bind);
+    
+    END;
+    
+    FUNCTION apply_json (
         p_path IN VARCHAR2,
         -- @json
         p_content IN CLOB,
-        p_bind IN bind := NULL,
-        p_check_types IN BOOLEAN := FALSE
-    ) 
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN apply_json(p_path, p_content, FALSE, p_bind);
+    
+    END;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN CLOB,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy NUMBER;
+        
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_content, p_bind);
+    
+    END;
+    
+    FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
     RETURN NUMBER IS
     
         v_parse_events json_parser.t_parse_events;
-        
+    
     BEGIN
     
         json_parser.parse(p_content, v_parse_events);
         
         RETURN json_core.apply_json(
             json_core.request_value(p_path, p_bind, TRUE),
-            v_parse_events, 
+            v_parse_events,
             p_check_types
         );
-        
+    
     END;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy NUMBER;
+        
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_content, p_check_types, p_bind);
+    
+    END;
+    
+    /*
+    
+    FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN apply_json(p_path, p_builder, FALSE, p_bind);
+    
+    END;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy NUMBER;
+        
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_builder, p_bind);
+    
+    END;
+    
+    FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        v_parse_events := json_builder.build_parse_events(p_builder.id);
+        
+        RETURN json_core.apply_json(
+            json_core.request_value(p_path, p_bind, TRUE),
+            v_parse_events,
+            p_check_types
+        );
+    
+    END;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    ) IS
+    
+        v_dummy NUMBER;
+        
+    BEGIN
+    
+        v_dummy := apply_json(p_path, p_builder, p_check_types, p_bind);
+    
+    END;
+    
+    */
     
     FUNCTION get_keys (
         p_path IN VARCHAR2,

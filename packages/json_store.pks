@@ -248,24 +248,156 @@ CREATE OR REPLACE PACKAGE json_store IS
     -- @json
     RETURN CLOB;
     
+    /* Applying methods */
+    
+    FUNCTION apply_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE apply_string (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION apply_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE apply_date (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION apply_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE apply_number (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION apply_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE apply_boolean (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    );
+    
     FUNCTION apply_json (
         p_path IN VARCHAR2,
         -- @json
         p_content IN VARCHAR2,
-        p_bind IN bind := NULL,
-        p_check_types IN BOOLEAN := FALSE
+        p_bind IN bind := NULL
     )
     RETURN NUMBER;
-        
-    FUNCTION apply_json_clob (
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN VARCHAR2,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION apply_json (
         p_path IN VARCHAR2,
         -- @json
         p_content IN CLOB,
-        p_bind IN bind := NULL,
-        p_check_types IN BOOLEAN := FALSE
+        p_bind IN bind := NULL
     )
-    RETURN NUMBER;    
+    RETURN NUMBER;
     
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN CLOB,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        -- @json
+        p_content IN CLOB,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    );
+    
+    /*
+    
+    FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_bind IN bind := NULL
+    );
+    
+    FUNCTION apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    PROCEDURE apply_json (
+        p_path IN VARCHAR2,
+        p_builder IN t_json_builder,
+        p_check_types IN BOOLEAN,
+        p_bind IN bind := NULL
+    );
+   
+    */
+ 
     FUNCTION get_keys (
         p_path IN VARCHAR2,
         p_bind IN bind := NULL

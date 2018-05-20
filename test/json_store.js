@@ -2364,7 +2364,7 @@ suite("JSON store management tests", function() {
 
             try {
 
-                database.call("json_store.apply_json", {
+                database.call3("json_store.apply_json", {
                     p_path: "$.apply.stringValue",
                     p_content: 123,
                     p_check_types: true
@@ -2413,7 +2413,7 @@ suite("JSON store management tests", function() {
 
             try {
 
-                database.call("json_store.apply_json", {
+                database.call3("json_store.apply_json", {
                     p_path: "$.apply.numberValue",
                     p_content: "Hello, World!",
                     p_check_types: true
@@ -2462,7 +2462,7 @@ suite("JSON store management tests", function() {
 
             try {
 
-                database.call("json_store.apply_json", {
+                database.call3("json_store.apply_json", {
                     p_path: "$.apply.booleanValue",
                     p_content: "Hello, World!",
                     p_check_types: true

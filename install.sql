@@ -50,9 +50,24 @@ COMMIT
 @@packages/json_parser.pkb
 /
 
+@@packages/json_writer.pks
+/
+@@packages/json_writer.pkb
+/
+
 @@packages/json_core.pks
 /
 @@packages/json_core.pkb
+/
+
+@@packages/json_builder.pks
+/
+@@packages/json_builder.pkb
+/
+
+@@types/t_json_builder.tps
+/
+@@types/t_json_builder.tpb
 /
 
 @@types/t_json_value.tps

@@ -47,16 +47,22 @@ DROP FUNCTION json_table_15
 DROP FUNCTION json_table_20
 /
 
-DROP PACKAGE json_store
-/
-DROP PACKAGE json_core
-/
-DROP PACKAGE json_parser
-/
-
 DROP TYPE t_value_table_query
 /
 DROP TYPE t_json_value
+/
+DROP TYPE t_json_builder
+/
+
+DROP PACKAGE json_store
+/
+DROP PACKAGE json_builder
+/
+DROP PACKAGE json_core
+/
+DROP PACKAGE json_writer
+/
+DROP PACKAGE json_parser
 /
 
 DROP TABLE json_values

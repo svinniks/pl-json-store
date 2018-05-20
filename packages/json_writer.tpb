@@ -41,7 +41,7 @@ CREATE OR REPLACE PACKAGE BODY json_writer IS
     v_value_buffer t_value_buffer := t_value_buffer();
     c_flush_amount CONSTANT PLS_INTEGER := 200;
     
-    v_last_value_id NUMBER;
+    v_recent_value_id NUMBER;
     
     FUNCTION next_tmp_id
     RETURN NUMBER IS
@@ -119,8 +119,8 @@ CREATE OR REPLACE PACKAGE BODY json_writer IS
         v_value.parent_id := p_parent_id;
         v_value.name := p_name;
 
-        IF v_last_value_id IS NULL THEN
-            v_last_value_id := v_value.id;
+        IF v_recent_value_id IS NULL THEN
+            v_recent_value_id := v_value.id;
         END IF;
 
         IF p_content_parse_events(p_event_i).name = 'STRING' THEN
@@ -213,7 +213,7 @@ CREATE OR REPLACE PACKAGE BODY json_writer IS
     
     BEGIN
     
-        v_last_value_id := 0;
+        v_recent_value_id := NULL;
         v_event_i := p_first_event_i;
         
         v_value_id := write_value(p_parent_id, p_name, p_content_parse_events, v_event_i);
@@ -227,19 +227,12 @@ CREATE OR REPLACE PACKAGE BODY json_writer IS
         p_first_event_i IN PLS_INTEGER
     ) 
     RETURN NUMBER IS
-    
-        v_event_i PLS_INTEGER;
-        v_value_id NUMBER;
-    
     BEGIN
     
-        v_last_value_id := NULL;
-        v_event_i := p_first_event_i;
-        
-        v_value_id := write_value(p_parent_id, p_name, p_content_parse_events, v_event_i);
+        write_json(p_parent_id, p_name, p_content_parse_events, p_first_event_i);
         flush;
         
-        RETURN v_last_value_id;
+        RETURN v_recent_value_id;
     
     END;
     
@@ -262,8 +255,8 @@ CREATE OR REPLACE PACKAGE BODY json_writer IS
         
             v_id_map(v_unmapped_id.tmp_id) := v_unmapped_id.id;
             
-            IF v_unmapped_id.tmp_id = v_last_value_id THEN
-                v_last_value_id := v_unmapped_id.id;
+            IF v_unmapped_id.tmp_id = v_recent_value_id THEN
+                v_recent_value_id := v_unmapped_id.id;
             END IF;
             
         END LOOP;
@@ -304,6 +297,14 @@ CREATE OR REPLACE PACKAGE BODY json_writer IS
             VALUES v_value_buffer(v_i);
 
         v_value_buffer := t_value_buffer();
+    
+    END;
+    
+    FUNCTION recent_value_id
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN v_recent_value_id;
     
     END;
 

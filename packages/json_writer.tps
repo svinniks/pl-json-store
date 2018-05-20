@@ -32,5 +32,8 @@ CREATE OR REPLACE PACKAGE json_writer IS
     RETURN NUMBER;
     
     PROCEDURE flush;
+    
+    FUNCTION recent_value_id
+    RETURN NUMBER;
 
 END;

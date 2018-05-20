@@ -195,11 +195,13 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            expect(applyValueId).to.be(valueId);
 
             let newValueId = database.call("json_core.request_value", {
                 p_path: "#id.hello",
@@ -224,11 +226,13 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            expect(applyValueId).to.be(valueId);
 
             let newValueId = database.call("json_core.request_value", {
                 p_path: "#id.hello",
@@ -253,11 +257,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -284,16 +296,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
 
-            let value = database.call("json_store.get_string", {
-                p_path: "#id.hello",
-                p_bind: [objectId]
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
             });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -320,11 +335,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("people")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -350,11 +373,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -380,11 +411,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
-                p_check_types: false
+                p_check_types: true
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -397,7 +436,7 @@ suite("JSON applying tests", function() {
         
         });
 
-        test("Apply non-NULL string property to a number property, check types", function() {
+        test("Try to apply non-NULL string property to a number property, check types", function() {
         
             let objectId = database.call("json_store.create_object");
 
@@ -437,11 +476,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -468,11 +515,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -504,11 +559,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify("world")
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -657,11 +720,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(321.123)
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -687,11 +758,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(321.123)
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -717,11 +796,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(321.123)
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -734,7 +821,7 @@ suite("JSON applying tests", function() {
         
         });
 
-        test("Apply number property to a string property, check types", function() {
+        test("Try to apply number property to a string property, check types", function() {
         
             let objectId = database.call("json_store.create_object");
 
@@ -774,11 +861,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(123.321)
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -927,11 +1022,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(false)
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -957,11 +1060,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(false)
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -987,11 +1098,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(false)
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -1004,7 +1123,7 @@ suite("JSON applying tests", function() {
         
         });
 
-        test("Apply boolean property to a string property, check types", function() {
+        test("Try to apply boolean property to a string property, check types", function() {
         
             let objectId = database.call("json_store.create_object");
 
@@ -1044,11 +1163,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(true)
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -1196,11 +1323,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify(null)
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
-                p_check_types: false
+                p_check_types: true
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -1268,7 +1403,7 @@ suite("JSON applying tests", function() {
 
         });
 
-        test("Apply empty object property to a string property, check types", function() {
+        test("Try to apply empty object property to a string property, check types", function() {
         
             let objectId = database.call("json_store.create_object");
 
@@ -1308,11 +1443,19 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify({})
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            valueId = database.call2("json_core.request_value", {
+                p_parent_value_id: objectId,
+                p_path: "hello",
+                p_bind: null
+            });
+
+            expect(applyValueId).to.be(valueId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -1338,11 +1481,13 @@ suite("JSON applying tests", function() {
                 p_content: JSON.stringify({})
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: valueId,
                 p_content_parse_events: parseEvents,
                 p_check_types: true
             });
+
+            expect(applyValueId).to.be(valueId);
 
             let newValueId = database.call("json_core.request_value", {
                 p_path: "#id.hello",
@@ -1366,11 +1511,13 @@ suite("JSON applying tests", function() {
                 })
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            expect(applyValueId).to.be(objectId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",
@@ -1880,7 +2027,7 @@ suite("JSON applying tests", function() {
 
         });
 
-        test("Apply empty array property to a string property, check types", function() {
+        test("Try to apply empty array property to a string property, check types", function() {
         
             let objectId = database.call("json_store.create_object");
 
@@ -1919,11 +2066,13 @@ suite("JSON applying tests", function() {
                 ])
             }).p_parse_events;
 
-            database.call("json_core.apply_json", {
+            let applyValueId = database.call("json_core.apply_json", {
                 p_value_id: objectId,
                 p_content_parse_events: parseEvents,
                 p_check_types: false
             });
+
+            expect(applyValueId).to.be(objectId);
 
             let object = database.call("json_store.get_json", {
                 p_path: "#id",

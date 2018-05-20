@@ -3091,6 +3091,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
         v_create_values t_create_values; 
         
+        v_result NUMBER;
+        
         PROCEDURE create_value (
             p_parent_id IN NUMBER,
             p_name IN VARCHAR2,
@@ -3246,7 +3248,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                         v_existing_value.name,
                         v_event_i
                     );
-                    
+                
+                ELSIF v_result IS NULL THEN
+                
+                    v_result := v_existing_value.id;
                     
                 END IF;
                 
@@ -3276,6 +3281,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                         v_existing_value.name,
                         v_event_i
                     );
+                
+                ELSIF v_result IS NULL THEN
+                
+                    v_result := v_existing_value.id;
                     
                 END IF;
             
@@ -3305,6 +3314,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                         v_existing_value.name,
                         v_event_i
                     );
+                
+                ELSIF v_result IS NULL THEN
+                
+                    v_result := v_existing_value.id;
                     
                 END IF;
                 
@@ -3325,6 +3338,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                         v_existing_value.name,
                         v_event_i
                     );
+                
+                ELSIF v_result IS NULL THEN
+                
+                    v_result := v_existing_value.id;
                     
                 END IF;
                 
@@ -3338,6 +3355,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 ELSIF v_existing_value.type IN ('O', 'R') THEN
                 
                     push(v_existing_value.id, 'O');
+                    
+                    IF v_result IS NULL THEN
+                        v_result := v_existing_value.id;
+                    END IF;
                 
                 ELSIF NVL(p_check_types, FALSE)  THEN
                 
@@ -3395,6 +3416,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 ELSIF v_existing_value.type = 'A' THEN
                     
                     push(v_existing_value.id, 'A');
+                    
+                    IF v_result IS NULL THEN
+                        v_result := v_existing_value.id;
+                    END IF;
                     
                 ELSIF NVL(p_check_types, FALSE)  THEN
                 
@@ -3460,19 +3485,19 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             WHERE id = v_delete_ids(v_i);
             
         FOR v_i IN 1..v_create_values.COUNT LOOP
-        
+            
             json_writer.write_json(
                 v_create_values(v_i).parent_id, 
                 v_create_values(v_i).name, 
                 p_content_parse_events,
                 v_create_values(v_i).event_i
             );
-            
+                
         END LOOP;
-        
+            
         json_writer.flush;
         
-        RETURN NULL;
+        RETURN NVL(v_result, json_writer.recent_value_id);
         
     END;
     

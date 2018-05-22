@@ -117,6 +117,72 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
         
     END;
     
+    MEMBER FUNCTION json (
+        p_content IN VARCHAR2
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.json(id, p_content);
+    
+        RETURN self;
+    
+    END;
+    
+    MEMBER PROCEDURE json (
+        self IN t_json_builder,
+        p_content IN VARCHAR2
+    ) IS
+    BEGIN
+    
+        json_builder.json(id, p_content);
+    
+    END;
+    
+    MEMBER FUNCTION json (
+        p_content IN CLOB
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.json(id, p_content);
+    
+        RETURN self;
+    
+    END;
+    
+    MEMBER PROCEDURE json (
+        self IN t_json_builder,
+        p_content IN CLOB
+    ) IS
+    BEGIN
+    
+        json_builder.json(id, p_content);
+    
+    END;
+    
+    MEMBER FUNCTION json (
+        p_builder IN t_json_builder
+    )
+    RETURN t_json_builder IS
+    BEGIN
+    
+        json_builder.json(id, p_builder.id);
+    
+        RETURN self;
+    
+    END;
+    
+    MEMBER PROCEDURE json (
+        self IN t_json_builder,
+        p_builder IN t_json_builder
+    ) IS
+    BEGIN
+    
+        json_builder.json(id, p_builder.id);
+    
+    END;
+    
     MEMBER FUNCTION object
     RETURN t_json_builder IS
     BEGIN

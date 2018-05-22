@@ -367,6 +367,78 @@ CREATE OR REPLACE PACKAGE BODY json_builder IS
     
     END;
     
+    PROCEDURE json (
+        p_builder_id IN PLS_INTEGER,
+        p_content_parse_events IN json_parser.t_parse_events
+    ) IS
+    
+        v_builder t_json_builder;
+    
+    BEGIN
+    
+        v_builder := get_builder(p_builder_id);
+    
+        IF v_builder.state != 'wf_value' THEN
+            -- Unexpected value!
+            error$.raise('JBLR-00003');
+        END IF;
+        
+        FOR v_i IN 1..p_content_parse_events.COUNT LOOP
+            add_parse_event(v_builder, p_content_parse_events(v_i).name, p_content_parse_events(v_i).value);
+        END LOOP;
+        
+        IF v_builder.composite_stack_top_i IS NULL THEN
+            v_builder.state := 'wf_eof';
+        ELSIF v_composite_stack(v_builder.composite_stack_top_i).type = 'A' THEN
+            v_builder.state := 'wf_value';
+        ELSE
+            v_builder.state := 'wf_name';
+        END IF;
+        
+        v_builders(p_builder_id) := v_builder;
+    
+    END;
+    
+    PROCEDURE json (
+        p_builder_id IN PLS_INTEGER,
+        p_content IN VARCHAR2
+    ) IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+    
+        json(p_builder_id, v_parse_events);
+    
+    END;
+    
+    PROCEDURE json (
+        p_builder_id IN PLS_INTEGER,
+        p_content IN CLOB
+    ) IS
+    
+        v_parse_events json_parser.t_parse_events;
+    
+    BEGIN
+    
+        json_parser.parse(p_content, v_parse_events);
+    
+        json(p_builder_id, v_parse_events);
+    
+    END;
+    
+    PROCEDURE json (
+        p_builder_id IN PLS_INTEGER,
+        p_content_builder_id IN PLS_INTEGER
+    ) IS
+    BEGIN
+     
+        json(p_builder_id, build_parse_events(p_content_builder_id));   
+    
+    END;
+    
     PROCEDURE push_composite (
         p_builder IN OUT NOCOPY t_json_builder,
         p_type IN CHAR

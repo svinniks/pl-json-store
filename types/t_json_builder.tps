@@ -52,6 +52,36 @@ CREATE OR REPLACE TYPE t_json_builder IS OBJECT (
         self IN t_json_builder
     ),
     
+    MEMBER FUNCTION json (
+        p_content IN VARCHAR2
+    )
+    RETURN t_json_builder,
+    
+    MEMBER PROCEDURE json (
+        self IN t_json_builder,
+        p_content IN VARCHAR2
+    ),
+    
+    MEMBER FUNCTION json (
+        p_content IN CLOB
+    )
+    RETURN t_json_builder,
+    
+    MEMBER PROCEDURE json (
+        self IN t_json_builder,
+        p_content IN CLOB
+    ),
+    
+    MEMBER FUNCTION json (
+        p_builder IN t_json_builder
+    )
+    RETURN t_json_builder,
+    
+    MEMBER PROCEDURE json (
+        self IN t_json_builder,
+        p_builder IN t_json_builder
+    ),
+    
     MEMBER FUNCTION object
     RETURN t_json_builder,
     

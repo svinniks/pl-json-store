@@ -945,6 +945,167 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     
     END;
     
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_value,
+            0
+        );
+    
+    END;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_from_index IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_value,
+            p_from_index
+        );
+    
+    END;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_value,
+            0
+        );
+    
+    END;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_from_index IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_value,
+            p_from_index
+        );
+    
+    END;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_value,
+            0
+        );
+    
+    END;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_from_index IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_value,
+            p_from_index
+        );
+    
+    END;
+    
+    FUNCTION push_string (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_value,
+            0
+        );
+    
+    END;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_from_index IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_value,
+            p_from_index
+        );
+    
+    END;
+    
+    FUNCTION index_of_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of_null(
+            json_core.request_value(p_path, p_bind, TRUE),
+            0
+        );
+    
+    END;
+    
+    FUNCTION index_of_null (
+        p_path IN VARCHAR2,
+        p_from_index IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of_null(
+            json_core.request_value(p_path, p_bind, TRUE),
+            p_from_index
+        );
+    
+    END;
+    
     FUNCTION push_string (
         p_path IN VARCHAR2,
         p_value IN VARCHAR2,

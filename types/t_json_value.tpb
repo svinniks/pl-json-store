@@ -314,6 +314,60 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION index_of (
+        p_value IN VARCHAR2
+       ,p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(id, p_value, p_from_index);
+    
+    END;
+    
+    MEMBER FUNCTION index_of (
+        p_value IN DATE
+       ,p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(id, p_value, p_from_index);
+    
+    END;
+    
+    MEMBER FUNCTION index_of (
+        p_value IN NUMBER
+       ,p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(id, p_value, p_from_index);
+    
+    END;
+    
+    MEMBER FUNCTION index_of (
+        p_value IN BOOLEAN
+       ,p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of(id, p_value, p_from_index);
+    
+    END;
+    
+    MEMBER FUNCTION index_of_null (
+        p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN json_core.index_of_null(id, p_from_index);
+    
+    END;
+    
     /* Child value retrieval methods */
     
     MEMBER FUNCTION get (

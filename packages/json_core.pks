@@ -369,6 +369,40 @@ CREATE OR REPLACE PACKAGE json_core IS
     )
     RETURN NUMBER;
     
+    FUNCTION index_of (
+        p_array_id IN NUMBER,
+        p_value IN VARCHAR2,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER;
+    
+    FUNCTION index_of (
+        p_array_id IN NUMBER,
+        p_value IN DATE,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER;
+    
+    FUNCTION index_of (
+        p_array_id IN NUMBER,
+        p_value IN NUMBER,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER;
+    
+    FUNCTION index_of (
+        p_array_id IN NUMBER,
+        p_value IN BOOLEAN,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER;
+    
+    FUNCTION index_of_null (
+        p_array_id IN NUMBER,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER;
+    
     /* JSON creation, modification and deletion methods */
     
     FUNCTION create_json (

@@ -410,9 +410,75 @@ CREATE OR REPLACE PACKAGE json_store IS
     )
     RETURN NUMBER;
     
-    FUNCTION push_string (
+    FUNCTION index_of (
         p_path IN VARCHAR2,
         p_value IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_from_index IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN DATE,
+        p_from_index IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN NUMBER,
+        p_from_index IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION push_string (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION index_of (
+        p_path IN VARCHAR2,
+        p_value IN BOOLEAN,
+        p_from_index IN NUMBER,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION index_of_null (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN NUMBER;
+    
+    FUNCTION index_of_null (
+        p_path IN VARCHAR2,
+        p_from_index IN NUMBER,
         p_bind IN bind := NULL
     )
     RETURN NUMBER;

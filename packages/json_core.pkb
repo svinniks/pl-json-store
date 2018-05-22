@@ -113,6 +113,51 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         END IF;
     END;
     
+    FUNCTION to_json_char (
+        p_value IN NUMBER
+    )
+    RETURN VARCHAR2 IS
+    
+        v_value_string VARCHAR2(50);
+    
+    BEGIN
+    
+        v_value_string := TO_CHAR(p_value, 'TM', 'NLS_NUMERIC_CHARACTERS=''.,''');
+            
+        IF v_value_string LIKE '.%' THEN
+            v_value_string := '0' || v_value_string;
+        END IF;
+        
+        RETURN v_value_string;
+    
+    END;
+    
+    FUNCTION to_json_char (
+        p_value IN DATE
+    )
+    RETURN VARCHAR2 IS
+    BEGIN
+    
+        RETURN TO_CHAR(p_value, 'YYYY-MM-DD');
+    
+    END;
+    
+    FUNCTION to_json_char (
+        p_value IN BOOLEAN
+    )
+    RETURN VARCHAR2 IS
+    BEGIN
+    
+        IF p_value IS NULL THEN
+            RETURN NULL;
+        ELSIF p_value THEN
+            RETURN 'true';
+        ELSE
+            RETURN 'false';
+        END IF;
+    
+    END;
+    
     /* Generic JSON value parse event constant functions */
     
     FUNCTION string_events (
@@ -144,7 +189,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             v_parse_event.name := 'NULL';
         ELSE
             v_parse_event.name := 'STRING';
-            v_parse_event.value := TO_CHAR(p_value, 'YYYY-MM-DD');
+            v_parse_event.value := to_json_char(p_value);
         END IF;
         
         RETURN json_parser.t_parse_events(v_parse_event);
@@ -164,7 +209,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             v_parse_event.name := 'NULL';
         ELSE
             v_parse_event.name := 'NUMBER';
-            v_parse_event.value := p_value;
+            v_parse_event.value := to_json_char(p_value);
         END IF;
         
         RETURN json_parser.t_parse_events(v_parse_event);
@@ -184,7 +229,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             v_parse_event.name := 'NULL';
         ELSE
             v_parse_event.name := 'BOOLEAN';
-            v_parse_event.value := CASE WHEN p_value THEN 'true' ELSE 'false' END;
+            v_parse_event.value := to_json_char(p_value);
         END IF;
         
         RETURN json_parser.t_parse_events(v_parse_event);
@@ -2901,6 +2946,132 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         WHERE parent_id = p_array_id;
         
         RETURN v_length;
+    
+    END;
+    
+    FUNCTION index_of (
+        p_array_id IN NUMBER,
+        p_type IN VARCHAR2,
+        p_value IN VARCHAR2,
+        p_from_index IN NUMBER
+    )
+    RETURN NUMBER IS
+    
+        v_value t_value;
+        v_name VARCHAR2(4000);
+    
+    BEGIN
+    
+        v_value := get_value(p_array_id);
+    
+        IF v_value.type != 'A' THEN
+            -- Value is not an array!
+            error$.raise('JDOC-00012');
+        END IF;
+        
+        BEGIN
+        
+            SELECT name
+            INTO v_name
+            FROM json_values
+            WHERE parent_id = p_array_id
+                  AND type = p_type
+                  AND to_index(name) >= NVL(p_from_index, 0)
+                  AND (NVL(value, p_value) IS NULL
+                       OR value = p_value)
+            ORDER BY to_index(name)
+            FETCH FIRST 1 ROW ONLY;
+            
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                v_name := '-1';
+        END;
+        
+        RETURN v_name;
+    
+    END;
+    
+    FUNCTION index_of (
+        p_array_id IN NUMBER,
+        p_value IN VARCHAR2,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN index_of(
+            p_array_id, 
+            'S', 
+            p_value, 
+            p_from_index
+        );
+    
+    END;
+    
+    FUNCTION index_of (
+        p_array_id IN NUMBER,
+        p_value IN DATE,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN index_of(
+            p_array_id, 
+            iif(p_value IS NULL, 'E', 'S'), 
+            to_json_char(p_value), 
+            p_from_index
+        );
+    
+    END;
+    
+    FUNCTION index_of (
+        p_array_id IN NUMBER,
+        p_value IN NUMBER,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN index_of(
+            p_array_id, 
+            iif(p_value IS NULL, 'E', 'N'), 
+            to_json_char(p_value), 
+            p_from_index
+        );
+    
+    END;
+    
+    FUNCTION index_of (
+        p_array_id IN NUMBER,
+        p_value IN BOOLEAN,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN index_of(
+            p_array_id, 
+            iif(p_value IS NULL, 'E', 'B'), 
+            to_json_char(p_value),
+            p_from_index
+        );
+    
+    END;
+    
+    FUNCTION index_of_null (
+        p_array_id IN NUMBER,
+        p_from_index IN NUMBER
+    ) 
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN index_of(
+            p_array_id, 
+            'E',
+            NULL, 
+            p_from_index
+        );
     
     END;
     

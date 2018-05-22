@@ -122,6 +122,35 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER FUNCTION get_length
     RETURN PLS_INTEGER,
     
+    MEMBER FUNCTION index_of (
+        p_value IN VARCHAR2
+       ,p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER,
+    
+    MEMBER FUNCTION index_of (
+        p_value IN DATE
+       ,p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER,
+    
+    MEMBER FUNCTION index_of (
+        p_value IN NUMBER
+       ,p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER,
+    
+    MEMBER FUNCTION index_of (
+        p_value IN BOOLEAN
+       ,p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER,
+    
+    MEMBER FUNCTION index_of_null (
+        p_from_index IN NUMBER := 0
+    )
+    RETURN NUMBER,
+    
     /* Child value retrieval methods */
         
     MEMBER FUNCTION get (

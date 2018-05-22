@@ -478,7 +478,7 @@ CREATE OR REPLACE PACKAGE json_store IS
     
     FUNCTION push_string (
         p_path IN VARCHAR2,
-        p_value IN BOOLEAN,
+        p_value IN VARCHAR2,
         p_bind IN bind := NULL
     )
     RETURN NUMBER;

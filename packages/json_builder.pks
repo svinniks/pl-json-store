@@ -54,11 +54,13 @@ CREATE OR REPLACE PACKAGE json_builder IS
     
     PROCEDURE json (
         p_builder_id IN PLS_INTEGER,
+        -- @json
         p_content IN VARCHAR2
     );
     
     PROCEDURE json (
         p_builder_id IN PLS_INTEGER,
+        -- @json
         p_content IN CLOB
     );
     

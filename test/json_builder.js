@@ -391,6 +391,132 @@ suite("JSON builder tests", function() {
 
     });
 
+    test("Single JSON value builder", function() {
+    
+        let builderId = database.call("json_builder.create_builder");
+
+        database.call("json_builder.json", {
+            p_builder_id: builderId,
+            p_content: {
+                hello: "world"
+            }
+        });
+    
+        let events = database.call("json_builder.build_parse_events", {
+            p_builder_id: builderId
+        });
+
+        expect(events).to.eql([
+            {
+                name: "START_OBJECT",
+                value: null
+            },
+            {
+                name: "NAME",
+                value: "hello"
+            },
+            {
+                name: "STRING",
+                value: "world"
+            },
+            {
+                name: "END_OBJECT",
+                value: null
+            }
+        ])
+
+    });
+
+    test("Single JSON value builder, CLOB version", function() {
+    
+        let builderId = database.call("json_builder.create_builder");
+
+        database.call2("json_builder.json", {
+            p_builder_id: builderId,
+            p_content: {
+                hello: "world"
+            }
+        });
+    
+        let events = database.call("json_builder.build_parse_events", {
+            p_builder_id: builderId
+        });
+
+        expect(events).to.eql([
+            {
+                name: "START_OBJECT",
+                value: null
+            },
+            {
+                name: "NAME",
+                value: "hello"
+            },
+            {
+                name: "STRING",
+                value: "world"
+            },
+            {
+                name: "END_OBJECT",
+                value: null
+            }
+        ])
+
+    });
+
+    test("Single JSON value builder, builder version", function() {
+    
+        let builderId = database.call("json_builder.create_builder");
+
+        let contentBuilderId = database.call("json_builder.create_builder");
+
+        database.call("json_builder.object", {
+            p_builder_id: contentBuilderId
+        });
+
+        database.call("json_builder.name", {
+            p_builder_id: contentBuilderId,
+            p_name: "hello"
+        });
+
+        database.call("json_builder.value", {
+            p_builder_id: contentBuilderId,
+            p_value: "world"
+        });
+
+        database.call("json_builder.close", {
+            p_builder_id: contentBuilderId
+        });
+
+        database.call3("json_builder.json", {
+            p_builder_id: builderId,
+            p_content_builder_id: contentBuilderId
+        });
+    
+        let events = database.call("json_builder.build_parse_events", {
+            p_builder_id: builderId
+        });
+
+        expect(events).to.eql([
+            {
+                name: "START_OBJECT",
+                value: null
+            },
+            {
+                name: "NAME",
+                value: "hello"
+            },
+            {
+                name: "STRING",
+                value: "world"
+            },
+            {
+                name: "END_OBJECT",
+                value: null
+            }
+        ])
+
+    });
+
     test("Try to build parse events twice in a row", function() {
     
         let builderId = database.call("json_builder.create_builder");
@@ -1245,7 +1371,6 @@ suite("JSON builder tests", function() {
 
     });
     
-
     test("Nested objects with equal property names on different levels", function() {
     
         let builderId = database.call("json_builder.create_builder");

@@ -9,7 +9,7 @@ suite("JSON builder tests", function() {
             END;
         `);
 
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
         expect(builderId).to.not.be(null);
     
@@ -26,7 +26,7 @@ suite("JSON builder tests", function() {
 
         expect(function() {
         
-            database.call("json_builder.destroy_builder", {
+            database.call("json_builders.destroy_builder", {
                 p_id: null
             });    
         
@@ -45,7 +45,7 @@ suite("JSON builder tests", function() {
 
         expect(function() {
         
-            database.call("json_builder.destroy_builder", {
+            database.call("json_builders.destroy_builder", {
                 p_id: 1
             });    
         
@@ -62,17 +62,17 @@ suite("JSON builder tests", function() {
             END;
         `);
 
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
         expect(builderId).to.not.be(null);
     
-        database.call("json_builder.destroy_builder", {
+        database.call("json_builders.destroy_builder", {
             p_id: builderId
         });
 
         expect(function() {
         
-            database.call("json_builder.destroy_builder", {
+            database.call("json_builders.destroy_builder", {
                 p_id: builderId
             });    
         
@@ -91,7 +91,7 @@ suite("JSON builder tests", function() {
 
         expect(function() {
         
-            database.call("json_builder.build_parse_events", {
+            database.call("json_builders.build_parse_events", {
                 p_builder_id: null
             });
         
@@ -110,7 +110,7 @@ suite("JSON builder tests", function() {
 
         expect(function() {
         
-            database.call("json_builder.build_parse_events", {
+            database.call("json_builders.build_parse_events", {
                 p_builder_id: 1
             });
         
@@ -120,11 +120,11 @@ suite("JSON builder tests", function() {
 
     test("Try to build parse events for an empty builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
         expect(function() {
         
-            database.call("json_builder.build_parse_events", {
+            database.call("json_builders.build_parse_events", {
                 p_builder_id: builderId
             });
         
@@ -143,7 +143,7 @@ suite("JSON builder tests", function() {
 
         expect(function() {
         
-            database.call("json_builder.value", {
+            database.call("json_builders.value", {
                 p_builder_id: null,
                 p_value: "Hello, World!"
             });
@@ -163,7 +163,7 @@ suite("JSON builder tests", function() {
 
         expect(function() {
         
-            database.call("json_builder.value", {
+            database.call("json_builders.value", {
                 p_builder_id: 1,
                 p_value: "Hello, World!"
             });
@@ -174,14 +174,14 @@ suite("JSON builder tests", function() {
 
     test("Single string value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -196,14 +196,14 @@ suite("JSON builder tests", function() {
 
     test("Single NULL string value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: null
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -218,14 +218,14 @@ suite("JSON builder tests", function() {
 
     test("Single date value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call2("json_builder.value", {
+        database.call2("json_builders.value", {
             p_builder_id: builderId,
             p_value: "2018-01-31"
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -240,14 +240,14 @@ suite("JSON builder tests", function() {
 
     test("Single NULL date value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call2("json_builder.value", {
+        database.call2("json_builders.value", {
             p_builder_id: builderId,
             p_value: null
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -262,14 +262,14 @@ suite("JSON builder tests", function() {
 
     test("Single number value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call3("json_builder.value", {
+        database.call3("json_builders.value", {
             p_builder_id: builderId,
             p_value: 123.321
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -284,14 +284,14 @@ suite("JSON builder tests", function() {
 
     test("Single number value builder, zero integer part", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call3("json_builder.value", {
+        database.call3("json_builders.value", {
             p_builder_id: builderId,
             p_value: 0.321
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -306,14 +306,14 @@ suite("JSON builder tests", function() {
 
     test("Single NULL number value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call3("json_builder.value", {
+        database.call3("json_builders.value", {
             p_builder_id: builderId,
             p_value: null
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -328,14 +328,14 @@ suite("JSON builder tests", function() {
 
     test("Single boolean value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call4("json_builder.value", {
+        database.call4("json_builders.value", {
             p_builder_id: builderId,
             p_value: true
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -350,14 +350,14 @@ suite("JSON builder tests", function() {
 
     test("Single NULL boolean value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call4("json_builder.value", {
+        database.call4("json_builders.value", {
             p_builder_id: builderId,
             p_value: null
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -372,13 +372,13 @@ suite("JSON builder tests", function() {
 
     test("Single NULL value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.null_value", {
+        database.call("json_builders.null_value", {
             p_builder_id: builderId
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -393,16 +393,16 @@ suite("JSON builder tests", function() {
 
     test("Single JSON value builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.json", {
+        database.call("json_builders.json", {
             p_builder_id: builderId,
             p_content: {
                 hello: "world"
             }
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -429,16 +429,16 @@ suite("JSON builder tests", function() {
 
     test("Single JSON value builder, CLOB version", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call2("json_builder.json", {
+        database.call2("json_builders.json", {
             p_builder_id: builderId,
             p_content: {
                 hello: "world"
             }
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -465,34 +465,34 @@ suite("JSON builder tests", function() {
 
     test("Single JSON value builder, builder version", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        let contentBuilderId = database.call("json_builder.create_builder");
+        let contentBuilderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: contentBuilderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: contentBuilderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: contentBuilderId,
             p_value: "world"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: contentBuilderId
         });
 
-        database.call3("json_builder.json", {
+        database.call3("json_builders.json", {
             p_builder_id: builderId,
             p_content_builder_id: contentBuilderId
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -519,20 +519,20 @@ suite("JSON builder tests", function() {
 
     test("Try to build parse events twice in a row", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
     
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
         expect(function() {
         
-            database.call("json_builder.build_parse_events", {
+            database.call("json_builders.build_parse_events", {
                 p_builder_id: builderId
             });
         
@@ -542,16 +542,16 @@ suite("JSON builder tests", function() {
     
     test("Try to add two values in a row to an empty builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
 
         expect(function() {
         
-            database.call("json_builder.value", {
+            database.call("json_builders.value", {
                 p_builder_id: builderId,
                 p_value: "Hello, World!"
             });
@@ -571,7 +571,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.array", {
+            database.call("json_builders.array", {
                 p_builder_id: null
             });
         
@@ -590,7 +590,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.array", {
+            database.call("json_builders.array", {
                 p_builder_id: 1
             });
         
@@ -600,16 +600,16 @@ suite("JSON builder tests", function() {
 
     test("Try to start an array in a builder with an invalid state", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
 
         expect(function() {
         
-            database.call("json_builder.array", {
+            database.call("json_builders.array", {
                 p_builder_id: builderId
             });
         
@@ -619,15 +619,15 @@ suite("JSON builder tests", function() {
 
     test("Try to build parse events for a builder with non-closed empty array", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.array", {
+        database.call("json_builders.array", {
             p_builder_id: builderId
         });
 
         expect(function() {
         
-            database.call("json_builder.build_parse_events", {
+            database.call("json_builders.build_parse_events", {
                 p_builder_id: builderId
             });
         
@@ -646,7 +646,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.close", {
+            database.call("json_builders.close", {
                 p_builder_id: null
             });
         
@@ -665,7 +665,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.close", {
+            database.call("json_builders.close", {
                 p_builder_id: 1
             });
         
@@ -675,11 +675,11 @@ suite("JSON builder tests", function() {
 
     test("Try to end composite with no composites open", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
         expect(function() {
         
-            database.call("json_builder.close", {
+            database.call("json_builders.close", {
                 p_builder_id: builderId
             });
         
@@ -689,17 +689,17 @@ suite("JSON builder tests", function() {
     
     test("Build an empty array", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.array", {
+        database.call("json_builders.array", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -718,22 +718,22 @@ suite("JSON builder tests", function() {
 
     test("Build an array with one string element", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.array", {
+        database.call("json_builders.array", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -756,32 +756,32 @@ suite("JSON builder tests", function() {
 
     test("Build an array with multiple simple elements", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.array", {
+        database.call("json_builders.array", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
 
-        database.call3("json_builder.value", {
+        database.call3("json_builders.value", {
             p_builder_id: builderId,
             p_value: 123.321
         });
 
-        database.call4("json_builder.value", {
+        database.call4("json_builders.value", {
             p_builder_id: builderId,
             p_value: true
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -812,53 +812,53 @@ suite("JSON builder tests", function() {
 
     test("Build multidimensional array", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.array", {
+        database.call("json_builders.array", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.array", {
+        database.call("json_builders.array", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.array", {
+        database.call("json_builders.array", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -918,7 +918,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.object", {
+            database.call("json_builders.object", {
                 p_builder_id: null
             });
         
@@ -937,7 +937,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.object", {
+            database.call("json_builders.object", {
                 p_builder_id: 1
             });
         
@@ -947,16 +947,16 @@ suite("JSON builder tests", function() {
 
     test("Try to start an object in a builder with an invalid state", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "Hello, World!"
         });
 
         expect(function() {
         
-            database.call("json_builder.object", {
+            database.call("json_builders.object", {
                 p_builder_id: builderId
             });
         
@@ -966,15 +966,15 @@ suite("JSON builder tests", function() {
 
     test("Try to add property without a name", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
         expect(function() {
         
-            database.call("json_builder.value", {
+            database.call("json_builders.value", {
                 p_builder_id: builderId,
                 p_value: "Hello, World!"
             });
@@ -994,7 +994,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.name", {
+            database.call("json_builders.name", {
                 p_builder_id: null,
                 p_name: "hello"
             });
@@ -1014,7 +1014,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.name", {
+            database.call("json_builders.name", {
                 p_builder_id: 1,
                 p_name: "hello"
             });
@@ -1025,11 +1025,11 @@ suite("JSON builder tests", function() {
 
     test("Try to set NULL property name", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
         expect(function() {
         
-            database.call("json_builder.name", {
+            database.call("json_builders.name", {
                 p_builder_id: builderId,
                 p_name: null
             });
@@ -1040,11 +1040,11 @@ suite("JSON builder tests", function() {
 
     test("Try to set property name in an empty builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
         expect(function() {
         
-            database.call("json_builder.name", {
+            database.call("json_builders.name", {
                 p_builder_id: builderId,
                 p_name: "hello"
             });
@@ -1055,15 +1055,15 @@ suite("JSON builder tests", function() {
 
     test("Try to set property name while not in object", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.array", {
+        database.call("json_builders.array", {
             p_builder_id: builderId
         });
 
         expect(function() {
         
-            database.call("json_builder.name", {
+            database.call("json_builders.name", {
                 p_builder_id: builderId,
                 p_name: "hello"
             });
@@ -1074,20 +1074,20 @@ suite("JSON builder tests", function() {
     
     test("Try to set property name twice in a row", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
         expect(function() {
         
-            database.call("json_builder.name", {
+            database.call("json_builders.name", {
                 p_builder_id: builderId,
                 p_name: "hello"
             });
@@ -1098,20 +1098,20 @@ suite("JSON builder tests", function() {
 
     test("Try to end an object without property value", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
         expect(function() {
         
-            database.call("json_builder.close", {
+            database.call("json_builders.close", {
                 p_builder_id: builderId
             });
         
@@ -1121,17 +1121,17 @@ suite("JSON builder tests", function() {
 
     test("Build an empty object", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
     
@@ -1150,27 +1150,27 @@ suite("JSON builder tests", function() {
 
     test("Build an object with one simple property", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "world"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
     
@@ -1197,47 +1197,47 @@ suite("JSON builder tests", function() {
 
     test("Build an object with multiple simple property", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "world"
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "good bye"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "life"
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "number"
         });
 
-        database.call3("json_builder.value", {
+        database.call3("json_builders.value", {
             p_builder_id: builderId,
             p_value: 123.321
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
     
@@ -1280,25 +1280,25 @@ suite("JSON builder tests", function() {
 
     test("Try to build an object with duplicate property names", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "world"
         });
 
         expect(function() {
         
-            database.call("json_builder.name", {
+            database.call("json_builders.name", {
                 p_builder_id: builderId,
                 p_name: "hello"
             });            
@@ -1309,63 +1309,63 @@ suite("JSON builder tests", function() {
 
     test("Two subobjects with equal property names", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
     
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "object1"
         });
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "world"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "object2"
         });
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "world"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
 
@@ -1373,50 +1373,50 @@ suite("JSON builder tests", function() {
     
     test("Nested objects with equal property names on different levels", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "world"
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "child"
         });
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "world"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let events = database.call("json_builder.build_parse_events", {
+        let events = database.call("json_builders.build_parse_events", {
             p_builder_id: builderId
         });
     
@@ -1472,7 +1472,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.build_json", {
+            database.call("json_builders.build_json", {
                 p_builder_id: null
             });
         
@@ -1491,7 +1491,7 @@ suite("JSON builder tests", function() {
         
         expect(function() {
         
-            database.call("json_builder.build_json", {
+            database.call("json_builders.build_json", {
                 p_builder_id: 1
             });
         
@@ -1501,11 +1501,11 @@ suite("JSON builder tests", function() {
 
     test("Try to build JSON for an empty builder", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
         expect(function() {
         
-            database.call("json_builder.build_json", {
+            database.call("json_builders.build_json", {
                 p_builder_id: builderId
             });
         
@@ -1515,27 +1515,27 @@ suite("JSON builder tests", function() {
 
     test("Build JSON using the VARCHAR2 method", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "world"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let json = database.call("json_builder.build_json", {
+        let json = database.call("json_builders.build_json", {
             p_builder_id: builderId
         });
 
@@ -1547,27 +1547,27 @@ suite("JSON builder tests", function() {
 
     test("Build JSON using the CLOB method", function() {
     
-        let builderId = database.call("json_builder.create_builder");
+        let builderId = database.call("json_builders.create_builder");
 
-        database.call("json_builder.object", {
+        database.call("json_builders.object", {
             p_builder_id: builderId
         });
 
-        database.call("json_builder.name", {
+        database.call("json_builders.name", {
             p_builder_id: builderId,
             p_name: "hello"
         });
 
-        database.call("json_builder.value", {
+        database.call("json_builders.value", {
             p_builder_id: builderId,
             p_value: "world"
         });
 
-        database.call("json_builder.close", {
+        database.call("json_builders.close", {
             p_builder_id: builderId
         });
 
-        let json = database.call("json_builder.build_json", {
+        let json = database.call("json_builders.build_json", {
             p_builder_id: builderId
         });
 

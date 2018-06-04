@@ -4,7 +4,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN self AS RESULT IS
     BEGIN
     
-        id := json_builder.create_builder;
+        id := json_builders.create_builder;
     
         RETURN;
     
@@ -16,7 +16,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.value(id, p_value);
+        json_builders.value(id, p_value);
         
         RETURN self;
     
@@ -28,7 +28,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.value(id, p_value);
+        json_builders.value(id, p_value);
     
     END;
     
@@ -38,7 +38,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.value(id, p_value);
+        json_builders.value(id, p_value);
         
         RETURN self;
     
@@ -50,7 +50,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.value(id, p_value);
+        json_builders.value(id, p_value);
     
     END;
     
@@ -60,7 +60,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.value(id, p_value);
+        json_builders.value(id, p_value);
         
         RETURN self;
     
@@ -72,7 +72,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.value(id, p_value);
+        json_builders.value(id, p_value);
         
     END;
     
@@ -82,7 +82,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.value(id, p_value);
+        json_builders.value(id, p_value);
         
         RETURN self;
     
@@ -94,7 +94,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.value(id, p_value);
+        json_builders.value(id, p_value);
     
     END;
     
@@ -102,7 +102,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.null_value(id);
+        json_builders.null_value(id);
         
         RETURN self;
     
@@ -113,7 +113,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.null_value(id);
+        json_builders.null_value(id);
         
     END;
     
@@ -123,7 +123,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.json(id, p_content);
+        json_builders.json(id, p_content);
     
         RETURN self;
     
@@ -135,7 +135,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.json(id, p_content);
+        json_builders.json(id, p_content);
     
     END;
     
@@ -145,7 +145,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.json(id, p_content);
+        json_builders.json(id, p_content);
     
         RETURN self;
     
@@ -157,7 +157,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.json(id, p_content);
+        json_builders.json(id, p_content);
     
     END;
     
@@ -167,7 +167,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.json(id, p_builder.id);
+        json_builders.json(id, p_builder.id);
     
         RETURN self;
     
@@ -179,7 +179,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.json(id, p_builder.id);
+        json_builders.json(id, p_builder.id);
     
     END;
     
@@ -187,7 +187,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.object(id);
+        json_builders.object(id);
         
         RETURN self;
     
@@ -198,7 +198,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.object(id);
+        json_builders.object(id);
     
     END;
     
@@ -208,7 +208,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.name(id, p_name);
+        json_builders.name(id, p_name);
         
         RETURN self;
     
@@ -220,7 +220,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.name(id, p_name);
+        json_builders.name(id, p_name);
     
     END;
     
@@ -228,7 +228,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.array(id);
+        json_builders.array(id);
         
         RETURN self;
     
@@ -239,7 +239,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS    
     BEGIN
     
-        json_builder.array(id);
+        json_builders.array(id);
     
     END;
 
@@ -248,7 +248,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN t_json_builder IS
     BEGIN
     
-        json_builder.close(id);
+        json_builders.close(id);
         
         RETURN self;
     
@@ -259,7 +259,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     ) IS
     BEGIN
     
-        json_builder.close(id);
+        json_builders.close(id);
     
     END;
     
@@ -267,7 +267,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN VARCHAR2 IS
     BEGIN
     
-        RETURN json_builder.build_json(id);
+        RETURN json_builders.build_json(id);
     
     END;
     
@@ -275,7 +275,7 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     RETURN CLOB IS
     BEGIN
     
-        RETURN json_builder.build_json_clob(id);
+        RETURN json_builders.build_json_clob(id);
     
     END;
     

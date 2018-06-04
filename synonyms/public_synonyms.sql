@@ -14,3 +14,5 @@ CREATE OR REPLACE PUBLIC SYNONYM json_table_15 FOR json_table_15
 /
 CREATE OR REPLACE PUBLIC SYNONYM json_table_20 FOR json_table_20
 /
+CREATE OR REPLACE PUBLIC SYNONYM json_builder FOR t_json_builder
+/

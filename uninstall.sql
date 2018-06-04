@@ -56,7 +56,7 @@ DROP TYPE t_json_builder
 
 DROP PACKAGE json_store
 /
-DROP PACKAGE json_builder
+DROP PACKAGE json_builders
 /
 DROP PACKAGE json_core
 /

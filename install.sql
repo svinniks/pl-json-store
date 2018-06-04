@@ -60,9 +60,9 @@ COMMIT
 @@packages/json_core.pkb
 /
 
-@@packages/json_builder.pks
+@@packages/json_builders.pks
 /
-@@packages/json_builder.pkb
+@@packages/json_builders.pkb
 /
 
 @@types/t_json_builder.tps
@@ -103,4 +103,4 @@ COMMIT
 @@packages/json_data_generator.pkb
 /
 
-@@public_synonyms.sql
+@@synonyms/public_synonyms.sql

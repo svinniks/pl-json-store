@@ -122,7 +122,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
         RETURN t_json_value(
             json_core.create_json(
-                json_builder.build_parse_events(p_builder.id)
+                json_builders.build_parse_events(p_builder.id)
             )
         );
     
@@ -1053,7 +1053,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
                 id,
                 p_path,
                 p_bind,
-                json_builder.build_parse_events(p_builder.id)
+                json_builders.build_parse_events(p_builder.id)
             )
         );
     
@@ -1629,7 +1629,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         RETURN t_json_value(
             json_core.push_json(
                 id,
-                json_builder.build_parse_events(p_builder.id)
+                json_builders.build_parse_events(p_builder.id)
             )
         );
     
@@ -2002,7 +2002,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         RETURN t_json_value(
             json_core.apply_json(
                 json_core.request_value(id, p_path, p_bind, TRUE),
-                json_builder.build_parse_events(p_builder.id),
+                json_builders.build_parse_events(p_builder.id),
                 p_check_types
             )
         );
@@ -2139,7 +2139,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     BEGIN
     
-        v_parse_events := json_builder.build_parse_events(p_builder.id);
+        v_parse_events := json_builders.build_parse_events(p_builder.id);
         
         IF NOT (v_parse_events(1).name = 'START_OBJECT' AND is_object
                 OR v_parse_events(1).name = 'START_ARRAY' AND is_array) THEN

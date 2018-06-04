@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY json_builder IS
+CREATE OR REPLACE PACKAGE BODY json_builders IS
 
     /* 
         Copyright 2018 Sergejs Vinniks

@@ -302,7 +302,140 @@ suite("Anonymous value creation", function() {
             p_value_id: valueId
         }).p_parse_events;
 
-        expect(events).to.eql(retrieved);
+        expect(retrieved).to.eql([
+            {
+                name: "START_OBJECT",
+                value: null
+            },
+            {
+                "name": "NAME",
+                "value": "addresses"
+            },
+            {
+                "name": "START_OBJECT",
+                value: null
+            },
+            {
+                "name": "NAME",
+                "value": "home"
+            },
+            {
+                "name": "START_OBJECT",
+                value: null
+            },
+            {
+                "name": "NAME",
+                "value": "city"
+            },
+            {
+                "name": "STRING",
+                "value": "Riga"
+            },
+            {
+                "name": "NAME",
+                "value": "street"
+            },
+            {
+                "name": "STRING",
+                "value": "Raunas iela"
+            },
+            {
+                "name": "END_OBJECT",
+                value: null
+            },
+            {
+                "name": "END_OBJECT",
+                value: null
+            },
+            {
+                "name": "NAME",
+                "value": "married"
+            },
+            {
+                "name": "BOOLEAN",
+                "value": "true"
+            },
+            {
+                "name": "NAME",
+                "value": "name"
+            },
+            {
+                "name": "STRING",
+                "value": "Sergejs"
+            },
+            {
+                "name": "NAME",
+                "value": "phones"
+            },
+            {
+                "name": "START_ARRAY",
+                value: null
+            },
+            {
+                "name": "START_OBJECT",
+                value: null
+            },
+            {
+                "name": "NAME",
+                "value": "number"
+            },
+            {
+                "name": "STRING",
+                "value": "1234567"
+            },
+            {
+                "name": "NAME",
+                "value": "type"
+            },
+            {
+                "name": "STRING",
+                "value": "mobile"
+            },
+            {
+                "name": "END_OBJECT",
+                value: null
+            },
+            {
+                "name": "START_OBJECT",
+                value: null
+            },
+            {
+                "name": "NAME",
+                "value": "number"
+            },
+            {
+                "name": "STRING",
+                "value": "7654321"
+            },
+            {
+                "name": "NAME",
+                "value": "type"
+            },
+            {
+                "name": "STRING",
+                "value": "fixed"
+            },
+            {
+                "name": "END_OBJECT",
+                value: null
+            },
+            {
+                "name": "END_ARRAY",
+                value: null
+            },
+            {
+                "name": "NAME",
+                "value": "surname"
+            },
+            {
+                "name": "STRING",
+                "value": "Vinniks"
+            },
+            {
+                "name": "END_OBJECT",
+                value: null
+            }
+        ]);
 
     });
 

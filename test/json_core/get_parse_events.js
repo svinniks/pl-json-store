@@ -145,19 +145,19 @@ suite("Retrieving JSON parse events from stored values", function() {
             },
             {
                 name: "NAME",
-                value: "surname"
-            },
-            {
-                name: "STRING",
-                value: "Vinniks"
-            },
-            {
-                name: "NAME",
                 value: "phone"
             },
             {
                 name: "NUMBER",
                 value: "1234567"
+            },
+            {
+                name: "NAME",
+                value: "surname"
+            },
+            {
+                name: "STRING",
+                value: "Vinniks"
             },
             {
                 name: "END_OBJECT",

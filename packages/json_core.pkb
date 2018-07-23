@@ -2363,7 +2363,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                        ,name
                        ,value
                        ,1 AS lvl
-                       ,0
+                       ,name
                  FROM json_values
                  WHERE id = p_root_id
                  UNION ALL
@@ -2375,9 +2375,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                        ,parent_jsvl.lvl + 1
                        ,CASE parent_jsvl.type
                             WHEN 'A' THEN
-                                TO_NUMBER(jsvl.name)
+                                LPAD(jsvl.name, 12, '0')
                             ELSE
-                                jsvl.id
+                                jsvl.name
                         END
                  FROM parent_jsvl
                      ,json_values jsvl

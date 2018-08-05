@@ -579,7 +579,23 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
       
         RETURN json_core.get_json(
-            json_core.request_value(p_path, p_bind)
+            json_core.request_value(p_path, p_bind),
+            TRUE
+        );
+    
+    END;
+    
+    FUNCTION get_json (
+        p_path IN VARCHAR2,
+        p_serialize_nulls IN json_core.BOOLEANN,
+        p_bind IN bind := NULL
+    )
+    RETURN VARCHAR2 IS
+    BEGIN
+      
+        RETURN json_core.get_json(
+            json_core.request_value(p_path, p_bind),
+            p_serialize_nulls
         );
     
     END;
@@ -592,7 +608,23 @@ CREATE OR REPLACE PACKAGE BODY json_store IS
     BEGIN
       
         RETURN json_core.get_json_clob(
-            json_core.request_value(p_path, p_bind)
+            json_core.request_value(p_path, p_bind),
+            TRUE
+        );
+    
+    END;
+    
+    FUNCTION get_json_clob (
+        p_path IN VARCHAR2,
+        p_serialize_nulls IN json_core.BOOLEANN,
+        p_bind IN bind := NULL
+    )
+    RETURN CLOB IS
+    BEGIN
+      
+        RETURN json_core.get_json_clob(
+            json_core.request_value(p_path, p_bind),
+            p_serialize_nulls
         );
     
     END;

@@ -87,13 +87,15 @@ CREATE OR REPLACE PACKAGE json_builders IS
     );
     
     FUNCTION build_json (
-        p_builder_id IN PLS_INTEGER
+        p_builder_id IN PLS_INTEGER,
+        p_serialize_nulls IN json_core.BOOLEANN := TRUE
     ) 
     -- @json
     RETURN VARCHAR2; 
     
     FUNCTION build_json_clob (
-        p_builder_id IN PLS_INTEGER
+        p_builder_id IN PLS_INTEGER,
+        p_serialize_nulls IN json_core.BOOLEANN := TRUE
     )
     -- @json 
     RETURN CLOB;

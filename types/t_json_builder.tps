@@ -113,10 +113,14 @@ CREATE OR REPLACE TYPE t_json_builder IS OBJECT (
         self IN t_json_builder
     ),
     
-    MEMBER FUNCTION build_json
+    MEMBER FUNCTION build_json (
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
     RETURN VARCHAR2,
     
-    MEMBER FUNCTION build_json_clob
+    MEMBER FUNCTION build_json_clob (
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
     RETURN CLOB
     
 );

@@ -15,6 +15,10 @@ CREATE OR REPLACE PACKAGE json_core IS
         See the License for the specific language governing permissions and
         limitations under the License.
     */
+    
+    SUBTYPE BOOLEANN IS
+        BOOLEAN
+            NOT NULL;
 
     TYPE t_json_values IS 
         TABLE OF json_values%ROWTYPE;
@@ -282,6 +286,7 @@ CREATE OR REPLACE PACKAGE json_core IS
     
     PROCEDURE serialize_value (
         p_parse_events IN json_parser.t_parse_events,
+        p_serialize_nulls IN BOOLEANN,
         p_json IN OUT NOCOPY VARCHAR2,
         p_json_clob IN OUT NOCOPY CLOB
     );
@@ -309,12 +314,14 @@ CREATE OR REPLACE PACKAGE json_core IS
     RETURN BOOLEAN;
     
     FUNCTION get_json (
-        p_value_id IN NUMBER
+        p_value_id IN NUMBER,
+        p_serialize_nulls IN BOOLEANN
     ) 
     RETURN VARCHAR2;
     
     FUNCTION get_json_clob (
-        p_value_id IN NUMBER
+        p_value_id IN NUMBER,
+        p_serialize_nulls IN BOOLEANN
     ) 
     RETURN CLOB;
     

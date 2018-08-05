@@ -263,19 +263,23 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     
     END;
     
-    MEMBER FUNCTION build_json
+    MEMBER FUNCTION build_json (
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
     RETURN VARCHAR2 IS
     BEGIN
     
-        RETURN json_builders.build_json(id);
+        RETURN json_builders.build_json(id, NVL(p_serialize_nulls, FALSE));
     
     END;
     
-    MEMBER FUNCTION build_json_clob
+    MEMBER FUNCTION build_json_clob (
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
     RETURN CLOB IS
     BEGIN
     
-        RETURN json_builders.build_json_clob(id);
+        RETURN json_builders.build_json_clob(id, NVL(p_serialize_nulls, FALSE));
     
     END;
     

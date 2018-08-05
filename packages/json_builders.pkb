@@ -612,7 +612,8 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     END;
     
     FUNCTION build_json (
-        p_builder_id IN PLS_INTEGER
+        p_builder_id IN PLS_INTEGER,
+        p_serialize_nulls IN json_core.BOOLEANN := TRUE
     ) 
     RETURN VARCHAR2 IS
      
@@ -623,6 +624,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         json_core.serialize_value(
             build_parse_events(p_builder_id),
+            p_serialize_nulls,
             v_json, 
             v_json_clob
         );
@@ -632,7 +634,8 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     END; 
     
     FUNCTION build_json_clob (
-        p_builder_id IN PLS_INTEGER
+        p_builder_id IN PLS_INTEGER,
+        p_serialize_nulls IN json_core.BOOLEANN := TRUE
     ) 
     RETURN CLOB IS
      
@@ -645,6 +648,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
         
         json_core.serialize_value(
             build_parse_events(p_builder_id),
+            p_serialize_nulls,
             v_json, 
             v_json_clob
         );

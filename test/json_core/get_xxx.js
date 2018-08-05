@@ -471,7 +471,8 @@ suite("GET_JSON", function() {
     test("NULL value ID", function() {
     
         let value = database.call("json_core.get_json", {
-            p_value_id: null
+            p_value_id: null,
+            p_serialize_nulls: true
         });
 
         expect(value).to.be(null);
@@ -483,7 +484,8 @@ suite("GET_JSON", function() {
         expect(function() {
         
             database.call("json_core.get_json", {
-                p_value_id: -1   
+                p_value_id: -1,
+                p_serialize_nulls: true   
             });
         
         }).to.throw(/JDOC-00009/);
@@ -502,7 +504,8 @@ suite("GET_JSON", function() {
         });
 
         let retrieved = database.call("json_core.get_json", {
-            p_value_id: valueId
+            p_value_id: valueId,
+            p_serialize_nulls: true
         });
 
         expect(JSON.parse(retrieved)).to.eql(value);
@@ -516,7 +519,8 @@ suite("GET_JSON_CLOB", function() {
     test("NULL value ID", function() {
     
         let value = database.call("json_core.get_json_clob", {
-            p_value_id: null
+            p_value_id: null,
+            p_serialize_nulls: true
         });
 
         expect(value).to.be(null);
@@ -528,7 +532,8 @@ suite("GET_JSON_CLOB", function() {
         expect(function() {
         
             database.call("json_core.get_json_clob", {
-                p_value_id: -1   
+                p_value_id: -1,
+                p_serialize_nulls: true   
             });
         
         }).to.throw(/JDOC-00009/);
@@ -547,7 +552,8 @@ suite("GET_JSON_CLOB", function() {
         });
 
         let retrieved = database.call("json_core.get_json_clob", {
-            p_value_id: valueId
+            p_value_id: valueId,
+            p_serialize_nulls: true
         });
 
         expect(JSON.parse(retrieved)).to.eql(value);

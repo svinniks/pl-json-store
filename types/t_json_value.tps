@@ -74,10 +74,14 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     MEMBER FUNCTION as_boolean
     RETURN BOOLEAN,
     
-    MEMBER FUNCTION as_json
+    MEMBER FUNCTION as_json (
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
     RETURN VARCHAR2,
     
-    MEMBER FUNCTION as_json_clob
+    MEMBER FUNCTION as_json_clob (
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
     RETURN CLOB,
      
     /* Some usefull generic methods */
@@ -215,7 +219,15 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     RETURN VARCHAR2,
     
     MEMBER FUNCTION get_json (
-        p_index IN NUMBER
+        p_path IN VARCHAR2,
+        p_serialize_nulls IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN VARCHAR2,
+    
+    MEMBER FUNCTION get_json (
+        p_index IN NUMBER,
+        p_serialize_nulls IN BOOLEAN := TRUE
     )
     RETURN VARCHAR2,
     
@@ -226,7 +238,15 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     RETURN CLOB,
     
     MEMBER FUNCTION get_json_clob (
-        p_index IN NUMBER
+        p_path IN VARCHAR2,
+        p_serialize_nulls IN BOOLEAN,
+        p_bind IN bind := NULL
+    )
+    RETURN CLOB,
+    
+    MEMBER FUNCTION get_json_clob (
+        p_index IN NUMBER,
+        p_serialize_nulls IN BOOLEAN := TRUE
     )
     RETURN CLOB,
     

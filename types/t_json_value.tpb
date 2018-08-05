@@ -194,19 +194,23 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
-    MEMBER FUNCTION as_json
+    MEMBER FUNCTION as_json (
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
     RETURN VARCHAR2 IS
     BEGIN
     
-        RETURN json_core.get_json(id);
+        RETURN json_core.get_json(id, NVL(p_serialize_nulls, FALSE));
     
     END;
     
-    MEMBER FUNCTION as_json_clob
+    MEMBER FUNCTION as_json_clob (
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
     RETURN CLOB IS
     BEGIN
     
-        RETURN json_core.get_json_clob(id);
+        RETURN json_core.get_json_clob(id, NVL(p_serialize_nulls, FALSE));
     
     END;
     
@@ -500,18 +504,35 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN json_core.get_json(
-            json_core.request_value(id, p_path, p_bind)
+            json_core.request_value(id, p_path, p_bind),
+            TRUE
         );
     
     END;
     
     MEMBER FUNCTION get_json (
-        p_index IN NUMBER
+        p_path IN VARCHAR2,
+        p_serialize_nulls IN BOOLEAN,
+        p_bind IN bind := NULL
     )
     RETURN VARCHAR2 IS
     BEGIN
     
-        RETURN get_json(':i', bind(p_index));
+        RETURN json_core.get_json(
+            json_core.request_value(id, p_path, p_bind),
+            p_serialize_nulls
+        );
+    
+    END;
+    
+    MEMBER FUNCTION get_json (
+        p_index IN NUMBER,
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
+    RETURN VARCHAR2 IS
+    BEGIN
+    
+        RETURN get_json(':i', p_serialize_nulls, bind(p_index));
     
     END;
     
@@ -523,18 +544,35 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     BEGIN
     
         RETURN json_core.get_json_clob(
-            json_core.request_value(id, p_path, p_bind)
+            json_core.request_value(id, p_path, p_bind),
+            TRUE
         );
     
     END;
     
     MEMBER FUNCTION get_json_clob (
-        p_index IN NUMBER
+        p_path IN VARCHAR2,
+        p_serialize_nulls IN BOOLEAN,
+        p_bind IN bind := NULL
     )
     RETURN CLOB IS
     BEGIN
     
-        RETURN get_json_clob(':i', bind(p_index));
+        RETURN json_core.get_json_clob(
+            json_core.request_value(id, p_path, p_bind),
+            p_serialize_nulls
+        );
+    
+    END;
+    
+    MEMBER FUNCTION get_json_clob (
+        p_index IN NUMBER,
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
+    RETURN CLOB IS
+    BEGIN
+    
+        RETURN get_json_clob(':i', p_serialize_nulls, bind(p_index));
     
     END;
     

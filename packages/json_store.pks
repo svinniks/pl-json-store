@@ -241,8 +241,24 @@ CREATE OR REPLACE PACKAGE json_store IS
     -- @json
     RETURN VARCHAR2;
     
+    FUNCTION get_json (
+        p_path IN VARCHAR2,
+        p_serialize_nulls IN json_core.BOOLEANN,
+        p_bind IN bind := NULL
+    ) 
+    -- @json
+    RETURN VARCHAR2;
+    
     FUNCTION get_json_clob (
         p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    -- @json
+    RETURN CLOB;
+    
+    FUNCTION get_json_clob (
+        p_path IN VARCHAR2,
+        p_serialize_nulls IN json_core.BOOLEANN,
         p_bind IN bind := NULL
     )
     -- @json

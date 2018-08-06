@@ -47,11 +47,12 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
         TABLE OF t_parse_event;
         
     v_parse_events t_parse_events := t_parse_events();
-    v_released_parse_event_is t_integers := t_integers();    
+    v_released_parse_event_is t_integers := t_integers();
         
     TYPE t_json_builder IS
         RECORD (
             id PLS_INTEGER,
+            serialize_nulls json_core.BOOLEANN := TRUE,
             state VARCHAR2(30),
             object_level PLS_INTEGER,
             composite_stack_top_i PLS_INTEGER,
@@ -81,7 +82,9 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
         default_message_resolver.register_message('JBLR-00011', 'Duplicate property :1!');
     END;
     
-    FUNCTION create_builder
+    FUNCTION create_builder (
+        p_serialize_nulls IN json_core.BOOLEANN := TRUE
+    )
     RETURN PLS_INTEGER IS
     
         v_id PLS_INTEGER;
@@ -101,6 +104,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
         
         v_builders(v_id) := NULL;
         v_builders(v_id).id := v_id;
+        v_builders(v_id).serialize_nulls := p_serialize_nulls;
         v_builders(v_id).object_level := 0;
         v_builders(v_id).state := 'wf_value';
         
@@ -179,7 +183,8 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     END;
     
     FUNCTION build_parse_events (
-        p_builder_id IN PLS_INTEGER
+        p_builder_id IN PLS_INTEGER,
+        p_serialize_nulls IN BOOLEAN := NULL
     )
     RETURN json_parser.t_parse_events IS
     
@@ -187,6 +192,9 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
         
         v_result json_parser.t_parse_events;
         v_event_i PLS_INTEGER;
+        
+        v_name VARCHAR2(4000);
+        v_serialize_nulls BOOLEAN;
     
     BEGIN
     
@@ -197,15 +205,40 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
             error$.raise('JBLR-00004');
         END IF;
     
+        v_serialize_nulls := NVL(p_serialize_nulls, v_builder.serialize_nulls);
+    
         v_result := json_parser.t_parse_events();
         v_event_i := v_builder.first_parse_event_i;
         
         WHILE v_event_i IS NOT NULL LOOP
         
-            v_result.EXTEND(1);
-            v_result(v_result.COUNT).name := v_parse_events(v_event_i).name;
-            v_result(v_result.COUNT).value := v_parse_events(v_event_i).value;
+            IF v_parse_events(v_event_i).name = 'NAME' THEN
             
+                v_name := v_parse_events(v_event_i).value;
+                
+            ELSE        
+                
+                IF v_name IS NULL 
+                   OR p_serialize_nulls 
+                   OR v_parse_events(v_event_i).name != 'NULL' 
+                THEN
+        
+                    IF v_name IS NOT NULL THEN
+                        v_result.EXTEND(1);
+                        v_result(v_result.COUNT).name := 'NAME';
+                        v_result(v_result.COUNT).value := v_name;
+                    END IF;
+        
+                    v_result.EXTEND(1);
+                    v_result(v_result.COUNT).name := v_parse_events(v_event_i).name;
+                    v_result(v_result.COUNT).value := v_parse_events(v_event_i).value;
+                
+                END IF;
+                    
+                v_name := NULL;
+                
+            END IF;
+        
             v_event_i := v_parse_events(v_event_i).next_event_i;
         
         END LOOP;

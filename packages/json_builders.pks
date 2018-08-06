@@ -16,7 +16,9 @@ CREATE OR REPLACE PACKAGE json_builders IS
         limitations under the License.
     */
         
-    FUNCTION create_builder
+    FUNCTION create_builder (
+        p_serialize_nulls IN json_core.BOOLEANN := TRUE
+    )
     RETURN PLS_INTEGER;
     
     PROCEDURE destroy_builder (
@@ -24,7 +26,8 @@ CREATE OR REPLACE PACKAGE json_builders IS
     );
 
     FUNCTION build_parse_events (
-        p_builder_id IN PLS_INTEGER
+        p_builder_id IN PLS_INTEGER,
+        p_serialize_nulls IN BOOLEAN := NULL
     )
     RETURN json_parser.t_parse_events;
     

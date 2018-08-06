@@ -1576,5 +1576,339 @@ suite("JSON builder tests", function() {
         });
     
     });
+
+    test("Don't serialize single NULL property of an object", function() {
     
+        let builderId = database.call("json_builders.create_builder");
+
+        database.call("json_builders.object", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "hello"
+        });
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.close", {
+            p_builder_id: builderId
+        });
+
+        let parseEvents = database.call("json_builders.build_parse_events", {
+            p_builder_id: builderId,
+            p_serialize_nulls: false
+        });
+
+        expect(parseEvents).to.eql([
+            {
+                name: "START_OBJECT",
+                value: null
+            },
+            {
+                name: "END_OBJECT",
+                value: null
+            }
+        ]);
+
+    });
+
+    test("Don't serialize multiple NULL properties of an object", function() {
+    
+        let builderId = database.call("json_builders.create_builder");
+
+        database.call("json_builders.object", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "hello"
+        });
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "goodBye"
+        });
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "orly"
+        });
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.close", {
+            p_builder_id: builderId
+        });
+
+        let parseEvents = database.call("json_builders.build_parse_events", {
+            p_builder_id: builderId,
+            p_serialize_nulls: false
+        });
+
+        expect(parseEvents).to.eql([
+            {
+                name: "START_OBJECT",
+                value: null
+            },
+            {
+                name: "END_OBJECT",
+                value: null
+            }
+        ]);
+
+    });
+
+    test("Don't serialize some NULL properties of an object", function() {
+    
+        let builderId = database.call("json_builders.create_builder");
+
+        database.call("json_builders.object", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "hello"
+        });
+
+        database.call("json_builders.value", {
+            p_builder_id: builderId,
+            p_value: "world"
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "goodBye"
+        });
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "orly"
+        });
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "yarly"
+        });
+
+        database.call("json_builders.value", {
+            p_builder_id: builderId,
+            p_value: "yeah"
+        });
+
+        database.call("json_builders.close", {
+            p_builder_id: builderId
+        });
+
+        let parseEvents = database.call("json_builders.build_parse_events", {
+            p_builder_id: builderId,
+            p_serialize_nulls: false
+        });
+
+        expect(parseEvents).to.eql([
+            {
+                name: "START_OBJECT",
+                value: null
+            },
+            {
+                name: "NAME",
+                value: "hello"
+            },
+            {
+                name: "STRING",
+                value: "world"
+            },
+            {
+                name: "NAME",
+                value: "yarly"
+            },
+            {
+                name: "STRING",
+                value: "yeah"
+            },
+            {
+                name: "END_OBJECT",
+                value: null
+            }
+        ]);
+
+    });
+
+    test("Don't serialize single NULL value", function() {
+    
+        let builderId = database.call("json_builders.create_builder");
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        let parseEvents = database.call("json_builders.build_parse_events", {
+            p_builder_id: builderId,
+            p_serialize_nulls: false
+        });
+
+        expect(parseEvents).to.eql([
+            {
+                name: "NULL",
+                value: null
+            }
+        ]);
+
+    });
+
+    test("Don't serialize single array NULL elements", function() {
+    
+        let builderId = database.call("json_builders.create_builder");
+
+        database.call("json_builders.array", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.value", {
+            p_builder_id: builderId,
+            p_value: "Hello, World!"
+        });
+
+        database.call("json_builders.close", {
+            p_builder_id: builderId
+        });
+
+        let parseEvents = database.call("json_builders.build_parse_events", {
+            p_builder_id: builderId,
+            p_serialize_nulls: false
+        });
+
+        expect(parseEvents).to.eql([
+            {
+                name: "START_ARRAY",
+                value: null
+            },
+            {
+                name: "NULL",
+                value: null
+            },
+            {
+                name: "STRING",
+                value: "Hello, World!"
+            },
+            {
+                name: "END_ARRAY",
+                value: null
+            }
+        ]);
+
+    });
+
+    test("Don't serialize some NULL properties of an object, builder's SERIALIZE_NULLS option", function() {
+    
+        let builderId = database.call("json_builders.create_builder", {
+            p_serialize_nulls: false
+        });
+
+        database.call("json_builders.object", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "hello"
+        });
+
+        database.call("json_builders.value", {
+            p_builder_id: builderId,
+            p_value: "world"
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "goodBye"
+        });
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "orly"
+        });
+
+        database.call("json_builders.null_value", {
+            p_builder_id: builderId
+        });
+
+        database.call("json_builders.name", {
+            p_builder_id: builderId,
+            p_name: "yarly"
+        });
+
+        database.call("json_builders.value", {
+            p_builder_id: builderId,
+            p_value: "yeah"
+        });
+
+        database.call("json_builders.close", {
+            p_builder_id: builderId
+        });
+
+        let parseEvents = database.call("json_builders.build_parse_events", {
+            p_builder_id: builderId
+        });
+
+        expect(parseEvents).to.eql([
+            {
+                name: "START_OBJECT",
+                value: null
+            },
+            {
+                name: "NAME",
+                value: "hello"
+            },
+            {
+                name: "STRING",
+                value: "world"
+            },
+            {
+                name: "NAME",
+                value: "yarly"
+            },
+            {
+                name: "STRING",
+                value: "yeah"
+            },
+            {
+                name: "END_OBJECT",
+                value: null
+            }
+        ]);
+
+    });
+
 });

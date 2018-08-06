@@ -1,10 +1,14 @@
 CREATE OR REPLACE TYPE BODY t_json_builder IS
     
-    CONSTRUCTOR FUNCTION t_json_builder
+    CONSTRUCTOR FUNCTION t_json_builder (
+        p_serialize_nulls IN BOOLEAN := TRUE
+    )
     RETURN self AS RESULT IS
     BEGIN
     
-        id := json_builders.create_builder;
+        id := json_builders.create_builder(
+            NVL(p_serialize_nulls, FALSE)
+        );
     
         RETURN;
     

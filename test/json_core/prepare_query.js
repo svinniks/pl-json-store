@@ -62,7 +62,7 @@ test("NULL bind values when there are bind variables", function() {
             p_bind: null
         });
     
-    }).to.throw(/JDOC-00040/);
+    }).to.throw(/JDC-00040/);
 
 });
 
@@ -85,7 +85,7 @@ test("Less bind values than variables", function() {
             p_bind: ["123"]
         });
     
-    }).to.throw(/JDOC-00040/);
+    }).to.throw(/JDC-00040/);
 
 });
 

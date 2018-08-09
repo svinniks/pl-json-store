@@ -20,7 +20,7 @@ suite("JSON value LRU cache tests", function() {
                 p_capacity: null
             });
         
-        }).to.throw(/JDOC-00032.*NULL/);
+        }).to.throw(/JDC-00032.*NULL/);
     
     });
     
@@ -32,7 +32,7 @@ suite("JSON value LRU cache tests", function() {
                 p_capacity: 0
             });
         
-        }).to.throw(/JDOC-00032.*0/);
+        }).to.throw(/JDC-00032.*0/);
     
     });
 
@@ -67,7 +67,7 @@ suite("JSON value LRU cache tests", function() {
                 p_id: null
             });
         
-        }).to.throw(/JDOC-00031/);
+        }).to.throw(/JDC-00031/);
     
     });
 
@@ -79,7 +79,7 @@ suite("JSON value LRU cache tests", function() {
                 p_id: -1
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
     

@@ -31,7 +31,7 @@ suite("Value requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00036/);
+        }).to.throw(/JDC-00036/);
     
     });
     
@@ -57,7 +57,7 @@ suite("Value requests", function() {
                 p_raise_not_found: true
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
 
     });
 
@@ -71,7 +71,7 @@ suite("Value requests", function() {
                 p_raise_not_found: true
             });
         
-        }).to.throw(/JDOC-00004/);
+        }).to.throw(/JDC-00004/);
 
     });
 
@@ -107,7 +107,7 @@ suite("Value requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
 
     });
 
@@ -134,7 +134,7 @@ suite("Value requests", function() {
                 p_raise_not_found: true
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
 
     });
 
@@ -149,7 +149,7 @@ suite("Value requests", function() {
                 p_raise_not_found: true
             });
         
-        }).to.throw(/JDOC-00004/);
+        }).to.throw(/JDC-00004/);
 
     });
 
@@ -203,7 +203,7 @@ suite("Property requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00036/);
+        }).to.throw(/JDC-00036/);
     
     });
 
@@ -217,7 +217,7 @@ suite("Property requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00041/);
+        }).to.throw(/JDC-00041/);
     
     });
     
@@ -231,7 +231,7 @@ suite("Property requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00022/);
+        }).to.throw(/JDC-00022/);
     
     });
 
@@ -245,7 +245,7 @@ suite("Property requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00007/);
+        }).to.throw(/JDC-00007/);
     
     });
 
@@ -259,7 +259,7 @@ suite("Property requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00004/);
+        }).to.throw(/JDC-00004/);
     
     });
 
@@ -349,7 +349,7 @@ suite("Property requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -363,7 +363,7 @@ suite("Property requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00007/);
+        }).to.throw(/JDC-00007/);
     
     });
 
@@ -377,7 +377,7 @@ suite("Property requests", function() {
                 p_bind: null
             });
         
-        }).to.throw(/JDOC-00004/);
+        }).to.throw(/JDC-00004/);
     
     });
 

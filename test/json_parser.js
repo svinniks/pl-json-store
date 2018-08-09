@@ -24,7 +24,7 @@ suite("Invalid JSON handling", function() {
                 p_content: "a"
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
     
@@ -36,7 +36,7 @@ suite("Invalid JSON handling", function() {
                 p_content: "[1, a]"
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -48,7 +48,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '{"hello": world}'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -60,7 +60,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '[1, 2, ]'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -72,7 +72,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '-a'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -84,7 +84,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '123a'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -96,7 +96,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '01'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -108,7 +108,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '0.'
             });
         
-        }).to.throw(/JSON-00002/);
+        }).to.throw(/JSN-00002/);
     
     });
 
@@ -120,7 +120,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '123.'
             });
         
-        }).to.throw(/JSON-00002/);
+        }).to.throw(/JSN-00002/);
     
     });
 
@@ -132,7 +132,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '0.45a'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -144,7 +144,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '123.45a'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -156,7 +156,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '"\\u1"'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -168,7 +168,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '"\\uq"'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -180,7 +180,7 @@ suite("Invalid JSON handling", function() {
                 p_content: 'truee'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -192,7 +192,7 @@ suite("Invalid JSON handling", function() {
                 p_content: 'fals'
             });
         
-        }).to.throw(/JSON-00002/);
+        }).to.throw(/JSN-00002/);
     
     });
 
@@ -204,7 +204,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '{1}'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -216,7 +216,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '{"hello": "world",}'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -228,7 +228,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '{"hello" "world"}'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -240,7 +240,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '[123 456]'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -252,7 +252,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '{"name": "Sergejs" "age": 35}'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -264,7 +264,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '[1, 2, 3'
             });
         
-        }).to.throw(/JSON-00002/);
+        }).to.throw(/JSN-00002/);
     
     });
 
@@ -276,7 +276,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '{"hello": 123'
             });
         
-        }).to.throw(/JSON-00002/);
+        }).to.throw(/JSN-00002/);
     
     });
 
@@ -288,7 +288,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '[[{}]]]'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -300,7 +300,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '{"a":[[{}]]}}'
             });
         
-        }).to.throw(/JSON-00001/);
+        }).to.throw(/JSN-00001/);
     
     });
 
@@ -312,7 +312,7 @@ suite("Invalid JSON handling", function() {
                 p_content: '"Hello'
             });
         
-        }).to.throw(/JSON-00002/);
+        }).to.throw(/JSN-00002/);
     
     });
 

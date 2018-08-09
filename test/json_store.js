@@ -1735,7 +1735,7 @@ suite("JSON store management tests", function() {
                         p_value: "Hello, World!"
                     });
 
-                }).to.throw(/JDOC-00013/);
+                }).to.throw(/JDC-00013/);
 
             });
 
@@ -1856,7 +1856,7 @@ suite("JSON store management tests", function() {
                         p_path: "$.jodus_document.persons[0]"
                     });
 
-                }).to.throw(/JDOC-00012/);
+                }).to.throw(/JDC-00012/);
 
             });
 
@@ -2348,7 +2348,7 @@ suite("JSON store management tests", function() {
                 throw "Operation successfull!";
 
             } catch(error) {
-                expect(error).to.match(/JDOC-00009/);
+                expect(error).to.match(/JDC-00009/);
             }
 
         });
@@ -2373,7 +2373,7 @@ suite("JSON store management tests", function() {
                 throw "Operation successfull!";
 
             } catch(error) {
-                expect(error).to.match(/JDOC-00011/);
+                expect(error).to.match(/JDC-00011/);
             }
 
         });
@@ -2422,7 +2422,7 @@ suite("JSON store management tests", function() {
                 throw "Operation successfull!";
 
             } catch(error) {
-                expect(error).to.match(/JDOC-00011/);
+                expect(error).to.match(/JDC-00011/);
             }
 
         });
@@ -2471,7 +2471,7 @@ suite("JSON store management tests", function() {
                 throw "Operation successfull!";
 
             } catch(error) {
-                expect(error).to.match(/JDOC-00011/);
+                expect(error).to.match(/JDC-00011/);
             }
 
         });
@@ -3011,7 +3011,7 @@ suite("JSON store management tests", function() {
                     p_path: "$.jodus_non_existing_property"
                 });
 
-            }).to.throw(/JDOC-00009/);
+            }).to.throw(/JDC-00009/);
 
         });
 
@@ -3023,7 +3023,7 @@ suite("JSON store management tests", function() {
                     p_path: "$.jodus.non_existing_object.jodus_non_existing_property"
                 });
 
-            }).to.throw(/JDOC-00009/);
+            }).to.throw(/JDC-00009/);
 
         });
 
@@ -3035,7 +3035,7 @@ suite("JSON store management tests", function() {
                     p_path: "$"
                 });
 
-            }).to.throw(/JDOC-00035/);
+            }).to.throw(/JDC-00035/);
 
         });
     
@@ -3189,7 +3189,7 @@ suite("JSON store management tests", function() {
                     p_path: "$"
                 });
             
-            }).to.throw(/JDOC-00034/);
+            }).to.throw(/JDC-00034/);
         
         });
 
@@ -3267,7 +3267,7 @@ suite("JSON store management tests", function() {
                     p_value: "Good bye, World!"
                 });
             
-            }).to.throw(/JDOC-00024/);
+            }).to.throw(/JDC-00024/);
 
         });
 
@@ -3335,7 +3335,7 @@ suite("JSON store management tests", function() {
                     p_path: `$["${name}"].addresses.home`
                 });
             
-            }).to.throw(/JDOC-00024/);
+            }).to.throw(/JDC-00024/);
         
         });
 
@@ -3423,7 +3423,7 @@ suite("JSON store management tests", function() {
                     p_path:  `$["${name}"].addresses.home`
                 });
             
-            }).to.throw(/JDOC-00033/);
+            }).to.throw(/JDC-00033/);
         
         });
 

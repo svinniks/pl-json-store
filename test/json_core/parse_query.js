@@ -10,7 +10,7 @@ suite("Invalid query tests", function() {
                     p_query: null
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         });
 
@@ -22,7 +22,7 @@ suite("Invalid query tests", function() {
                     p_query: "   "
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         });
 
@@ -34,7 +34,7 @@ suite("Invalid query tests", function() {
                     p_query: "person."
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         });        
 
@@ -46,7 +46,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.  "
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -58,7 +58,7 @@ suite("Invalid query tests", function() {
                     p_query: "person["
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -70,7 +70,7 @@ suite("Invalid query tests", function() {
                     p_query: "person[   "
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -82,7 +82,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person["name'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -94,7 +94,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person[123'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -106,7 +106,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person[123   '
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -118,7 +118,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person["name"'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -130,7 +130,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person["name"   '
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -142,7 +142,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person(.name,'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -154,7 +154,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person(.name,   '
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -166,7 +166,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person(.name'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -178,7 +178,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person(.name   '
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -190,7 +190,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person('
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -202,7 +202,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person(   '
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -214,7 +214,7 @@ suite("Invalid query tests", function() {
                     p_query: '#'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -226,7 +226,7 @@ suite("Invalid query tests", function() {
                     p_query: '#'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -238,7 +238,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person.name as'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -250,7 +250,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person.name as   '
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -262,7 +262,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person.name as "name'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -274,7 +274,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person["name\\'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
 
@@ -286,7 +286,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person.name a'
                 });
             
-            }).to.throw(/JDOC-00002/);
+            }).to.throw(/JDC-00002/);
 
         }); 
     
@@ -302,7 +302,7 @@ suite("Invalid query tests", function() {
                     p_query: ".name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
         
@@ -314,7 +314,7 @@ suite("Invalid query tests", function() {
                     p_query: "  .name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -326,7 +326,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.(a"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -338,7 +338,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.(.name,surname"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -350,7 +350,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.name^"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -362,7 +362,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.name,"
                 });
             
-            }).to.throw(/JDOC-00015/);
+            }).to.throw(/JDC-00015/);
         
         });
 
@@ -374,7 +374,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.name  ,"
                 });
             
-            }).to.throw(/JDOC-00015/);
+            }).to.throw(/JDC-00015/);
         
         });
 
@@ -386,7 +386,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.name)"
                 });
             
-            }).to.throw(/JDOC-00015/);
+            }).to.throw(/JDC-00015/);
         
         });
 
@@ -398,7 +398,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.name  )"
                 });
             
-            }).to.throw(/JDOC-00015/);
+            }).to.throw(/JDC-00015/);
         
         });
 
@@ -410,7 +410,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.name^"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -422,7 +422,7 @@ suite("Invalid query tests", function() {
                     p_query: "person(.name).surname"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -434,7 +434,7 @@ suite("Invalid query tests", function() {
                     p_query: "person(.name)   .surname"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -446,7 +446,7 @@ suite("Invalid query tests", function() {
                     p_query: "person as person  .surname"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -458,7 +458,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person as "person".surname'
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -470,7 +470,7 @@ suite("Invalid query tests", function() {
                     p_query: 'person as "person"  .surname'
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -482,7 +482,7 @@ suite("Invalid query tests", function() {
                     p_query: "* name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -494,7 +494,7 @@ suite("Invalid query tests", function() {
                     p_query: "name surname"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -506,7 +506,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.name? surname"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -518,7 +518,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.#123 surname"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -530,7 +530,7 @@ suite("Invalid query tests", function() {
                     p_query: "person.#123? surname"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -542,7 +542,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons[123] name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -554,7 +554,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons[123]? name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -566,7 +566,7 @@ suite("Invalid query tests", function() {
                     p_query: ":2 name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -578,7 +578,7 @@ suite("Invalid query tests", function() {
                     p_query: ":2 name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -590,7 +590,7 @@ suite("Invalid query tests", function() {
                     p_query: ":2?name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -602,7 +602,7 @@ suite("Invalid query tests", function() {
                     p_query: "#123n"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -614,7 +614,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons[name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -626,7 +626,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons[123abc"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -638,7 +638,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons[123 123]"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -650,7 +650,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons.name ab name"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -662,7 +662,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons.name asname"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -674,7 +674,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons.name as 123"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -686,7 +686,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons.name as name^"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -698,7 +698,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons.:1a"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -710,7 +710,7 @@ suite("Invalid query tests", function() {
                     p_query: ":ab12-"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -722,7 +722,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons[:1"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -734,7 +734,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons[:123a"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
         
@@ -746,7 +746,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons[123]()"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -758,7 +758,7 @@ suite("Invalid query tests", function() {
                     p_query: "persons[123](   )"
                 });
             
-            }).to.throw(/JDOC-00001/);
+            }).to.throw(/JDC-00001/);
         
         });
 
@@ -774,7 +774,7 @@ suite("Invalid query tests", function() {
                     p_query: "person as abcabcabcabcabcabcabcabcabcabcA"
                 });
             
-            }).to.throw(/JDOC-00017/);
+            }).to.throw(/JDC-00017/);
         
         });
         
@@ -786,7 +786,7 @@ suite("Invalid query tests", function() {
                     p_query: ":abcabcabcabcabcabcabcabcabcabcA"
                 });
             
-            }).to.throw(/JDOC-00020/);
+            }).to.throw(/JDC-00020/);
         
         });
 
@@ -798,7 +798,7 @@ suite("Invalid query tests", function() {
                     p_query: "#abcabcabcabcabcabcabcabcabcabcA"
                 });
             
-            }).to.throw(/JDOC-00020/);
+            }).to.throw(/JDC-00020/);
         
         });
 
@@ -810,7 +810,7 @@ suite("Invalid query tests", function() {
                     p_query: "field._key(._value)"
                 });
             
-            }).to.throw(/JDOC-00026/);
+            }).to.throw(/JDC-00026/);
 
         });
 
@@ -822,7 +822,7 @@ suite("Invalid query tests", function() {
                     p_query: "field._key?"
                 });
             
-            }).to.throw(/JDOC-00025/);
+            }).to.throw(/JDC-00025/);
 
         });
 
@@ -834,7 +834,7 @@ suite("Invalid query tests", function() {
                     p_query: "field._key.name"
                 });
             
-            }).to.throw(/JDOC-00027/);
+            }).to.throw(/JDC-00027/);
 
         });
 
@@ -846,7 +846,7 @@ suite("Invalid query tests", function() {
                     p_query: "_key"
                 });
             
-            }).to.throw(/JDOC-00028/);
+            }).to.throw(/JDC-00028/);
 
         });
 
@@ -858,7 +858,7 @@ suite("Invalid query tests", function() {
                     p_query: "object?"
                 });
             
-            }).to.throw(/JDOC-00029/);
+            }).to.throw(/JDC-00029/);
 
         });
 

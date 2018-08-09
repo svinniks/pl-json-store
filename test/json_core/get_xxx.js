@@ -18,7 +18,7 @@ suite("GET_STRING", function() {
                 p_value_id: -1   
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -34,7 +34,7 @@ suite("GET_STRING", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -48,7 +48,7 @@ suite("GET_STRING", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
     
@@ -62,7 +62,7 @@ suite("GET_STRING", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -74,7 +74,7 @@ suite("GET_STRING", function() {
                 p_value_id: 0
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -144,7 +144,7 @@ suite("GET_DATE", function() {
                 p_value_id: -1   
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -160,7 +160,7 @@ suite("GET_DATE", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -176,7 +176,7 @@ suite("GET_DATE", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -216,7 +216,7 @@ suite("GET_NUMBER", function() {
                 p_value_id: -1   
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -232,7 +232,7 @@ suite("GET_NUMBER", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -246,7 +246,7 @@ suite("GET_NUMBER", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
     
@@ -260,7 +260,7 @@ suite("GET_NUMBER", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -272,7 +272,7 @@ suite("GET_NUMBER", function() {
                 p_value_id: 0
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -322,7 +322,7 @@ suite("GET_NUMBER", function() {
                 p_value_id: valueId
             });  
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -360,7 +360,7 @@ suite("GET_BOOLEAN", function() {
                 p_value_id: -1   
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -376,7 +376,7 @@ suite("GET_BOOLEAN", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -392,7 +392,7 @@ suite("GET_BOOLEAN", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -406,7 +406,7 @@ suite("GET_BOOLEAN", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
     
@@ -420,7 +420,7 @@ suite("GET_BOOLEAN", function() {
                 p_value_id: valueId
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -432,7 +432,7 @@ suite("GET_BOOLEAN", function() {
                 p_value_id: 0
             });
         
-        }).to.throw(/JDOC-00010/);
+        }).to.throw(/JDC-00010/);
     
     });
 
@@ -488,7 +488,7 @@ suite("GET_JSON", function() {
                 p_serialize_nulls: true   
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -536,7 +536,7 @@ suite("GET_JSON_CLOB", function() {
                 p_serialize_nulls: true   
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 

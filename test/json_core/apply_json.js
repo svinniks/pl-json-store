@@ -20,7 +20,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });
             
-            }).to.throw(/JDOC-00042/);
+            }).to.throw(/JDC-00042/);
         
         });
 
@@ -42,7 +42,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });
             
-            }).to.throw(/JDOC-00042/);
+            }).to.throw(/JDC-00042/);
         
         });
 
@@ -64,7 +64,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });
             
-            }).to.throw(/JDOC-00042/);
+            }).to.throw(/JDC-00042/);
         
         });
 
@@ -84,7 +84,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });
             
-            }).to.throw(/JDOC-00042/);
+            }).to.throw(/JDC-00042/);
         
         });
 
@@ -106,7 +106,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00044/);
+            }).to.throw(/JDC-00044/);
             
         });
 
@@ -126,7 +126,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -146,7 +146,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -177,7 +177,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });                
             
-            }).to.throw(/JDOC-00024/);
+            }).to.throw(/JDC-00024/);
 
         });
 
@@ -458,7 +458,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });
             
-            }).to.throw(/JDOC-00011.*hello/);
+            }).to.throw(/JDC-00011.*hello/);
             
         });
 
@@ -602,7 +602,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00044/);
+            }).to.throw(/JDC-00044/);
             
         });
 
@@ -622,7 +622,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -642,7 +642,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -673,7 +673,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });                
             
-            }).to.throw(/JDOC-00024/);
+            }).to.throw(/JDC-00024/);
 
         });
 
@@ -843,7 +843,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });
             
-            }).to.throw(/JDOC-00011.*hello/);
+            }).to.throw(/JDC-00011.*hello/);
         
         });
 
@@ -904,7 +904,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00044/);
+            }).to.throw(/JDC-00044/);
             
         });
 
@@ -924,7 +924,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -944,7 +944,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -975,7 +975,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });                
             
-            }).to.throw(/JDOC-00024/);
+            }).to.throw(/JDC-00024/);
 
         });
 
@@ -1145,7 +1145,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });
             
-            }).to.throw(/JDOC-00011.*hello/);
+            }).to.throw(/JDC-00011.*hello/);
 
         });
 
@@ -1206,7 +1206,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00044/);
+            }).to.throw(/JDC-00044/);
             
         });
 
@@ -1226,7 +1226,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -1246,7 +1246,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -1277,7 +1277,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });                
             
-            }).to.throw(/JDOC-00024/);
+            }).to.throw(/JDC-00024/);
 
         });
 
@@ -1368,7 +1368,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -1399,7 +1399,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });                
             
-            }).to.throw(/JDOC-00024/);
+            }).to.throw(/JDC-00024/);
 
         });
 
@@ -1425,7 +1425,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });
             
-            }).to.throw(/JDOC-00011/);
+            }).to.throw(/JDC-00011/);
         
         });
 
@@ -1972,7 +1972,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00044/);
+            }).to.throw(/JDC-00044/);
             
         });
 
@@ -1992,7 +1992,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });
             
-            }).to.throw(/JDOC-00043/);
+            }).to.throw(/JDC-00043/);
             
         });
 
@@ -2023,7 +2023,7 @@ suite("JSON applying tests", function() {
                     p_check_types: false
                 });                
             
-            }).to.throw(/JDOC-00024/);
+            }).to.throw(/JDC-00024/);
 
         });
 
@@ -2049,7 +2049,7 @@ suite("JSON applying tests", function() {
                     p_check_types: true
                 });
             
-            }).to.throw(/JDOC-00011/);
+            }).to.throw(/JDC-00011/);
         
         });
 

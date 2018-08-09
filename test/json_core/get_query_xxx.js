@@ -17,7 +17,7 @@ suite("Query column name retrieval", function() {
                 p_query_elements: elements
             });
         
-        }).to.throw(/JDOC-00023/);
+        }).to.throw(/JDC-00023/);
     
     });
 
@@ -33,7 +33,7 @@ suite("Query column name retrieval", function() {
                 p_query_elements: elements
             });
         
-        }).to.throw(/JDOC-00018/);
+        }).to.throw(/JDC-00018/);
     
     });
 
@@ -49,7 +49,7 @@ suite("Query column name retrieval", function() {
                 p_query_elements: elements
             });
         
-        }).to.throw(/JDOC-00016.*name/);
+        }).to.throw(/JDC-00016.*name/);
     
     });
 
@@ -65,7 +65,7 @@ suite("Query column name retrieval", function() {
                 p_query_elements: elements
             });
         
-        }).to.throw(/JDOC-00016/);
+        }).to.throw(/JDC-00016/);
     
     });
 
@@ -81,7 +81,7 @@ suite("Query column name retrieval", function() {
                 p_query_elements: elements
             });
         
-        }).to.throw(/JDOC-00016/);
+        }).to.throw(/JDC-00016/);
     
     });
 
@@ -97,7 +97,7 @@ suite("Query column name retrieval", function() {
                 p_query_elements: elements
             });
         
-        }).to.throw(/JDOC-00016/);
+        }).to.throw(/JDC-00016/);
     
     });
 
@@ -113,7 +113,7 @@ suite("Query column name retrieval", function() {
                 p_query_elements: elements
             });
         
-        }).to.throw(/JDOC-00016/);
+        }).to.throw(/JDC-00016/);
     
     });
     

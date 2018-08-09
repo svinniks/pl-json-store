@@ -15,7 +15,7 @@ suite("Named property creation", function() {
                 }]
             });
         
-        }).to.throw(/JDOC-00007/);
+        }).to.throw(/JDC-00007/);
     
     });
     
@@ -34,7 +34,7 @@ suite("Named property creation", function() {
                 }]
             });
         
-        }).to.throw(/JDOC-00007/);
+        }).to.throw(/JDC-00007/);
     
     });
 
@@ -62,7 +62,7 @@ suite("Named property creation", function() {
                 }]
             });
         
-        }).to.throw(/JDOC-00024/);
+        }).to.throw(/JDC-00024/);
     
     });
 
@@ -85,7 +85,7 @@ suite("Named property creation", function() {
                 }]
             });
         
-        }).to.throw(/JDOC-00008/);
+        }).to.throw(/JDC-00008/);
     
     });
 
@@ -108,7 +108,7 @@ suite("Named property creation", function() {
                 }]
             });
         
-        }).to.throw(/JDOC-00008/);
+        }).to.throw(/JDC-00008/);
     
     });
 
@@ -131,7 +131,7 @@ suite("Named property creation", function() {
                 }]
             });
         
-        }).to.throw(/JDOC-00008/);
+        }).to.throw(/JDC-00008/);
     
     });
 
@@ -154,7 +154,7 @@ suite("Named property creation", function() {
                 }]
             });
         
-        }).to.throw(/JDOC-00008/);
+        }).to.throw(/JDC-00008/);
     
     });
 
@@ -241,7 +241,7 @@ suite("Named property creation", function() {
                 }]
             });        
         
-        }).to.throw(/JDOC-00013/);
+        }).to.throw(/JDC-00013/);
     
     });
     

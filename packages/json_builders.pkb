@@ -69,17 +69,17 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
     PROCEDURE register_messages IS
     BEGIN
-        default_message_resolver.register_message('JBLR-00001', 'JSON builder ID not specified!');
-        default_message_resolver.register_message('JBLR-00002', 'Invalid JSON builder!');
-        default_message_resolver.register_message('JBLR-00003', 'Unexpected value!');
-        default_message_resolver.register_message('JBLR-00004', 'JSON builder is in an incomplete state!');
-        default_message_resolver.register_message('JBLR-00005', 'Unexpected start of array!');
-        default_message_resolver.register_message('JBLR-00006', 'Unexpected end of composite!');
-        default_message_resolver.register_message('JBLR-00007', 'Unexpected start of object!');
-        default_message_resolver.register_message('JBLR-00008', 'Property name can''t be NULL!');
-        default_message_resolver.register_message('JBLR-00009', 'Unexpected property name!');
-        default_message_resolver.register_message('JBLR-00010', 'Unexpected end of object!');
-        default_message_resolver.register_message('JBLR-00011', 'Duplicate property :1!');
+        default_message_resolver.register_message('JBR-00001', 'JSON builder ID not specified!');
+        default_message_resolver.register_message('JBR-00002', 'Invalid JSON builder!');
+        default_message_resolver.register_message('JBR-00003', 'Unexpected value!');
+        default_message_resolver.register_message('JBR-00004', 'JSON builder is in an incomplete state!');
+        default_message_resolver.register_message('JBR-00005', 'Unexpected start of array!');
+        default_message_resolver.register_message('JBR-00006', 'Unexpected end of composite!');
+        default_message_resolver.register_message('JBR-00007', 'Unexpected start of object!');
+        default_message_resolver.register_message('JBR-00008', 'Property name can''t be NULL!');
+        default_message_resolver.register_message('JBR-00009', 'Unexpected property name!');
+        default_message_resolver.register_message('JBR-00010', 'Unexpected end of object!');
+        default_message_resolver.register_message('JBR-00011', 'Duplicate property :1!');
     END;
     
     FUNCTION create_builder (
@@ -158,10 +158,10 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         IF p_id IS NULL THEN
             -- JSON builder ID not specified!
-            error$.raise('JBLR-00001');
+            error$.raise('JBR-00001');
         ELSIF NOT v_builders.EXISTS(p_id) THEN
             -- Invalid JSON builder!
-            error$.raise('JBLR-00002');
+            error$.raise('JBR-00002');
         END IF;
         
         RETURN v_builders(p_id);
@@ -202,7 +202,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         IF v_builder.state != 'wf_eof' THEN
             -- JSON builder is in an incomplete state!
-            error$.raise('JBLR-00004');
+            error$.raise('JBR-00004');
         END IF;
     
         v_serialize_nulls := NVL(p_serialize_nulls, v_builder.serialize_nulls);
@@ -298,7 +298,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         IF v_builder.state != 'wf_value' THEN
             -- Unexpected value!
-            error$.raise('JBLR-00003');
+            error$.raise('JBR-00003');
         END IF;
         
         add_parse_event(v_builder, p_type, p_value);
@@ -413,7 +413,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         IF v_builder.state != 'wf_value' THEN
             -- Unexpected value!
-            error$.raise('JBLR-00003');
+            error$.raise('JBR-00003');
         END IF;
         
         FOR v_i IN 1..p_content_parse_events.COUNT LOOP
@@ -508,7 +508,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         IF v_builder.state != 'wf_value' THEN
             -- Unexpected start of array!
-            error$.raise('JBLR-00005');
+            error$.raise('JBR-00005');
         END IF;
     
         push_composite(v_builder, 'A');
@@ -530,7 +530,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         IF v_builder.state != 'wf_value' THEN
             -- Unexpected start of object!
-            error$.raise('JBLR-00007');
+            error$.raise('JBR-00007');
         END IF;
         
         push_composite(v_builder, 'O');
@@ -557,17 +557,17 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         IF p_name IS NULL THEN
             -- Property name can't be NULL!
-            error$.raise('JBLR-00008');
+            error$.raise('JBR-00008');
         ELSIF v_builder.state != 'wf_name' THEN
             -- Unexpected property name!
-            error$.raise('JBLR-00009');
+            error$.raise('JBR-00009');
         END IF;
         
         v_property_name := v_builder.id || '_' || v_builder.object_level || '.' || p_name;
         
         IF v_object_property_name_stack.EXISTS(v_property_name) THEN
             -- Duplicate property :1!
-            error$.raise('JBLR-00011', p_name);
+            error$.raise('JBR-00011', p_name);
         END IF;
         
         v_object_property_name_stack(v_property_name) := NULL;
@@ -594,7 +594,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         IF v_builder.composite_stack_top_i IS NULL THEN
             -- Unexpected end of composite!
-            error$.raise('JBLR-00006');
+            error$.raise('JBR-00006');
         END IF;
         
         CASE v_composite_stack(v_builder.composite_stack_top_i).type
@@ -607,7 +607,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
               
                 IF v_builder.state != 'wf_name' THEN
                     -- Unexpected end of object!
-                    error$.raise('JBLR-00010');
+                    error$.raise('JBR-00010');
                 END IF;
                 
                 v_object_name := p_builder_id || '_' || v_builder.object_level;

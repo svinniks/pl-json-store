@@ -50,51 +50,51 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
     PROCEDURE register_messages IS
     BEGIN
-        default_message_resolver.register_message('JDOC-00001', 'Unexpected character ":1"!');
-        default_message_resolver.register_message('JDOC-00002', 'Unexpected end of the input!');
-        default_message_resolver.register_message('JDOC-00003', 'Root can''t be modified!');
-        default_message_resolver.register_message('JDOC-00004', 'Multiple values found at path :1!');
-        default_message_resolver.register_message('JDOC-00005', 'Empty path specified!');
-        default_message_resolver.register_message('JDOC-00006', 'Root requested as a property!');
-        default_message_resolver.register_message('JDOC-00007', 'No container for property at path :1 could be found!');
-        default_message_resolver.register_message('JDOC-00008', 'Scalar values and null can''t have properties!');
-        default_message_resolver.register_message('JDOC-00009', 'Value :1 does not exist!');
-        default_message_resolver.register_message('JDOC-00010', 'Type conversion error!');
-        default_message_resolver.register_message('JDOC-00011', 'Property ":1" type mismatch!');
-        default_message_resolver.register_message('JDOC-00012', 'Value is not an array!');
-        default_message_resolver.register_message('JDOC-00013', 'Invalid array element index :1!');
-        default_message_resolver.register_message('JDOC-00014', 'Requested target is not an array!');
-        default_message_resolver.register_message('JDOC-00015', 'Unexpected :1 in a non-branching query!');
-        default_message_resolver.register_message('JDOC-00016', 'Duplicate property/alias ":1"!');
-        default_message_resolver.register_message('JDOC-00017', 'Alias too long!');
-        default_message_resolver.register_message('JDOC-00018', 'Property name ":1" is too long to be a column name!');
-        default_message_resolver.register_message('JDOC-00019', 'Alias not specified for a leaf wildcard property!');
-        default_message_resolver.register_message('JDOC-00020', 'Variable name too long!');
-        default_message_resolver.register_message('JDOC-00021', 'Value is not an object!');
-        default_message_resolver.register_message('JDOC-00022', 'Invalid property name!');
-        default_message_resolver.register_message('JDOC-00023', 'Column alias for a wildcard not specified!');
-        default_message_resolver.register_message('JDOC-00024', 'Value :1 is pinned!');
-        default_message_resolver.register_message('JDOC-00025', 'Reserved field reference can''t be optional!');
-        default_message_resolver.register_message('JDOC-00026', 'Reserved field reference can''t be branched!');
-        default_message_resolver.register_message('JDOC-00027', 'Reserved field reference can''t have child elements!');
-        default_message_resolver.register_message('JDOC-00028', 'Reserved field reference can''t be the topmost query element!');
-        default_message_resolver.register_message('JDOC-00029', 'The topmost query element can''t be optional!');
-        default_message_resolver.register_message('JDOC-00030', 'Empty JSON specified!');
-        default_message_resolver.register_message('JDOC-00031', 'Value ID not specified!');
-        default_message_resolver.register_message('JDOC-00032', 'Invalid cache capacity :1!');
-        default_message_resolver.register_message('JDOC-00033', 'Value has pinned children!');
-        default_message_resolver.register_message('JDOC-00034', 'Root can''t be unpinned!');
-        default_message_resolver.register_message('JDOC-00035', 'Root can''t be deleted!');
-        default_message_resolver.register_message('JDOC-00036', 'Optional elements are not allowed in path expressions!');
-        default_message_resolver.register_message('JDOC-00037', 'Branching is not allowed in path expressions!');
-        default_message_resolver.register_message('JDOC-00038', 'Aliases are not allowed in path expressions!');
-        default_message_resolver.register_message('JDOC-00039', 'Reserved fields are not allowed in path expressions!');
-        default_message_resolver.register_message('JDOC-00040', 'Not all variables bound!');
-        default_message_resolver.register_message('JDOC-00041', 'Property name missing!');
-        default_message_resolver.register_message('JDOC-00042', 'Can''t apply to an anonymous scalar value!');
-        default_message_resolver.register_message('JDOC-00043', 'Can''t replace anonymous composite!');
-        default_message_resolver.register_message('JDOC-00044', 'Can''t replace the root!');
-        default_message_resolver.register_message('JDOC-00045', 'Applying which alters value ID is not allowed!');
+        default_message_resolver.register_message('JDC-00001', 'Unexpected character ":1"!');
+        default_message_resolver.register_message('JDC-00002', 'Unexpected end of the input!');
+        default_message_resolver.register_message('JDC-00003', 'Root can''t be modified!');
+        default_message_resolver.register_message('JDC-00004', 'Multiple values found at path :1!');
+        default_message_resolver.register_message('JDC-00005', 'Empty path specified!');
+        default_message_resolver.register_message('JDC-00006', 'Root requested as a property!');
+        default_message_resolver.register_message('JDC-00007', 'No container for property at path :1 could be found!');
+        default_message_resolver.register_message('JDC-00008', 'Scalar values and null can''t have properties!');
+        default_message_resolver.register_message('JDC-00009', 'Value :1 does not exist!');
+        default_message_resolver.register_message('JDC-00010', 'Type conversion error!');
+        default_message_resolver.register_message('JDC-00011', 'Property ":1" type mismatch!');
+        default_message_resolver.register_message('JDC-00012', 'Value is not an array!');
+        default_message_resolver.register_message('JDC-00013', 'Invalid array element index :1!');
+        default_message_resolver.register_message('JDC-00014', 'Requested target is not an array!');
+        default_message_resolver.register_message('JDC-00015', 'Unexpected :1 in a non-branching query!');
+        default_message_resolver.register_message('JDC-00016', 'Duplicate property/alias ":1"!');
+        default_message_resolver.register_message('JDC-00017', 'Alias too long!');
+        default_message_resolver.register_message('JDC-00018', 'Property name ":1" is too long to be a column name!');
+        default_message_resolver.register_message('JDC-00019', 'Alias not specified for a leaf wildcard property!');
+        default_message_resolver.register_message('JDC-00020', 'Variable name too long!');
+        default_message_resolver.register_message('JDC-00021', 'Value is not an object!');
+        default_message_resolver.register_message('JDC-00022', 'Invalid property name!');
+        default_message_resolver.register_message('JDC-00023', 'Column alias for a wildcard not specified!');
+        default_message_resolver.register_message('JDC-00024', 'Value :1 is pinned!');
+        default_message_resolver.register_message('JDC-00025', 'Reserved field reference can''t be optional!');
+        default_message_resolver.register_message('JDC-00026', 'Reserved field reference can''t be branched!');
+        default_message_resolver.register_message('JDC-00027', 'Reserved field reference can''t have child elements!');
+        default_message_resolver.register_message('JDC-00028', 'Reserved field reference can''t be the topmost query element!');
+        default_message_resolver.register_message('JDC-00029', 'The topmost query element can''t be optional!');
+        default_message_resolver.register_message('JDC-00030', 'Empty JSON specified!');
+        default_message_resolver.register_message('JDC-00031', 'Value ID not specified!');
+        default_message_resolver.register_message('JDC-00032', 'Invalid cache capacity :1!');
+        default_message_resolver.register_message('JDC-00033', 'Value has pinned children!');
+        default_message_resolver.register_message('JDC-00034', 'Root can''t be unpinned!');
+        default_message_resolver.register_message('JDC-00035', 'Root can''t be deleted!');
+        default_message_resolver.register_message('JDC-00036', 'Optional elements are not allowed in path expressions!');
+        default_message_resolver.register_message('JDC-00037', 'Branching is not allowed in path expressions!');
+        default_message_resolver.register_message('JDC-00038', 'Aliases are not allowed in path expressions!');
+        default_message_resolver.register_message('JDC-00039', 'Reserved fields are not allowed in path expressions!');
+        default_message_resolver.register_message('JDC-00040', 'Not all variables bound!');
+        default_message_resolver.register_message('JDC-00041', 'Property name missing!');
+        default_message_resolver.register_message('JDC-00042', 'Can''t apply to an anonymous scalar value!');
+        default_message_resolver.register_message('JDC-00043', 'Can''t replace anonymous composite!');
+        default_message_resolver.register_message('JDC-00044', 'Can''t replace the root!');
+        default_message_resolver.register_message('JDC-00045', 'Applying which alters value ID is not allowed!');
     END;
     
     /* Some usefull functions */
@@ -350,7 +350,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
         IF p_capacity IS NULL OR p_capacity < 1 THEN
             -- Invalid cache capacity :1!
-            error$.raise('JDOC-00032', NVL(TO_CHAR(p_capacity), 'NULL'));
+            error$.raise('JDC-00032', NVL(TO_CHAR(p_capacity), 'NULL'));
         END IF;
         
         FOR v_i IN p_capacity + 1..v_json_value_cache.COUNT LOOP
@@ -426,7 +426,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
         IF p_id IS NULL THEN
             -- Value ID not specified!
-            error$.raise('JDOC-00031');
+            error$.raise('JDC-00031');
         END IF;
     
         v_entry_id := p_id;
@@ -452,7 +452,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             EXCEPTION
                 WHEN NO_DATA_FOUND THEN
                     -- Value :1 does not exist!
-                    error$.raise('JDOC-00009', '#' || v_entry_id);
+                    error$.raise('JDC-00009', '#' || v_entry_id);
             END;
         
             v_json_value_cache(v_entry_id) := v_value;
@@ -550,7 +550,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF v_stack.COUNT > 1 AND v_query_elements(v_stack(v_stack.COUNT).element_i).type = 'F' THEN
                 -- Reserved field reference can''t have child elements!
-                error$.raise('JDOC-00027');
+                error$.raise('JDC-00027');
             END IF;
         
             v_query_elements.EXTEND(1);
@@ -595,7 +595,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 IF v_stack.COUNT = 1 THEN
                     -- Reserved field reference can''t be the topmost query element!
-                    error$.raise('JDOC-00028');
+                    error$.raise('JDC-00028');
                 END IF;
             
                 push('F', SUBSTR(p_value, 2));
@@ -615,7 +615,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF LENGTH(p_value) > 30 THEN
                 -- Variable name too long
-                error$.raise('JDOC-00020');
+                error$.raise('JDC-00020');
             END IF;
          
             push('V', UPPER(p_value));
@@ -629,7 +629,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF LENGTH(p_value) > 30 THEN
                 -- Variable name too long
-                error$.raise('JDOC-00020');
+                error$.raise('JDC-00020');
             END IF;
          
             push('A', UPPER(p_value));
@@ -645,7 +645,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 IF v_stack.COUNT = 0 THEN
                     -- 'Unexpected :1 in a non-branching query!'
-                    error$.raise('JDOC-00015', p_character);
+                    error$.raise('JDC-00015', p_character);
                 END IF;
                 
                 EXIT WHEN v_stack(v_stack.COUNT).branching;
@@ -678,10 +678,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF v_stack.COUNT = 2 THEN
                 -- The topmost query element can''t be optional!
-                error$.raise('JDOC-00029');
+                error$.raise('JDC-00029');
             ELSIF v_query_elements(v_stack(v_stack.COUNT).element_i).TYPE = 'F' THEN
                 -- Reserved field reference can''t be optional!
-                error$.raise('JDOC-00025');
+                error$.raise('JDC-00025');
             END IF;
         
             v_query_elements(v_stack(v_stack.COUNT).element_i).optional := TRUE;
@@ -701,7 +701,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF v_stack.COUNT > 1 AND v_query_elements(v_stack(v_stack.COUNT).element_i).TYPE = 'F' THEN
                 -- Reserved field reference can''t be branched!
-                error$.raise('JDOC-00026');
+                error$.raise('JDC-00026');
             END IF;
         
             v_stack(v_stack.COUNT).branching := TRUE;
@@ -791,7 +791,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
                 
             END IF;
         
@@ -811,7 +811,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;
         
@@ -871,7 +871,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
                 
             END IF;
         
@@ -897,7 +897,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
                 
             END IF;
             
@@ -935,7 +935,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 IF optional THEN
                     -- Unexpected character ":1"!
-                    error$.raise('JDOC-00001', v_char);
+                    error$.raise('JDC-00001', v_char);
                 END IF; 
                 
                 set_optional;
@@ -964,7 +964,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
                 
             END IF;
         
@@ -1024,7 +1024,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
                 
             END IF;
                     
@@ -1084,7 +1084,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
                 
             END IF;
                     
@@ -1116,7 +1116,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;
         
@@ -1142,7 +1142,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;    
         
@@ -1158,7 +1158,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF NOT space THEN
            
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;
         
@@ -1202,7 +1202,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;
             
@@ -1219,7 +1219,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;
         
@@ -1241,7 +1241,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF NOT space THEN
                 
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;
         
@@ -1255,7 +1255,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 IF LENGTH(v_value) = 30 THEN
             
                     -- Alias too long!
-                    error$.raise('JDOC-00017');
+                    error$.raise('JDC-00017');
                     
                 END IF;
             
@@ -1286,7 +1286,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
                 
             END IF;
                 
@@ -1304,7 +1304,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSIF LENGTH(v_value) = 30 THEN
             
                 -- Alias too long!
-                error$.raise('JDOC-00017');
+                error$.raise('JDC-00017');
                 
             ELSE
             
@@ -1325,7 +1325,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;
         
@@ -1385,7 +1385,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
                 
             END IF;
         
@@ -1402,7 +1402,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;
         
@@ -1428,7 +1428,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JDOC-00001', v_char);
+                error$.raise('JDC-00001', v_char);
             
             END IF;    
         
@@ -1490,12 +1490,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             push_name_variable(v_value);
         ELSIF v_state NOT IN ('lf_separator', 'lf_comma') THEN 
             -- Unexpected end of the input!
-            error$.raise('JDOC-00002');
+            error$.raise('JDC-00002');
         END IF;
         
         IF branching THEN
             -- Unexpected end of the input!
-            error$.raise('JDOC-00002');
+            error$.raise('JDC-00002');
         END IF;
     
         v_query_element_cache(p_query) := v_query_elements;
@@ -1518,16 +1518,16 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF v_path_elements(p_i).optional THEN
                 -- Optional elements are not allowed in path expressions!
-                error$.raise('JDOC-00036');
+                error$.raise('JDC-00036');
             ELSIF v_path_elements(p_i).next_sibling_i IS NOT NULL THEN
                 -- Branching is not allowed in path expressions!
-                error$.raise('JDOC-00037');
+                error$.raise('JDC-00037');
             ELSIF v_path_elements(p_i).alias IS NOT NULL THEN
                 -- Aliases are not allowed in path expressions!
-                error$.raise('JDOC-00038');
+                error$.raise('JDC-00038');
             ELSIF v_path_elements(p_i).type = 'F' THEN
                 -- Reserved fields are not allowed in path expressions!
-                error$.raise('JDOC-00039');
+                error$.raise('JDC-00039');
             END IF;
             
             IF v_path_elements(p_i).first_child_i IS NOT NULL THEN
@@ -1611,12 +1611,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
             IF LENGTH(p_name) > 30 THEN
                 -- Property name :1 is too long to be a column name!
-                error$.raise('JDOC-00018', p_name);
+                error$.raise('JDC-00018', p_name);
             END IF;
             
             IF v_unique_column_names.EXISTS(p_name) THEN
                 -- Duplicate property/alias :1!
-                error$.raise('JDOC-00016', p_name);
+                error$.raise('JDC-00016', p_name);
             END IF;
             
             v_column_names.EXTEND(1);
@@ -1644,7 +1644,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 ELSIF p_query_elements(p_i).type = 'W' THEN
                 
                     -- Column alias for a wildcard not specified!
-                    error$.raise('JDOC-00023');
+                    error$.raise('JDC-00023');
                     
                 ELSE
                 
@@ -2086,7 +2086,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF v_bind_numbers.COUNT > 0 THEN
                 -- Not all variables bound!
-                error$.raise('JDOC-00040');
+                error$.raise('JDC-00040');
             END IF;
             
         ELSE
@@ -2095,7 +2095,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 IF v_bind_numbers(v_i) > p_bind.COUNT THEN
                     -- Not all variables bound!
-                    error$.raise('JDOC-00040');
+                    error$.raise('JDC-00040');
                 END IF;
                 
                 DBMS_SQL.BIND_VARIABLE(v_cursor_id, ':var' || v_i, p_bind(v_bind_numbers(v_i)));
@@ -2237,7 +2237,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 IF p_raise_not_found THEN
                     -- Value :1 does not exist!
-                    error$.raise('JDOC-00009', p_path);
+                    error$.raise('JDC-00009', p_path);
                 ELSE
                     RETURN NULL;
                 END IF;
@@ -2245,7 +2245,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             WHEN TOO_MANY_ROWS THEN
             
                 -- Multiple values found at the path :1!
-                error$.raise('JDOC-00004', p_path);
+                error$.raise('JDC-00004', p_path);
                 
         END; 
         
@@ -2278,7 +2278,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         IF v_path_elements(v_path_elements.COUNT).type NOT IN ('N', 'V') THEN
             -- Invalid property name!
-            error$.raise('JDOC-00022');
+            error$.raise('JDC-00022');
         END IF;
         
         IF p_parent_value_id IS NOT NULL THEN
@@ -2296,7 +2296,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         IF v_path_elements.COUNT < 2 THEN
             -- Property name missing!
-            error$.raise('JDOC-00041');
+            error$.raise('JDC-00041');
         END IF;
         
         v_path_statement := get_query_statement(v_path_elements, c_PROPERTY_QUERY);
@@ -2320,14 +2320,14 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
         
                 -- No container for property at path :1 could be found!
-                error$.raise('JDOC-00007', p_path);
+                error$.raise('JDC-00007', p_path);
             
             WHEN TOO_MANY_ROWS THEN
             
                 DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
         
                 -- Multiple values found at the path :1!
-                error$.raise('JDOC-00004', p_path);
+                error$.raise('JDC-00004', p_path);
                 
         END;
         
@@ -2641,7 +2641,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             RETURN v_value.value;
         ELSE
             -- Type conversion error!
-            error$.raise('JDOC-00010');
+            error$.raise('JDC-00010');
         END IF;
     
     END;
@@ -2666,7 +2666,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         EXCEPTION
             WHEN OTHERS THEN
                 -- Type conversion error!
-                error$.raise('JDOC-00010');
+                error$.raise('JDC-00010');
         END;
     
     END;
@@ -2697,13 +2697,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             EXCEPTION
                 WHEN OTHERS THEN
                     -- Type conversion error!
-                    error$.raise('JDOC-00010');
+                    error$.raise('JDC-00010');
             END;
             
         ELSE
           
             -- Type conversion error!
-            error$.raise('JDOC-00010');
+            error$.raise('JDC-00010');
             
         END IF;
     
@@ -2728,7 +2728,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             RETURN v_value.value = 'true';
         ELSE
             -- Type conversion error!
-            error$.raise('JDOC-00010');
+            error$.raise('JDC-00010');
         END IF;
     
     END;
@@ -2934,7 +2934,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
      
         IF v_value.type NOT IN ('O', 'R') THEN
             -- Value is not an object!
-            error$.raise('JDOC-00021');
+            error$.raise('JDC-00021');
         END IF;
         
         SELECT name
@@ -2962,7 +2962,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
         IF v_value.type != 'A' THEN
             -- Value is not an array!
-            error$.raise('JDOC-00012');
+            error$.raise('JDC-00012');
         END IF;
         
         SELECT NVL(MAX(to_index(name)) + 1, 0)
@@ -2991,7 +2991,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     
         IF v_value.type != 'A' THEN
             -- Value is not an array!
-            error$.raise('JDOC-00012');
+            error$.raise('JDC-00012');
         END IF;
         
         BEGIN
@@ -3161,10 +3161,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
 
         IF v_property.property_locked = 'T' THEN
             -- Value :1 is locked!
-            error$.raise('JDOC-00024', p_path);
+            error$.raise('JDC-00024', p_path);
         ELSIF v_property.parent_type NOT IN ('R', 'O', 'A') THEN
             -- Scalar values and null can't have properties!
-            error$.raise('JDOC-00008');
+            error$.raise('JDC-00008');
         END IF;
 
         IF v_property.property_id IS NOT NULL THEN
@@ -3178,7 +3178,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
             IF v_index IS NULL THEN
                 -- Array element index must be a non-negative integer!
-                error$.raise('JDOC-00013');
+                error$.raise('JDC-00013');
             END IF;
                 
             v_length := get_length(v_property.parent_id);
@@ -3330,7 +3330,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
             IF v_existing_value.locked = 'T' THEN
                 -- Value :1 is locked!
-                error$.raise('JDOC-00024', v_existing_value.name);
+                error$.raise('JDC-00024', v_existing_value.name);
             END IF;
         
             v_delete_ids.EXTEND(1);
@@ -3386,7 +3386,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         IF v_value.parent_id IS NULL AND v_value.type IN ('S', 'N', 'B', 'E') THEN
             -- Can''t apply to an anonymous scalar value!')
-            error$.raise('JDOC-00042');
+            error$.raise('JDC-00042');
         END IF;
         
         v_existing_value.path := '.' || v_value.name;
@@ -3424,13 +3424,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                      
                 ELSIF v_existing_value.type = 'R' THEN
                     -- Can''t replace the root!
-                    error$.raise('JDOC-00044');
+                    error$.raise('JDC-00044');
                 ELSIF v_existing_value.type IN ('O', 'A') AND v_existing_value.parent_id IS NULL THEN
                     -- Can''t replace anonymous composite!
-                    error$.raise('JDOC-00043');   
+                    error$.raise('JDC-00043');   
                 ELSIF NVL(p_check_types, FALSE) AND v_existing_value.type != 'E' THEN
                     -- Property :1 type mismatch!
-                    error$.raise('JDOC-00011', v_existing_value.name);
+                    error$.raise('JDC-00011', v_existing_value.name);
                 ELSE
                     v_replace := TRUE;
                 END IF;
@@ -3457,13 +3457,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     v_replace := v_existing_value.value != v_event.value;
                 ELSIF v_existing_value.type = 'R' THEN
                     -- Can''t replace the root!
-                    error$.raise('JDOC-00044');
+                    error$.raise('JDC-00044');
                 ELSIF v_existing_value.type IN ('O', 'A') AND v_existing_value.parent_id IS NULL THEN
                     -- Can''t replace anonymous composite!
-                    error$.raise('JDOC-00043');
+                    error$.raise('JDC-00043');
                 ELSIF NVL(p_check_types, FALSE) AND v_existing_value.type != 'E' THEN
                     -- Property :1 type mismatch!
-                    error$.raise('JDOC-00011', v_existing_value.name);
+                    error$.raise('JDC-00011', v_existing_value.name);
                 ELSE
                     v_replace := TRUE;
                 END IF;
@@ -3490,13 +3490,13 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     v_replace := v_existing_value.value != v_event.value;
                 ELSIF v_existing_value.type = 'R' THEN
                     -- Can''t replace the root!
-                    error$.raise('JDOC-00044');
+                    error$.raise('JDC-00044');
                 ELSIF v_existing_value.type IN ('O', 'A') AND v_existing_value.parent_id IS NULL THEN
                     -- Can''t replace anonymous composite!
-                    error$.raise('JDOC-00043');
+                    error$.raise('JDC-00043');
                 ELSIF NVL(p_check_types, FALSE) AND v_existing_value.type != 'E' THEN
                     -- Property :1 type mismatch!
-                    error$.raise('JDOC-00011', v_existing_value.name);
+                    error$.raise('JDC-00011', v_existing_value.name);
                 ELSE
                     v_replace := TRUE;
                 END IF;
@@ -3521,10 +3521,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 
                 IF v_existing_value.type = 'R' THEN
                     -- Can''t replace the root!
-                    error$.raise('JDOC-00044');
+                    error$.raise('JDC-00044');
                 ELSIF v_existing_value.type IN ('O', 'A') AND v_existing_value.parent_id IS NULL THEN
                     -- Can''t replace anonymous composite!
-                    error$.raise('JDOC-00043');
+                    error$.raise('JDC-00043');
                 ELSIF v_existing_value.type != 'E' THEN
                 
                     delete_existing_value;
@@ -3546,7 +3546,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 IF v_existing_value.type = 'A' AND v_existing_value.parent_id IS NULL THEN
                 
                     -- Can''t replace anonymous composite!
-                    error$.raise('JDOC-00043');
+                    error$.raise('JDC-00043');
                   
                 ELSIF v_existing_value.type IN ('O', 'R') THEN
                 
@@ -3559,7 +3559,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 ELSIF NVL(p_check_types, FALSE)  THEN
                 
                     -- Property :1 type mismatch!
-                    error$.raise('JDOC-00011', v_existing_value.name);
+                    error$.raise('JDC-00011', v_existing_value.name);
                     
                 ELSE
                     
@@ -3602,12 +3602,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 IF v_existing_value.type = 'R' THEN
                 
                     -- Can''t replace the root!
-                    error$.raise('JDOC-00044');
+                    error$.raise('JDC-00044');
                     
                 ELSIF v_existing_value.type = 'O' AND v_existing_value.parent_id IS NULL THEN
                 
                     -- Can''t replace anonymous composite!
-                    error$.raise('JDOC-00043');
+                    error$.raise('JDC-00043');
                     
                 ELSIF v_existing_value.type = 'A' THEN
                     
@@ -3620,7 +3620,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 ELSIF NVL(p_check_types, FALSE)  THEN
                 
                     -- Property :1 type mismatch!
-                    error$.raise('JDOC-00011', v_existing_value.name);
+                    error$.raise('JDC-00011', v_existing_value.name);
                                     
                 ELSE
                     
@@ -3710,10 +3710,10 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         IF v_value.type = 'R' THEN
             -- Root can''t be deleted!
-            error$.raise('JDOC-00035');
+            error$.raise('JDC-00035');
         ELSIF v_value.locked = 'T' THEN
             -- Value :1 is locked!
-            error$.raise('JDOC-00024', '#' || p_value_id);
+            error$.raise('JDC-00024', '#' || p_value_id);
         END IF;
         
         DELETE FROM json_values
@@ -3813,7 +3813,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         IF v_value.type = 'R' THEN
             -- Root can''t be unlocked!
-            error$.raise('JDOC-00034');
+            error$.raise('JDC-00034');
         END IF;
         
         IF p_unpin_tree THEN
@@ -3835,7 +3835,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
             IF c_pinned_child%FOUND THEN
                 -- Value has locked children!
-                error$.raise('JDOC-00033');
+                error$.raise('JDC-00033');
             END IF;  
             
             v_ids_to_unpin := t_numbers(p_value_id);

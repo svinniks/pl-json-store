@@ -30,7 +30,7 @@ suite("JSON builder tests", function() {
                 p_id: null
             });    
         
-        }).to.throw(/JBLR-00001/);
+        }).to.throw(/JBR-00001/);
         
     });
 
@@ -49,7 +49,7 @@ suite("JSON builder tests", function() {
                 p_id: 1
             });    
         
-        }).to.throw(/JBLR-00002/);
+        }).to.throw(/JBR-00002/);
         
     });
 
@@ -76,7 +76,7 @@ suite("JSON builder tests", function() {
                 p_id: builderId
             });    
         
-        }).to.throw(/JBLR-00002/);
+        }).to.throw(/JBR-00002/);
 
     });
     
@@ -95,7 +95,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: null
             });
         
-        }).to.throw(/JBLR-00001/);
+        }).to.throw(/JBR-00001/);
     
     });
     
@@ -114,7 +114,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: 1
             });
         
-        }).to.throw(/JBLR-00002/);
+        }).to.throw(/JBR-00002/);
     
     });
 
@@ -128,7 +128,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: builderId
             });
         
-        }).to.throw(/JBLR-00004/);
+        }).to.throw(/JBR-00004/);
     
     });
 
@@ -148,7 +148,7 @@ suite("JSON builder tests", function() {
                 p_value: "Hello, World!"
             });
         
-        }).to.throw(/JBLR-00001/);
+        }).to.throw(/JBR-00001/);
     
     });
     
@@ -168,7 +168,7 @@ suite("JSON builder tests", function() {
                 p_value: "Hello, World!"
             });
         
-        }).to.throw(/JBLR-00002/);
+        }).to.throw(/JBR-00002/);
     
     });
 
@@ -536,7 +536,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: builderId
             });
         
-        }).to.throw(/JBLR-00002/);    
+        }).to.throw(/JBR-00002/);    
     
     });
     
@@ -556,7 +556,7 @@ suite("JSON builder tests", function() {
                 p_value: "Hello, World!"
             });
         
-        }).to.throw(/JBLR-00003/);
+        }).to.throw(/JBR-00003/);
     
     });
     
@@ -575,7 +575,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: null
             });
         
-        }).to.throw(/JBLR-00001/);
+        }).to.throw(/JBR-00001/);
     
     });
     
@@ -594,7 +594,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: 1
             });
         
-        }).to.throw(/JBLR-00002/);
+        }).to.throw(/JBR-00002/);
     
     });
 
@@ -613,7 +613,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: builderId
             });
         
-        }).to.throw(/JBLR-00005/);
+        }).to.throw(/JBR-00005/);
     
     });
 
@@ -631,7 +631,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: builderId
             });
         
-        }).to.throw(/JBLR-00004/);
+        }).to.throw(/JBR-00004/);
     
     });
     
@@ -650,7 +650,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: null
             });
         
-        }).to.throw(/JBLR-00001/);
+        }).to.throw(/JBR-00001/);
     
     });
     
@@ -669,7 +669,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: 1
             });
         
-        }).to.throw(/JBLR-00002/);
+        }).to.throw(/JBR-00002/);
     
     });
 
@@ -683,7 +683,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: builderId
             });
         
-        }).to.throw(/JBLR-00006/);
+        }).to.throw(/JBR-00006/);
     
     });
     
@@ -922,7 +922,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: null
             });
         
-        }).to.throw(/JBLR-00001/);
+        }).to.throw(/JBR-00001/);
     
     });
     
@@ -941,7 +941,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: 1
             });
         
-        }).to.throw(/JBLR-00002/);
+        }).to.throw(/JBR-00002/);
     
     });
 
@@ -960,7 +960,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: builderId
             });
         
-        }).to.throw(/JBLR-00007/);
+        }).to.throw(/JBR-00007/);
     
     });
 
@@ -979,7 +979,7 @@ suite("JSON builder tests", function() {
                 p_value: "Hello, World!"
             });
         
-        }).to.throw(/JBLR-00003/);
+        }).to.throw(/JBR-00003/);
     
     });
     
@@ -999,7 +999,7 @@ suite("JSON builder tests", function() {
                 p_name: "hello"
             });
         
-        }).to.throw(/JBLR-00001/);
+        }).to.throw(/JBR-00001/);
     
     });
     
@@ -1019,7 +1019,7 @@ suite("JSON builder tests", function() {
                 p_name: "hello"
             });
         
-        }).to.throw(/JBLR-00002/);
+        }).to.throw(/JBR-00002/);
     
     });
 
@@ -1034,7 +1034,7 @@ suite("JSON builder tests", function() {
                 p_name: null
             });
         
-        }).to.throw(/JBLR-00008/);
+        }).to.throw(/JBR-00008/);
     
     });
 
@@ -1049,7 +1049,7 @@ suite("JSON builder tests", function() {
                 p_name: "hello"
             });
         
-        }).to.throw(/JBLR-00009/);
+        }).to.throw(/JBR-00009/);
     
     });
 
@@ -1068,7 +1068,7 @@ suite("JSON builder tests", function() {
                 p_name: "hello"
             });
         
-        }).to.throw(/JBLR-00009/);
+        }).to.throw(/JBR-00009/);
     
     });
     
@@ -1092,7 +1092,7 @@ suite("JSON builder tests", function() {
                 p_name: "hello"
             });
         
-        }).to.throw(/JBLR-00009/);
+        }).to.throw(/JBR-00009/);
     
     });
 
@@ -1115,7 +1115,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: builderId
             });
         
-        }).to.throw(/JBLR-00010/);
+        }).to.throw(/JBR-00010/);
     
     });
 
@@ -1303,7 +1303,7 @@ suite("JSON builder tests", function() {
                 p_name: "hello"
             });            
         
-        }).to.throw(/JBLR-00011.*hello/);
+        }).to.throw(/JBR-00011.*hello/);
 
     });
 
@@ -1476,7 +1476,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: null
             });
         
-        }).to.throw(/JBLR-00001/);
+        }).to.throw(/JBR-00001/);
     
     });
     
@@ -1495,7 +1495,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: 1
             });
         
-        }).to.throw(/JBLR-00002/);
+        }).to.throw(/JBR-00002/);
     
     }); 
 
@@ -1509,7 +1509,7 @@ suite("JSON builder tests", function() {
                 p_builder_id: builderId
             });
         
-        }).to.throw(/JBLR-00004/);
+        }).to.throw(/JBR-00004/);
     
     });
 

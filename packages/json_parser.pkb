@@ -20,8 +20,8 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
 
     PROCEDURE register_messages IS
     BEGIN
-        default_message_resolver.register_message('JSON-00001', 'Unexpected character ":1"!');
-        default_message_resolver.register_message('JSON-00002', 'Unexpected end of the input!');
+        default_message_resolver.register_message('JSN-00001', 'Unexpected character ":1"!');
+        default_message_resolver.register_message('JSN-00002', 'Unexpected end of the input!');
     END;
 
     PROCEDURE parse (
@@ -94,7 +94,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
                 
             END IF;
         
@@ -117,7 +117,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
                 
             END IF;
         
@@ -169,7 +169,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
                 
             END IF;
         
@@ -267,7 +267,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
             
             END IF;
         
@@ -288,7 +288,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
                 
             END IF;
         
@@ -321,7 +321,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 ELSE
                 
                     -- Unexpected character ":1"!
-                    error$.raise('JSON-00001', v_char);
+                    error$.raise('JSN-00001', v_char);
                     
                 END IF;
                 
@@ -350,7 +350,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
                 
             END IF;
         
@@ -379,7 +379,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 ELSE
                 
                     -- Unexpected character ":1"!
-                    error$.raise('JSON-00001', v_char);
+                    error$.raise('JSN-00001', v_char);
                     
                 END IF;
                 
@@ -408,7 +408,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
             
             END IF;
         
@@ -425,7 +425,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
             
             END IF;
         
@@ -453,7 +453,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 ELSE
                 
                     -- Unexpected character ":1"!
-                    error$.raise('JSON-00001', v_char);
+                    error$.raise('JSN-00001', v_char);
                     
                 END IF;    
                 
@@ -482,7 +482,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSE
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
             
             END IF;
         
@@ -493,7 +493,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         
             IF NOT space THEN
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
             END IF;
         
         END;
@@ -538,7 +538,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                   AND 'null' NOT LIKE v_value || '%' THEN
                   
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
                   
             END IF;
         
@@ -560,7 +560,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
             
             END IF;
         
@@ -578,7 +578,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
             
             END IF;
         
@@ -594,7 +594,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
             
             END IF;
         
@@ -622,7 +622,7 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
             ELSIF NOT space THEN
             
                 -- Unexpected character ":1"!
-                error$.raise('JSON-00001', v_char);
+                error$.raise('JSN-00001', v_char);
             
             END IF;
         
@@ -680,13 +680,13 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 NULL;
             ELSE
                 -- Unexpected end of the input!
-                error$.raise('JSON-00002');
+                error$.raise('JSN-00002');
         
         END CASE;
         
         IF v_context_stack.COUNT > 0 THEN
             -- Unexpected end of the input!
-            error$.raise('JSON-00002');
+            error$.raise('JSN-00002');
         END IF;
         
     

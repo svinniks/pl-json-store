@@ -2105,7 +2105,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
                 OR v_parse_events(1).name = 'START_ARRAY' AND is_array) THEN
                
             -- Applying which alters value ID is not allowed!
-            error$.raise('JDOC-00045'); 
+            error$.raise('JDC-00045'); 
                 
         END IF;
         
@@ -2144,7 +2144,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
                 OR v_parse_events(1).name = 'START_ARRAY' AND is_array) THEN
                
             -- Applying which alters value ID is not allowed!
-            error$.raise('JDOC-00045'); 
+            error$.raise('JDC-00045'); 
                 
         END IF;
         
@@ -2183,7 +2183,7 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
                 OR v_parse_events(1).name = 'START_ARRAY' AND is_array) THEN
                
             -- Applying which alters value ID is not allowed!
-            error$.raise('JDOC-00045'); 
+            error$.raise('JDC-00045'); 
                 
         END IF;
         

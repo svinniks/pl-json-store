@@ -8,7 +8,7 @@ suite("Invalid path tests", function() {
                 p_path: "person.name?"
             });
         
-        }).to.throw(/JDOC-00036/);
+        }).to.throw(/JDC-00036/);
 
     });
 
@@ -20,7 +20,7 @@ suite("Invalid path tests", function() {
                 p_path: "person(.name, .surname)"
             });
         
-        }).to.throw(/JDOC-00037/);
+        }).to.throw(/JDC-00037/);
 
     });
 
@@ -32,7 +32,7 @@ suite("Invalid path tests", function() {
                 p_path: "person(.name as name)"
             });
         
-        }).to.throw(/JDOC-00038/);
+        }).to.throw(/JDC-00038/);
 
     });
 
@@ -44,7 +44,7 @@ suite("Invalid path tests", function() {
                 p_path: "person._id"
             });
         
-        }).to.throw(/JDOC-00039/);
+        }).to.throw(/JDC-00039/);
 
         expect(function() {
         
@@ -52,7 +52,7 @@ suite("Invalid path tests", function() {
                 p_path: "person._key"
             });
         
-        }).to.throw(/JDOC-00039/);
+        }).to.throw(/JDC-00039/);
 
         expect(function() {
         
@@ -60,7 +60,7 @@ suite("Invalid path tests", function() {
                 p_path: "person._value"
             });
         
-        }).to.throw(/JDOC-00039/);
+        }).to.throw(/JDC-00039/);
 
     });
 

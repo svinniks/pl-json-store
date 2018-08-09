@@ -8,7 +8,7 @@ suite("GET_KEYS", function() {
                 p_object_id: null  
             });
         
-        }).to.throw(/JDOC-00031/);
+        }).to.throw(/JDC-00031/);
     
     });
     
@@ -20,7 +20,7 @@ suite("GET_KEYS", function() {
                 p_object_id: -1   
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -36,7 +36,7 @@ suite("GET_KEYS", function() {
                 p_object_id: valueId 
             });
         
-        }).to.throw(/JDOC-00021/);
+        }).to.throw(/JDC-00021/);
     
     });
 
@@ -52,7 +52,7 @@ suite("GET_KEYS", function() {
                 p_object_id: valueId 
             });
         
-        }).to.throw(/JDOC-00021/);
+        }).to.throw(/JDC-00021/);
     
     });
 
@@ -68,7 +68,7 @@ suite("GET_KEYS", function() {
                 p_object_id: valueId 
             });
         
-        }).to.throw(/JDOC-00021/);
+        }).to.throw(/JDC-00021/);
     
     });
 
@@ -84,7 +84,7 @@ suite("GET_KEYS", function() {
                 p_object_id: valueId 
             });
         
-        }).to.throw(/JDOC-00021/);
+        }).to.throw(/JDC-00021/);
     
     });
 
@@ -100,7 +100,7 @@ suite("GET_KEYS", function() {
                 p_object_id: valueId 
             });
         
-        }).to.throw(/JDOC-00021/);
+        }).to.throw(/JDC-00021/);
     
     });
 
@@ -146,7 +146,7 @@ suite("GET_LENGTH", function() {
                 p_array_id: null  
             });
         
-        }).to.throw(/JDOC-00031/);
+        }).to.throw(/JDC-00031/);
     
     });
     
@@ -158,7 +158,7 @@ suite("GET_LENGTH", function() {
                 p_array_id: -1   
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -174,7 +174,7 @@ suite("GET_LENGTH", function() {
                 p_array_id: valueId
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 
@@ -190,7 +190,7 @@ suite("GET_LENGTH", function() {
                 p_array_id: valueId
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 
@@ -206,7 +206,7 @@ suite("GET_LENGTH", function() {
                 p_array_id: valueId
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 
@@ -222,7 +222,7 @@ suite("GET_LENGTH", function() {
                 p_array_id: valueId
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 
@@ -238,7 +238,7 @@ suite("GET_LENGTH", function() {
                 p_array_id: valueId
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 
@@ -270,7 +270,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00031/);
+        }).to.throw(/JDC-00031/);
     
     });
     
@@ -284,7 +284,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -302,7 +302,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 
@@ -428,7 +428,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00031/);
+        }).to.throw(/JDC-00031/);
     
     });
     
@@ -442,7 +442,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -460,7 +460,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 
@@ -563,7 +563,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00031/);
+        }).to.throw(/JDC-00031/);
     
     });
     
@@ -577,7 +577,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -595,7 +595,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 
@@ -722,7 +722,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00031/);
+        }).to.throw(/JDC-00031/);
     
     });
     
@@ -736,7 +736,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -754,7 +754,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 
@@ -880,7 +880,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00031/);
+        }).to.throw(/JDC-00031/);
     
     });
     
@@ -893,7 +893,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00009/);
+        }).to.throw(/JDC-00009/);
     
     });
 
@@ -910,7 +910,7 @@ suite("INDEX_OF", function() {
                 p_from_index: 0
             });
         
-        }).to.throw(/JDOC-00012/);
+        }).to.throw(/JDC-00012/);
     
     });
 

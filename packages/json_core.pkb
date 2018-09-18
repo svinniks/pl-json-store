@@ -2940,7 +2940,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         SELECT name
         BULK COLLECT INTO v_keys
         FROM json_values
-        WHERE parent_id = p_object_id;
+        WHERE parent_id = p_object_id
+        ORDER BY to_index(name);
         
         RETURN v_keys;
     

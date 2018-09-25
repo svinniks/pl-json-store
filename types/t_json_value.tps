@@ -83,6 +83,12 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_serialize_nulls IN BOOLEAN := TRUE
     )
     RETURN CLOB,
+    
+    MEMBER FUNCTION as_strings
+    RETURN t_varchars,
+    
+    MEMBER FUNCTION as_numbers
+    RETURN t_numbers,
      
     /* Some usefull generic methods */
     
@@ -249,6 +255,28 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
         p_serialize_nulls IN BOOLEAN := TRUE
     )
     RETURN CLOB,
+    
+    MEMBER FUNCTION get_strings (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_varchars,
+    
+    MEMBER FUNCTION get_strings (
+        p_index IN NUMBER
+    )
+    RETURN t_varchars,
+    
+    MEMBER FUNCTION get_numbers (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_numbers,
+    
+    MEMBER FUNCTION get_numbers (
+        p_index IN NUMBER
+    )
+    RETURN t_numbers,
     
     /* Property modification methods */
     

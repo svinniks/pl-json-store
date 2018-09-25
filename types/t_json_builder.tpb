@@ -1,13 +1,15 @@
 CREATE OR REPLACE TYPE BODY t_json_builder IS
     
     CONSTRUCTOR FUNCTION t_json_builder (
-        p_serialize_nulls IN BOOLEAN := TRUE
+        p_serialize_nulls IN BOOLEAN := TRUE,
+        p_nulls_as_empty_strings IN BOOLEAN := FALSE
     )
     RETURN self AS RESULT IS
     BEGIN
     
         id := json_builders.create_builder(
-            NVL(p_serialize_nulls, FALSE)
+            NVL(p_serialize_nulls, FALSE),
+            NVL(p_nulls_as_empty_strings, FALSE)
         );
     
         RETURN;
@@ -15,12 +17,13 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     END;
     
     MEMBER FUNCTION value (
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_null_as_empty_string IN BOOLEAN := NULL
     )
     RETURN t_json_builder IS
     BEGIN
     
-        json_builders.value(id, p_value);
+        json_builders.value(id, p_value, p_null_as_empty_string);
         
         RETURN self;
     
@@ -28,11 +31,12 @@ CREATE OR REPLACE TYPE BODY t_json_builder IS
     
     MEMBER PROCEDURE value (
         self IN t_json_builder,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_null_as_empty_string IN BOOLEAN := NULL
     ) IS
     BEGIN
     
-        json_builders.value(id, p_value);
+        json_builders.value(id, p_value, p_null_as_empty_string);
     
     END;
     

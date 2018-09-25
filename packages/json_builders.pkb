@@ -53,6 +53,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
         RECORD (
             id PLS_INTEGER,
             serialize_nulls json_core.BOOLEANN := TRUE,
+            nulls_as_empty_strings json_core.BOOLEANN := FALSE,
             state VARCHAR2(30),
             object_level PLS_INTEGER,
             composite_stack_top_i PLS_INTEGER,
@@ -83,7 +84,8 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     END;
     
     FUNCTION create_builder (
-        p_serialize_nulls IN json_core.BOOLEANN := TRUE
+        p_serialize_nulls IN json_core.BOOLEANN := TRUE,
+        p_nulls_as_empty_strings IN json_core.BOOLEANN := TRUE
     )
     RETURN PLS_INTEGER IS
     
@@ -105,6 +107,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
         v_builders(v_id) := NULL;
         v_builders(v_id).id := v_id;
         v_builders(v_id).serialize_nulls := p_serialize_nulls;
+        v_builders(v_id).nulls_as_empty_strings := p_nulls_as_empty_strings;
         v_builders(v_id).object_level := 0;
         v_builders(v_id).state := 'wf_value';
         
@@ -190,12 +193,13 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
         v_builder t_json_builder;
         
+        v_event json_parser.t_parse_event;
         v_result json_parser.t_parse_events;
         v_event_i PLS_INTEGER;
         
         v_name VARCHAR2(4000);
         v_serialize_nulls BOOLEAN;
-    
+        
     BEGIN
     
         v_builder := get_builder(p_builder_id);
@@ -206,7 +210,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
         END IF;
     
         v_serialize_nulls := NVL(p_serialize_nulls, v_builder.serialize_nulls);
-    
+        
         v_result := json_parser.t_parse_events();
         v_event_i := v_builder.first_parse_event_i;
         
@@ -218,9 +222,12 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
                 
             ELSE        
                 
+                v_event.name := v_parse_events(v_event_i).name;
+                v_event.value := v_parse_events(v_event_i).value;
+                
                 IF v_name IS NULL 
-                   OR p_serialize_nulls 
-                   OR v_parse_events(v_event_i).name != 'NULL' 
+                   OR v_serialize_nulls 
+                   OR v_event.name != 'NULL'
                 THEN
         
                     IF v_name IS NOT NULL THEN
@@ -230,8 +237,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
                     END IF;
         
                     v_result.EXTEND(1);
-                    v_result(v_result.COUNT).name := v_parse_events(v_event_i).name;
-                    v_result(v_result.COUNT).value := v_parse_events(v_event_i).value;
+                    v_result(v_result.COUNT) := v_event;
                 
                 END IF;
                     
@@ -317,11 +323,23 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     
     PROCEDURE value (
         p_builder_id IN PLS_INTEGER,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_null_as_empty_string IN BOOLEAN := NULL
     ) IS
+    
+        v_builder t_json_builder;
+    
     BEGIN
     
-        value(p_builder_id, 'STRING', p_value);
+        v_builder := get_builder(p_builder_id);
+    
+        IF NVL(p_null_as_empty_string, v_builder.nulls_as_empty_strings)
+           OR p_value IS NOT NULL 
+        THEN
+            value(p_builder_id, 'STRING', p_value);
+        ELSE
+            value(p_builder_id, 'NULL', CAST(NULL AS VARCHAR2));
+        END IF;
     
     END;
     
@@ -332,7 +350,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     BEGIN
     
         IF p_value IS NULL THEN
-            value(p_builder_id, 'NULL', NULL);
+            value(p_builder_id, 'NULL', CAST(NULL AS VARCHAR2));
         ELSE
             value(p_builder_id, 'STRING', TO_CHAR(p_value, 'yyyy-mm-dd'));
         END IF;
@@ -349,7 +367,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     BEGIN
     
         IF p_value IS NULL THEN
-            value(p_builder_id, 'NULL', NULL);
+            value(p_builder_id, 'NULL', CAST(NULL AS VARCHAR2));
         ELSE
     
             v_value_string := TO_CHAR(p_value, 'TM', 'NLS_NUMERIC_CHARACTERS=''.,''');
@@ -371,7 +389,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     BEGIN
     
         IF p_value IS NULL THEN
-            value(p_builder_id, 'NULL', NULL);
+            value(p_builder_id, 'NULL', CAST(NULL AS VARCHAR2));
         ELSE
     
             value(
@@ -396,7 +414,7 @@ CREATE OR REPLACE PACKAGE BODY json_builders IS
     ) IS
     BEGIN
     
-        value(p_builder_id, 'NULL', NULL);
+        value(p_builder_id, 'NULL', CAST(NULL AS VARCHAR2));
     
     END;
     

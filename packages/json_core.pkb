@@ -2623,27 +2623,32 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     /* Cached value casting to the scalar types and JSON */
     
     FUNCTION get_string (
+        p_value IN json_values%ROWTYPE
+    )
+    RETURN VARCHAR2 IS
+    BEGIN
+    
+        IF p_value.type IN ('S', 'N', 'E') THEN
+            RETURN p_value.value;
+        ELSE
+            -- Type conversion error!
+            error$.raise('JDC-00010');
+        END IF;
+    
+    END;
+    
+    FUNCTION get_string (
         p_value_id IN NUMBER
     ) 
     RETURN VARCHAR2 IS
-    
-        v_value t_value;
-    
     BEGIN
     
         IF p_value_id IS NULL THEN
             RETURN NULL;
         END IF; 
         
-        v_value := get_value(p_value_id);
+        RETURN get_string(get_value(p_value_id));
         
-        IF v_value.type IN ('S', 'N', 'E') THEN
-            RETURN v_value.value;
-        ELSE
-            -- Type conversion error!
-            error$.raise('JDC-00010');
-        END IF;
-    
     END;
     
     FUNCTION get_date (
@@ -2672,28 +2677,19 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     END;
    
     FUNCTION get_number (
-        p_value_id IN NUMBER
+        p_value IN json_values%ROWTYPE
     ) 
     RETURN NUMBER IS
-    
-        v_value t_value;
-    
     BEGIN
     
-        IF p_value_id IS NULL THEN
-            RETURN NULL;
-        END IF; 
-        
-        v_value := get_value(p_value_id);
-        
-        IF v_value.type IN ('N', 'E') THEN
+        IF p_value.type IN ('N', 'E') THEN
           
-            RETURN v_value.value;
+            RETURN p_value.value;
             
-        ELSIF v_value.type = 'S' THEN
+        ELSIF p_value.type = 'S' THEN
           
             BEGIN
-                RETURN v_value.value;
+                RETURN p_value.value;
             EXCEPTION
                 WHEN OTHERS THEN
                     -- Type conversion error!
@@ -2706,6 +2702,23 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             error$.raise('JDC-00010');
             
         END IF;
+    
+    END;
+
+    FUNCTION get_number (
+        p_value_id IN NUMBER
+    ) 
+    RETURN NUMBER IS
+    
+        v_value t_value;
+    
+    BEGIN
+    
+        IF p_value_id IS NULL THEN
+            RETURN NULL;
+        END IF; 
+        
+        RETURN get_number(get_value(p_value_id));
     
     END;
     
@@ -2789,6 +2802,81 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         RETURN v_json_clob;
     
+    END;
+    
+    FUNCTION get_array_elements (
+        p_value_id IN NUMBER
+    )
+    RETURN t_json_values IS
+        v_value t_value;
+        v_elements t_json_values;
+    BEGIN
+    
+        v_value := get_value(p_value_id);
+        
+        IF v_value.type != 'A' THEN
+            -- Value is not an array!
+            error$.raise('JDC-00012');
+        END IF;
+    
+        SELECT *
+        BULK COLLECT INTO v_elements
+        FROM json_values
+        WHERE parent_id = p_value_id
+        ORDER BY to_index(name);
+        
+        RETURN v_elements;
+    
+    END;
+    
+    FUNCTION get_strings (
+        p_value_id IN NUMBER
+    ) 
+    RETURN t_varchars IS
+        v_elements t_json_values;
+        v_strings t_varchars;
+    BEGIN
+    
+        IF p_value_id IS NULL THEN
+            RETURN NULL;
+        END IF;    
+        
+        v_elements := get_array_elements(p_value_id);
+        
+        v_strings := t_varchars();
+        v_strings.EXTEND(v_elements.COUNT);
+        
+        FOR v_i IN 1..v_elements.COUNT LOOP
+            v_strings(v_i) := get_string(v_elements(v_i));        
+        END LOOP;
+    
+        RETURN v_strings;
+        
+    END;
+    
+    FUNCTION get_numbers (
+        p_value_id IN NUMBER
+    )
+    RETURN t_numbers IS
+        v_elements t_json_values;
+        v_numbers t_numbers;
+    BEGIN
+    
+        IF p_value_id IS NULL THEN
+            RETURN NULL;
+        END IF; 
+        
+        v_elements := get_array_elements(p_value_id);
+        
+        v_numbers := t_numbers();
+        v_numbers.EXTEND(v_elements.COUNT);
+        
+        FOR v_i IN 1..v_elements.COUNT LOOP
+            v_numbers(v_i) := get_number(v_elements(v_i));
+        END LOOP;
+        
+        RETURN v_numbers;
+
     END;
     
     /* Some usefull generic methods */

@@ -214,6 +214,22 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    MEMBER FUNCTION as_strings
+    RETURN t_varchars IS
+    BEGIN
+    
+        RETURN json_core.get_strings(id);
+        
+    END;
+    
+    MEMBER FUNCTION as_numbers
+    RETURN t_numbers IS
+    BEGIN
+    
+        RETURN json_core.get_numbers(id);
+        
+    END;
+    
     /* Some usefull generic methods */
     
     MEMBER FUNCTION get_parent
@@ -575,6 +591,53 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
         RETURN get_json_clob(':i', p_serialize_nulls, bind(p_index));
     
     END;
+    
+    MEMBER FUNCTION get_strings (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_varchars IS
+    BEGIN
+        
+        RETURN json_core.get_strings(
+            json_core.request_value(id, p_path, p_bind)
+        );
+    
+    END;
+    
+    MEMBER FUNCTION get_strings (
+        p_index IN NUMBER
+    )
+    RETURN t_varchars IS
+    BEGIN
+        
+        RETURN get_strings(':i', bind(p_index));
+    
+    END;
+    
+    MEMBER FUNCTION get_numbers (
+        p_path IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_numbers IS
+    BEGIN
+
+        RETURN json_core.get_numbers(
+            json_core.request_value(id, p_path, p_bind)
+        );
+        
+    END;
+    
+    MEMBER FUNCTION get_numbers (
+        p_index IN NUMBER
+    )
+    RETURN t_numbers IS
+    BEGIN
+        
+        RETURN get_numbers(':i', bind(p_index));
+    
+    END;
+    
     
     /* Property modification methods */
     

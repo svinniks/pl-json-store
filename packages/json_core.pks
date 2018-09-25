@@ -325,6 +325,16 @@ CREATE OR REPLACE PACKAGE json_core IS
     ) 
     RETURN CLOB;
     
+    FUNCTION get_strings (
+        p_value_id IN NUMBER
+    ) 
+    RETURN t_varchars;
+    
+    FUNCTION get_numbers (
+        p_value_id IN NUMBER
+    )
+    RETURN t_numbers;
+    
     /* Some usefull generic methods */
     
     FUNCTION is_string (

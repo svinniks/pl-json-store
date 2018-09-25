@@ -17,7 +17,8 @@ CREATE OR REPLACE PACKAGE json_builders IS
     */
         
     FUNCTION create_builder (
-        p_serialize_nulls IN json_core.BOOLEANN := TRUE
+        p_serialize_nulls IN json_core.BOOLEANN := TRUE,
+        p_nulls_as_empty_strings IN json_core.BOOLEANN := TRUE
     )
     RETURN PLS_INTEGER;
     
@@ -33,7 +34,8 @@ CREATE OR REPLACE PACKAGE json_builders IS
     
     PROCEDURE value (
         p_builder_id IN PLS_INTEGER,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_null_as_empty_string IN BOOLEAN := NULL
     );
     
     PROCEDURE value (

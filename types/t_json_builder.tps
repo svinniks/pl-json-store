@@ -3,18 +3,21 @@ CREATE OR REPLACE TYPE t_json_builder IS OBJECT (
     id NUMBER,
     
     CONSTRUCTOR FUNCTION t_json_builder (
-        p_serialize_nulls IN BOOLEAN := TRUE
+        p_serialize_nulls IN BOOLEAN := TRUE,
+        p_nulls_as_empty_strings IN BOOLEAN := FALSE
     )
     RETURN self AS RESULT,
     
     MEMBER FUNCTION value (
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_null_as_empty_string IN BOOLEAN := NULL
     )
     RETURN t_json_builder,
     
     MEMBER PROCEDURE value (
         self IN t_json_builder,
-        p_value IN VARCHAR2
+        p_value IN VARCHAR2,
+        p_null_as_empty_string IN BOOLEAN := NULL
     ),
     
     MEMBER FUNCTION value (

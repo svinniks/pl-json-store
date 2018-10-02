@@ -591,7 +591,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 push('I', 0);
             
-            ELSIF p_value IN ('_id', '_key', '_value', '_path') THEN
+            ELSIF p_value IN ('_id', '_type', '_key', '_value', '_path') THEN
             
                 IF v_stack.COUNT = 1 THEN
                     -- Reserved field reference can''t be the topmost query element!
@@ -1836,7 +1836,9 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                     IF p_query_elements(p_i).type = 'F' THEN
                     
                         add_text(
-                            CASE p_query_elements(p_i).value 
+                            CASE p_query_elements(p_i).value
+                                WHEN 'type' THEN 
+                                    v_comma || 'j' || v_table_instance || '.type' 
                                 WHEN 'key' THEN 
                                     v_comma || 'j' || v_table_instance || '.name' 
                                 WHEN 'path' THEN
@@ -3029,7 +3031,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         BULK COLLECT INTO v_keys
         FROM json_values
         WHERE parent_id = p_object_id
-        ORDER BY to_index(name);
+        ORDER BY name;
         
         RETURN v_keys;
     

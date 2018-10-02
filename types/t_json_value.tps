@@ -1020,6 +1020,11 @@ CREATE OR REPLACE TYPE t_json_value IS OBJECT (
     RETURN t_json_builder,
     
     STATIC FUNCTION array
-    RETURN t_json_builder
+    RETURN t_json_builder,
+    
+    /* JSON filter instantiation method */
+    
+    MEMBER FUNCTION filter
+    RETURN t_json_filter 
         
-);
+) NOT FINAL;

@@ -2432,4 +2432,12 @@ CREATE OR REPLACE TYPE BODY t_json_value IS
     
     END;
     
+    /* JSON filter instantiation method */
+    
+    MEMBER FUNCTION filter
+    RETURN t_json_filter IS
+    BEGIN
+        RETURN t_json_filter(p_base_value_id => id);
+    END;
+    
 END;

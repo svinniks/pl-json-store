@@ -284,6 +284,11 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_parse_events OUT json_parser.t_parse_events
     ); 
     
+    FUNCTION escape_string (
+        p_string IN VARCHAR2
+    )
+    RETURN VARCHAR2;
+    
     PROCEDURE serialize_value (
         p_parse_events IN json_parser.t_parse_events,
         p_serialize_nulls IN BOOLEANN,

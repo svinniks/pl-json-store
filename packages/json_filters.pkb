@@ -109,7 +109,7 @@ CREATE OR REPLACE PACKAGE BODY json_filters IS
             error$.raise('JFR-00005');
         END IF;
     
-        v_value := UPPER(TRIM(v_value));
+        v_value := UPPER(TRIM(p_value));
         
         IF v_value IS NULL THEN
             -- NULL filter value specified

@@ -27,6 +27,36 @@ CREATE OR REPLACE TYPE t_json_filter IS OBJECT (
         p_value IN VARCHAR2
     ),
     
+    MEMBER FUNCTION value (
+        p_value IN NUMBER
+    )
+    RETURN t_json_filter,
+    
+    MEMBER PROCEDURE value (
+        self IN t_json_filter,
+        p_value IN NUMBER
+    ),
+    
+    MEMBER FUNCTION value (
+        p_value IN DATE
+    )
+    RETURN t_json_filter,
+    
+    MEMBER PROCEDURE value (
+        self IN t_json_filter,
+        p_value IN DATE
+    ),
+    
+    MEMBER FUNCTION value (
+        p_value IN BOOLEAN
+    )
+    RETURN t_json_filter,
+    
+    MEMBER PROCEDURE value (
+        self IN t_json_filter,
+        p_value IN BOOLEAN
+    ),
+    
     MEMBER FUNCTION execute
     RETURN t_json_properties
     

@@ -42,6 +42,21 @@ CREATE OR REPLACE PACKAGE json_filters IS
         p_value IN VARCHAR2
     );
     
+    PROCEDURE value (
+        p_filter_id IN PLS_INTEGER,
+        p_value IN NUMBER
+    );
+    
+    PROCEDURE value (
+        p_filter_id IN PLS_INTEGER,
+        p_value IN DATE
+    );
+    
+    PROCEDURE value (
+        p_filter_id IN PLS_INTEGER,
+        p_value IN BOOLEAN
+    );
+    
     FUNCTION criterias (
         p_filter_id IN PLS_INTEGER
     )

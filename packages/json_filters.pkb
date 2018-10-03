@@ -12,6 +12,7 @@ CREATE OR REPLACE PACKAGE BODY json_filters IS
         default_message_resolver.register_message('JFR-00004', 'Unexpected filter path!');
         default_message_resolver.register_message('JFR-00005', 'Unexpected filter value!');
         default_message_resolver.register_message('JFR-00006', 'Anchors and bind variables are not allowed in filters!');
+        default_message_resolver.register_message('JFR-00007', 'NULL filter value specified!');
     END;
 
     FUNCTION create_filter (
@@ -98,6 +99,7 @@ CREATE OR REPLACE PACKAGE BODY json_filters IS
         p_filter_id IN PLS_INTEGER,
         p_value IN VARCHAR2
     ) IS
+        v_value STRING;
     BEGIN
     
         check_filter(p_filter_id);
@@ -107,10 +109,41 @@ CREATE OR REPLACE PACKAGE BODY json_filters IS
             error$.raise('JFR-00005');
         END IF;
     
-        v_filters(p_filter_id).criterias(v_filters(p_filter_id).criterias.COUNT).value := UPPER(TRIM(p_value));
+        v_value := UPPER(TRIM(v_value));
+        
+        IF v_value IS NULL THEN
+            -- NULL filter value specified
+            error$.raise('JFR-00007');
+        END IF;
+    
+        v_filters(p_filter_id).criterias(v_filters(p_filter_id).criterias.COUNT).value := UPPER(v_value);
         
         v_filters(p_filter_id).state := 'lf_path';
         
+    END;
+    
+    PROCEDURE value (
+        p_filter_id IN PLS_INTEGER,
+        p_value IN NUMBER
+    ) IS
+    BEGIN
+        value(p_filter_id, json_core.to_json_char(p_value));
+    END;
+    
+    PROCEDURE value (
+        p_filter_id IN PLS_INTEGER,
+        p_value IN DATE
+    ) IS
+    BEGIN
+        value(p_filter_id, json_core.to_json_char(p_value));
+    END;
+    
+    PROCEDURE value (
+        p_filter_id IN PLS_INTEGER,
+        p_value IN BOOLEAN
+    ) IS
+    BEGIN
+        value(p_filter_id, json_core.to_json_char(p_value));
     END;
     
     PROCEDURE check_complete_filter (

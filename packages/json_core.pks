@@ -157,6 +157,23 @@ CREATE OR REPLACE PACKAGE json_core IS
     TYPE t_20_value_table IS 
         TABLE OF t_20_value_row;
     
+    /* Some useful functions */
+    
+    FUNCTION to_json_char (
+        p_value IN NUMBER
+    )
+    RETURN VARCHAR2;
+    
+    FUNCTION to_json_char (
+        p_value IN DATE
+    )
+    RETURN VARCHAR2;
+    
+    FUNCTION to_json_char (
+        p_value IN BOOLEAN
+    )
+    RETURN VARCHAR2;
+    
     /* Generic JSON value parse event constant functions */
     
     FUNCTION string_events (

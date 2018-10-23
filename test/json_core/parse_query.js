@@ -1,3 +1,4 @@
+/*
 suite("Invalid query tests", function() {
 
     suite("Unexpected end of the input", function() {
@@ -865,23 +866,36 @@ suite("Invalid query tests", function() {
     });
 
 });
+*/
+function resetPackage() {
+    database.run(`
+        BEGIN
+            dbms_session.reset_package;
+        END;
+    `);
+}
 
 suite("Valid query tests", function() {
 
     test("Root only", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();    
+
+        database.call("json_core.parse_query", {
             p_query: "$"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "I",
-                value: "0",
+                type: "R",
+                value: null,
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -889,18 +903,23 @@ suite("Valid query tests", function() {
 
     test("Root only, spaces before $", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage()
+
+        database.call("json_core.parse_query", {
             p_query: "   $"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "I",
-                value: "0",
+                type: "R",
+                value: null,
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
 
@@ -908,18 +927,23 @@ suite("Valid query tests", function() {
 
     test("Root only, spaces after $", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "$   "
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "I",
-                value: "0",
+                type: "R",
+                value: null,
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
         
@@ -927,26 +951,32 @@ suite("Valid query tests", function() {
 
     test("Branched root with two roots", function() {
 
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "($, $)"
         });    
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "I",
-                value: "0",
+                type: "R",
+                value: null,
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "I",
-                value: "0",
+                type: "R",
+                value: null,
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -954,9 +984,13 @@ suite("Valid query tests", function() {
 
     test("One simple name", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -965,7 +999,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -973,9 +1008,13 @@ suite("Valid query tests", function() {
 
     test("One simple name with all allowed characters", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAXZXCVBNM1234567890_$"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -984,7 +1023,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -992,9 +1032,13 @@ suite("Valid query tests", function() {
 
     test("One simple name with spaces in the beginning", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "    person"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1003,7 +1047,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1011,9 +1056,13 @@ suite("Valid query tests", function() {
 
     test("One simple name with spaces in the end", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person    "
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1022,7 +1071,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1030,9 +1080,13 @@ suite("Valid query tests", function() {
 
     test("Two simple names dot-separated", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person.name"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1041,7 +1095,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1049,7 +1104,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1057,9 +1113,13 @@ suite("Valid query tests", function() {
 
     test("Two simple names dot-separated, spaces before the dot", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person   .name"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1068,7 +1128,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1076,7 +1137,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1084,9 +1146,13 @@ suite("Valid query tests", function() {
 
     test("Two simple names dot-separated, spaces after the dot", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person.   name"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1095,7 +1161,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1103,7 +1170,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1111,9 +1179,13 @@ suite("Valid query tests", function() {
 
     test("Multiple simple names dot-separated", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person   .  address .street.house   "
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1122,7 +1194,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1130,7 +1203,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             },
             {
                 type: "N",
@@ -1138,7 +1212,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 4,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 3
             },
             {
                 type: "N",
@@ -1146,7 +1221,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 4
             }
         ]);
     
@@ -1154,9 +1230,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with one simple name", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(name)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1165,7 +1245,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1173,9 +1254,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with one simple name, spaces in the beginning", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "   (name)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1184,17 +1269,22 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
     });
 
     test("Branching root with one simple name, spaces after the opening bracket", function() {
-    
-        var elements = database.call("json_core.parse_query", {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(   name)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1203,7 +1293,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1211,9 +1302,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with one simple name, spaces before the closing bracket", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(name   )"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1222,7 +1317,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1230,9 +1326,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with one simple name, spaces in the end", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(name)   "
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1241,7 +1341,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1249,9 +1350,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two simple names", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(name,surname)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1260,7 +1365,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1268,7 +1374,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1276,9 +1383,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two simple names, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(name   ,surname)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1287,7 +1398,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1295,7 +1407,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1303,9 +1416,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two simple names, spaces after the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(name,   surname)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1314,7 +1431,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1322,7 +1440,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1330,9 +1449,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with one array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "([123])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1341,7 +1464,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1349,9 +1473,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two array elements", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "([123],[\"abc\"])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1360,7 +1488,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1368,17 +1497,22 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
     });
 
     test("Branching root with two array elements, spaces before the comma", function() {
-    
-        var elements = database.call("json_core.parse_query", {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "([123]   ,[\"abc\"])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1387,7 +1521,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1395,7 +1530,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1403,9 +1539,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two array elements, spaces after the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "([123],   [\"abc\"])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1414,7 +1554,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1422,7 +1563,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1430,18 +1572,23 @@ suite("Valid query tests", function() {
 
     test("Branching root with one variable", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(:name)"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "V",
+                type: ":",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1449,26 +1596,32 @@ suite("Valid query tests", function() {
 
     test("Branching root with two variables", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(:name,:name)"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "V",
+                type: ":",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1476,26 +1629,32 @@ suite("Valid query tests", function() {
 
     test("Branching root with two variables, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(:name   ,:name)"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "V",
+                type: ":",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1503,26 +1662,32 @@ suite("Valid query tests", function() {
 
     test("Branching root with two variables, spaces after the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(:name,   :name)"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "V",
+                type: ":",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1530,18 +1695,23 @@ suite("Valid query tests", function() {
 
     test("Branching root with one ID variable", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#name)"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "A",
+                type: "#",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1549,26 +1719,32 @@ suite("Valid query tests", function() {
 
     test("Branching root with two ID variables", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#name,#name)"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "A",
+                type: "#",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "A",
+                type: "#",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1576,26 +1752,32 @@ suite("Valid query tests", function() {
 
     test("Branching root with two IDvariables, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#name   ,#name)"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "A",
+                type: "#",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "A",
+                type: "#",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1603,26 +1785,32 @@ suite("Valid query tests", function() {
 
     test("Branching root with two ID variables, spaces after the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#name,   #name)"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "A",
+                type: "#",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "A",
+                type: "#",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1630,9 +1818,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with one ID reference", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#123)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1641,7 +1833,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1649,9 +1842,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two ID references", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#123,#321)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1660,7 +1857,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "I",
@@ -1668,7 +1866,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1676,9 +1875,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two ID references, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#123   ,#321)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1687,7 +1890,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "I",
@@ -1695,7 +1899,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1703,9 +1908,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two ID references, spaces after the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#123,   #321)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1714,7 +1923,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "I",
@@ -1722,7 +1932,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1730,9 +1941,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with one wildcard", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(*)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1741,7 +1956,9 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
+                
             }
         ]);
     
@@ -1749,9 +1966,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two wildcards", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(*,*)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1760,7 +1981,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "W",
@@ -1768,7 +1990,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -1776,9 +1999,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two wildcards, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(*   ,*)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1787,7 +2014,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "W",
@@ -1795,7 +2023,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -1803,9 +2032,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with two wildcards, spaces after the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(*,   *)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1814,7 +2047,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "W",
@@ -1822,7 +2056,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -1830,9 +2065,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with a simple name and an array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(person,[123])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1841,7 +2080,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1849,7 +2089,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1857,9 +2098,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with a simple name and an array element, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(person   ,[123])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -1868,7 +2113,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1876,7 +2122,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -1884,18 +2131,23 @@ suite("Valid query tests", function() {
 
     test("Branching root with a variable and an array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(:name,[123])"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "V",
+                type: ":",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1903,7 +2155,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1911,18 +2164,23 @@ suite("Valid query tests", function() {
 
     test("Branching root with a variable and an array element, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(:name   ,[123])"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "V",
+                type: ":",
                 value: "NAME",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1930,7 +2188,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1938,18 +2197,23 @@ suite("Valid query tests", function() {
 
     test("Branching root with an ID variable and an array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#id,[123])"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "A",
+                type: "#",
                 value: "ID",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1957,7 +2221,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1965,18 +2230,23 @@ suite("Valid query tests", function() {
 
     test("Branching root with an ID variable and an array element, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#id   ,[123])"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "A",
+                type: "#",
                 value: "ID",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -1984,7 +2254,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -1992,9 +2263,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with an ID reference and an array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#123,[123])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2003,7 +2278,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2011,7 +2287,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2019,9 +2296,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with an ID reference and an array element, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(#123   ,[123])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2030,7 +2311,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2038,7 +2320,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2046,9 +2329,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with a wildcard and an array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(*,[123])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2057,7 +2344,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "N",
@@ -2065,7 +2353,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2073,9 +2362,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with a wildcard and an array element, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(*   ,[123])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2084,7 +2377,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "N",
@@ -2092,7 +2386,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2100,9 +2395,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with a aliased name and an array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(name as name,[123])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2111,7 +2410,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: "NAME"
+                alias: "NAME",
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2119,7 +2419,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2127,9 +2428,13 @@ suite("Valid query tests", function() {
 
     test("Branching root with an aliased name and an array element, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "(name as name   ,[123])"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2138,7 +2443,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: "NAME"
+                alias: "NAME",
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2146,7 +2452,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2154,9 +2461,13 @@ suite("Valid query tests", function() {
 
     test("Branching element with one simple name", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person(.name)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2165,7 +2476,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2173,7 +2485,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2181,9 +2494,13 @@ suite("Valid query tests", function() {
 
     test("Branching element with one simple name, spaces before opening bracket", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person   (.name)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2192,7 +2509,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2200,7 +2518,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2208,9 +2527,13 @@ suite("Valid query tests", function() {
 
     test("Branching element with one simple name, spaces before the dot", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person(   .name)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2219,7 +2542,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2227,7 +2551,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2235,9 +2560,13 @@ suite("Valid query tests", function() {
 
     test("Branching element with one simple name, spaces after the dot", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person(.   name)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2246,7 +2575,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2254,7 +2584,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2262,9 +2593,13 @@ suite("Valid query tests", function() {
 
     test("Branching element with two simple names", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person(.name, .surname)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2273,7 +2608,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2281,7 +2617,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 2
             },
             {
                 type: "N",
@@ -2289,7 +2626,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 3
             }
         ]);
     
@@ -2297,9 +2635,13 @@ suite("Valid query tests", function() {
 
     test("Complex branching query with simple names 1", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person(.name, .surname, .address(.street, .city))"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2308,7 +2650,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2316,7 +2659,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 2
             },
             {
                 type: "N",
@@ -2324,7 +2668,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
-                alias: null
+                alias: null,
+                bind_number: 3
             },
             {
                 type: "N",
@@ -2332,7 +2677,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 5,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 4
             },
             {
                 type: "N",
@@ -2340,7 +2686,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 6,
-                alias: null
+                alias: null,
+                bind_number: 5
             },
             {
                 type: "N",
@@ -2348,7 +2695,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 6
             }
         ]);
     
@@ -2356,9 +2704,13 @@ suite("Valid query tests", function() {
 
     test("Complex branching query with simple names 2", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person(.name, .surname, .address(.street, .city), .birthDate)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2367,7 +2719,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2375,7 +2728,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 2
             },
             {
                 type: "N",
@@ -2383,7 +2737,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
-                alias: null
+                alias: null,
+                bind_number: 3
             },
             {
                 type: "N",
@@ -2391,7 +2746,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 5,
                 next_sibling_i: 7,
-                alias: null
+                alias: null,
+                bind_number: 4
             },
             {
                 type: "N",
@@ -2399,7 +2755,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 6,
-                alias: null
+                alias: null,
+                bind_number: 5
             },
             {
                 type: "N",
@@ -2407,7 +2764,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 6
             },
             {
                 type: "N",
@@ -2415,7 +2773,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 7
             }
         ]);
     
@@ -2423,18 +2782,23 @@ suite("Valid query tests", function() {
 
     test("Property of the root", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "$.persons"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "I",
-                value: "0",
+                type: "R",
+                value: null,
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2442,7 +2806,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2450,18 +2815,23 @@ suite("Valid query tests", function() {
 
     test("Property of the root, spaces after $", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "$.persons"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "I",
-                value: "0",
+                type: "R",
+                value: null,
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2469,7 +2839,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2477,18 +2848,23 @@ suite("Valid query tests", function() {
 
     test("Array element of the root", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "$[123]"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "I",
-                value: "0",
+                type: "R",
+                value: null,
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2496,7 +2872,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2504,18 +2881,23 @@ suite("Valid query tests", function() {
 
     test("Array element of the root, spaces after $", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "$   [123]"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "I",
-                value: "0",
+                type: "R",
+                value: null,
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2523,7 +2905,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2531,18 +2914,23 @@ suite("Valid query tests", function() {
 
     test("Single ID variable", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "#id"
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "A",
+                type: "#",
                 value: "ID",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2550,9 +2938,13 @@ suite("Valid query tests", function() {
 
     test("Single ID reference", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "#123"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2561,7 +2953,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2569,9 +2962,13 @@ suite("Valid query tests", function() {
 
     test("Single ID reference, spaces before #", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "   #123"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2580,7 +2977,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2588,9 +2986,13 @@ suite("Valid query tests", function() {
 
     test("Single ID reference, spaces after ID", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "#123   "
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2599,7 +3001,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2607,9 +3010,13 @@ suite("Valid query tests", function() {
 
     test("Simple name property of an ID reference", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "#123.name"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2618,7 +3025,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2626,7 +3034,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2634,9 +3043,13 @@ suite("Valid query tests", function() {
 
     test("Simple name property of an ID reference, spaces before the dot", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "#123   .name"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2645,7 +3058,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2653,7 +3067,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2661,9 +3076,13 @@ suite("Valid query tests", function() {
 
     test("ID reference as a property", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person.#123"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2672,7 +3091,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "I",
@@ -2680,7 +3100,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2688,9 +3109,13 @@ suite("Valid query tests", function() {
 
     test("ID reference as a property, spaces before #", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person.   #123"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2699,7 +3124,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "I",
@@ -2707,7 +3133,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2715,9 +3142,13 @@ suite("Valid query tests", function() {
 
     test("ID references as branched properties", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "person(.#123, .#321)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2726,7 +3157,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "I",
@@ -2734,7 +3166,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 2
             },
             {
                 type: "I",
@@ -2742,7 +3175,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 3
             }
         ]);
     
@@ -2750,9 +3184,13 @@ suite("Valid query tests", function() {
 
     test("ID reference parent of a branch", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "#123(.name, .surname)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2761,7 +3199,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2769,7 +3208,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 2
             },
             {
                 type: "N",
@@ -2777,7 +3217,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 3
             }
         ]);
     
@@ -2785,9 +3226,13 @@ suite("Valid query tests", function() {
 
     test("ID reference parent of a branch, spaces before (", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "#123   (.name, .surname)"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2796,7 +3241,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2804,7 +3250,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 2
             },
             {
                 type: "N",
@@ -2812,7 +3259,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 3
             }
         ]);
     
@@ -2820,9 +3268,13 @@ suite("Valid query tests", function() {
 
     test("Single array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "[123]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2831,7 +3283,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2839,9 +3292,13 @@ suite("Valid query tests", function() {
 
     test("Single array element, spaces before [", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "   [123]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2850,7 +3307,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2858,9 +3316,13 @@ suite("Valid query tests", function() {
 
     test("Single array element, spaces after [", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "[   123]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2869,7 +3331,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2877,9 +3340,13 @@ suite("Valid query tests", function() {
 
     test("Single array element, spaces before ]", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "[123    ]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2888,7 +3355,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2896,9 +3364,13 @@ suite("Valid query tests", function() {
 
     test("Single array element, spaces after ]", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "[123]  "
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2907,7 +3379,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -2915,9 +3388,13 @@ suite("Valid query tests", function() {
 
     test("Array element of a name", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "persons[123]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2926,7 +3403,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2934,7 +3412,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2942,9 +3421,13 @@ suite("Valid query tests", function() {
 
     test("Array element of a name,spaces before [", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "persons   [123]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2953,7 +3436,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2961,7 +3445,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2969,9 +3454,13 @@ suite("Valid query tests", function() {
 
     test("Array element of an ID reference", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "#123[321]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -2980,7 +3469,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -2988,7 +3478,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -2996,9 +3487,13 @@ suite("Valid query tests", function() {
 
     test("Array element of an ID reference, spaces before [", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "#123   [321]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3007,7 +3502,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3015,7 +3511,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3023,9 +3520,13 @@ suite("Valid query tests", function() {
 
     test("Array element of an array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "[123][321]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3034,7 +3535,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3042,7 +3544,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3050,9 +3553,13 @@ suite("Valid query tests", function() {
 
     test("Array element of an array element, spaces between elements", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: "[123]   [321]"
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3061,7 +3568,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3069,7 +3577,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3077,9 +3586,13 @@ suite("Valid query tests", function() {
 
     test("Single quoted name", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '["person"]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3088,7 +3601,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -3096,10 +3610,14 @@ suite("Valid query tests", function() {
 
     test("Single quoted name, spaces after [", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '[   "person"]'
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
                 type: "N",
@@ -3107,7 +3625,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -3115,9 +3634,13 @@ suite("Valid query tests", function() {
 
     test("Single quoted name, spaces before ]", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '["person"   ]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3126,7 +3649,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -3134,9 +3658,13 @@ suite("Valid query tests", function() {
 
     test("Single quoted name, spaces before ]", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '["person"   ]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3145,7 +3673,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -3153,9 +3682,13 @@ suite("Valid query tests", function() {
 
     test("Single quoted name with escaped characters", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '["\\\\\\""]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3164,7 +3697,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -3172,9 +3706,13 @@ suite("Valid query tests", function() {
 
     test("Branched query with combined element types", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '["persons"][123](.name, ["surname"], .#321)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3183,7 +3721,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3191,7 +3730,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             },
             {
                 type: "N",
@@ -3199,7 +3739,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
-                alias: null
+                alias: null,
+                bind_number: 3
             },
             {
                 type: "N",
@@ -3207,7 +3748,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 5,
-                alias: null
+                alias: null,
+                bind_number: 4
             },
             {
                 type: "I",
@@ -3215,17 +3757,22 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 5
             }
         ]);
     
     });
 
     test("Simple name with an alias, lower case 'as'", function() {
-    
-        var elements = database.call("json_core.parse_query", {
+        
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person as human'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3234,7 +3781,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: "HUMAN"
+                alias: "HUMAN",
+                bind_number: 1
             }
         ]);
     
@@ -3242,9 +3790,13 @@ suite("Valid query tests", function() {
 
     test("Simple name with an alias, mixed case 'as'", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person aS human'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3253,7 +3805,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: "HUMAN"
+                alias: "HUMAN",
+                bind_number: 1
             }
         ]);
     
@@ -3261,9 +3814,13 @@ suite("Valid query tests", function() {
 
     test("Simple name with a quoted alias", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person as "human"'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3272,7 +3829,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: "human"
+                alias: "human",
+                bind_number: 1
             }
         ]);
     
@@ -3280,9 +3838,13 @@ suite("Valid query tests", function() {
 
     test("ID reference with an alias", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '#123 as human'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3291,7 +3853,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: "HUMAN"
+                alias: "HUMAN",
+                bind_number: 1
             }
         ]);
     
@@ -3299,9 +3862,13 @@ suite("Valid query tests", function() {
 
     test("Simple name property with an alias", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.name as person_name'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3310,7 +3877,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3318,7 +3886,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: "PERSON_NAME"
+                alias: "PERSON_NAME",
+                bind_number: 2
             }
         ]);
     
@@ -3326,9 +3895,13 @@ suite("Valid query tests", function() {
 
     test("Quoted name property with an alias", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person["name"] as person_name'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3337,7 +3910,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3345,7 +3919,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: "PERSON_NAME"
+                alias: "PERSON_NAME",
+                bind_number: 2
             }
         ]);
     
@@ -3353,7 +3928,9 @@ suite("Valid query tests", function() {
 
     test("Alias in a branch", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: `
                 person (
                     .name as person_name, 
@@ -3365,6 +3942,8 @@ suite("Valid query tests", function() {
                 )`          
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
                 type: "N",
@@ -3372,7 +3951,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3380,7 +3960,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: "PERSON_NAME"
+                alias: "PERSON_NAME",
+                bind_number: 2
             },
             {
                 type: "N",
@@ -3388,7 +3969,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
-                alias: "PERSON_SURNAME"
+                alias: "PERSON_SURNAME",
+                bind_number: 3
             },
             {
                 type: "N",
@@ -3396,7 +3978,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 5,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 4
             },
             {
                 type: "N",
@@ -3404,7 +3987,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 6,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 5
             },
             {
                 type: "N",
@@ -3412,7 +3996,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 7,
-                alias: "PHONE_TYPE"
+                alias: "PHONE_TYPE",
+                bind_number: 6
             },
             {
                 type: "N",
@@ -3420,7 +4005,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: "PHONE_NUMBER"
+                alias: "PHONE_NUMBER",
+                bind_number: 7
             }
         ]);
     
@@ -3428,9 +4014,13 @@ suite("Valid query tests", function() {
 
     test("Optional simple name property", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.name?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3439,7 +4029,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3447,17 +4038,22 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
     });
 
     test("Optional simple name property, spaces before ?", function() {
-    
-        var elements = database.call("json_core.parse_query", {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.name   ?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3466,7 +4062,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3474,7 +4071,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3482,9 +4080,13 @@ suite("Valid query tests", function() {
 
     test("Optional simple name property, spaces after ?", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.name?   '
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3493,7 +4095,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3501,7 +4104,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3509,9 +4113,13 @@ suite("Valid query tests", function() {
 
     test("Optional ID reference property", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.#123?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3520,7 +4128,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "I",
@@ -3528,7 +4137,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3536,9 +4146,13 @@ suite("Valid query tests", function() {
 
     test("Optional ID reference property, spaces before ?", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.#123   ?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3547,7 +4161,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "I",
@@ -3555,7 +4170,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3563,9 +4179,13 @@ suite("Valid query tests", function() {
 
     test("Optional ID reference property, spaces after ?", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.#123?   '
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3574,7 +4194,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "I",
@@ -3582,7 +4203,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3590,9 +4212,13 @@ suite("Valid query tests", function() {
 
     test("Optional array element property", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person["name"]?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3601,7 +4227,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3609,7 +4236,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3617,9 +4245,13 @@ suite("Valid query tests", function() {
 
     test("Optional array element property, spaces before ?", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person["name"]   ?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3628,7 +4260,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3636,7 +4269,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3644,9 +4278,13 @@ suite("Valid query tests", function() {
 
     test("Optional array element property, spaces after ?", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person["name"]?   '
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3655,7 +4293,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -3663,7 +4302,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -3671,9 +4311,13 @@ suite("Valid query tests", function() {
 
     test("Single wildcard", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '*'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3682,7 +4326,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3690,9 +4335,13 @@ suite("Valid query tests", function() {
 
     test("Single wildcard, spaces before", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '   *'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3701,7 +4350,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3709,9 +4359,13 @@ suite("Valid query tests", function() {
 
     test("Single wildcard, spaces after", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '*   '
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3720,7 +4374,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3728,9 +4383,13 @@ suite("Valid query tests", function() {
 
     test("Single wildcard with an alias", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '* as something'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3739,7 +4398,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: "SOMETHING"
+                alias: "SOMETHING",
+                bind_number: null
             }
         ]);
     
@@ -3747,9 +4407,13 @@ suite("Valid query tests", function() {
 
     test("Optional wildcard", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons.*?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3758,7 +4422,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "W",
@@ -3766,7 +4431,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3774,9 +4440,13 @@ suite("Valid query tests", function() {
 
     test("Optional wildcard, spaces after *", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons.*   ?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3785,7 +4455,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "W",
@@ -3793,7 +4464,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3801,9 +4473,13 @@ suite("Valid query tests", function() {
 
     test("Two wildcards in a branching root", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.dump").p_query_elements;database.call("json_core.parse_query", {
             p_query: '(*,*)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3812,7 +4488,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "W",
@@ -3820,7 +4497,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3828,9 +4506,13 @@ suite("Valid query tests", function() {
 
     test("Two wildcards in a branching root, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '(*   ,*)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3839,7 +4521,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "W",
@@ -3847,7 +4530,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3855,9 +4539,13 @@ suite("Valid query tests", function() {
 
     test("Two wildcards in a branching root, spaces after the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '(*,   *)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3866,7 +4554,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "W",
@@ -3874,7 +4563,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3882,9 +4572,13 @@ suite("Valid query tests", function() {
 
     test("Two wildcards in a branching root, spaces after (", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '(   *,*)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3893,7 +4587,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "W",
@@ -3901,7 +4596,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3909,9 +4605,13 @@ suite("Valid query tests", function() {
 
     test("Two wildcards in a branching root, spaces before )", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '(*,*   )'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3920,7 +4620,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "W",
@@ -3928,7 +4629,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3936,9 +4638,13 @@ suite("Valid query tests", function() {
 
     test("Wildcard property", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.*'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3947,7 +4653,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: "2",
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "W",
@@ -3955,7 +4662,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3963,9 +4671,13 @@ suite("Valid query tests", function() {
 
     test("Wildcard property, spaces after the dot", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.   *'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -3974,7 +4686,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: "2",
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "W",
@@ -3982,7 +4695,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -3990,9 +4704,13 @@ suite("Valid query tests", function() {
 
     test("Wildcard array elements", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person[*]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4001,7 +4719,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: "2",
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "W",
@@ -4009,7 +4728,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -4017,9 +4737,13 @@ suite("Valid query tests", function() {
 
     test("Wildcard array elements, spaces after [", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person[   *]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4028,7 +4752,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: "2",
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "W",
@@ -4036,7 +4761,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -4044,9 +4770,13 @@ suite("Valid query tests", function() {
 
     test("Wildcard array elements, spaces before ]", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person[*   ]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4055,7 +4785,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: "2",
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "W",
@@ -4063,7 +4794,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -4071,9 +4803,13 @@ suite("Valid query tests", function() {
 
     test("Optional wildcard property with an alias", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.*? as person_property'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4082,7 +4818,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: "2",
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "W",
@@ -4090,7 +4827,8 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: "PERSON_PROPERTY"
+                alias: "PERSON_PROPERTY",
+                bind_number: null
             }
         ]);
     
@@ -4098,18 +4836,23 @@ suite("Valid query tests", function() {
 
     test("Single variable", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: ':var'
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4117,18 +4860,23 @@ suite("Valid query tests", function() {
 
     test("Single variable, spaces before :", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: '   :var'
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4136,18 +4884,23 @@ suite("Valid query tests", function() {
 
     test("Single variable, spaces after", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: ':var  '
         });
 
+        let elements = database.call("json_core.dump").p_query_elements;
+
         expect(elements).to.eql([
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4155,9 +4908,13 @@ suite("Valid query tests", function() {
 
     test("Optional variable", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.:var?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4166,15 +4923,17 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4182,9 +4941,13 @@ suite("Valid query tests", function() {
 
     test("Optional variable, spaces before ?", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'person.:var ?'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4193,15 +4956,17 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4209,9 +4974,13 @@ suite("Valid query tests", function() {
 
     test("Variable as a property", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons.:var'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4220,15 +4989,17 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4236,9 +5007,13 @@ suite("Valid query tests", function() {
 
     test("Variable as a property, spaces after the dot", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons. :var'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4247,15 +5022,17 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4263,9 +5040,13 @@ suite("Valid query tests", function() {
 
     test("Variable as an array element", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons[:var]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4274,15 +5055,17 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4290,9 +5073,13 @@ suite("Valid query tests", function() {
 
     test("Variable as an array element, spaces after [", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons[   :var]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4301,15 +5088,17 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4317,9 +5106,13 @@ suite("Valid query tests", function() {
 
     test("Variable as an array element, spaces before ]", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons[:var   ]'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4328,15 +5121,17 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             }
         ]);
     
@@ -4344,9 +5139,13 @@ suite("Valid query tests", function() {
 
     test("Property of a variable", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons.:var.name'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4355,15 +5154,17 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -4371,7 +5172,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -4379,9 +5181,13 @@ suite("Valid query tests", function() {
 
     test("Property of a variable, spaces after the variable", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons.:var   .name'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4390,15 +5196,17 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR",
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "N",
@@ -4406,7 +5214,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -4414,9 +5223,13 @@ suite("Valid query tests", function() {
 
     test("Variable property in a branch", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons(.:var1,.:var2)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4425,23 +5238,26 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -4449,9 +5265,13 @@ suite("Valid query tests", function() {
 
     test("Variable property in a branch, spaces after (", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons(   .:var1,.:var2)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4460,23 +5280,26 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -4484,9 +5307,13 @@ suite("Valid query tests", function() {
 
     test("Variable property in a branch, spaces before the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons(.:var1   ,.:var2)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4495,23 +5322,26 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -4519,9 +5349,13 @@ suite("Valid query tests", function() {
 
     test("Variable property in a branch, spaces after the comma", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons(.:var1,   .:var2)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4530,23 +5364,26 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -4554,9 +5391,13 @@ suite("Valid query tests", function() {
 
     test("Variable property in a branch, spaces before )", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons(.:var1,.:var2   )'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4565,23 +5406,26 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR1",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
-                type: "V",
+                type: ":",
                 value: "VAR2",
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 2
             }
         ]);
     
@@ -4589,9 +5433,13 @@ suite("Valid query tests", function() {
 
     test("Reserved fields _id, _key and _value", function() {
     
-        var elements = database.call("json_core.parse_query", {
+        resetPackage();
+
+        database.call("json_core.parse_query", {
             p_query: 'persons.*(._id, ._key, ._value)'
         });
+
+        let elements = database.call("json_core.dump").p_query_elements;
 
         expect(elements).to.eql([
             {
@@ -4600,7 +5448,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: 1
             },
             {
                 type: "W",
@@ -4608,7 +5457,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "F",
@@ -4616,7 +5466,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "F",
@@ -4624,7 +5475,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 5,
-                alias: null
+                alias: null,
+                bind_number: null
             },
             {
                 type: "F",
@@ -4632,7 +5484,8 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
-                alias: null
+                alias: null,
+                bind_number: null
             }
         ]);
     
@@ -4640,3 +5493,282 @@ suite("Valid query tests", function() {
 
 });
 
+suite("Anchored query parse tests", function() {
+
+    test("Try to parse anchored empty query", function() {
+    
+        resetPackage();
+
+        expect(function() {
+        
+            database.call("json_core.parse_query", {
+                p_query: null,
+                p_anchored: true
+            });    
+        
+        }).to.throw(/JDC-00002/);
+    
+    });
+    
+    test("Parse valid anchored query", function() {
+    
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: 'persons[:var]',
+            p_anchored: true
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+
+        expect(elements).to.eql([
+            {
+                type: "A",
+                value: null,
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                alias: null,
+                bind_number: null
+            },
+            {
+                type: "N",
+                value: "persons",
+                optional: false,
+                first_child_i: 3,
+                next_sibling_i: null,
+                alias: null,
+                bind_number: 1
+            },
+            {
+                type: ":",
+                value: "VAR",
+                optional: false,
+                first_child_i: null,
+                next_sibling_i: null,
+                alias: null,
+                bind_number: 1
+            }
+        ]);
+    
+    });
+
+});
+
+suite("Query element cache tests", function() {
+
+    let query1ElementI, query2ElementI;
+
+    setup("Reset cache", function() {
+        resetPackage();
+    });
+
+    test("Parse one query", function() {
+        query1ElementI = database.call('json_core.parse_query', {
+            p_query: "person.name"
+        });
+    });
+
+    test("Parse another query, check if element i-s differ", function() {
+
+        query2ElementI = database.call('json_core.parse_query', {
+            p_query: "person.surname"
+        });
+
+        expect(query2ElementI).to.not.be(query1ElementI);
+
+    });
+
+    test("Parse the first query again, check if the same element i has been returned", function() {
+    
+        elementI = database.call('json_core.parse_query', {
+            p_query: "person.name"
+        });
+    
+        expect(elementI).to.be(query1ElementI);
+
+    });
+    
+});
+
+suite("Variable enumeration tests", function() {
+
+    function getBindNumbers(elements) {
+
+        let bindNumbers = [];
+
+        for (let i = 0; i < elements.length; i++) {
+            if (elements[i].type == ':' || elements[i].type == '#')
+                bindNumbers.push(elements[i].bind_number);
+        }
+
+        return bindNumbers;
+
+    }
+
+    test("Single variable", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: ':name'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1]);
+
+    }); 
+
+    test("Single ID variable", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: 'person(.#id)'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1]);
+
+    }); 
+
+    test("Multiple different variables", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: ':name.:surname.:address'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1, 2, 3]);
+
+    }); 
+
+    test("Two equal variables", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: ':name.:name'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1, 1]);
+
+    });
+
+    test("Two equal, one different variables", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: ':name.:name.:surname'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1, 1, 2]);
+
+    });
+
+    test("Two pairs of equal variables", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: ':name.:surname.:name.:surname'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1, 2, 1, 2]);
+
+    });
+
+    test("Multiple different ID variables", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: '#name.#surname.#address'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1, 2, 3]);
+
+    }); 
+
+    test("Two equal ID variables", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: '#name.#name'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1, 1]);
+
+    });
+
+    test("Two equal, one different ID variables", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: '#name.#name.#surname'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1, 1, 2]);
+
+    });
+
+    test("Two pairs of equal ID variables", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: '#name.#surname.#name.#surname'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1, 2, 1, 2]);
+
+    });
+
+    test("Complex example with multiple variables", function() {
+
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: '($.#id.a(.b,.:c),:a.b(.:c.d.#c,.:id))'
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+        let bindNumbers = getBindNumbers(elements);
+
+        expect(bindNumbers).to.eql([1, 2, 3, 2, 2, 1]);
+
+    });
+    
+});

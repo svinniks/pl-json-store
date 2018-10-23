@@ -7,10 +7,7 @@ suite("STRING_EVENTS", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "STRING",
-                value: null
-            }
+            "S"
         ]);
 
     });
@@ -22,10 +19,7 @@ suite("STRING_EVENTS", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "STRING",
-                value: "Hello, World!"
-            }
+            "SHello, World!"
         ]);
 
     });
@@ -41,10 +35,7 @@ suite("DATE_EVENTS", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NULL",
-                value: null
-            }
+            "E"
         ]);
 
     });
@@ -56,10 +47,7 @@ suite("DATE_EVENTS", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "STRING",
-                value: "1982-08-06"
-            }
+            "S1982-08-06"
         ]);
 
     });
@@ -75,10 +63,7 @@ suite("NUMBER_EVENTS", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NULL",
-                value: null
-            }
+            "E"
         ]);
 
     });
@@ -90,10 +75,19 @@ suite("NUMBER_EVENTS", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NUMBER",
-                value: "123.456"
-            }
+            "N123.456"
+        ]);
+
+    });
+
+    test("Negative decimal with zero integer part", function() {
+
+        let events = database.call("json_core.number_events", {
+            p_value: -0.123
+        });
+
+        expect(events).to.eql([
+            "N-0.123"
         ]);
 
     });
@@ -109,10 +103,7 @@ suite("BOOLEAN_EVENTS", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NULL",
-                value: null
-            }
+            "E"
         ]);
 
     });
@@ -124,10 +115,7 @@ suite("BOOLEAN_EVENTS", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "BOOLEAN",
-                value: "true"
-            }
+            "Btrue"
         ]);
 
     });
@@ -139,10 +127,7 @@ test("NULL_EVENTS", function() {
     let events = database.call("json_core.null_events");
 
     expect(events).to.eql([
-        {
-            name: "NULL",
-            value: null
-        }
+        "E"
     ]);
 
 });
@@ -152,14 +137,8 @@ test("OBJECT_EVENTS", function() {
     let events = database.call("json_core.object_events");
 
     expect(events).to.eql([
-        {
-            name: "START_OBJECT",
-            value: null
-        },
-        {
-            name: "END_OBJECT",
-            value: null
-        }
+        "{",
+        "}"
     ]);
 
 });
@@ -169,14 +148,8 @@ test("ARRAY_EVENTS", function() {
     let events = database.call("json_core.array_events");
 
     expect(events).to.eql([
-        {
-            name: "START_ARRAY",
-            value: null
-        },
-        {
-            name: "END_ARRAY",
-            value: null
-        }
+        "[",
+        "]"
     ]);
 
 });

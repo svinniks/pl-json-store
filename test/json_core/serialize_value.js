@@ -6,11 +6,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -28,11 +27,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -50,11 +48,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -72,11 +69,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -94,11 +90,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -116,11 +111,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -140,11 +134,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -164,11 +157,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -190,11 +182,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -212,11 +203,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -234,11 +224,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -256,11 +245,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -294,11 +282,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: null
         });
@@ -332,11 +319,10 @@ suite("Parse event serialization to JSON", function() {
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: true,
+            p_content_parse_events: events,
             p_json: null,
             p_json_clob: ""
         });
@@ -348,81 +334,105 @@ suite("Parse event serialization to JSON", function() {
 
     });
 
-    test("Don't serialize single NULL property of an object", function() {
+    test("Array with nulls", function() {
     
-        let original = JSON.stringify({
-            hello: null
-        });
+        let original = JSON.stringify([
+            null,
+            "Hello, World!",
+            null,
+            123.456,
+            null
+        ]);
 
         let events = database.call("json_parser.parse", {
             p_content: original
-        }).p_parse_events;
+        });
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: false,
+            p_content_parse_events: events,
             p_json: null,
-            p_json_clob: null
+            p_json_clob: ""
         });
 
         expect(serialized).to.eql({
-            p_json: "{}",
-            p_json_clob: null
+            p_json: null,
+            p_json_clob: original
+        });
+    
+    });
+    
+    test("Array with missing elements in the beginning", function() {
+    
+        let serialized = database.call("json_core.serialize_value", {
+            p_content_parse_events: [
+                "[",
+                ":3",
+                "SHello, World!",
+                ":4",
+                "N123",
+                "]",
+            ],
+            p_json: null,
+            p_json_clob: ""
         });
 
+        expect(serialized).to.eql({
+            p_json: null,
+            p_json_clob: "[null,null,null,\"Hello, World!\",123]"
+        });
+    
     });
 
-    test("Don't serialize several NULL properties of an object", function() {
-    
-        let original = JSON.stringify({
-            hello: null,
-            goodBye: null,
-            orly: null
-        });
-
-        let events = database.call("json_parser.parse", {
-            p_content: original
-        }).p_parse_events;
+    test("Array with missing elements in the middle", function() {
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: false,
+            p_content_parse_events: [
+                "[",
+                ":0",
+                "SHello, World!",
+                ":1",
+                "N123",
+                ":4",
+                "SGood bye, World!",
+                "]",
+            ],
             p_json: null,
-            p_json_clob: null
+            p_json_clob: ""
         });
 
         expect(serialized).to.eql({
-            p_json: "{}",
-            p_json_clob: null
+            p_json: null,
+            p_json_clob: "[\"Hello, World!\",123,null,null,\"Good bye, World!\"]"
         });
-
+    
     });
 
-    test("Don't serialize several NULL properties, mixed with some non-null ones, of an object", function() {
-    
-        let original = JSON.stringify({
-            hello: null,
-            goodBye: "world",
-            orly: null,
-            yarly: "heh"
-        });
-
-        let events = database.call("json_parser.parse", {
-            p_content: original
-        }).p_parse_events;
+    test("Array with multiple element gaps", function() {
     
         let serialized = database.call("json_core.serialize_value", {
-            p_parse_events: events,
-            p_serialize_nulls: false,
+            p_content_parse_events: [
+                "[",
+                ":2",
+                "N2",
+                ":3",
+                "N3",
+                ":6",
+                "N6",
+                ":10",
+                "N10",
+                ":11",
+                "N11",
+                "]",
+            ],
             p_json: null,
-            p_json_clob: null
+            p_json_clob: ""
         });
 
         expect(serialized).to.eql({
-            p_json: "{\"goodBye\":\"world\",\"yarly\":\"heh\"}",
-            p_json_clob: null
+            p_json: null,
+            p_json_clob: "[null,null,2,3,null,null,6,null,null,null,10,11]"
         });
-
+    
     });
 
 });

@@ -323,274 +323,274 @@ suite("Scalar value tests", function() {
 
     test("Empty document", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: null
         });
 
-        expect(result.p_parse_events).to.eql([]);
+        expect(events).to.eql([]);
 
     });
 
     test("String value", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '"Hello, World!"'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "STRING", value: "Hello, World!"}
+        expect(events).to.eql([
+            "SHello, World!"
         ]);
     
     });
 
     test("String value with leading/trailing spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '    "Hello, World!"   '
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "STRING", value: "Hello, World!"}
+        expect(events).to.eql([
+            "SHello, World!"
         ]);
     
     });
 
     test("String value with newlines", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '\n"Hello, World!"\n'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "STRING", value: "Hello, World!"}
+        expect(events).to.eql([
+            "SHello, World!"
         ]);
     
     });
 
     test("String value with tabs", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '\t"Hello, World!"\t'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "STRING", value: "Hello, World!"}
+        expect(events).to.eql([
+            "SHello, World!"
         ]);
     
     });
     
     test("String value with escaped characters (without \\u)", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '"\\"\\n\\/\\\\\\b\\f\\r\\t\\y"'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "STRING", value: '"\n/\\\b\f\r\ty'}
+        expect(events).to.eql([
+            "S\"\n/\\\b\f\r\ty"
         ]);
     
     });
 
     test("String value with \\u unicode character code", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '"\\u0041BC"'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "STRING", value: 'ABC'}
+        expect(events).to.eql([
+            "SABC"
         ]);
     
     });
 
     test("Zero", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "0"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "0"}
+        expect(events).to.eql([
+            "N0"
         ]);
     
     });
 
     test("Zero with leading/trailing spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "   0    "
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "0"}
+        expect(events).to.eql([
+            "N0"
         ]);
     
     });
 
     test("Positive integer value", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "1234567890"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "1234567890"}
+        expect(events).to.eql([
+            "N1234567890"
         ]);
     
     });
 
     test("Positive integer value with leading/trailing spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "   1234567890   "
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "1234567890"}
+        expect(events).to.eql([
+            "N1234567890"
         ]);
     
     });
     
     test("Neative integer value", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "-1234567890"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "-1234567890"}
+        expect(events).to.eql([
+            "N-1234567890"
         ]);
     
     });
 
     test("Negative integer value with possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "   -  1234567890   "
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "-1234567890"}
+        expect(events).to.eql([
+            "N-1234567890"
         ]);
     
     });
 
     test("Positive float value", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "12345.67890"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "12345.67890"}
+        expect(events).to.eql([
+            "N12345.67890"
         ]);
     
     });
 
     test("Positive float value with zero integer part", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "0.12345"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "0.12345"}
+        expect(events).to.eql([
+            "N0.12345"
         ]);
     
     });
 
     test("Positive float value with leading/trailing spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "    12345.67890    "
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "12345.67890"}
+        expect(events).to.eql([
+            "N12345.67890"
         ]);
     
     });
 
     test("Negative float value", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "-12345.67890"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "-12345.67890"}
+        expect(events).to.eql([
+            "N-12345.67890"
         ]);
     
     });
 
     test("Negative float value with possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "    -    12345.67890     "
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NUMBER", value: "-12345.67890"}
+        expect(events).to.eql([
+            "N-12345.67890"
         ]);
     
     });
 
     test("Boolean value (true)", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "true"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "BOOLEAN", value: "true"}
+        expect(events).to.eql([
+            "Btrue"
         ]);
     
     });
 
     test("Boolean value (false)", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "false"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "BOOLEAN", value: "false"}
+        expect(events).to.eql([
+            "Bfalse"
         ]);
     
     });
 
     test("Boolean value (true) with leadin/trailing spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "  true  "
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "BOOLEAN", value: "true"}
+        expect(events).to.eql([
+            "Btrue"
         ]);
     
     });
 
     test("Null", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "null"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NULL", value: null}
+        expect(events).to.eql([
+            "E"
         ]);
     
     });
 
     test("Null with leading/trailing spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "   null   "
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "NULL", value: null}
+        expect(events).to.eql([
+            "E"
         ]);
     
     });
@@ -601,407 +601,407 @@ suite("Object tests", function() {
 
     test("Empty object", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "{}"
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            "}"
         ]);
     
     });
     
     test("Empty object with possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: "    {     }      "
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            "}"
         ]);
     
     });
 
     test("Object with string property", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello":"world"}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "STRING", value: "world"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "Sworld",
+            "}"
         ]);
     
     });
 
     test("Object with a property with escaped characters", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello\\n\\t":"world"}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello\n\t"},
-            {name: "STRING", value: "world"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello\n\t",
+            "Sworld",
+            "}"
         ]);
     
     });
 
     test("Object with string property and possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '   {   "hello"   :   "world"   }   '
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "STRING", value: "world"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "Sworld",
+            "}"
         ]);
     
     });
 
     test("Object with multiple string properties", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"name":"Sergejs","surname":"Vinniks","age":"35"}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "name"},
-            {name: "STRING", value: "Sergejs"},
-            {name: "NAME", value: "surname"},
-            {name: "STRING", value: "Vinniks"},
-            {name: "NAME", value: "age"},
-            {name: "STRING", value: "35"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":name",
+            "SSergejs",
+            ":surname",
+            "SVinniks",
+            ":age",
+            "S35",
+            "}"
         ]);
     
     });
 
     test("Object with multiple string properties with all possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  {  "name"  :  "Sergejs"  ,  "surname"  :  "Vinniks"  ,  "age"  :  "35"  }  '
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "name"},
-            {name: "STRING", value: "Sergejs"},
-            {name: "NAME", value: "surname"},
-            {name: "STRING", value: "Vinniks"},
-            {name: "NAME", value: "age"},
-            {name: "STRING", value: "35"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":name",
+            "SSergejs",
+            ":surname",
+            "SVinniks",
+            ":age",
+            "S35",
+            "}"
         ]);
     
     });
 
     test("Object with a zero property", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello":0}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "NUMBER", value: "0"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "N0",
+            "}"
         ]);
     
     });
 
     test("Object with a zero property and all possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  {  "hello"  :  0  }  '
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "NUMBER", value: "0"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "N0",
+            "}"
         ]);
     
     });
 
     test("Object with a positive integer property", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello":1234567890}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "NUMBER", value: "1234567890"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "N1234567890",
+            "}"
         ]);
     
     });
 
     test("Object with a negative integer property", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello":-1234567890}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "NUMBER", value: "-1234567890"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "N-1234567890",
+            "}"
         ]);
     
     });
 
     test("Object with a negative integer property and possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '   {   "hello"   :   -1234567890    }    '
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "NUMBER", value: "-1234567890"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "N-1234567890",
+            "}"
         ]);
     
     });
 
     test("Object with multiple integer properties", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"a":123,"b":456,"c":-789}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "a"},
-            {name: "NUMBER", value: "123"},
-            {name: "NAME", value: "b"},
-            {name: "NUMBER", value: "456"},
-            {name: "NAME", value: "c"},
-            {name: "NUMBER", value: "-789"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":a",
+            "N123",
+            ":b",
+            "N456",
+            ":c",
+            "N-789",
+            "}"
         ]);
     
     });
 
     test("Object with multiple integer properties and all possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  {  "a"  :  123  ,  "b"  :  456  ,  "c"  :  -  789  }  '
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "a"},
-            {name: "NUMBER", value: "123"},
-            {name: "NAME", value: "b"},
-            {name: "NUMBER", value: "456"},
-            {name: "NAME", value: "c"},
-            {name: "NUMBER", value: "-789"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":a",
+            "N123",
+            ":b",
+            "N456",
+            ":c",
+            "N-789",
+            "}"
         ]);
     
     });
 
     test("Object with a positive float property", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello":12345.67890}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "NUMBER", value: "12345.67890"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "N12345.67890",
+            "}"
         ]);
     
     });
 
     test("Object with a negative float property", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello":-12345.67890}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "NUMBER", value: "-12345.67890"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "N-12345.67890",
+            "}"
         ]);
     
     });
 
     test("Object with a multiple float properties", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"a":12.34,"b":34.56,"c":-56.78}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "a"},
-            {name: "NUMBER", value: "12.34"},
-            {name: "NAME", value: "b"},
-            {name: "NUMBER", value: "34.56"},
-            {name: "NAME", value: "c"},
-            {name: "NUMBER", value: "-56.78"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":a",
+            "N12.34",
+            ":b",
+            "N34.56",
+            ":c",
+            "N-56.78",
+            "}"
         ]);
     
     });
 
     test("Object with a multiple float properties and all possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  {  "a"  :  12.34  ,  "b"  :  34.56  ,  "c"  :  -  56.78  }  '
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "a"},
-            {name: "NUMBER", value: "12.34"},
-            {name: "NAME", value: "b"},
-            {name: "NUMBER", value: "34.56"},
-            {name: "NAME", value: "c"},
-            {name: "NUMBER", value: "-56.78"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":a",
+            "N12.34",
+            ":b",
+            "N34.56",
+            ":c",
+            "N-56.78",
+            "}"
         ]);
     
     });
 
     test("Object with a boolean (true) property", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello":true}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "BOOLEAN", value: "true"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "Btrue",
+            "}"
         ]);
     
     });
 
     test("Object with a boolean (false) property", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello":false}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "Bfalse",
+            "}"
         ]);
     
     });
 
     test("Object with a boolean (true) property and possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '   {   "hello"   :   true   }   '
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "BOOLEAN", value: "true"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "Btrue",
+            "}"
         ]);
     
     });
 
     test("Object with a null property", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"hello":null}'
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "NULL", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "E",
+            "}"
         ]);
     
     });
 
     test("Object with a null property and possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '   {   "hello"   :   null   }   '
         });
 
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "hello"},
-            {name: "NULL", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":hello",
+            "E",
+            "}"
         ]);
     
     });
 
     test("Object with multiple scalar properties", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '{"name":"Sergejs","surname":"Vinniks","age":35,"married":true}'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "name"},
-            {name: "STRING", value: "Sergejs"},
-            {name: "NAME", value: "surname"},
-            {name: "STRING", value: "Vinniks"},
-            {name: "NAME", value: "age"},
-            {name: "NUMBER", value: "35"},
-            {name: "NAME", value: "married"},
-            {name: "BOOLEAN", value: "true"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":name",
+            "SSergejs",
+            ":surname",
+            "SVinniks",
+            ":age",
+            "N35",
+            ":married",
+            "Btrue",
+            "}"
         ]);
 
     });
     
     test("Object with multiple scalar properties and all possible spaces", function() {
     
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '   {   "name"   :   "Sergejs"   ,   "surname"   :    "Vinniks",    "age"  :  35 ,   "married"   :   true   }    '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "name"},
-            {name: "STRING", value: "Sergejs"},
-            {name: "NAME", value: "surname"},
-            {name: "STRING", value: "Vinniks"},
-            {name: "NAME", value: "age"},
-            {name: "NUMBER", value: "35"},
-            {name: "NAME", value: "married"},
-            {name: "BOOLEAN", value: "true"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":name",
+            "SSergejs",
+            ":surname",
+            "SVinniks",
+            ":age",
+            "N35",
+            ":married",
+            "Btrue",
+            "}"
         ]);
 
     });
@@ -1012,350 +1012,414 @@ suite("Array tests", function() {
 
     test("Empty array", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '[]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            "]"
         ]);
 
     });
 
     test("Empty array with all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: ' [ ] '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            "]"
         ]);
 
     });
 
     test("Array with a single string value", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '["hello"]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "STRING", value: "hello"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "Shello",
+            "]"
         ]);
 
     });
 
     test("Array with a single string value and all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  [  "hello"  ]  '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "STRING", value: "hello"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "Shello",
+            "]"
         ]);
 
     });
 
     test("Array with multiple string values", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '["hello","world","how","are","you"]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "STRING", value: "hello"},
-            {name: "STRING", value: "world"},
-            {name: "STRING", value: "how"},
-            {name: "STRING", value: "are"},
-            {name: "STRING", value: "you"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "Shello",
+            ":1",
+            "Sworld",
+            ":2",
+            "Show",
+            ":3",
+            "Sare",
+            ":4",
+            "Syou",
+            "]"
         ]);
 
     });
 
     test("Array with multiple string values and all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  [  "hello"  ,  "world"  ,  "how"  ,  "are"  ,  "you"  ]  '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "STRING", value: "hello"},
-            {name: "STRING", value: "world"},
-            {name: "STRING", value: "how"},
-            {name: "STRING", value: "are"},
-            {name: "STRING", value: "you"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "Shello",
+            ":1",
+            "Sworld",
+            ":2",
+            "Show",
+            ":3",
+            "Sare",
+            ":4",
+            "Syou",
+            "]"
         ]);
 
     });
 
     test("Array with a single number value", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '[12345.678]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: "12345.678"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "N12345.678",
+            "]"
         ]);
 
     });
 
     test("Array with a single number value and all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  [  12345.678  ]  '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: "12345.678"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "N12345.678",
+            "]"
         ]);
 
     });
 
     test("Array with multiple number values", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '[12345.678,2,-45,0,-0.12]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: "12345.678"},
-            {name: "NUMBER", value: "2"},
-            {name: "NUMBER", value: "-45"},
-            {name: "NUMBER", value: "0"},
-            {name: "NUMBER", value: "-0.12"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "N12345.678",
+            ":1",
+            "N2",
+            ":2",
+            "N-45",
+            ":3",
+            "N0",
+            ":4",
+            "N-0.12",
+            "]"
         ]);
 
     });
 
     test("Array with multiple number values and all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  [  12345.678  ,  2  ,  -45  ,  0  ,  -0.12  ]   '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: "12345.678"},
-            {name: "NUMBER", value: "2"},
-            {name: "NUMBER", value: "-45"},
-            {name: "NUMBER", value: "0"},
-            {name: "NUMBER", value: "-0.12"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "N12345.678",
+            ":1",
+            "N2",
+            ":2",
+            "N-45",
+            ":3",
+            "N0",
+            ":4",
+            "N-0.12",
+            "]"
         ]);
 
     });
 
     test("Array with multiple zeros", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '[0,0,0]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: "0"},
-            {name: "NUMBER", value: "0"},
-            {name: "NUMBER", value: "0"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "N0",
+            ":1",
+            "N0",
+            ":2",
+            "N0",
+            "]"
         ]);
 
     });
 
     test("Array with multiple zeros and all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  [  0  ,  0  ,  0  ]  '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: "0"},
-            {name: "NUMBER", value: "0"},
-            {name: "NUMBER", value: "0"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "N0",
+            ":1",
+            "N0",
+            ":2",
+            "N0",
+            "]"
         ]);
 
     });
 
     test("Array with a single boolean", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '[true]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "BOOLEAN", value: "true"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "Btrue",
+            "]"
         ]);
 
     });
 
     test("Array with a single boolean and all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  [  true  ]  '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "BOOLEAN", value: "true"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "Btrue",
+            "]"
         ]);
 
     });
 
     test("Array with multiple booleans", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '[true,true,false,false,true,false]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "BOOLEAN", value: "true"},
-            {name: "BOOLEAN", value: "true"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "BOOLEAN", value: "true"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "Btrue",
+            ":1",
+            "Btrue",
+            ":2",
+            "Bfalse",
+            ":3",
+            "Bfalse",
+            ":4",
+            "Btrue",
+            ":5",
+            "Bfalse",
+            "]"
         ]);
 
     });
 
     test("Array with multiple booleans and all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  [  true  ,  true  ,  false  ,  false  ,  true  ,  false  ]  '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "BOOLEAN", value: "true"},
-            {name: "BOOLEAN", value: "true"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "BOOLEAN", value: "true"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "Btrue",
+            ":1",
+            "Btrue",
+            ":2",
+            "Bfalse",
+            ":3",
+            "Bfalse",
+            ":4",
+            "Btrue",
+            ":5",
+            "Bfalse",
+            "]"
         ]);
 
     });
 
     test("Array with a single null value", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '[null]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NULL", value: null},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "E",
+            "]"
         ]);
 
     });
 
     test("Array with a single null value and all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  [  null  ]  '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NULL", value: null},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "E",
+            "]"
         ]);
 
     });
 
     test("Array with multiple null values", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '[null,null,null]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NULL", value: null},
-            {name: "NULL", value: null},
-            {name: "NULL", value: null},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "E",
+            ":1",
+            "E",
+            ":2",
+            "E",
+            "]"
         ]);
 
     });
 
     test("Array with multiple null values and all possible spaces", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '  [  null  ,  null  ,  null  ]  '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "NULL", value: null},
-            {name: "NULL", value: null},
-            {name: "NULL", value: null},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "E",
+            ":1",
+            "E",
+            ":2",
+            "E",
+            "]"
         ]);
 
     });
 
     test("Array with mixed values and spaces 1", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '["Hello", -12.9 ,  null, "World",false   ,111   ]  '
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "STRING", value: "Hello"},
-            {name: "NUMBER", value: "-12.9"},
-            {name: "NULL", value: null},
-            {name: "STRING", value: "World"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "NUMBER", value: "111"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "SHello",
+            ":1",
+            "N-12.9",
+            ":2",
+            "E",
+            ":3",
+            "SWorld",
+            ":4",
+            "Bfalse",
+            ":5",
+            "N111",
+            "]"
         ]);
 
     });
 
     test("Array with mixed values and spaces 2", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: '["Hello,\\nWorld", null, null, 987654.0000012, "\\"!\\"", true]'
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "STRING", value: "Hello,\nWorld"},
-            {name: "NULL", value: null},
-            {name: "NULL", value: null},
-            {name: "NUMBER", value: "987654.0000012"},
-            {name: "STRING", value: '"!"'},
-            {name: "BOOLEAN", value: "true"},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "SHello,\nWorld",
+            ":1",
+            "E",
+            ":2",
+            "E",
+            ":3",
+            "N987654.0000012",
+            ":4",
+            "S\"!\"",
+            ":5",
+            "Btrue",
+            "]"
         ]);
 
     });
@@ -1366,25 +1430,25 @@ suite("Complex object test", function() {
 
     test("Object with an empty object property", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify({
                 obj: {}
             }, "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "obj"},
-            {name: "START_OBJECT", value: null},
-            {name: "END_OBJECT", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":obj",
+            "{",
+            "}",
+            "}"
         ]);
 
     });
 
     test("Object with an object property", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify({
                 obj: {
                     name: "Sergejs",
@@ -1393,23 +1457,23 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "obj"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "name"},
-            {name: "STRING", value: "Sergejs"},
-            {name: "NAME", value: "age"},
-            {name: "NUMBER", value: "35"},
-            {name: "END_OBJECT", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":obj",
+            "{",
+            ":name",
+            "SSergejs",
+            ":age",
+            "N35",
+            "}",
+            "}"
         ]);
 
     });
 
     test("Object with an object property surrounded by other properties", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify({
                 string: "Hello",
                 obj: {
@@ -1420,27 +1484,27 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "string"},
-            {name: "STRING", value: "Hello"},
-            {name: "NAME", value: "obj"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "name"},
-            {name: "STRING", value: "Sergejs"},
-            {name: "NAME", value: "age"},
-            {name: "NUMBER", value: "35"},
-            {name: "END_OBJECT", value: null},
-            {name: "NAME", value: "number"},
-            {name: "NUMBER", value: "123"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":string",
+            "SHello",
+            ":obj",
+            "{",
+            ":name",
+            "SSergejs",
+            ":age",
+            "N35",
+            "}",
+            ":number",
+            "N123",
+            "}"
         ]);
 
     });
 
     test("Object with multiple object properties", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify({
                 obj1: {
                     name: "Sergejs",
@@ -1453,30 +1517,30 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "obj1"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "name"},
-            {name: "STRING", value: "Sergejs"},
-            {name: "NAME", value: "age"},
-            {name: "NUMBER", value: "35"},
-            {name: "END_OBJECT", value: null},
-            {name: "NAME", value: "obj2"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "name"},
-            {name: "STRING", value: "Janis"},
-            {name: "NAME", value: "age"},
-            {name: "NUMBER", value: "99"},
-            {name: "END_OBJECT", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":obj1",
+            "{",
+            ":name",
+            "SSergejs",
+            ":age",
+            "N35",
+            "}",
+            ":obj2",
+            "{",
+            ":name",
+            "SJanis",
+            ":age",
+            "N99",
+            "}",
+            "}"
         ]);
 
     });
 
     test("Object with multi-level nesting", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify({
                 l1_obj1: {
                     l2_obj1: {
@@ -1498,84 +1562,89 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "l1_obj1"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "l2_obj1"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "l3_obj1"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "Hello"},
-            {name: "STRING", value: "World"},
-            {name: "END_OBJECT", value: null},
-            {name: "END_OBJECT", value: null},
-            {name: "NAME", value: "l2_obj2"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "Hello"},
-            {name: "STRING", value: "World"},
-            {name: "END_OBJECT", value: null},
-            {name: "END_OBJECT", value: null},
-            {name: "NAME", value: "l1_obj2"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "l2_obj1"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "l3_obj1"},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "Hello"},
-            {name: "STRING", value: "World"},
-            {name: "END_OBJECT", value: null},
-            {name: "END_OBJECT", value: null},
-            {name: "END_OBJECT", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{", 
+            ":l1_obj1", 
+            "{", 
+            ":l2_obj1", 
+            "{", 
+            ":l3_obj1", 
+            "{", 
+            ":Hello", 
+            "SWorld", 
+            "}", 
+            "}", 
+            ":l2_obj2", 
+            "{", 
+            ":Hello", 
+            "SWorld", 
+            "}", 
+            "}", 
+            ":l1_obj2", 
+            "{", 
+            ":l2_obj1", 
+            "{", 
+            ":l3_obj1", 
+            "{", 
+            ":Hello", 
+            "SWorld", 
+            "}",
+            "}",
+            "}",
+            "}"
         ]);
 
     });
 
     test("Object with an empty array property", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify({
                 arr: []
             }, "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "arr"},
-            {name: "START_ARRAY", value: null},
-            {name: "END_ARRAY", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":arr",
+            "[",
+            "]",
+            "}"
         ]);
 
     });
 
     test("Object with a number array property", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify({
                 arr: [1, 2, 3, 4, 5]
             }, "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "arr"},
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: 1},
-            {name: "NUMBER", value: 2},
-            {name: "NUMBER", value: 3},
-            {name: "NUMBER", value: 4},
-            {name: "NUMBER", value: 5},
-            {name: "END_ARRAY", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":arr",
+            "[",
+            ":0",
+            "N1",
+            ":1",
+            "N2",
+            ":2",
+            "N3",
+            ":3",
+            "N4",
+            ":4",
+            "N5",
+            "]",
+            "}"
         ]);
 
     });
 
     test("Object with an array property surrounded by other properties", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify({
                 string: "Hello",
                 arr: [1, 2, 3, 4, 5],
@@ -1583,28 +1652,33 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "string"},
-            {name: "STRING", value: "Hello"},
-            {name: "NAME", value: "arr"},
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: 1},
-            {name: "NUMBER", value: 2},
-            {name: "NUMBER", value: 3},
-            {name: "NUMBER", value: 4},
-            {name: "NUMBER", value: 5},
-            {name: "END_ARRAY", value: null},
-            {name: "NAME", value: "boolean"},
-            {name: "BOOLEAN", value: "true"},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":string",
+            "SHello",
+            ":arr",
+            "[",
+            ":0",
+            "N1",
+            ":1",
+            "N2",
+            ":2",
+            "N3",
+            ":3",
+            "N4",
+            ":4",
+            "N5",
+            "]",
+            ":boolean",
+            "Btrue",
+            "}"
         ]);
 
     });
 
     test("Object with multiple array properties", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify({
                 arr1: [1, 2, 3],
                 arr2: ["a", "b", "c"],
@@ -1612,34 +1686,43 @@ suite("Complex object test", function() {
             }, "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "arr1"},
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: 1},
-            {name: "NUMBER", value: 2},
-            {name: "NUMBER", value: 3},
-            {name: "END_ARRAY", value: null},
-            {name: "NAME", value: "arr2"},
-            {name: "START_ARRAY", value: null},
-            {name: "STRING", value: "a"},
-            {name: "STRING", value: "b"},
-            {name: "STRING", value: "c"},
-            {name: "END_ARRAY", value: null},
-            {name: "NAME", value: "arr3"},
-            {name: "START_ARRAY", value: null},
-            {name: "BOOLEAN", value: "true"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "NULL", value: null},
-            {name: "END_ARRAY", value: null},
-            {name: "END_OBJECT", value: null}
+        expect(events).to.eql([
+            "{",
+            ":arr1",
+            "[",
+            ":0",
+            "N1",
+            ":1",
+            "N2",
+            ":2",
+            "N3",
+            "]",
+            ":arr2",
+            "[",
+            ":0",
+            "Sa",
+            ":1",
+            "Sb",
+            ":2",
+            "Sc",
+            "]",
+            ":arr3",
+            "[",
+            ":0",
+            "Btrue",
+            ":1",
+            "Bfalse",
+            ":2",
+            "E",
+            "]",
+            "}"
         ]);
 
     });
 
     test("Two-dimensional array", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify([
                 [1, 2, 3],
                 ["a", "b", "c"],
@@ -1647,31 +1730,43 @@ suite("Complex object test", function() {
             ], "    ")
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "START_ARRAY", value: null},
-            {name: "NUMBER", value: 1},
-            {name: "NUMBER", value: 2},
-            {name: "NUMBER", value: 3},
-            {name: "END_ARRAY", value: null},
-            {name: "START_ARRAY", value: null},
-            {name: "STRING", value: "a"},
-            {name: "STRING", value: "b"},
-            {name: "STRING", value: "c"},
-            {name: "END_ARRAY", value: null},
-            {name: "START_ARRAY", value: null},
-            {name: "BOOLEAN", value: "true"},
-            {name: "BOOLEAN", value: "false"},
-            {name: "NULL", value: null},
-            {name: "END_ARRAY", value: null},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "[",
+            ":0",
+            "N1",
+            ":1",
+            "N2",
+            ":2",
+            "N3",
+            "]",
+            ":1",
+            "[",
+            ":0",
+            "Sa",
+            ":1",
+            "Sb",
+            ":2",
+            "Sc",
+            "]",
+            ":2",
+            "[",
+            ":0",
+            "Btrue",
+            ":1",
+            "Bfalse",
+            ":2",
+            "E",
+            "]",
+            "]"
         ]);
 
     });
 
     test("Array of objects", function() {
 
-        var result = database.call("json_parser.parse", {
+        var events = database.call("json_parser.parse", {
             p_content: JSON.stringify([
                 { },
                 {
@@ -1683,19 +1778,22 @@ suite("Complex object test", function() {
             ])
         });
     
-        expect(result.p_parse_events).to.eql([
-            {name: "START_ARRAY", value: null},
-            {name: "START_OBJECT", value: null},
-            {name: "END_OBJECT", value: null},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "Hello"},
-            {name: "STRING", value: "World"},
-            {name: "END_OBJECT", value: null},
-            {name: "START_OBJECT", value: null},
-            {name: "NAME", value: "zero"},
-            {name: "NUMBER", value: "0"},
-            {name: "END_OBJECT", value: null},
-            {name: "END_ARRAY", value: null}
+        expect(events).to.eql([
+            "[",
+            ":0",
+            "{",
+            "}",
+            ":1",
+            "{",
+            ":Hello",
+            "SWorld",
+            "}",
+            ":2",
+            "{",
+            ":zero",
+            "N0",
+            "}",
+            "]"
         ]);
 
     });

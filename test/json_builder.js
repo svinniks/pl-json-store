@@ -186,10 +186,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "STRING",
-                value: "Hello, World!"
-            }
+            "SHello, World!"
         ])
 
     });
@@ -208,10 +205,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "STRING",
-                value: null
-            }
+            "S"
         ])
 
     });
@@ -230,10 +224,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "STRING",
-                value: "2018-01-31"
-            }
+            "S2018-01-31"
         ])
 
     });
@@ -252,10 +243,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NULL",
-                value: null
-            }
+            "E"
         ])
 
     });
@@ -274,10 +262,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NUMBER",
-                value: "123.321"
-            }
+            "N123.321"
         ])
 
     });
@@ -296,10 +281,26 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NUMBER",
-                value: "0.321"
-            }
+            "N0.321"
+        ])
+
+    });
+
+    test("Single negative number value builder, zero integer part", function() {
+    
+        let builderId = database.call("json_builders.create_builder");
+
+        database.call3("json_builders.value", {
+            p_builder_id: builderId,
+            p_value: -0.321
+        });
+    
+        let events = database.call("json_builders.build_parse_events", {
+            p_builder_id: builderId
+        });
+
+        expect(events).to.eql([
+            "N-0.321"
         ])
 
     });
@@ -318,10 +319,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NULL",
-                value: null
-            }
+            "E"
         ])
 
     });
@@ -340,10 +338,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "BOOLEAN",
-                value: "true"
-            }
+            "Btrue"
         ])
 
     });
@@ -362,10 +357,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NULL",
-                value: null
-            }
+            "E"
         ])
 
     });
@@ -383,10 +375,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "NULL",
-                value: null
-            }
+            "E"
         ])
 
     });
@@ -407,22 +396,10 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "NAME",
-                value: "hello"
-            },
-            {
-                name: "STRING",
-                value: "world"
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            ":hello",
+            "Sworld",
+            "}"
         ])
 
     });
@@ -443,22 +420,10 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "NAME",
-                value: "hello"
-            },
-            {
-                name: "STRING",
-                value: "world"
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            ":hello",
+            "Sworld",
+            "}"
         ])
 
     });
@@ -497,22 +462,10 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "NAME",
-                value: "hello"
-            },
-            {
-                name: "STRING",
-                value: "world"
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            ":hello",
+            "Sworld",
+            "}"
         ])
 
     });
@@ -704,14 +657,8 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "START_ARRAY",
-                value: null
-            },
-            {
-                name: "END_ARRAY",
-                value: null
-            }
+            "[",
+            "]"
         ]);
     
     });
@@ -738,18 +685,10 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "START_ARRAY",
-                value: null
-            },
-            {
-                name: "STRING",
-                value: "Hello, World!"
-            },
-            {
-                name: "END_ARRAY",
-                value: null
-            }
+            "[",
+            ":0",
+            "SHello, World!",
+            "]"
         ]);
     
     });
@@ -786,26 +725,14 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "START_ARRAY",
-                value: null
-            },
-            {
-                name: "STRING",
-                value: "Hello, World!"
-            },
-            {
-                name: "NUMBER",
-                value: "123.321"
-            },
-            {
-                name: "BOOLEAN",
-                value: "true"
-            },
-            {
-                name: "END_ARRAY",
-                value: null
-            }
+            "[",
+            ":0",
+            "SHello, World!",
+            ":1",
+            "N123.321",
+            ":2",
+            "Btrue",
+            "]"
         ]);
     
     });
@@ -863,46 +790,22 @@ suite("JSON builder tests", function() {
         });
 
         expect(events).to.eql([
-            {
-                name: "START_ARRAY",
-                value: null
-            },
-            {
-                name: "START_ARRAY",
-                value: null
-            },
-            {
-                name: "STRING",
-                value: "Hello, World!"
-            },
-            {
-                name: "STRING",
-                value: "Hello, World!"
-            },
-            {
-                name: "END_ARRAY",
-                value: null
-            },
-            {
-                name: "START_ARRAY",
-                value: null
-            },
-            {
-                name: "STRING",
-                value: "Hello, World!"
-            },
-            {
-                name: "STRING",
-                value: "Hello, World!"
-            },
-            {
-                name: "END_ARRAY",
-                value: null
-            },
-            {
-                name: "END_ARRAY",
-                value: null
-            }
+            "[",
+            ":0",
+            "[",
+            ":0",
+            "SHello, World!",
+            ":1",
+            "SHello, World!",
+            "]",
+            ":1",
+            "[",
+            ":0",
+            "SHello, World!",
+            ":1",
+            "SHello, World!",
+            "]",
+            "]"
         ]);
     
     });
@@ -1136,14 +1039,8 @@ suite("JSON builder tests", function() {
         });
     
         expect(events).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            "}"
         ]);
     
     });
@@ -1175,22 +1072,10 @@ suite("JSON builder tests", function() {
         });
     
         expect(events).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "NAME",
-                value: "hello"
-            },
-            {
-                name: "STRING",
-                value: "world"
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            ":hello",
+            "Sworld",
+            "}"
         ]);
     
     });
@@ -1242,40 +1127,16 @@ suite("JSON builder tests", function() {
         });
     
         expect(events).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "NAME",
-                value: "hello"
-            },
-            {
-                name: "STRING",
-                value: "world"
-            },
-            {
-                name: "NAME",
-                value: "good bye"
-            },
-            {
-                name: "STRING",
-                value: "life"
-            },
-            {
-                name: "NAME",
-                value: "number"
-            },
-            {
-                name: "NUMBER",
-                value: "123.321"
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            ":hello",
+            "Sworld",
+            ":good bye",
+            "Slife",
+            ":number",
+            "N123.321",
+            "}"
         ]);
-    
+           
     });
 
     test("Try to build an object with duplicate property names", function() {
@@ -1421,42 +1282,15 @@ suite("JSON builder tests", function() {
         });
     
         expect(events).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "NAME",
-                value: "hello"
-            },
-            {
-                name: "STRING",
-                value: "world"
-            },
-            {
-                name: "NAME",
-                value: "child"
-            },
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "NAME",
-                value: "hello"
-            },
-            {
-                name: "STRING",
-                value: "world"
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            ":hello",
+            "Sworld",
+            ":child",
+            "{",
+            ":hello",
+            "Sworld",
+            "}",
+            "}"
         ]);
     
     });
@@ -1604,14 +1438,8 @@ suite("JSON builder tests", function() {
         });
 
         expect(parseEvents).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            "}"
         ]);
 
     });
@@ -1661,14 +1489,8 @@ suite("JSON builder tests", function() {
         });
 
         expect(parseEvents).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            "}"
         ]);
 
     });
@@ -1729,30 +1551,12 @@ suite("JSON builder tests", function() {
         });
 
         expect(parseEvents).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "NAME",
-                value: "hello"
-            },
-            {
-                name: "STRING",
-                value: "world"
-            },
-            {
-                name: "NAME",
-                value: "yarly"
-            },
-            {
-                name: "STRING",
-                value: "yeah"
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            ":hello",
+            "Sworld",
+            ":yarly",
+            "Syeah",
+            "}"
         ]);
 
     });
@@ -1771,10 +1575,7 @@ suite("JSON builder tests", function() {
         });
 
         expect(parseEvents).to.eql([
-            {
-                name: "NULL",
-                value: null
-            }
+            "E"
         ]);
 
     });
@@ -1806,22 +1607,10 @@ suite("JSON builder tests", function() {
         });
 
         expect(parseEvents).to.eql([
-            {
-                name: "START_ARRAY",
-                value: null
-            },
-            {
-                name: "NULL",
-                value: null
-            },
-            {
-                name: "STRING",
-                value: "Hello, World!"
-            },
-            {
-                name: "END_ARRAY",
-                value: null
-            }
+            "[",
+            ":1",
+            "SHello, World!",
+            "]"
         ]);
 
     });
@@ -1883,30 +1672,12 @@ suite("JSON builder tests", function() {
         });
 
         expect(parseEvents).to.eql([
-            {
-                name: "START_OBJECT",
-                value: null
-            },
-            {
-                name: "NAME",
-                value: "hello"
-            },
-            {
-                name: "STRING",
-                value: "world"
-            },
-            {
-                name: "NAME",
-                value: "yarly"
-            },
-            {
-                name: "STRING",
-                value: "yeah"
-            },
-            {
-                name: "END_OBJECT",
-                value: null
-            }
+            "{",
+            ":hello",
+            "Sworld",
+            ":yarly",
+            "Syeah",
+            "}"
         ]);
 
     });

@@ -129,9 +129,15 @@ CREATE OR REPLACE TYPE t_persistent_json UNDER t_json (
         p_unpin_tree IN BOOLEAN := FALSE
     ),
     
+    OVERRIDING MEMBER FUNCTION get_table_5 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_5_value_table PIPELINED,
+    
     -- JSON filter instantiation method 
     
     MEMBER FUNCTION filter
-    RETURN t_json_filter 
-
+    RETURN t_json_filter
+    
 )

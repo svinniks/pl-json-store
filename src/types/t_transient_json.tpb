@@ -313,4 +313,51 @@ CREATE OR REPLACE TYPE BODY t_transient_json IS
         transient_json_store.unpin_value(id, p_unpin_tree);
     END;
     
+    OVERRIDING MEMBER FUNCTION get_table_5 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_5_value_table PIPELINED IS
+    
+        v_columns transient_json_store.t_t_varchars;
+        
+        v_column_count PLS_INTEGER;
+        v_row_count PLS_INTEGER;
+        
+        FUNCTION get_value (
+            p_row IN PLS_INTEGER,
+            p_column IN PLS_INTEGER
+        ) 
+        RETURN VARCHAR2 IS
+        BEGIN
+            IF p_column > v_column_count THEN
+                RETURN NULL;
+            ELSE
+                RETURN v_columns(p_column)(p_row);
+            END IF;
+        END;
+    
+    BEGIN
+    
+        v_columns := transient_json_store.get_table(id, p_query, p_bind);
+        
+        v_column_count := v_columns.COUNT;
+        v_row_count := v_columns(1).COUNT;
+        
+        FOR v_i IN 1..v_row_count LOOP
+        
+            PIPE ROW (t_5_value_row(
+                get_value(v_i, 1),
+                get_value(v_i, 2),
+                get_value(v_i, 3),
+                get_value(v_i, 4),
+                get_value(v_i, 5)
+            ));
+            
+        END LOOP;
+        
+        RETURN;
+        
+    END;
+    
 END;

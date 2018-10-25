@@ -629,12 +629,21 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
         v_comma := NULL;
          
         add_text('SELECT ');
+        
+        IF p_query_type = c_TABLE_QUERY THEN
+            add_text('t_' || p_column_count || '_value_row(');
+        END IF;
+        
         select_list_visit(p_query_element_i, NULL);
         
         FOR v_i IN v_column_count + 1..NVL(p_column_count, v_column_count) LOOP
             add_text(v_comma || 'NULL');
             v_comma := ',';
         END LOOP;
+        
+        IF p_query_type = c_TABLE_QUERY THEN
+            add_text(')');
+        END IF;
         
         v_table_instance_counter := 0;
         v_comma := NULL; 
@@ -919,8 +928,6 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
         BEGIN
         
             v_fetched_row_count := DBMS_SQL.EXECUTE_AND_FETCH(v_cursor_id, TRUE);
-            
-            dbms_output.put_line(v_fetched_row_count || 'a');
             
         EXCEPTION
         

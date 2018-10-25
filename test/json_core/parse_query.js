@@ -1,4 +1,3 @@
-/*
 suite("Invalid query tests", function() {
 
     suite("Unexpected end of the input", function() {
@@ -866,7 +865,7 @@ suite("Invalid query tests", function() {
     });
 
 });
-*/
+
 function resetPackage() {
     database.run(`
         BEGIN
@@ -894,6 +893,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -918,6 +918,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -942,6 +943,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -966,6 +968,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -975,6 +978,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -999,6 +1003,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1023,6 +1028,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1047,6 +1053,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1071,6 +1078,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1095,6 +1103,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1104,6 +1113,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -1128,6 +1138,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1137,6 +1148,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -1161,6 +1173,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1170,6 +1183,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -1194,6 +1208,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1203,6 +1218,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             },
@@ -1212,6 +1228,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 4,
                 next_sibling_i: null,
+                parent_i: 2,
                 alias: null,
                 bind_number: 3
             },
@@ -1221,6 +1238,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 3,
                 alias: null,
                 bind_number: 4
             }
@@ -1245,6 +1263,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1269,6 +1288,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1293,6 +1313,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1317,6 +1338,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1341,6 +1363,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1365,6 +1388,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1374,6 +1398,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -1398,6 +1423,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1407,6 +1433,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -1431,6 +1458,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1440,6 +1468,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -1464,6 +1493,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1488,6 +1518,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1497,6 +1528,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -1521,6 +1553,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1530,6 +1563,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -1554,6 +1588,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1563,6 +1598,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -1587,6 +1623,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1611,6 +1648,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1620,6 +1658,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1644,6 +1683,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1653,6 +1693,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1677,6 +1718,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1686,6 +1728,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1710,6 +1753,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1734,6 +1778,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1743,6 +1788,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1767,6 +1813,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1776,6 +1823,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1800,6 +1848,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1809,6 +1858,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1833,6 +1883,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -1857,6 +1908,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1866,6 +1918,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -1890,6 +1943,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1899,6 +1953,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -1923,6 +1978,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -1932,6 +1988,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -1956,6 +2013,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
                 
@@ -1981,6 +2039,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -1990,6 +2049,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -2014,6 +2074,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -2023,6 +2084,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -2047,6 +2109,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -2056,6 +2119,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -2080,6 +2144,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2089,6 +2154,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -2113,6 +2179,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2122,6 +2189,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -2146,6 +2214,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2155,6 +2224,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -2179,6 +2249,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2188,6 +2259,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -2212,6 +2284,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2221,6 +2294,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -2245,6 +2319,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2254,6 +2329,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -2278,6 +2354,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2287,6 +2364,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -2311,6 +2389,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2320,6 +2399,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -2344,6 +2424,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -2353,6 +2434,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -2377,6 +2459,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -2386,6 +2469,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -2410,6 +2494,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: "NAME",
                 bind_number: 1
             },
@@ -2419,6 +2504,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -2443,6 +2529,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: "NAME",
                 bind_number: 1
             },
@@ -2452,6 +2539,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 2
             }
@@ -2476,6 +2564,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2485,6 +2574,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -2509,6 +2599,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2518,6 +2609,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -2542,6 +2634,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2551,6 +2644,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -2575,6 +2669,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2584,6 +2679,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -2608,6 +2704,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2617,6 +2714,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             },
@@ -2626,6 +2724,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 3
             }
@@ -2650,6 +2749,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2659,6 +2759,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             },
@@ -2668,6 +2769,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
+                parent_i: 1,
                 alias: null,
                 bind_number: 3
             },
@@ -2677,6 +2779,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 5,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 4
             },
@@ -2686,6 +2789,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 6,
+                parent_i: 4,
                 alias: null,
                 bind_number: 5
             },
@@ -2695,6 +2799,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 4,
                 alias: null,
                 bind_number: 6
             }
@@ -2719,6 +2824,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2728,6 +2834,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             },
@@ -2737,6 +2844,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
+                parent_i: 1,
                 alias: null,
                 bind_number: 3
             },
@@ -2746,6 +2854,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 5,
                 next_sibling_i: 7,
+                parent_i: 1,
                 alias: null,
                 bind_number: 4
             },
@@ -2755,6 +2864,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 6,
+                parent_i: 4,
                 alias: null,
                 bind_number: 5
             },
@@ -2764,6 +2874,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 4,
                 alias: null,
                 bind_number: 6
             },
@@ -2773,6 +2884,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 7
             }
@@ -2797,6 +2909,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2806,6 +2919,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -2830,6 +2944,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2839,6 +2954,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -2863,6 +2979,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2872,6 +2989,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -2896,6 +3014,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -2905,6 +3024,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -2929,6 +3049,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -2953,6 +3074,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -2977,6 +3099,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3001,6 +3124,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3025,6 +3149,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3034,6 +3159,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3058,6 +3184,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3067,6 +3194,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3091,6 +3219,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3100,6 +3229,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3124,6 +3254,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3133,6 +3264,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3157,6 +3289,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3166,6 +3299,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             },
@@ -3175,6 +3309,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 3
             }
@@ -3199,6 +3334,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3208,6 +3344,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             },
@@ -3217,6 +3354,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 3
             }
@@ -3241,6 +3379,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3250,6 +3389,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             },
@@ -3259,6 +3399,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 3
             }
@@ -3283,6 +3424,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3307,6 +3449,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3331,6 +3474,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3355,6 +3499,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3379,6 +3524,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3403,6 +3549,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3412,6 +3559,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3436,6 +3584,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3445,6 +3594,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3469,6 +3619,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3478,6 +3629,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3502,6 +3654,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3511,6 +3664,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3535,6 +3689,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3544,6 +3699,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3568,6 +3724,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3577,6 +3734,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -3601,6 +3759,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3625,6 +3784,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3649,6 +3809,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3673,6 +3834,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3697,6 +3859,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -3721,6 +3884,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3730,6 +3894,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             },
@@ -3739,6 +3904,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
+                parent_i: 2,
                 alias: null,
                 bind_number: 3
             },
@@ -3748,6 +3914,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 5,
+                parent_i: 2,
                 alias: null,
                 bind_number: 4
             },
@@ -3757,6 +3924,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 2,
                 alias: null,
                 bind_number: 5
             }
@@ -3781,6 +3949,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: "HUMAN",
                 bind_number: 1
             }
@@ -3805,6 +3974,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: "HUMAN",
                 bind_number: 1
             }
@@ -3829,6 +3999,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: "human",
                 bind_number: 1
             }
@@ -3853,6 +4024,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: "HUMAN",
                 bind_number: 1
             }
@@ -3877,6 +4049,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3886,6 +4059,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: "PERSON_NAME",
                 bind_number: 2
             }
@@ -3910,6 +4084,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3919,6 +4094,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: "PERSON_NAME",
                 bind_number: 2
             }
@@ -3951,6 +4127,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -3960,6 +4137,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: "PERSON_NAME",
                 bind_number: 2
             },
@@ -3969,6 +4147,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
+                parent_i: 1,
                 alias: "PERSON_SURNAME",
                 bind_number: 3
             },
@@ -3978,6 +4157,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 5,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 4
             },
@@ -3987,6 +4167,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 6,
                 next_sibling_i: null,
+                parent_i: 4,
                 alias: null,
                 bind_number: 5
             },
@@ -3996,6 +4177,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 7,
+                parent_i: 5,
                 alias: "PHONE_TYPE",
                 bind_number: 6
             },
@@ -4005,6 +4187,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 5,
                 alias: "PHONE_NUMBER",
                 bind_number: 7
             }
@@ -4029,6 +4212,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4038,6 +4222,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -4062,6 +4247,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4071,6 +4257,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -4095,6 +4282,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4104,6 +4292,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -4128,6 +4317,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4137,6 +4327,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -4161,6 +4352,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4170,6 +4362,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -4194,6 +4387,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4203,6 +4397,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -4227,6 +4422,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4236,6 +4432,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -4260,6 +4457,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4269,6 +4467,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -4293,6 +4492,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4302,6 +4502,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -4326,6 +4527,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -4350,6 +4552,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -4374,6 +4577,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -4398,6 +4602,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: "SOMETHING",
                 bind_number: null
             }
@@ -4422,6 +4627,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4431,6 +4637,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: null
             }
@@ -4455,6 +4662,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4464,6 +4672,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: null
             }
@@ -4488,6 +4697,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -4497,6 +4707,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -4521,6 +4732,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -4530,6 +4742,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -4554,6 +4767,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -4563,6 +4777,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -4587,6 +4802,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -4596,6 +4812,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -4620,6 +4837,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 2,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -4629,6 +4847,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             }
@@ -4651,8 +4870,9 @@ suite("Valid query tests", function() {
                 type: "N",
                 value: "person",
                 optional: false,
-                first_child_i: "2",
+                first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4662,6 +4882,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: null
             }
@@ -4684,8 +4905,9 @@ suite("Valid query tests", function() {
                 type: "N",
                 value: "person",
                 optional: false,
-                first_child_i: "2",
+                first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4695,6 +4917,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: null
             }
@@ -4717,8 +4940,9 @@ suite("Valid query tests", function() {
                 type: "N",
                 value: "person",
                 optional: false,
-                first_child_i: "2",
+                first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4728,6 +4952,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: null
             }
@@ -4750,8 +4975,9 @@ suite("Valid query tests", function() {
                 type: "N",
                 value: "person",
                 optional: false,
-                first_child_i: "2",
+                first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4761,6 +4987,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: null
             }
@@ -4783,8 +5010,9 @@ suite("Valid query tests", function() {
                 type: "N",
                 value: "person",
                 optional: false,
-                first_child_i: "2",
+                first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4794,6 +5022,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: null
             }
@@ -4816,8 +5045,9 @@ suite("Valid query tests", function() {
                 type: "N",
                 value: "person",
                 optional: false,
-                first_child_i: "2",
+                first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4827,6 +5057,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: "PERSON_PROPERTY",
                 bind_number: null
             }
@@ -4851,6 +5082,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -4875,6 +5107,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -4899,6 +5132,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             }
@@ -4923,6 +5157,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4932,6 +5167,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             }
@@ -4956,6 +5192,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4965,6 +5202,7 @@ suite("Valid query tests", function() {
                 optional: true,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             }
@@ -4989,6 +5227,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -4998,6 +5237,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             }
@@ -5022,6 +5262,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5031,6 +5272,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             }
@@ -5055,6 +5297,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5064,6 +5307,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             }
@@ -5088,6 +5332,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5097,6 +5342,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             }
@@ -5121,6 +5367,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5130,6 +5377,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             }
@@ -5154,6 +5402,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5163,6 +5412,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             },
@@ -5172,6 +5422,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 2,
                 alias: null,
                 bind_number: 2
             }
@@ -5196,6 +5447,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5205,6 +5457,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             },
@@ -5214,6 +5467,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 2,
                 alias: null,
                 bind_number: 2
             }
@@ -5238,6 +5492,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5247,6 +5502,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             },
@@ -5256,6 +5512,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -5280,6 +5537,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5289,6 +5547,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             },
@@ -5298,6 +5557,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -5322,6 +5582,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5331,6 +5592,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             },
@@ -5340,6 +5602,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -5364,6 +5627,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5373,6 +5637,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             },
@@ -5382,6 +5647,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -5406,6 +5672,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5415,6 +5682,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 3,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             },
@@ -5424,6 +5692,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 2
             }
@@ -5448,6 +5717,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: 1
             },
@@ -5457,6 +5727,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: null
             },
@@ -5466,6 +5737,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 4,
+                parent_i: 2,
                 alias: null,
                 bind_number: null
             },
@@ -5475,6 +5747,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: 5,
+                parent_i: 2,
                 alias: null,
                 bind_number: null
             },
@@ -5484,6 +5757,7 @@ suite("Valid query tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 2,
                 alias: null,
                 bind_number: null
             }
@@ -5528,6 +5802,7 @@ suite("Anchored query parse tests", function() {
                 optional: false,
                 first_child_i: 2,
                 next_sibling_i: null,
+                parent_i: null,
                 alias: null,
                 bind_number: null
             },
@@ -5537,6 +5812,7 @@ suite("Anchored query parse tests", function() {
                 optional: false,
                 first_child_i: 3,
                 next_sibling_i: null,
+                parent_i: 1,
                 alias: null,
                 bind_number: 1
             },
@@ -5546,11 +5822,78 @@ suite("Anchored query parse tests", function() {
                 optional: false,
                 first_child_i: null,
                 next_sibling_i: null,
+                parent_i: 2,
                 alias: null,
                 bind_number: 1
             }
         ]);
     
+    });
+
+    test("Parse valid anchored query with branching root", function() {
+    
+        resetPackage();
+
+        database.call("json_core.parse_query", {
+            p_query: '(name, address(.city), surname)',
+            p_anchored: true
+        });
+
+        let elements = database.call("json_core.dump").p_query_elements;
+
+        expect(elements).to.eql([
+            {
+                type: "A",
+                value: null,
+                optional: false,
+                first_child_i: 2,
+                next_sibling_i: null,
+                parent_i: null,
+                alias: null,
+                bind_number: null
+            },
+            {
+                type: "N",
+                value: "name",
+                optional: false,
+                bind_number: 1,
+                first_child_i: null,
+                next_sibling_i: 3,
+                parent_i: 1,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "address",
+                optional: false,
+                bind_number: 2,
+                first_child_i: 4,
+                next_sibling_i: 5,
+                parent_i: 1,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "city",
+                optional: false,
+                bind_number: 3,
+                first_child_i: null,
+                next_sibling_i: null,
+                parent_i: 3,
+                alias: null
+            },
+            {
+                type: "N",
+                value: "surname",
+                optional: false,
+                bind_number: 4,
+                first_child_i: null,
+                next_sibling_i: null,
+                parent_i: 1,
+                alias: null
+            }
+        ]);
+
     });
 
 });

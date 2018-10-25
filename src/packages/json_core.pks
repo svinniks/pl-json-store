@@ -32,7 +32,8 @@ CREATE OR REPLACE PACKAGE json_core IS
             alias VARCHAR2(4000),
             bind_number PLS_INTEGER,
             first_child_i PLS_INTEGER,
-            next_sibling_i PLS_INTEGER
+            next_sibling_i PLS_INTEGER,
+            parent_i PLS_INTEGER
         );
         
     TYPE t_query_elements IS 
@@ -207,5 +208,10 @@ CREATE OR REPLACE PACKAGE json_core IS
         p_query_element_i IN PLS_INTEGER
     )
     RETURN t_varchars;
+    
+    FUNCTION get_query_column_count (
+        p_query_element_i IN PLS_INTEGER
+    )
+    RETURN PLS_INTEGER;
     
 END;

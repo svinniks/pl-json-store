@@ -15,7 +15,9 @@ CREATE OR REPLACE PACKAGE transient_json_store IS
         See the License for the specific language governing permissions and
         limitations under the License.
     */
-        
+
+TYPE t_t_varchars IS TABLE OF t_varchars;
+            
     TYPE t_property IS 
         RECORD (
             parent_id NUMBER,
@@ -116,5 +118,12 @@ CREATE OR REPLACE PACKAGE transient_json_store IS
         p_id IN NUMBER,
         p_unpin_tree IN BOOLEAN
     );
+    
+    FUNCTION get_table (
+        p_anchor_id IN NUMBER,
+        p_query IN VARCHAR2,
+        p_bind IN bind
+    )
+    RETURN t_t_varchars;
     
 END;

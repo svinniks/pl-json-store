@@ -127,6 +127,12 @@ CREATE OR REPLACE TYPE t_transient_json UNDER t_json (
     OVERRIDING MEMBER PROCEDURE unpin (
         self IN t_transient_json,
         p_unpin_tree IN BOOLEAN := FALSE
+    ),
+    
+    OVERRIDING MEMBER FUNCTION get_table_5 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
     )
+    RETURN t_5_value_table PIPELINED
     
 )

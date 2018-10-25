@@ -86,6 +86,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDC-00047', 'Wildcards are not allowed in path expressions!');
         default_message_resolver.register_message('JDC-00048', 'Builder not specified!');
         default_message_resolver.register_message('JDC-00049', 'Property value not specified!');
+        default_message_resolver.register_message('JDC-00050', 'Unimplemented feature!');
     END;
     
     -- Do-nothing procedure to initialize error messages from another packages
@@ -444,6 +445,12 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         v_result PLS_INTEGER;
         
+        FUNCTION root
+        RETURN BOOLEAN IS
+        BEGIN
+            RETURN v_stack.COUNT = 1 OR (p_anchored AND v_stack.COUNT = 2);
+        END;
+        
         PROCEDURE init_stack IS
         BEGIN
         
@@ -479,6 +486,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
             v_element.type := p_type;
             v_element.optional := FALSE;
+            v_element.parent_i := v_top.element_i;
             
             IF v_element.type IN (':', '#') THEN
             
@@ -770,7 +778,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 push_name(v_value, TRUE);
                 pop_sibling;
                 
-                IF (v_stack.COUNT = 1) THEN
+                IF root THEN
                     v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
@@ -820,7 +828,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 pop_sibling;
                 
-                IF (v_stack.COUNT = 1) THEN
+                IF root THEN
                     v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
@@ -851,7 +859,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
                 pop_sibling;
                 
-                IF (v_stack.COUNT = 1) THEN
+                IF root THEN
                     v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
@@ -923,7 +931,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 push('I', v_value);
                 pop_sibling;
                 
-                IF (v_stack.COUNT = 1) THEN
+                IF root THEN
                     v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
@@ -983,7 +991,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 push_id_variable(v_value);
                 pop_sibling;
                 
-                IF (v_stack.COUNT = 1) THEN
+                IF root THEN
                     v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
@@ -1202,7 +1210,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 set_alias(UPPER(v_value));
                 pop_sibling;
                 
-                IF (v_stack.COUNT = 1) THEN
+                IF root THEN
                     v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
@@ -1284,7 +1292,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
                 push_name_variable(v_value);
                 pop_sibling;
                 
-                IF (v_stack.COUNT = 1) THEN
+                IF root THEN
                     v_state := 'lf_root_element';
                 ELSE
                     v_state := 'lf_child';
@@ -1501,11 +1509,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         ELSE
             v_path_element_i := parse_query(p_path, p_anchored);
         END IF;
-        
-        
-        
-        --v_path_element_i := parse_query(p_path, p_anchored);
-            
+                    
         IF NOT v_valid_paths.EXISTS(v_path_element_i) THEN
         
             IF v_query_elements(v_path_element_i).type NOT IN ('A', 'R', 'I', '#') THEN
@@ -1593,6 +1597,44 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         
         RETURN v_column_names;
     
+    END;
+    
+    FUNCTION get_query_column_count (
+        p_query_element_i IN PLS_INTEGER
+    )
+    RETURN PLS_INTEGER IS
+    
+        v_column_count PLS_INTEGER;
+        
+        
+        PROCEDURE visit_element (
+            p_i IN PLS_INTEGER
+        ) IS
+            v_element t_query_element;
+        BEGIN
+            
+            v_element := v_query_elements(p_i);
+        
+            IF v_element.first_child_i IS NOT NULL THEN
+                visit_element(v_element.first_child_i);
+            ELSE
+                v_column_count := v_column_count + 1;
+            END IF;
+            
+            IF v_element.next_sibling_i IS NOT NULL THEN
+                visit_element(v_element.next_sibling_i);
+            END IF;
+        
+        END;
+    
+    BEGIN
+    
+        v_column_count := 0;
+    
+        visit_element(p_query_element_i);
+        
+        RETURN v_column_count;
+        
     END;
     
 BEGIN

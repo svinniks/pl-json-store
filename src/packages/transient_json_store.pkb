@@ -951,6 +951,143 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
     
     END;
     
+    FUNCTION get_table (
+        p_anchor_id IN NUMBER,
+        p_query IN VARCHAR2,
+        p_bind IN bind
+    )
+    RETURN t_t_varchars IS
+    
+        v_query_element_i PLS_INTEGER;
+    
+        v_column_count PLS_INTEGER;
+        v_columns t_t_varchars;
+        
+        v_row_count PLS_INTEGER;
+        v_row t_varchars;
+        
+        PROCEDURE visit_element (
+            p_i IN PLS_INTEGER,
+            p_parent_value_id IN NUMBER,
+            p_column_number IN PLS_INTEGER
+        ) IS
+        
+            v_element json_core.t_query_element;
+            
+            v_name VARCHAR2(4000);
+            v_pattern VARCHAR2(31);
+            
+            v_value json_core.t_json_value;
+            
+            PROCEDURE visit_next (
+                p_value_id IN NUMBER
+            ) IS
+            
+                v_parent_value_id NUMBER;
+                
+                v_next_sibling_element_i PLS_INTEGER;
+                v_next_sibling_element json_core.t_query_element;
+                
+            BEGIN
+                
+                IF v_element.first_child_i IS NOT NULL THEN
+                
+                    visit_element(
+                        v_element.first_child_i, 
+                        p_value_id, 
+                        p_column_number
+                    );
+                    
+                ELSE
+                    
+                    v_value := v_values(p_value_id);
+                    v_row(p_column_number) := v_value.value;
+                        
+                    v_next_sibling_element_i := p_i;
+                    v_parent_value_id := p_parent_value_id;
+                    
+                    WHILE v_next_sibling_element_i IS NOT NULL LOOP
+                    
+                        v_next_sibling_element := json_core.v_query_elements(v_next_sibling_element_i);
+                        
+                        IF v_next_sibling_element.next_sibling_i IS NOT NULL THEN
+                        
+                            visit_element(
+                                v_next_sibling_element.next_sibling_i, 
+                                v_parent_value_id,
+                                p_column_number + 1
+                            );
+                            
+                            RETURN;
+                            
+                        ELSE
+                            v_next_sibling_element_i := v_next_sibling_element.parent_i;
+                            v_parent_value_id := v_values(v_parent_value_id).parent_id;
+                        END IF;
+                    
+                    END LOOP;
+                    
+                    v_row_count := v_row_count + 1;
+                    
+                    FOR v_i IN 1..v_column_count LOOP
+                        v_columns(v_i).EXTEND(1);
+                        v_columns(v_i)(v_row_count) := v_row(v_i);
+                    END LOOP;
+                    
+                      
+                END IF;
+            
+            END;
+    
+        BEGIN
+        
+            v_element := json_core.v_query_elements(p_i);
+            
+            IF v_element.type = 'W' THEN
+            
+                v_name := v_value_child_ids.NEXT(p_parent_value_id || '-');
+                v_pattern := p_parent_value_id || '-%';
+                
+                WHILE v_name LIKE v_pattern LOOP
+                    visit_next(v_value_child_ids(v_name));
+                    v_name := v_value_child_ids.NEXT(v_name);
+                END LOOP;
+                
+            ELSIF v_element.type = 'N' THEN
+            
+                v_name := v_element.value;
+                v_name := p_parent_value_id || '-' || v_name;
+                
+                IF v_value_child_ids.EXISTS(v_name) THEN
+                    visit_next(v_value_child_ids(v_name));
+                END IF;
+            
+            END IF;
+        
+        END;
+    
+    BEGIN
+    
+        v_query_element_i := json_core.parse_query(p_query, FALSE);
+        v_column_count := json_core.get_query_column_count(v_query_element_i);
+        
+        v_columns := t_t_varchars();
+        v_columns.EXTEND(v_column_count);
+        
+        FOR v_i IN 1..v_column_count LOOP
+            v_columns(v_i) := t_varchars();
+        END LOOP;
+        
+        v_row := t_varchars();
+        v_row.EXTEND(v_column_count);
+        v_row_count := 0;
+         
+        visit_element(v_query_element_i, p_anchor_id, 1);
+        
+        RETURN v_columns;
+    
+    END;
+    
 BEGIN    
     init;
 END;

@@ -64,7 +64,7 @@ CREATE OR REPLACE TYPE t_transient_json UNDER t_json (
         p_builder t_json_builder
     )
     RETURN t_json,
-
+    
     CONSTRUCTOR FUNCTION t_transient_json (
         id NUMBER
     )
@@ -133,6 +133,24 @@ CREATE OR REPLACE TYPE t_transient_json UNDER t_json (
         p_query IN VARCHAR2,
         p_bind IN bind := NULL
     )
-    RETURN t_5_value_table PIPELINED
+    RETURN t_5_value_table PIPELINED,
+    
+    OVERRIDING MEMBER FUNCTION get_table_10 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_10_value_table PIPELINED,
+    
+    OVERRIDING MEMBER FUNCTION get_table_15 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_15_value_table PIPELINED,
+    
+    OVERRIDING MEMBER FUNCTION get_table_20 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_20_value_table PIPELINED
     
 )

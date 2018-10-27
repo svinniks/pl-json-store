@@ -14,9 +14,9 @@
     limitations under the License.
 */
 
-CREATE OR REPLACE FUNCTION json_table (
+CREATE OR REPLACE FUNCTION persistent_json_table (
     p_query IN VARCHAR2,
     p_bind IN bind := NULL
 )
 RETURN ANYDATASET PIPELINED 
-USING t_value_table_query;
+USING t_persistent_json_table;

@@ -17,6 +17,24 @@
 @@types/bind.tps
 /
 
+@@types/t_5_value_row.tps
+/
+@@types/t_10_value_row.tps
+/
+@@types/t_15_value_row.tps
+/
+@@types/t_20_value_row.tps
+/
+
+@@types/t_5_value_table.tps
+/
+@@types/t_10_value_table.tps
+/
+@@types/t_15_value_table.tps
+/
+@@types/t_20_value_table.tps
+/
+
 @@packages/json_parser.pks
 /
 @@packages/json_parser.pkb
@@ -92,18 +110,20 @@
 @@types/t_persistent_json.tpb
 /
 
-@@types/t_value_table_query.tps
+@@types/t_json_table.tps
 /
-@@types/t_value_table_query.tpb
-/
-@@functions/json_table.fnc
+@@types/t_json_table.tpb
 /
 
-@@functions/json_table_5.fnc
+@@types/t_persistent_json_table.tps
 /
-@@functions/json_table_10.fnc
+@@types/t_persistent_json_table.tpb
 /
-@@functions/json_table_15.fnc
+
+@@functions/persistent_json_table.fnc
 /
-@@functions/json_table_20.fnc
+
+@@packages/json_store.pks
+/
+@@packages/json_store.pkb
 /

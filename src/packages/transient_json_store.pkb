@@ -951,60 +951,145 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
     
     END;
     
-    FUNCTION get_table (
+    -- Table query execution
+    
+    PROCEDURE execute_table_query (
         p_anchor_id IN NUMBER,
         p_query IN VARCHAR2,
-        p_bind IN bind
-    )
-    RETURN t_t_varchars IS
+        p_bind IN bind,
+        p_values OUT t_varchars,
+        p_column_count OUT PLS_INTEGER 
+    ) IS
     
         v_query_element_i PLS_INTEGER;
-    
-        v_column_count PLS_INTEGER;
-        v_columns t_t_varchars;
         
-        v_row_count PLS_INTEGER;
+        v_value_count PLS_INTEGER;
         v_row t_varchars;
+        
+        v_parent_value_id_stack t_numbers;
+        v_parent_value_id_stack_size PLS_INTEGER;
+        
+        v_parent_value_id_tail t_numbers;
+        v_parent_value_id_tail_size PLS_INTEGER;
+        
+        FUNCTION peek_parent_value_id
+        RETURN NUMBER IS
+        BEGIN
+            RETURN v_parent_value_id_stack(v_parent_value_id_stack_size);
+        END;
+        
+        PROCEDURE pop_parent_value_id IS
+        BEGIN
+            v_parent_value_id_stack_size := v_parent_value_id_stack_size - 1;
+        END;
+        
+        PROCEDURE push_parent_value_id (
+            p_id IN NUMBER
+        ) IS
+        BEGIN
+        
+            IF v_parent_value_id_stack_size = v_parent_value_id_stack.COUNT THEN
+                v_parent_value_id_stack.EXTEND(1);
+            END IF;
+            
+            v_parent_value_id_stack_size := v_parent_value_id_stack_size + 1;
+            v_parent_value_id_stack(v_parent_value_id_stack_size) := p_id;
+            
+        END;
+        
+        PROCEDURE tail IS
+        BEGIN
+            
+            IF v_parent_value_id_tail_size = v_parent_value_id_tail.COUNT THEN
+                v_parent_value_id_tail.EXTEND(1);
+            END IF;
+        
+            v_parent_value_id_tail_size := v_parent_value_id_tail_size + 1;
+            v_parent_value_id_tail(v_parent_value_id_tail_size) := peek_parent_value_id;
+            
+            pop_parent_value_id;
+        
+        END;
+        
+        PROCEDURE untail IS
+        BEGIN
+            push_parent_value_id(v_parent_value_id_tail(v_parent_value_id_tail_size));
+            v_parent_value_id_tail_size := v_parent_value_id_tail_size - 1;
+        END;
+                
+        FUNCTION get_bind_value (
+            p_bind_i IN PLS_INTEGER
+        )
+        RETURN VARCHAR2 IS
+        BEGIN
+        
+            IF p_bind IS NULL
+               OR p_bind_i > p_bind.COUNT 
+            THEN
+                -- Not all variables bound!
+                error$.raise('JDC-00040');
+            END IF;
+            
+            RETURN p_bind(p_bind_i);
+        
+        END;
         
         PROCEDURE visit_element (
             p_i IN PLS_INTEGER,
-            p_parent_value_id IN NUMBER,
             p_column_number IN PLS_INTEGER
         ) IS
         
             v_element json_core.t_query_element;
             
+            v_wildcard_elements_found BOOLEAN;
+            
             v_name VARCHAR2(4000);
             v_pattern VARCHAR2(31);
             
+            v_parent_value_id NUMBER;
+            v_value_id NUMBER;
             v_value json_core.t_json_value;
             
-            PROCEDURE visit_next (
-                p_value_id IN NUMBER
-            ) IS
+            PROCEDURE visit_next IS
             
                 v_parent_value_id NUMBER;
                 
                 v_next_sibling_element_i PLS_INTEGER;
                 v_next_sibling_element json_core.t_query_element;
                 
+                v_tail_size PLS_INTEGER;
+                
             BEGIN
                 
                 IF v_element.first_child_i IS NOT NULL THEN
                 
+                    push_parent_value_id(v_value.id);
+                    
                     visit_element(
                         v_element.first_child_i, 
-                        p_value_id, 
                         p_column_number
                     );
                     
+                    pop_parent_value_id;
+                    
                 ELSE
                     
-                    v_value := v_values(p_value_id);
-                    v_row(p_column_number) := v_value.value;
+                    IF v_value.id <= 0 THEN
+                        v_row(p_column_number) := NULL;
+                    ELSIF v_element.value = 'id' THEN
+                        v_row(p_column_number) := v_value.id;
+                    ELSIF v_element.value = 'key' THEN
+                        v_row(p_column_number) := v_value.name;
+                    ELSIF v_element.value = 'type' THEN
+                        v_row(p_column_number) := v_value.type;
+                    ELSIF v_element.value = 'value' THEN
+                        v_row(p_column_number) := v_value.value;
+                    ELSE
+                        v_row(p_column_number) := v_value.value;
+                    END IF;
                         
                     v_next_sibling_element_i := p_i;
-                    v_parent_value_id := p_parent_value_id;
+                    v_tail_size := 0;
                     
                     WHILE v_next_sibling_element_i IS NOT NULL LOOP
                     
@@ -1014,53 +1099,165 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
                         
                             visit_element(
                                 v_next_sibling_element.next_sibling_i, 
-                                v_parent_value_id,
                                 p_column_number + 1
                             );
+                            
+                            FOR v_i IN 1..v_tail_size LOOP
+                                untail;
+                            END LOOP;
                             
                             RETURN;
                             
                         ELSE
+                        
                             v_next_sibling_element_i := v_next_sibling_element.parent_i;
-                            v_parent_value_id := v_values(v_parent_value_id).parent_id;
+                            
+                            tail;
+                            v_tail_size := v_tail_size + 1;
+                            
                         END IF;
                     
                     END LOOP;
                     
-                    v_row_count := v_row_count + 1;
+                    FOR v_i IN 1..v_tail_size LOOP
+                        untail;
+                    END LOOP;
+                                        
+                    FOR v_i IN 1..p_column_count LOOP
                     
-                    FOR v_i IN 1..v_column_count LOOP
-                        v_columns(v_i).EXTEND(1);
-                        v_columns(v_i)(v_row_count) := v_row(v_i);
+                        v_value_count := v_value_count + 1;
+                        
+                        p_values.EXTEND(1);
+                        p_values(v_value_count) := v_row(v_i);
+                        
                     END LOOP;
                     
-                      
                 END IF;
             
             END;
     
         BEGIN
         
+            v_parent_value_id := peek_parent_value_id;
             v_element := json_core.v_query_elements(p_i);
             
-            IF v_element.type = 'W' THEN
+            IF v_parent_value_id IS NULL AND v_element.type IN ('N', ':', 'W') THEN
             
-                v_name := v_value_child_ids.NEXT(p_parent_value_id || '-');
-                v_pattern := p_parent_value_id || '-%';
+                IF v_element.type = 'N' THEN
+                    v_name := v_element.value;
+                ELSIF v_element.type = ':' THEN
+                    v_name := get_bind_value(v_element.bind_number);
+                END IF;
+                
+                FOR v_i IN 1..v_values.COUNT LOOP
+                
+                    v_value := v_values(v_i);
+                    
+                    IF v_value.type IS NOT NULL
+                       AND (v_name IS NULL
+                            OR v_value.name = v_name)
+                    THEN
+                        visit_next;
+                    END IF;
+                    
+                END LOOP;
+            
+            ELSIF v_element.type = 'W' THEN
+            
+                v_wildcard_elements_found := FALSE;
+            
+                v_name := v_value_child_ids.NEXT(v_parent_value_id || '-');
+                v_pattern := v_parent_value_id || '-%';
                 
                 WHILE v_name LIKE v_pattern LOOP
-                    visit_next(v_value_child_ids(v_name));
+                
+                    v_wildcard_elements_found := TRUE;
+                    v_value := v_values(v_value_child_ids(v_name));
+                    visit_next;
+                    
                     v_name := v_value_child_ids.NEXT(v_name);
+                    
                 END LOOP;
                 
-            ELSIF v_element.type = 'N' THEN
+                IF NOT v_wildcard_elements_found AND v_element.optional THEN
+                
+                    v_value := NULL;
+                    v_value.id := -1;
+                    
+                    visit_next;
+                
+                END IF;
+                
+            ELSIF v_element.type IN ('N', ':') THEN
             
-                v_name := v_element.value;
-                v_name := p_parent_value_id || '-' || v_name;
+                IF v_element.type = 'N' THEN
+                    v_name := v_element.value;
+                ELSE
+                    v_name := get_bind_value(v_element.bind_number);
+                END IF;
+                
+                v_name := v_parent_value_id || '-' || v_name;
                 
                 IF v_value_child_ids.EXISTS(v_name) THEN
-                    visit_next(v_value_child_ids(v_name));
+                    v_value := v_values(v_value_child_ids(v_name));
+                    visit_next;
+                ELSIF v_element.optional THEN
+                
+                    v_value := NULL;
+                    v_value.id := -1;
+                    
+                    visit_next;
+                    
                 END IF;
+                            
+            ELSIF v_element.type IN ('A', 'I', '#') THEN
+            
+                IF v_element.type = 'A' THEN
+                    v_value_id := p_anchor_id;
+                ELSIF v_element.type = 'I' THEN
+                    v_value_id := v_element.value;
+                ELSE
+                    v_value_id := get_bind_value(v_element.bind_number);
+                END IF;
+                
+                IF v_values.EXISTS(v_value_id) THEN
+                
+                    v_value := v_values(v_value_id);
+                    
+                    IF v_value.type IS NOT NULL
+                       AND NVL(v_value.parent_id, 0) = NVL(peek_parent_value_id, 0) 
+                    THEN
+                    
+                        visit_next;
+                        
+                    ELSIF v_element.optional THEN
+                        
+                        v_value := NULL;
+                        v_value.id := -1;
+                        
+                        visit_next;
+                     
+                    END IF;
+                    
+                ELSIF v_element.optional THEN
+                    
+                    v_value := NULL;
+                    v_value.id := -1;
+                    
+                    visit_next;
+                    
+                END IF;
+                
+            ELSIF v_element.type = 'F' THEN
+            
+                IF v_parent_value_id > 0 THEN
+                    v_value := v_values(v_parent_value_id);
+                ELSE
+                    v_value := NULL;
+                    v_value.id := -1;
+                END IF;
+                
+                visit_next;
             
             END IF;
         
@@ -1068,23 +1265,22 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
     
     BEGIN
     
-        v_query_element_i := json_core.parse_query(p_query, FALSE);
-        v_column_count := json_core.get_query_column_count(v_query_element_i);
+        v_query_element_i := json_core.parse_query(p_query, p_anchor_id IS NOT NULL);
+        p_column_count := json_core.get_query_column_count(v_query_element_i);
         
-        v_columns := t_t_varchars();
-        v_columns.EXTEND(v_column_count);
-        
-        FOR v_i IN 1..v_column_count LOOP
-            v_columns(v_i) := t_varchars();
-        END LOOP;
+        p_values := t_varchars();
+        v_value_count := 0;
         
         v_row := t_varchars();
-        v_row.EXTEND(v_column_count);
-        v_row_count := 0;
-         
-        visit_element(v_query_element_i, p_anchor_id, 1);
+        v_row.EXTEND(p_column_count);
         
-        RETURN v_columns;
+        v_parent_value_id_stack := t_numbers(NULL);
+        v_parent_value_id_stack_size := 1;
+        
+        v_parent_value_id_tail := t_numbers();
+        v_parent_value_id_tail_size := 0;
+        
+        visit_element(v_query_element_i, 1);
     
     END;
     

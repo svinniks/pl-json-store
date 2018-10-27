@@ -319,40 +319,239 @@ CREATE OR REPLACE TYPE BODY t_transient_json IS
     )
     RETURN t_5_value_table PIPELINED IS
     
-        v_columns transient_json_store.t_t_varchars;
-        
+        v_values t_varchars;
         v_column_count PLS_INTEGER;
+
         v_row_count PLS_INTEGER;
+        v_row t_5_value_row;
         
         FUNCTION get_value (
-            p_row IN PLS_INTEGER,
-            p_column IN PLS_INTEGER
+            p_row_i IN PLS_INTEGER,
+            p_column_i IN PLS_INTEGER
         ) 
         RETURN VARCHAR2 IS
         BEGIN
-            IF p_column > v_column_count THEN
+            IF p_column_i > v_column_count THEN
                 RETURN NULL;
             ELSE
-                RETURN v_columns(p_column)(p_row);
+                RETURN v_values((p_row_i - 1) * v_column_count + p_column_i);
             END IF;
         END;
     
     BEGIN
     
-        v_columns := transient_json_store.get_table(id, p_query, p_bind);
+        transient_json_store.execute_table_query(
+            id, 
+            p_query, 
+            p_bind,
+            v_values,
+            v_column_count
+        );
         
-        v_column_count := v_columns.COUNT;
-        v_row_count := v_columns(1).COUNT;
+        v_row_count := v_values.COUNT / v_column_count;
+        v_row := t_5_value_row(NULL, NULL, NULL, NULL, NULL);
         
         FOR v_i IN 1..v_row_count LOOP
         
-            PIPE ROW (t_5_value_row(
-                get_value(v_i, 1),
-                get_value(v_i, 2),
-                get_value(v_i, 3),
-                get_value(v_i, 4),
-                get_value(v_i, 5)
-            ));
+            v_row.value_1 := get_value(v_i, 1);
+            v_row.value_2 := get_value(v_i, 2);
+            v_row.value_3 := get_value(v_i, 3);
+            v_row.value_4 := get_value(v_i, 4);
+            v_row.value_5 := get_value(v_i, 5);
+        
+            PIPE ROW (v_row);
+            
+        END LOOP;
+        
+        RETURN;
+        
+    END;
+    
+    OVERRIDING MEMBER FUNCTION get_table_10 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_10_value_table PIPELINED IS
+    
+        v_values t_varchars;
+        v_column_count PLS_INTEGER;
+
+        v_row_count PLS_INTEGER;
+        v_row t_10_value_row;
+        
+        FUNCTION get_value (
+            p_row_i IN PLS_INTEGER,
+            p_column_i IN PLS_INTEGER
+        ) 
+        RETURN VARCHAR2 IS
+        BEGIN
+            IF p_column_i > v_column_count THEN
+                RETURN NULL;
+            ELSE
+                RETURN v_values((p_row_i - 1) * v_column_count + p_column_i);
+            END IF;
+        END;
+    
+    BEGIN
+    
+        transient_json_store.execute_table_query(
+            id, 
+            p_query, 
+            p_bind,
+            v_values,
+            v_column_count
+        );
+        
+        v_row_count := v_values.COUNT / v_column_count;
+        v_row := t_10_value_row(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        
+        FOR v_i IN 1..v_row_count LOOP
+        
+            v_row.value_1 := get_value(v_i, 1);
+            v_row.value_2 := get_value(v_i, 2);
+            v_row.value_3 := get_value(v_i, 3);
+            v_row.value_4 := get_value(v_i, 4);
+            v_row.value_5 := get_value(v_i, 5);
+            v_row.value_6 := get_value(v_i, 6);
+            v_row.value_7 := get_value(v_i, 7);
+            v_row.value_8 := get_value(v_i, 8);
+            v_row.value_9 := get_value(v_i, 9);
+            v_row.value_10 := get_value(v_i, 10);
+        
+            PIPE ROW (v_row);
+            
+        END LOOP;
+        
+        RETURN;
+        
+    END;
+    
+    OVERRIDING MEMBER FUNCTION get_table_15 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_15_value_table PIPELINED IS
+    
+        v_values t_varchars;
+        v_column_count PLS_INTEGER;
+
+        v_row_count PLS_INTEGER;
+        v_row t_15_value_row;
+        
+        FUNCTION get_value (
+            p_row_i IN PLS_INTEGER,
+            p_column_i IN PLS_INTEGER
+        ) 
+        RETURN VARCHAR2 IS
+        BEGIN
+            IF p_column_i > v_column_count THEN
+                RETURN NULL;
+            ELSE
+                RETURN v_values((p_row_i - 1) * v_column_count + p_column_i);
+            END IF;
+        END;
+    
+    BEGIN
+    
+        transient_json_store.execute_table_query(
+            id, 
+            p_query, 
+            p_bind,
+            v_values,
+            v_column_count
+        );
+        
+        v_row_count := v_values.COUNT / v_column_count;
+        v_row := t_15_value_row(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        
+        FOR v_i IN 1..v_row_count LOOP
+        
+            v_row.value_1 := get_value(v_i, 1);
+            v_row.value_2 := get_value(v_i, 2);
+            v_row.value_3 := get_value(v_i, 3);
+            v_row.value_4 := get_value(v_i, 4);
+            v_row.value_5 := get_value(v_i, 5);
+            v_row.value_6 := get_value(v_i, 6);
+            v_row.value_7 := get_value(v_i, 7);
+            v_row.value_8 := get_value(v_i, 8);
+            v_row.value_9 := get_value(v_i, 9);
+            v_row.value_10 := get_value(v_i, 10);
+            v_row.value_11 := get_value(v_i, 11);
+            v_row.value_12 := get_value(v_i, 12);
+            v_row.value_13 := get_value(v_i, 13);
+            v_row.value_14 := get_value(v_i, 14);
+            v_row.value_15 := get_value(v_i, 15);
+        
+            PIPE ROW (v_row);
+            
+        END LOOP;
+        
+        RETURN;
+        
+    END;
+    
+    OVERRIDING MEMBER FUNCTION get_table_20 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_20_value_table PIPELINED IS
+    
+        v_values t_varchars;
+        v_column_count PLS_INTEGER;
+
+        v_row_count PLS_INTEGER;
+        v_row t_20_value_row;
+        
+        FUNCTION get_value (
+            p_row_i IN PLS_INTEGER,
+            p_column_i IN PLS_INTEGER
+        ) 
+        RETURN VARCHAR2 IS
+        BEGIN
+            IF p_column_i > v_column_count THEN
+                RETURN NULL;
+            ELSE
+                RETURN v_values((p_row_i - 1) * v_column_count + p_column_i);
+            END IF;
+        END;
+    
+    BEGIN
+    
+        transient_json_store.execute_table_query(
+            id, 
+            p_query, 
+            p_bind,
+            v_values,
+            v_column_count
+        );
+        
+        v_row_count := v_values.COUNT / v_column_count;
+        v_row := t_20_value_row(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        
+        FOR v_i IN 1..v_row_count LOOP
+        
+            v_row.value_1 := get_value(v_i, 1);
+            v_row.value_2 := get_value(v_i, 2);
+            v_row.value_3 := get_value(v_i, 3);
+            v_row.value_4 := get_value(v_i, 4);
+            v_row.value_5 := get_value(v_i, 5);
+            v_row.value_6 := get_value(v_i, 6);
+            v_row.value_7 := get_value(v_i, 7);
+            v_row.value_8 := get_value(v_i, 8);
+            v_row.value_9 := get_value(v_i, 9);
+            v_row.value_10 := get_value(v_i, 10);
+            v_row.value_11 := get_value(v_i, 11);
+            v_row.value_12 := get_value(v_i, 12);
+            v_row.value_13 := get_value(v_i, 13);
+            v_row.value_14 := get_value(v_i, 14);
+            v_row.value_15 := get_value(v_i, 15);
+            v_row.value_16 := get_value(v_i, 16);
+            v_row.value_17 := get_value(v_i, 17);
+            v_row.value_18 := get_value(v_i, 18);
+            v_row.value_19 := get_value(v_i, 19);
+            v_row.value_20 := get_value(v_i, 20);
+        
+            PIPE ROW (v_row);
             
         END LOOP;
         

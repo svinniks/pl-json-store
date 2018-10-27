@@ -55,6 +55,8 @@ CREATE OR REPLACE PACKAGE persistent_json_store IS
     c_PROPERTY_QUERY CONSTANT CHAR := 'P';
     c_TABLE_QUERY CONSTANT CHAR := 'T';
     
+    c_ROW_BUFFER_SIZE CONSTANT PLS_INTEGER := 100;
+    
     -- Value cache management methods
     
     PROCEDURE reset_value_cache;
@@ -85,8 +87,7 @@ CREATE OR REPLACE PACKAGE persistent_json_store IS
     
     FUNCTION get_query_statement (
         p_query_element_i IN PLS_INTEGER,
-        p_query_type IN CHAR,
-        p_column_count IN PLS_INTEGER := NULL
+        p_query_type IN CHAR
     )
     RETURN t_query_statement;  
     
@@ -177,6 +178,23 @@ CREATE OR REPLACE PACKAGE persistent_json_store IS
     PROCEDURE unpin_value (
         p_id IN NUMBER,
         p_unpin_tree IN BOOLEAN
+    );
+    
+    -- JSON table generic methods
+    
+    PROCEDURE prepare_table_query (
+        p_anchor_id IN NUMBER,
+        p_query IN VARCHAR2,
+        p_bind IN bind,
+        p_cursor_id OUT NUMBER,
+        p_column_count OUT NUMBER
+    );
+    
+    PROCEDURE fetch_table_rows (
+        p_cursor_id IN NUMBER,
+        p_column_count IN PLS_INTEGER,
+        p_fetched_row_count OUT PLS_INTEGER,
+        p_row_buffer IN OUT NOCOPY t_varchars
     );
 
 END;

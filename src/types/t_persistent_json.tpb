@@ -322,60 +322,343 @@ CREATE OR REPLACE TYPE BODY t_persistent_json IS
         e_no_more_rows_needed EXCEPTION;
         PRAGMA EXCEPTION_INIT(e_no_more_rows_needed, -6548);
 
-        v_query_element_i PLS_INTEGER;
-        v_query_statement persistent_json_store.t_query_statement;
+        v_cursor_id NUMBER;
+        v_column_count PLS_INTEGER;
         
-        v_cursor_id INTEGER;
-        v_result INTEGER;
-        c_rows SYS_REFCURSOR;
+        v_row_buffer t_varchars;
+        v_fetched_row_count PLS_INTEGER;
         
-        v_row_buffer t_5_value_table;
-        c_fetch_limit CONSTANT PLS_INTEGER := 1000;
+        v_row t_5_value_row;
+        
+        FUNCTION get_value (
+            p_row_i IN PLS_INTEGER,
+            p_column_i IN PLS_INTEGER
+        )
+        RETURN VARCHAR2 IS
+        BEGIN
+            IF p_column_i > v_column_count THEN
+                RETURN NULL;
+            ELSE
+                RETURN v_row_buffer((p_column_i - 1) * persistent_json_store.c_ROW_BUFFER_SIZE + p_row_i); 
+            END IF;
+        END;
         
     BEGIN
         
-        v_query_element_i := json_core.parse_query(p_query, TRUE);
-        
-        v_query_statement := persistent_json_store.get_query_statement(
-            v_query_element_i, 
-            persistent_json_store.c_TABLE_QUERY, 
-            5
-        );
-        
-        v_cursor_id := persistent_json_store.prepare_query(
+        persistent_json_store.prepare_table_query(
             id,
-            v_query_element_i, 
-            v_query_statement, 
-            p_bind
+            p_query,
+            p_bind,
+            v_cursor_id,
+            v_column_count
         );
         
-        v_result := DBMS_SQL.EXECUTE(v_cursor_id);
-        c_rows := DBMS_SQL.TO_REFCURSOR(v_cursor_id);
-            
+        v_row_buffer := t_varchars();
+        v_row_buffer.EXTEND(v_column_count * persistent_json_store.c_ROW_BUFFER_SIZE);
+    
+        v_row := t_5_value_row(NULL, NULL, NULL, NULL, NULL);
+    
         LOOP
+        
+            persistent_json_store.fetch_table_rows (
+                v_cursor_id,
+                v_column_count,
+                v_fetched_row_count,
+                v_row_buffer
+            );
             
-            FETCH c_rows
-            BULK COLLECT INTO v_row_buffer
-            LIMIT c_fetch_limit;
+            FOR v_row_i IN 1..v_fetched_row_count LOOP
+            
+                v_row.value_1 := get_value(v_row_i, 1);
+                v_row.value_2 := get_value(v_row_i, 2);
+                v_row.value_3 := get_value(v_row_i, 3);
+                v_row.value_4 := get_value(v_row_i, 4);
+                v_row.value_5 := get_value(v_row_i, 5);
                 
-            FOR v_i IN 1..v_row_buffer.COUNT LOOP
-                PIPE ROW(v_row_buffer(v_i));
+                PIPE ROW(v_row);
+                
             END LOOP;
-                
-            EXIT WHEN v_row_buffer.COUNT < c_fetch_limit;
             
+            EXIT WHEN v_fetched_row_count < persistent_json_store.c_ROW_BUFFER_SIZE;
+        
         END LOOP;
-            
-        CLOSE c_rows;
+    
+        DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
         
         RETURN;
             
     EXCEPTION
         WHEN e_no_more_rows_needed THEN
-            CLOSE c_rows;
-        
+            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
     END;
     
+    OVERRIDING MEMBER FUNCTION get_table_10 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_10_value_table PIPELINED IS
+    
+        e_no_more_rows_needed EXCEPTION;
+        PRAGMA EXCEPTION_INIT(e_no_more_rows_needed, -6548);
+
+        v_cursor_id NUMBER;
+        v_column_count PLS_INTEGER;
+        
+        v_row_buffer t_varchars;
+        v_fetched_row_count PLS_INTEGER;
+        
+        v_row t_10_value_row;
+        
+        FUNCTION get_value (
+            p_row_i IN PLS_INTEGER,
+            p_column_i IN PLS_INTEGER
+        )
+        RETURN VARCHAR2 IS
+        BEGIN
+            IF p_column_i > v_column_count THEN
+                RETURN NULL;
+            ELSE
+                RETURN v_row_buffer((p_column_i - 1) * persistent_json_store.c_ROW_BUFFER_SIZE + p_row_i); 
+            END IF;
+        END;
+        
+    BEGIN
+        
+        persistent_json_store.prepare_table_query(
+            id,
+            p_query,
+            p_bind,
+            v_cursor_id,
+            v_column_count
+        );
+        
+        v_row_buffer := t_varchars();
+        v_row_buffer.EXTEND(v_column_count * persistent_json_store.c_ROW_BUFFER_SIZE);
+    
+        v_row := t_10_value_row(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    
+        LOOP
+        
+            persistent_json_store.fetch_table_rows (
+                v_cursor_id,
+                v_column_count,
+                v_fetched_row_count,
+                v_row_buffer
+            );
+            
+            FOR v_row_i IN 1..v_fetched_row_count LOOP
+            
+                v_row.value_1 := get_value(v_row_i, 1);
+                v_row.value_2 := get_value(v_row_i, 2);
+                v_row.value_3 := get_value(v_row_i, 3);
+                v_row.value_4 := get_value(v_row_i, 4);
+                v_row.value_5 := get_value(v_row_i, 5);
+                v_row.value_6 := get_value(v_row_i, 6);
+                v_row.value_7 := get_value(v_row_i, 7);
+                v_row.value_8 := get_value(v_row_i, 8);
+                v_row.value_9 := get_value(v_row_i, 9);
+                v_row.value_10 := get_value(v_row_i, 10);
+                
+                PIPE ROW(v_row);
+                
+            END LOOP;
+            
+            EXIT WHEN v_fetched_row_count < persistent_json_store.c_ROW_BUFFER_SIZE;
+        
+        END LOOP;
+    
+        DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+        
+        RETURN;
+            
+    EXCEPTION
+        WHEN e_no_more_rows_needed THEN
+            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+    END;
+    
+    OVERRIDING MEMBER FUNCTION get_table_15 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_15_value_table PIPELINED IS
+    
+        e_no_more_rows_needed EXCEPTION;
+        PRAGMA EXCEPTION_INIT(e_no_more_rows_needed, -6548);
+
+        v_cursor_id NUMBER;
+        v_column_count PLS_INTEGER;
+        
+        v_row_buffer t_varchars;
+        v_fetched_row_count PLS_INTEGER;
+        
+        v_row t_15_value_row;
+        
+        FUNCTION get_value (
+            p_row_i IN PLS_INTEGER,
+            p_column_i IN PLS_INTEGER
+        )
+        RETURN VARCHAR2 IS
+        BEGIN
+            IF p_column_i > v_column_count THEN
+                RETURN NULL;
+            ELSE
+                RETURN v_row_buffer((p_column_i - 1) * persistent_json_store.c_ROW_BUFFER_SIZE + p_row_i); 
+            END IF;
+        END;
+        
+    BEGIN
+        
+        persistent_json_store.prepare_table_query(
+            id,
+            p_query,
+            p_bind,
+            v_cursor_id,
+            v_column_count
+        );
+        
+        v_row_buffer := t_varchars();
+        v_row_buffer.EXTEND(v_column_count * persistent_json_store.c_ROW_BUFFER_SIZE);
+    
+        v_row := t_15_value_row(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    
+        LOOP
+        
+            persistent_json_store.fetch_table_rows (
+                v_cursor_id,
+                v_column_count,
+                v_fetched_row_count,
+                v_row_buffer
+            );
+            
+            FOR v_row_i IN 1..v_fetched_row_count LOOP
+            
+                v_row.value_1 := get_value(v_row_i, 1);
+                v_row.value_2 := get_value(v_row_i, 2);
+                v_row.value_3 := get_value(v_row_i, 3);
+                v_row.value_4 := get_value(v_row_i, 4);
+                v_row.value_5 := get_value(v_row_i, 5);
+                v_row.value_6 := get_value(v_row_i, 6);
+                v_row.value_7 := get_value(v_row_i, 7);
+                v_row.value_8 := get_value(v_row_i, 8);
+                v_row.value_9 := get_value(v_row_i, 9);
+                v_row.value_10 := get_value(v_row_i, 10);
+                v_row.value_11 := get_value(v_row_i, 11);
+                v_row.value_12 := get_value(v_row_i, 12);
+                v_row.value_13 := get_value(v_row_i, 13);
+                v_row.value_14 := get_value(v_row_i, 14);
+                v_row.value_15 := get_value(v_row_i, 15);
+                
+                PIPE ROW(v_row);
+                
+            END LOOP;
+            
+            EXIT WHEN v_fetched_row_count < persistent_json_store.c_ROW_BUFFER_SIZE;
+        
+        END LOOP;
+    
+        DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+        
+        RETURN;
+            
+    EXCEPTION
+        WHEN e_no_more_rows_needed THEN
+            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+    END;
+
+    OVERRIDING MEMBER FUNCTION get_table_20 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_20_value_table PIPELINED IS
+    
+        e_no_more_rows_needed EXCEPTION;
+        PRAGMA EXCEPTION_INIT(e_no_more_rows_needed, -6548);
+
+        v_cursor_id NUMBER;
+        v_column_count PLS_INTEGER;
+        
+        v_row_buffer t_varchars;
+        v_fetched_row_count PLS_INTEGER;
+        
+        v_row t_20_value_row;
+        
+        FUNCTION get_value (
+            p_row_i IN PLS_INTEGER,
+            p_column_i IN PLS_INTEGER
+        )
+        RETURN VARCHAR2 IS
+        BEGIN
+            IF p_column_i > v_column_count THEN
+                RETURN NULL;
+            ELSE
+                RETURN v_row_buffer((p_column_i - 1) * persistent_json_store.c_ROW_BUFFER_SIZE + p_row_i); 
+            END IF;
+        END;
+        
+    BEGIN
+        
+        persistent_json_store.prepare_table_query(
+            id,
+            p_query,
+            p_bind,
+            v_cursor_id,
+            v_column_count
+        );
+        
+        v_row_buffer := t_varchars();
+        v_row_buffer.EXTEND(v_column_count * persistent_json_store.c_ROW_BUFFER_SIZE);
+    
+        v_row := t_20_value_row(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    
+        LOOP
+        
+            persistent_json_store.fetch_table_rows (
+                v_cursor_id,
+                v_column_count,
+                v_fetched_row_count,
+                v_row_buffer
+            );
+            
+            FOR v_row_i IN 1..v_fetched_row_count LOOP
+            
+                v_row.value_1 := get_value(v_row_i, 1);
+                v_row.value_2 := get_value(v_row_i, 2);
+                v_row.value_3 := get_value(v_row_i, 3);
+                v_row.value_4 := get_value(v_row_i, 4);
+                v_row.value_5 := get_value(v_row_i, 5);
+                v_row.value_6 := get_value(v_row_i, 6);
+                v_row.value_7 := get_value(v_row_i, 7);
+                v_row.value_8 := get_value(v_row_i, 8);
+                v_row.value_9 := get_value(v_row_i, 9);
+                v_row.value_10 := get_value(v_row_i, 10);
+                v_row.value_11 := get_value(v_row_i, 11);
+                v_row.value_12 := get_value(v_row_i, 12);
+                v_row.value_13 := get_value(v_row_i, 13);
+                v_row.value_14 := get_value(v_row_i, 14);
+                v_row.value_15 := get_value(v_row_i, 15);
+                v_row.value_16 := get_value(v_row_i, 16);
+                v_row.value_17 := get_value(v_row_i, 17);
+                v_row.value_18 := get_value(v_row_i, 18);
+                v_row.value_19 := get_value(v_row_i, 19);
+                v_row.value_20 := get_value(v_row_i, 20);
+                
+                PIPE ROW(v_row);
+                
+            END LOOP;
+            
+            EXIT WHEN v_fetched_row_count < persistent_json_store.c_ROW_BUFFER_SIZE;
+        
+        END LOOP;
+    
+        DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+        
+        RETURN;
+            
+    EXCEPTION
+        WHEN e_no_more_rows_needed THEN
+            DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+    END;
+        
     -- JSON filter instantiation method 
     
     MEMBER FUNCTION filter

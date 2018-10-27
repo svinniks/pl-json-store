@@ -14,18 +14,14 @@
     limitations under the License.
 */
 
-DROP FUNCTION json_table_20
-/
-DROP FUNCTION json_table_15
-/
-DROP FUNCTION json_table_10
-/
-DROP FUNCTION json_table_5
+DROP PACKAGE json_store
 /
 
-DROP FUNCTION json_table
+DROP FUNCTION persistent_json_table
 /
-DROP TYPE t_value_table_query
+DROP TYPE t_persistent_json_table
+/
+DROP TYPE t_json_table
 /
 
 DROP TYPE t_persistent_json
@@ -68,6 +64,24 @@ DROP FUNCTION to_index
 /
 
 DROP PACKAGE json_parser
+/
+
+DROP TYPE t_20_value_table
+/
+DROP TYPE t_15_value_table
+/
+DROP TYPE t_10_value_table
+/
+DROP TYPE t_5_value_table
+/
+
+DROP TYPE t_20_value_row
+/
+DROP TYPE t_15_value_row
+/
+DROP TYPE t_10_value_row
+/
+DROP TYPE t_5_value_row
 /
 
 DROP TYPE bind

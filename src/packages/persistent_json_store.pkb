@@ -358,8 +358,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
     
     FUNCTION get_query_statement (
         p_query_element_i IN PLS_INTEGER,
-        p_query_type IN CHAR,
-        p_column_count IN PLS_INTEGER := NULL
+        p_query_type IN CHAR
     )
     RETURN t_query_statement IS
     
@@ -427,7 +426,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
             
                 v_column_count := v_column_count + 1;
             
-                IF p_query_type = c_TABLE_QUERY AND v_column_count <= NVL(p_column_count, v_column_count) THEN
+                IF p_query_type = c_TABLE_QUERY THEN
                 
                     IF v_element.type = 'F' THEN
                     
@@ -618,7 +617,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
     
     BEGIN
     
-        v_cache_key := p_query_type || '[' || p_column_count || ']' || get_query_signature(p_query_element_i);
+        v_cache_key := p_query_type || get_query_signature(p_query_element_i);
         
         IF v_query_statement_cache.EXISTS(v_cache_key) THEN
             RETURN v_query_statement_cache(v_cache_key);
@@ -629,21 +628,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
         v_comma := NULL;
          
         add_text('SELECT ');
-        
-        IF p_query_type = c_TABLE_QUERY THEN
-            add_text('t_' || p_column_count || '_value_row(');
-        END IF;
-        
         select_list_visit(p_query_element_i, NULL);
-        
-        FOR v_i IN v_column_count + 1..NVL(p_column_count, v_column_count) LOOP
-            add_text(v_comma || 'NULL');
-            v_comma := ',';
-        END LOOP;
-        
-        IF p_query_type = c_TABLE_QUERY THEN
-            add_text(')');
-        END IF;
         
         v_table_instance_counter := 0;
         v_comma := NULL; 
@@ -1432,6 +1417,74 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
         FOR v_i IN 1..v_ids_to_unpin.COUNT LOOP
             unpin_cached_value(v_ids_to_unpin(v_i));
         END LOOP;
+    
+    END;
+    
+    -- Bulk fetching from a JSON table cursor
+    
+    PROCEDURE prepare_table_query (
+        p_anchor_id IN NUMBER,
+        p_query IN VARCHAR2,
+        p_bind IN bind,
+        p_cursor_id OUT NUMBER,
+        p_column_count OUT NUMBER
+    ) IS
+        v_query_element_i PLS_INTEGER;
+        v_query_statement t_query_statement;
+        v_result INTEGER;
+    BEGIN
+    
+        v_query_element_i := json_core.parse_query(p_query, p_anchor_id IS NOT NULL);
+        
+        v_query_statement := get_query_statement(
+            v_query_element_i, 
+            c_TABLE_QUERY
+        );
+    
+        p_cursor_id := prepare_query(
+            p_anchor_id,
+            v_query_element_i,
+            v_query_statement, 
+            p_bind
+        );
+        
+        v_result := DBMS_SQL.EXECUTE(p_cursor_id);
+        
+        p_column_count := json_core.get_query_column_count(v_query_element_i);
+    
+    END;
+    
+    PROCEDURE fetch_table_rows (
+        p_cursor_id IN NUMBER,
+        p_column_count IN PLS_INTEGER,
+        p_fetched_row_count OUT PLS_INTEGER,
+        p_row_buffer IN OUT NOCOPY t_varchars
+    ) IS
+        v_buffer_size PLS_INTEGER;
+        v_column_values DBMS_SQL.VARCHAR2_TABLE;
+    BEGIN
+    
+        v_buffer_size := p_row_buffer.COUNT / p_column_count;
+    
+        FOR v_i IN 1..p_column_count LOOP
+            DBMS_SQL.DEFINE_ARRAY(p_cursor_id, v_i, v_column_values, v_buffer_size, 1);
+        END LOOP;
+        
+        p_fetched_row_count := DBMS_SQL.FETCH_ROWS(p_cursor_id);
+                
+        IF p_fetched_row_count > 0 THEN
+                
+            FOR v_i IN 1..p_column_count LOOP
+                    
+                DBMS_SQL.COLUMN_VALUE(p_cursor_id, v_i, v_column_values);
+                        
+                FOR v_j IN 1..p_fetched_row_count LOOP
+                    p_row_buffer((v_i - 1) * v_buffer_size + v_j) := v_column_values(v_j);
+                END LOOP;
+                        
+            END LOOP;   
+        
+        END IF;
     
     END;
     

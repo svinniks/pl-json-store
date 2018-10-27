@@ -79,6 +79,24 @@ CREATE OR REPLACE TYPE t_json IS OBJECT (
     )
     RETURN t_5_value_table PIPELINED,
     
+    NOT INSTANTIABLE MEMBER FUNCTION get_table_10 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_10_value_table PIPELINED,
+    
+    NOT INSTANTIABLE MEMBER FUNCTION get_table_15 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_15_value_table PIPELINED,
+    
+    NOT INSTANTIABLE MEMBER FUNCTION get_table_20 (
+        p_query IN VARCHAR2,
+        p_bind IN bind := NULL
+    )
+    RETURN t_20_value_table PIPELINED,
+    
     /* Implemented methods */
     
     -- Value type check methods

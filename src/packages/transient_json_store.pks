@@ -15,8 +15,6 @@ CREATE OR REPLACE PACKAGE transient_json_store IS
         See the License for the specific language governing permissions and
         limitations under the License.
     */
-
-TYPE t_t_varchars IS TABLE OF t_varchars;
             
     TYPE t_property IS 
         RECORD (
@@ -119,11 +117,14 @@ TYPE t_t_varchars IS TABLE OF t_varchars;
         p_unpin_tree IN BOOLEAN
     );
     
-    FUNCTION get_table (
+    -- Table query execution
+    
+    PROCEDURE execute_table_query (
         p_anchor_id IN NUMBER,
         p_query IN VARCHAR2,
-        p_bind IN bind
-    )
-    RETURN t_t_varchars;
+        p_bind IN bind,
+        p_values OUT t_varchars,
+        p_column_count OUT PLS_INTEGER 
+    );
     
 END;

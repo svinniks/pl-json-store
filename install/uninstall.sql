@@ -66,6 +66,11 @@ DROP FUNCTION to_index
 DROP PACKAGE json_parser
 /
 
+DROP TYPE t_json_mismatches
+/
+DROP TYPE t_json_mismatch
+/
+
 DROP TYPE t_20_value_table
 /
 DROP TYPE t_15_value_table

@@ -35,6 +35,11 @@
 @@types/t_20_value_table.tps
 /
 
+@@types/t_json_mismatch.tps
+/
+@@types/t_json_mismatches.tps
+/
+
 @@packages/json_parser.pks
 /
 @@packages/json_parser.pkb

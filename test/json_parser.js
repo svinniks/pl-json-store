@@ -16,6 +16,18 @@
 
 suite("Invalid JSON handling", function() {
 
+    test("Empty JSON", function() {
+    
+        expect(function() {
+        
+            database.call("json_parser.parse", {
+                p_content: null
+            });
+        
+        }).to.throw(/JSN-00002/);
+    
+    });
+
     test("Invalid start of JSON", function() {
     
         expect(function() {
@@ -320,16 +332,6 @@ suite("Invalid JSON handling", function() {
 });
 
 suite("Scalar value tests", function() {
-
-    test("Empty document", function() {
-    
-        var events = database.call("json_parser.parse", {
-            p_content: null
-        });
-
-        expect(events).to.eql([]);
-
-    });
 
     test("String value", function() {
     

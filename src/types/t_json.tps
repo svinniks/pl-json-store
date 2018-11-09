@@ -709,7 +709,14 @@ CREATE OR REPLACE TYPE t_json IS OBJECT (
         self IN t_json,
         p_index IN NUMBER,
         p_unpin_tree IN BOOLEAN := FALSE
+    ),
+    
+    -- Value comparison 
+    
+    MEMBER FUNCTION compare_to (
+        p_value IN t_json
     )
+    RETURN t_json_mismatches
     
 )
 NOT FINAL

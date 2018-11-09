@@ -78,25 +78,6 @@ suite("GET_KEYS", function() {
     
     });
 
-    test("Try requesting keys of an array", function() {
-    
-        let valueId = database.call(`${implementationPackage}.create_json`, {
-            p_content_parse_events: [
-                "[",
-                "]"
-            ]
-        });
-
-        expect(function() {
-        
-            database.call(`${implementationPackage}.get_keys`, {
-                p_object_id: valueId 
-            });
-        
-        }).to.throw(/JDC-00021/);
-    
-    });
-
     test("Try requesting keys of a null", function() {
     
         let valueId = database.call(`${implementationPackage}.create_json`, {
@@ -159,6 +140,75 @@ suite("GET_KEYS", function() {
         keys.sort();
 
         expect(keys).to.eql(["address", "name", "surname"]);
+
+    });
+
+    test("Request keys of an empty array", function() {
+        
+        let valueId = database.call(`${implementationPackage}.create_json`, {
+            p_content_parse_events: [
+                "[",
+                "]"
+            ]
+        });
+
+        let keys = database.call(`${implementationPackage}.get_keys`, {
+            p_object_id: valueId 
+        });
+
+        keys.sort();
+
+        expect(keys).to.eql([]);
+
+    });
+
+    test("Request keys of a dense array", function() {
+        
+        let valueId = database.call(`${implementationPackage}.create_json`, {
+            p_content_parse_events: [
+                "[",
+                ":0",
+                "SHello",
+                ":1",
+                "SWorld",
+                ":2",
+                "N123.456",
+                "]"
+            ]
+        });
+
+        let keys = database.call(`${implementationPackage}.get_keys`, {
+            p_object_id: valueId 
+        });
+
+        keys.sort();
+
+        expect(keys).to.eql(["0", "1", "2"]);
+
+    });
+
+    test("Request keys of a sparse array", function() {
+        
+        let valueId = database.call(`${implementationPackage}.create_json`, {
+            p_content_parse_events: [
+                "[",
+                ":0",
+                "SHello",
+                ":5",
+                "SWorld",
+                ":7",
+                "N123.456",
+                "]"
+            ]
+        });
+
+        let keys = database.call(`${implementationPackage}.get_keys`, {
+            p_object_id: valueId 
+        });
+
+        keys.sort();
+
+        expect(keys).to.eql(["0", "5", "7"]);
 
     });
 

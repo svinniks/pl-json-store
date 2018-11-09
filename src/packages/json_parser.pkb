@@ -715,8 +715,6 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
                 add_event('N', v_value);
             WHEN 'lfEnd' THEN
                 NULL;
-            WHEN 'lfContent' THEN
-                NULL;
             ELSE
                 -- Unexpected end of the input!
                 error$.raise('JSN-00002');

@@ -482,7 +482,7 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
     
         v_value := get_value(p_object_id);
      
-        IF v_value.type NOT IN ('O', 'R') THEN
+        IF v_value.type NOT IN ('O', 'R', 'A') THEN
             -- Value is not an object!
             error$.raise('JDC-00021');
         END IF;
@@ -495,7 +495,12 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
         WHILE v_name LIKE v_pattern LOOP
                 
             v_keys.EXTEND(1);
-            v_keys(v_keys.COUNT) := v_values(v_value_child_ids(v_name)).name;
+            
+            IF v_value.type = 'A' THEN
+                v_keys(v_keys.COUNT) := v_values(v_value_child_ids(v_name)).name;
+            ELSE
+                v_keys(v_keys.COUNT) := NVL(LTRIM(v_values(v_value_child_ids(v_name)).name, '0'), '0');
+            END IF;
                         
             v_name := v_value_child_ids.NEXT(v_name);
                         
@@ -1052,8 +1057,6 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
             
             PROCEDURE visit_next IS
             
-                v_parent_value_id NUMBER;
-                
                 v_next_sibling_element_i PLS_INTEGER;
                 v_next_sibling_element json_core.t_query_element;
                 
@@ -1194,6 +1197,10 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
                     v_name := v_element.value;
                 ELSE
                     v_name := get_bind_value(v_element.bind_number);
+                END IF;
+                
+                IF v_parent_value_id > 0 AND v_values(v_parent_value_id).type = 'A' THEN
+                    v_name := LPAD(v_name, 12, '0');
                 END IF;
                 
                 v_name := v_parent_value_id || '-' || v_name;

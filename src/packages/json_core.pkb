@@ -87,6 +87,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDC-00048', 'Builder not specified!');
         default_message_resolver.register_message('JDC-00049', 'Property value not specified!');
         default_message_resolver.register_message('JDC-00050', 'Unimplemented feature!');
+        default_message_resolver.register_message('JDC-00051', 'Right value not specified!');
     END;
     
     -- Do-nothing procedure to initialize error messages from another packages

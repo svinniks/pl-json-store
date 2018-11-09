@@ -1670,4 +1670,193 @@ CREATE OR REPLACE TYPE BODY t_json IS
         unpin(':i', p_unpin_tree, bind(p_index));
     END;
     
+    -- Value comparison 
+    
+    MEMBER FUNCTION compare_to (
+        p_value IN t_json
+    )
+    RETURN t_json_mismatches IS
+    
+        v_path t_varchars;
+        v_mismatches t_json_mismatches;
+        
+        PROCEDURE add_mismatch (
+            p_code IN VARCHAR2
+        ) IS
+        BEGIN
+            v_mismatches.EXTEND(1);
+            v_mismatches(v_mismatches.COUNT) := t_json_mismatch(v_path, p_code);
+        END;
+        
+        PROCEDURE push_name (
+            p_name IN VARCHAR2
+        ) IS
+        BEGIN
+            v_path.EXTEND(1);
+            v_path(v_path.COUNT) := p_name;
+        END;
+        
+        PROCEDURE pop_name IS
+        BEGIN
+            v_path.TRIM(1);
+        END;
+        
+        PROCEDURE visit_value (
+            p_left IN t_json,
+            p_right IN t_json
+        ) IS
+        
+            v_left_type CHAR;
+            v_left_value VARCHAR2(4000);
+            
+            v_right_type CHAR;
+            v_right_value VARCHAR2(4000);
+            
+            v_parent_id NUMBER;
+            
+            v_left_keys t_varchars;
+            v_right_keys t_varchars;
+            
+            v_left_i PLS_INTEGER;
+            v_right_i PLS_INTEGER;
+            
+            v_left_key VARCHAR2(4000);
+            v_right_key VARCHAR2(4000);
+            
+            v_compare PLS_INTEGER;
+            
+            PROCEDURE missing_left IS
+            BEGIN
+            
+                push_name(v_right_key);
+                add_mismatch('ML');
+                pop_name;
+                        
+                v_right_i := v_right_i + 1;
+                
+            END;
+            
+            PROCEDURE missing_right IS
+            BEGIN
+            
+                push_name(v_left_key);
+                add_mismatch('MR');
+                pop_name;
+                        
+                v_left_i := v_left_i + 1;
+            
+            END;
+            
+            PROCEDURE compare_keys IS
+            BEGIN
+            
+                IF v_left_key = v_right_key THEN
+                    v_compare := 0;
+                ELSIF v_left_type = 'A' THEN
+                    IF LPAD(v_left_key, 12, '0') > LPAD(v_right_key, 12, '0') THEN
+                        v_compare := 1;
+                    ELSE
+                        v_compare := -1;
+                    END IF;
+                ELSE
+                    IF v_left_key > v_right_key THEN
+                        v_compare := 1;
+                    ELSE
+                        v_compare := -1;
+                    END IF;
+                END IF;
+            
+            END;
+            
+        BEGIN
+        
+            p_left.dump(v_parent_id, v_left_type, v_left_value);
+            p_right.dump(v_parent_id, v_right_type, v_right_value);
+        
+            IF v_left_type != v_right_type THEN
+            
+                add_mismatch('TM');
+                
+            ELSIF v_left_type IN ('S', 'N', 'B') THEN
+            
+                IF v_left_value != v_right_value THEN
+                    add_mismatch('VM');
+                END IF;
+                
+            ELSIF v_left_type != 'E' THEN
+            
+                v_left_keys := p_left.get_keys; 
+                v_right_keys := p_right.get_keys;
+                
+                v_left_i := 1;
+                v_right_i := 1;
+                
+                WHILE v_left_i <= v_left_keys.COUNT 
+                      OR v_right_i <= v_right_keys.COUNT 
+                LOOP
+                
+                    IF v_left_i > v_left_keys.COUNT THEN
+                    
+                        v_right_key := v_right_keys(v_right_i);
+                        missing_left;
+                        
+                    ELSIF v_right_i > v_right_keys.COUNT THEN
+                        
+                        v_left_key := v_left_keys(v_left_i);
+                        missing_right;
+                            
+                    ELSE
+                    
+                        v_left_key := v_left_keys(v_left_i);
+                        v_right_key := v_right_keys(v_right_i);
+                        compare_keys;
+                        
+                        IF v_compare = -1 THEN
+                        
+                            missing_right;
+                            
+                        ELSIF v_compare = 1 THEN
+                        
+                            missing_left;
+                        
+                        ELSE
+                        
+                            push_name(v_left_key);
+                            
+                            visit_value(
+                                p_left.get(':name', bind(v_left_key)), 
+                                p_right.get(':name', bind(v_right_key))
+                            );
+                            
+                            pop_name;
+                            
+                            v_left_i := v_left_i + 1;
+                            v_right_i := v_right_i + 1;
+                        
+                        END IF;    
+                        
+                    END IF;
+                
+                END LOOP;
+                
+            END IF;
+            
+        END;
+        
+    BEGIN
+    
+        IF p_value IS NULL THEN
+            -- Right value not specified!
+            error$.raise('JDC-00051');
+        END IF;
+    
+        v_path := t_varchars();
+        v_mismatches := t_json_mismatches();
+        
+        visit_value(self, p_value);
+    
+        RETURN v_mismatches;
+    
+    END;
+    
 END;

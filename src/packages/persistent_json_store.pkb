@@ -1119,16 +1119,28 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
     
         v_value := get_value(p_object_id);
      
-        IF v_value.type NOT IN ('O', 'R') THEN
+        IF v_value.type NOT IN ('O', 'R', 'A') THEN
             -- Value is not an object!
             error$.raise('JDC-00021');
         END IF;
         
-        SELECT name
-        BULK COLLECT INTO v_keys
-        FROM json_values
-        WHERE parent_id = p_object_id
-        ORDER BY name;
+        IF v_value.type = 'A' THEN
+        
+            SELECT name
+            BULK COLLECT INTO v_keys
+            FROM json_values
+            WHERE parent_id = p_object_id
+            ORDER BY TO_INDEX(name);
+            
+        ELSE
+        
+            SELECT name
+            BULK COLLECT INTO v_keys
+            FROM json_values
+            WHERE parent_id = p_object_id
+            ORDER BY name;
+            
+        END IF;
         
         RETURN v_keys;
     
@@ -1383,14 +1395,18 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
             error$.raise('JDC-00034');
         END IF;
         
+        IF v_value.locked IS NULL THEN
+            RETURN;
+        END IF;
+        
         IF p_unpin_tree THEN
         
             SELECT id
             BULK COLLECT INTO v_ids_to_unpin
             FROM json_values
-            WHERE locked = 'T'
             START WITH id = p_id
             CONNECT BY PRIOR id = parent_id
+                       AND locked = 'T'
             FOR UPDATE;
             
         ELSE

@@ -48,6 +48,10 @@ CREATE OR REPLACE PACKAGE json_core IS
     
     PROCEDURE touch;
     
+    PROCEDURE allow_private_call;
+    
+    PROCEDURE private_call;
+    
     -- Generic functions
     
     FUNCTION to_json_char (

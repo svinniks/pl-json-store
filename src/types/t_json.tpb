@@ -652,6 +652,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     RETURN t_json IS
     BEGIN
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             p_path,
             json_core.string_events(p_value),
@@ -714,6 +716,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     ) 
     RETURN t_json IS
     BEGIN
+    
+        json_core.allow_private_call;
     
         RETURN set_json(
             p_path,
@@ -778,6 +782,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     RETURN t_json IS
     BEGIN
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             p_path,
             json_core.date_events(p_value),
@@ -841,6 +847,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     RETURN t_json IS
     BEGIN
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             p_path,
             json_core.boolean_events(p_value),
@@ -903,6 +911,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     RETURN t_json IS
     BEGIN
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             p_path,
             json_core.null_events,
@@ -958,6 +968,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     ) 
     RETURN t_json IS
     BEGIN
+    
+        json_core.allow_private_call;
     
         RETURN set_json(
             p_path,
@@ -1015,6 +1027,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     RETURN t_json IS
     BEGIN
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             p_path,
             json_core.array_events,
@@ -1071,6 +1085,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     ) 
     RETURN t_json IS
     BEGIN
+    
+        json_core.allow_private_call;
     
         RETURN set_json(
             p_path,
@@ -1134,6 +1150,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     ) 
     RETURN t_json IS
     BEGIN
+    
+        json_core.allow_private_call;
     
         RETURN set_json(
             p_path,
@@ -1203,6 +1221,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
             error$.raise('JDC-00048');  
         END IF;
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             p_path,
             p_builder.build_parse_events,
@@ -1270,6 +1290,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
             -- Property value not specified!
             error$.raise('JDC-00049');
         END IF;
+    
+        json_core.allow_private_call;
     
         RETURN set_json(
             p_path,
@@ -1333,6 +1355,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     ) 
     RETURN t_json IS
     BEGIN
+    
+        json_core.allow_private_call;
         
         RETURN set_json(
             ':i',
@@ -1356,6 +1380,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     ) 
     RETURN t_json IS
     BEGIN
+    
+        json_core.allow_private_call;
         
         RETURN set_json(
             ':i',
@@ -1380,6 +1406,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     RETURN t_json IS
     BEGIN
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             ':i',
             json_core.date_events(p_value),
@@ -1403,6 +1431,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     RETURN t_json IS
     BEGIN
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             ':i',
             json_core.boolean_events(p_value),
@@ -1424,6 +1454,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     RETURN t_json IS
     BEGIN
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             ':i',
             json_core.null_events,
@@ -1444,6 +1476,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     RETURN t_json IS
     BEGIN
     
+        json_core.allow_private_call;
+    
         RETURN set_json(
             ':i',
             json_core.object_events,
@@ -1463,6 +1497,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     MEMBER FUNCTION push_array
     RETURN t_json IS
     BEGIN
+    
+        json_core.allow_private_call;
     
         RETURN set_json(
             ':i',
@@ -1485,6 +1521,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     )
     RETURN t_json IS
     BEGIN
+    
+        json_core.allow_private_call;
         
         RETURN set_json(
             ':i',
@@ -1508,6 +1546,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
     )
     RETURN t_json IS
     BEGIN
+    
+        json_core.allow_private_call;
         
         RETURN set_json(
             ':i',
@@ -1536,6 +1576,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
             -- Builder not specified!
             error$.raise('JDC-00048');  
         END IF;
+    
+        json_core.allow_private_call;
         
         RETURN set_json(
             ':i',
@@ -1564,6 +1606,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
             -- Property value not specified!
             error$.raise('JDC-00049');
         END IF;
+    
+        json_core.allow_private_call;
     
         RETURN set_json(
             ':i',
@@ -1647,6 +1691,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
                 IF v_event_name != v_type OR v_event_value != v_value THEN
                 
                     p_value.remove;
+                    
+                    json_core.allow_private_call;
                     p_value.id := create_json(v_parent_id, v_name, p_content_parse_events, v_event_i);
                     
                 END IF;
@@ -1658,6 +1704,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
                 IF v_event_name != v_type THEN
                 
                     p_value.remove;
+                    
+                    json_core.allow_private_call;
                     p_value.id := create_json(v_parent_id, v_name, p_content_parse_events, v_event_i);
                     
                 END IF;
@@ -1669,6 +1717,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
                 IF TRANSLATE(v_event_name, '{[', 'OA') != v_type THEN
                 
                     p_value.remove;
+                    
+                    json_core.allow_private_call;
                     p_value.id := create_json(v_parent_id, v_name, p_content_parse_events, v_event_i);
                     
                     skip_events;
@@ -1684,8 +1734,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
                         v_event_i := v_event_i + 1;
                         
                         IF v_child_value IS NULL THEN
+                        
+                            json_core.allow_private_call;
                             v_dummy := create_json(p_value.id, v_event_value, p_content_parse_events, v_event_i);
+                            
                             skip_events;
+                            
                         ELSE
                             visit_value(v_child_value);
                         END IF;
@@ -1702,8 +1756,9 @@ CREATE OR REPLACE TYPE BODY t_json IS
         
     BEGIN
 
+        json_core.private_call;
+
         v_event_i := 1;
-        
         visit_value(self);        
     
     END;
@@ -1712,6 +1767,7 @@ CREATE OR REPLACE TYPE BODY t_json IS
         p_content IN VARCHAR2
     ) IS
     BEGIN
+        json_core.allow_private_call;
         apply_json(json_parser.parse(p_content));
     END;
     
@@ -1719,6 +1775,7 @@ CREATE OR REPLACE TYPE BODY t_json IS
         p_content IN CLOB
     ) IS
     BEGIN
+        json_core.allow_private_call;
         apply_json(json_parser.parse(p_content));
     END;
     
@@ -1726,6 +1783,7 @@ CREATE OR REPLACE TYPE BODY t_json IS
         p_content IN t_json
     ) IS
     BEGIN
+        json_core.allow_private_call;
         apply_json(p_content.get_parse_events(TRUE));
     END;
     

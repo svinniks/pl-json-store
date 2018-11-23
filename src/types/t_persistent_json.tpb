@@ -300,6 +300,8 @@ CREATE OR REPLACE TYPE BODY t_persistent_json IS
     )
     RETURN NUMBER IS
     BEGIN
+        
+        json_core.private_call;
     
         RETURN persistent_json_store.create_json(
             p_parent_id,
@@ -317,6 +319,8 @@ CREATE OR REPLACE TYPE BODY t_persistent_json IS
     ) 
     RETURN t_json IS
     BEGIN
+    
+        json_core.private_call;
     
         RETURN t_persistent_json(
             persistent_json_store.set_property(

@@ -301,6 +301,8 @@ CREATE OR REPLACE TYPE BODY t_transient_json IS
     RETURN NUMBER IS
         v_parent_value json_core.t_json_value;
     BEGIN
+        
+        json_core.private_call;
     
         IF p_parent_id IS NOT NULL THEN
             v_parent_value := transient_json_store.get_value(p_parent_id);
@@ -323,6 +325,8 @@ CREATE OR REPLACE TYPE BODY t_transient_json IS
     ) 
     RETURN t_json IS
     BEGIN
+    
+        json_core.private_call;
     
         RETURN t_transient_json(
             transient_json_store.set_property(

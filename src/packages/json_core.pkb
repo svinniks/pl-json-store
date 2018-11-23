@@ -35,6 +35,8 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
             
     v_variable_numbers t_variable_numbers;
     
+    v_private_call_allowed BOOLEAN := FALSE;
+    
     PROCEDURE register_messages IS
     BEGIN
         default_message_resolver.register_message('JDC-00001', 'Unexpected character ":1"!');
@@ -88,6 +90,7 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
         default_message_resolver.register_message('JDC-00049', 'Property value not specified!');
         default_message_resolver.register_message('JDC-00050', 'Unimplemented feature!');
         default_message_resolver.register_message('JDC-00051', 'Right value not specified!');
+        default_message_resolver.register_message('JDC-00052', 'Private method call is not allowed!');
     END;
     
     -- Do-nothing procedure to initialize error messages from another packages
@@ -95,6 +98,23 @@ CREATE OR REPLACE PACKAGE BODY json_core IS
     PROCEDURE touch IS
     BEGIN
         NULL;
+    END;
+    
+    PROCEDURE allow_private_call IS
+    BEGIN
+        v_private_call_allowed := TRUE;
+    END;
+    
+    PROCEDURE private_call IS
+    BEGIN
+        
+        IF NOT v_private_call_allowed THEN
+            -- Private method call is not allowed!
+            error$.raise('JDC-00052');
+        END IF;
+        
+        v_private_call_allowed := FALSE;
+    
     END;
     
     -- Generic functions

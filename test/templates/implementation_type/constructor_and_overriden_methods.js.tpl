@@ -582,6 +582,23 @@ suite("INDEX_OF tests", function() {
 
 suite("SET_JSON (with parse events) function tests", function() {
 
+    test("Try to call the private method", function() {
+    
+        expect(function() {
+        
+            database.run(`
+                DECLARE
+                    v_value t_json;
+                BEGIN
+                    v_value := ${implementationType}(-1);
+                    v_value := v_value.set_json(NULL, t_varchars(), NULL);
+                END;
+            `);
+        
+        }).to.throw(/JDC-00052/);
+    
+    });
+    
     let functionName = 'F' + randomString(16);
 
     setup("Create a wrapper function to call SET_JSON", function() {
@@ -597,11 +614,15 @@ suite("SET_JSON (with parse events) function tests", function() {
                     )
                     RETURN NUMBER IS
                     BEGIN
+
+                        json_core.allow_private_call;
+
                         RETURN ${implementationType}(p_value_id).set_json(
                             p_path,
                             p_content_parse_events,
                             p_bind
                         ).id;
+
                     END;
                 ';    
             END;

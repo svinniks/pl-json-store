@@ -12,6 +12,23 @@ function createValue(value) {
 
 suite("Parse event method tests", function() {
 
+    test("Try to call private APPLY method", function() {
+    
+        expect(function() {
+        
+            database.run(`
+                DECLARE
+                    v_dummy t_json;
+                BEGIN
+                    v_dummy := ${implementationType}(-1);
+                    v_dummy.apply_json(t_varchars());
+                END;
+            `);
+        
+        }).to.throw(/JDC-00052/);
+    
+    });
+        
     let functionName = "F" + randomString(16);
 
     setup("Create a wrapper function", function() {
@@ -26,6 +43,8 @@ suite("Parse event method tests", function() {
                     RETURN NUMBER IS
                         v_value ${implementationType};
                     BEGIN
+
+                        json_core.allow_private_call;
 
                         v_value := ${implementationType}(p_value_id);
                         v_value.apply_json(p_content_parse_events);
@@ -1019,6 +1038,87 @@ suite("Parse event method tests", function() {
             hello: {
                 big: "world"
             }
+        });
+    
+    });
+
+    test("Apply using the VARCHAR2 method", function() {
+    
+        let valueId = createValue({
+            hello: "world"
+        });
+
+        database.run(`
+            DECLARE
+                v_value t_json;
+            BEGIN
+                v_value := ${implementationType}(${valueId});
+                v_value.apply_json('{"goodBye":"world"}');
+            END;
+        `);
+
+        let value = JSON.parse(database.selectValue(`
+                ${implementationType}(${valueId}).as_json()
+            FROM dual
+        `));
+
+        expect(value).to.eql({
+            hello: "world",
+            goodBye: "world"
+        });
+    
+    });
+    
+    test("Apply using the CLOB method", function() {
+    
+        let valueId = createValue({
+            hello: "world"
+        });
+
+        database.run(`
+            DECLARE
+                v_value t_json;
+            BEGIN
+                v_value := ${implementationType}(${valueId});
+                v_value.apply_json(TO_CLOB('{"goodBye":"world"}'));
+            END;
+        `);
+
+        let value = JSON.parse(database.selectValue(`
+                ${implementationType}(${valueId}).as_json()
+            FROM dual
+        `));
+
+        expect(value).to.eql({
+            hello: "world",
+            goodBye: "world"
+        });
+    
+    });
+
+    test("Apply using the T_JSON method", function() {
+    
+        let valueId = createValue({
+            hello: "world"
+        });
+
+        database.run(`
+            DECLARE
+                v_value t_json;
+            BEGIN
+                v_value := ${implementationType}(${valueId});
+                v_value.apply_json(${implementationType}.create_json('{"goodBye":"world"}'));
+            END;
+        `);
+
+        let value = JSON.parse(database.selectValue(`
+                ${implementationType}(${valueId}).as_json()
+            FROM dual
+        `));
+
+        expect(value).to.eql({
+            hello: "world",
+            goodBye: "world"
         });
     
     });

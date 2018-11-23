@@ -23,11 +23,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         RETURN v_type = 'S';
     
@@ -38,11 +39,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         RETURN v_type = 'N';
     
@@ -53,13 +55,14 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
         v_dummy DATE;
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         IF v_type != 'S' THEN
             RETURN FALSE;
@@ -85,11 +88,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         RETURN v_type = 'B';
     
@@ -100,11 +104,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         RETURN v_type = 'E';
     
@@ -115,11 +120,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         RETURN v_type IN ('R', 'O');
     
@@ -130,11 +136,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         RETURN v_type = 'A';
     
@@ -147,11 +154,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         IF v_type IN ('S', 'N', 'E') THEN
             RETURN v_value;
@@ -167,11 +175,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         IF v_type IN ('N', 'E') THEN
             RETURN v_value;
@@ -220,11 +229,12 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
         
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
         
         IF v_type IN ('B', 'E') THEN
             RETURN v_value = 'true';
@@ -1572,6 +1582,153 @@ CREATE OR REPLACE TYPE BODY t_json IS
         v_dummy := push_json(p_value);
     END;
     
+    -- Apply methods
+    
+    MEMBER PROCEDURE apply_json (
+        p_content_parse_events IN t_varchars
+    ) IS
+        
+        v_event_i PLS_INTEGER;
+        v_event_name CHAR;
+        v_event_value VARCHAR2(4000);
+        
+        PROCEDURE decompose_event IS
+            v_event json_core.STRING;
+        BEGIN
+            v_event := p_content_parse_events(v_event_i);
+            v_event_name := SUBSTR(v_event, 1, 1);
+            v_event_value := SUBSTR(v_event, 2);
+        END;
+        
+        PROCEDURE skip_events IS
+            v_depth PLS_INTEGER;
+            v_event json_core.STRING;
+        BEGIN
+        
+            v_depth := 0;
+        
+            LOOP
+            
+                v_event := p_content_parse_events(v_event_i);
+                
+                IF v_event IN ('{', '[') THEN
+                    v_depth := v_depth + 1;
+                ELSIF v_event IN ('}', ']') THEN
+                    v_depth := v_depth - 1;
+                END IF;
+                
+                v_event_i := v_event_i + 1;
+                
+                EXIT WHEN v_depth = 0; 
+            
+            END LOOP;
+        
+        END;
+        
+        PROCEDURE visit_value (
+            p_value IN OUT NOCOPY t_json
+        ) IS
+        
+            v_parent_id NUMBER;
+            v_type CHAR;
+            v_name VARCHAR2(4000);
+            v_value VARCHAR2(4000);
+            
+            v_child_value t_json;
+            v_dummy NUMBER;
+        
+        BEGIN
+        
+            decompose_event;
+            p_value.dump(v_parent_id, v_type, v_name, v_value);
+            
+            IF v_event_name IN ('S', 'N', 'B') THEN
+            
+                IF v_event_name != v_type OR v_event_value != v_value THEN
+                
+                    p_value.remove;
+                    p_value.id := create_json(v_parent_id, v_name, p_content_parse_events, v_event_i);
+                    
+                END IF;
+                
+                skip_events;
+                
+            ELSIF v_event_name = 'E' THEN
+            
+                IF v_event_name != v_type THEN
+                
+                    p_value.remove;
+                    p_value.id := create_json(v_parent_id, v_name, p_content_parse_events, v_event_i);
+                    
+                END IF;
+                
+                skip_events;
+                
+            ELSIF v_event_name IN ('{', '[') THEN
+            
+                IF TRANSLATE(v_event_name, '{[', 'OA') != v_type THEN
+                
+                    p_value.remove;
+                    p_value.id := create_json(v_parent_id, v_name, p_content_parse_events, v_event_i);
+                    
+                    skip_events;
+                    
+                ELSE
+                
+                    v_event_i := v_event_i + 1;
+                    decompose_event;
+                    
+                    WHILE v_event_name NOT IN ('}', ']') LOOP
+                    
+                        v_child_value := p_value.get_property(v_event_value);
+                        v_event_i := v_event_i + 1;
+                        
+                        IF v_child_value IS NULL THEN
+                            v_dummy := create_json(p_value.id, v_event_value, p_content_parse_events, v_event_i);
+                            skip_events;
+                        ELSE
+                            visit_value(v_child_value);
+                        END IF;
+                        
+                        decompose_event;
+                    
+                    END LOOP;
+                
+                END IF;
+                
+            END IF;
+        
+        END;
+        
+    BEGIN
+
+        v_event_i := 1;
+        
+        visit_value(self);        
+    
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        p_content IN VARCHAR2
+    ) IS
+    BEGIN
+        apply_json(json_parser.parse(p_content));
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        p_content IN CLOB
+    ) IS
+    BEGIN
+        apply_json(json_parser.parse(p_content));
+    END;
+    
+    MEMBER PROCEDURE apply_json (
+        p_content IN t_json
+    ) IS
+    BEGIN
+        apply_json(p_content.get_parse_events(TRUE));
+    END;
+    
     -- Value deletion methods
     
     MEMBER PROCEDURE remove (
@@ -1713,6 +1870,7 @@ CREATE OR REPLACE TYPE BODY t_json IS
             v_right_value VARCHAR2(4000);
             
             v_parent_id NUMBER;
+            v_name VARCHAR2(4000);
             
             v_left_keys t_varchars;
             v_right_keys t_varchars;
@@ -1770,8 +1928,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
             
         BEGIN
         
-            p_left.dump(v_parent_id, v_left_type, v_left_value);
-            p_right.dump(v_parent_id, v_right_type, v_right_value);
+            p_left.dump(v_parent_id, v_left_type, v_name, v_left_value);
+            p_right.dump(v_parent_id, v_right_type, v_name, v_right_value);
         
             IF v_left_type != v_right_type THEN
             

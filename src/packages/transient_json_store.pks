@@ -26,10 +26,7 @@ CREATE OR REPLACE PACKAGE transient_json_store IS
             property_locked CHAR
         );
     
-    TYPE t_json_values IS
-        TABLE OF json_core.t_json_value;
-    
-    v_values t_json_values;
+    v_values json_core.t_json_values;
     
     FUNCTION get_value (
         p_id IN NUMBER
@@ -39,7 +36,7 @@ CREATE OR REPLACE PACKAGE transient_json_store IS
     FUNCTION dump_value (
         p_id IN NUMBER
     )
-    RETURN t_json_values; 
+    RETURN json_core.t_json_values; 
     
     -- Generic methods for JSON value retrieval and serialization
     
@@ -49,6 +46,12 @@ CREATE OR REPLACE PACKAGE transient_json_store IS
         p_bind IN bind,
         p_raise_not_found IN BOOLEAN := FALSE
     ) 
+    RETURN NUMBER;
+    
+    FUNCTION request_property_value (
+        p_parent_id IN NUMBER,
+        p_name IN VARCHAR2
+    )
     RETURN NUMBER;
     
     FUNCTION request_property (
@@ -90,6 +93,15 @@ CREATE OR REPLACE PACKAGE transient_json_store IS
     
     FUNCTION create_json (
         p_content_parse_events IN t_varchars
+    ) 
+    RETURN NUMBER;
+    
+    FUNCTION create_json (
+        p_parent_id IN NUMBER,
+        p_parent_type IN CHAR,
+        p_name IN VARCHAR2,
+        p_content_parse_events IN t_varchars,
+        p_event_i IN PLS_INTEGER := 1
     ) 
     RETURN NUMBER;
     

@@ -24,6 +24,9 @@ CREATE OR REPLACE PACKAGE json_core IS
     SUBTYPE t_json_value IS
         json_values%ROWTYPE;
         
+    TYPE t_json_values IS
+        TABLE OF t_json_value;
+        
     TYPE t_query_element IS 
         RECORD (
             type CHAR,

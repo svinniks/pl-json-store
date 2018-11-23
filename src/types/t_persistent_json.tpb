@@ -192,6 +192,7 @@ CREATE OR REPLACE TYPE BODY t_persistent_json IS
         self IN t_persistent_json,
         p_parent_id OUT NUMBER,
         p_type OUT CHAR,
+        p_name OUT VARCHAR2,
         p_value OUT VARCHAR2
     ) IS
         v_value json_core.t_json_value;
@@ -201,6 +202,7 @@ CREATE OR REPLACE TYPE BODY t_persistent_json IS
         
         p_parent_id := v_value.parent_id;
         p_type := v_value.type;
+        p_name := v_value.name;
         p_value := v_value.value;
     
     END;
@@ -218,11 +220,12 @@ CREATE OR REPLACE TYPE BODY t_persistent_json IS
     
         v_parent_id NUMBER;
         v_type CHAR;
+        v_name VARCHAR2(4000);
         v_value VARCHAR2(4000);
     
     BEGIN
     
-        dump(v_parent_id, v_type, v_value);
+        dump(v_parent_id, v_type, v_name, v_value);
     
         IF v_parent_id IS NULL THEN 
             RETURN NULL;
@@ -241,6 +244,23 @@ CREATE OR REPLACE TYPE BODY t_persistent_json IS
     BEGIN
     
         v_value_id := persistent_json_store.request_value(id, p_path, p_bind, FALSE);
+        
+        IF v_value_id IS NULL THEN
+            RETURN NULL;
+        ELSE
+            RETURN t_persistent_json(v_value_id);
+        END IF; 
+    
+    END;
+    
+    OVERRIDING MEMBER FUNCTION get_property (
+        p_name IN VARCHAR2
+    )
+    RETURN t_json IS
+        v_value_id NUMBER;
+    BEGIN
+    
+        v_value_id := persistent_json_store.request_property_value(id, p_name);
         
         IF v_value_id IS NULL THEN
             RETURN NULL;
@@ -270,6 +290,24 @@ CREATE OR REPLACE TYPE BODY t_persistent_json IS
     RETURN NUMBER IS
     BEGIN
         RETURN persistent_json_store.index_of(id, p_type, p_value, p_from_index);
+    END;
+    
+    OVERRIDING MEMBER FUNCTION create_json (
+        p_parent_id IN NUMBER,
+        p_name IN VARCHAR2,
+        p_content_parse_events IN t_varchars,
+        p_event_i IN PLS_INTEGER
+    )
+    RETURN NUMBER IS
+    BEGIN
+    
+        RETURN persistent_json_store.create_json(
+            p_parent_id,
+            p_name,
+            p_content_parse_events,
+            p_event_i
+        );
+    
     END;
     
     OVERRIDING MEMBER FUNCTION set_json (

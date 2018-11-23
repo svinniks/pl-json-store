@@ -15,9 +15,6 @@ CREATE OR REPLACE PACKAGE persistent_json_store IS
         See the License for the specific language governing permissions and
         limitations under the License.
     */
-    
-    TYPE t_json_values IS 
-        TABLE OF json_values%ROWTYPE;
         
     TYPE t_json_value_cache IS
         TABLE OF json_values%ROWTYPE
@@ -62,7 +59,7 @@ CREATE OR REPLACE PACKAGE persistent_json_store IS
     PROCEDURE reset_value_cache;
     
     FUNCTION get_cached_values
-    RETURN t_json_values PIPELINED;
+    RETURN json_core.t_json_values PIPELINED;
     
     PROCEDURE set_value_cache_capacity (
         p_capacity IN PLS_INTEGER
@@ -76,7 +73,7 @@ CREATE OR REPLACE PACKAGE persistent_json_store IS
     FUNCTION dump_value (
         p_id IN NUMBER
     )
-    RETURN t_json_values;
+    RETURN json_core.t_json_values;
     
     -- JSON query API methods
     
@@ -112,6 +109,12 @@ CREATE OR REPLACE PACKAGE persistent_json_store IS
         p_bind IN bind,
         p_raise_not_found IN BOOLEAN := FALSE
     ) 
+    RETURN NUMBER;
+    
+    FUNCTION request_property_value (
+        p_parent_id IN NUMBER,
+        p_name IN VARCHAR2
+    )
     RETURN NUMBER;
     
     FUNCTION request_property (
@@ -153,6 +156,14 @@ CREATE OR REPLACE PACKAGE persistent_json_store IS
     
     FUNCTION create_json (
         p_content_parse_events IN t_varchars
+    ) 
+    RETURN NUMBER;
+    
+    FUNCTION create_json (
+        p_parent_id IN NUMBER,
+        p_name IN VARCHAR2,
+        p_content_parse_events IN t_varchars,
+        p_event_i IN PLS_INTEGER := 1
     ) 
     RETURN NUMBER;
     

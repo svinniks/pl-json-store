@@ -121,15 +121,18 @@ suite("DUMP tests", function() {
                         p_value_id IN NUMBER,
                         p_parent_id OUT NUMBER,
                         p_type OUT VARCHAR2,
+                        p_name OUT VARCHAR2,
                         p_value OUT VARCHAR2
                     ) IS
                         v_parent_id NUMBER;
                         v_type CHAR;
+                        v_name VARCHAR2(4000);
                         v_value VARCHAR2(4000);
                     BEGIN
-                        ${implementationType}(p_value_id).dump(v_parent_id, v_type, v_value);
+                        ${implementationType}(p_value_id).dump(v_parent_id, v_type, v_name, v_value);
                         p_parent_id := v_parent_id;
                         p_type := v_type;
+                        p_name := v_name;
                         p_value := v_value;
                     END;
                 ';    
@@ -165,6 +168,7 @@ suite("DUMP tests", function() {
         expect(value).to.eql({
             p_parent_id: null,
             p_type: "S",
+            p_name: null,
             p_value: "Hello, World!"
         });
         

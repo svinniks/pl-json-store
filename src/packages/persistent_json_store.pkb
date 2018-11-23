@@ -44,7 +44,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
     END;
     
     FUNCTION get_cached_values
-    RETURN t_json_values PIPELINED IS
+    RETURN json_core.t_json_values PIPELINED IS
     
         v_id VARCHAR2(30);
         
@@ -224,7 +224,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
     FUNCTION dump_value (
         p_id IN NUMBER
     )
-    RETURN t_json_values IS
+    RETURN json_core.t_json_values IS
     
         CURSOR c_values IS
             WITH parent_jsvl(id, parent_id, type, name, value, locked, ord) AS
@@ -264,7 +264,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
                   ,locked
             FROM parent_jsvl;
         
-        v_result t_json_values;
+        v_result json_core.t_json_values;
         
     BEGIN
         
@@ -854,6 +854,29 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
         
     END;
     
+    FUNCTION request_property_value (
+        p_parent_id IN NUMBER,
+        p_name IN VARCHAR2
+    )
+    RETURN NUMBER IS
+    
+        CURSOR c_property IS
+            SELECT *
+            FROM json_values
+            WHERE parent_id = p_parent_id
+                  AND name = p_name;
+    
+    BEGIN
+    
+        FOR v_property IN c_property LOOP
+            cache_value(v_property);
+            RETURN v_property.id;
+        END LOOP;
+        
+        RETURN NULL;
+    
+    END;
+    
     FUNCTION request_property (
         p_anchor_id IN NUMBER,
         p_path IN VARCHAR2,
@@ -1221,12 +1244,13 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
     FUNCTION create_json (
         p_parent_id IN NUMBER,
         p_name IN VARCHAR2,
-        p_content_parse_events IN t_varchars
+        p_content_parse_events IN t_varchars,
+        p_event_i IN PLS_INTEGER := 1
     ) 
     RETURN NUMBER IS
     BEGIN
     
-        RETURN persistent_json_writer.write_json(p_parent_id, p_name, p_content_parse_events, 1);
+        RETURN persistent_json_writer.write_json(p_parent_id, p_name, p_content_parse_events, p_event_i);
         
     END;
     

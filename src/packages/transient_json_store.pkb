@@ -35,7 +35,7 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
         v_root.type := 'R';
         v_root.locked := 'T';
     
-        v_values := t_json_values(v_root);
+        v_values := json_core.t_json_values(v_root);
         
         v_released_ids := t_numbers();
         v_released_id_count := 0;
@@ -123,9 +123,9 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
     FUNCTION dump_value (
         p_id IN NUMBER
     )
-    RETURN t_json_values IS
+    RETURN json_core.t_json_values IS
         
-        v_result t_json_values;
+        v_result json_core.t_json_values;
         
         PROCEDURE visit_value (
             p_id IN NUMBER
@@ -155,7 +155,7 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
         
     BEGIN
     
-        v_result := t_json_values();
+        v_result := json_core.t_json_values();
         visit_value(p_id);
         
         RETURN v_result;
@@ -296,6 +296,41 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
         END IF;
         
         RETURN v_value_id;
+        
+    END;
+    
+    FUNCTION request_property_value (
+        p_parent_id IN NUMBER,
+        p_name IN VARCHAR2
+    )
+    RETURN NUMBER IS
+        v_name json_core.STRING;
+        v_parent_value json_core.t_json_value;
+    BEGIN
+    
+        IF p_parent_id IS NULL
+           OR NOT v_values.EXISTS(p_parent_id) 
+        THEN
+            RETURN NULL;
+        END IF;
+        
+        v_parent_value := v_values(p_parent_id);
+        
+        IF v_parent_value.type IS NULL THEN
+            RETURN NULL;
+        END IF;
+        
+        IF v_parent_value.type = 'A' THEN
+            v_name := p_parent_id || '-' || LPAD(p_name, 12, '0');
+        ELSE
+            v_name := p_parent_id || '-' || p_name;
+        END IF;
+        
+        IF v_value_child_ids.EXISTS(v_name) THEN
+            RETURN v_value_child_ids(v_name);
+        ELSE
+            RETURN NULL; 
+        END IF;
         
     END;
     
@@ -597,7 +632,8 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
         p_parent_id IN NUMBER,
         p_parent_type IN CHAR,
         p_name IN VARCHAR2,
-        p_content_parse_events IN t_varchars
+        p_content_parse_events IN t_varchars,
+        p_event_i IN PLS_INTEGER := 1
     ) 
     RETURN NUMBER IS
     
@@ -701,7 +737,7 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
         END;
     
     BEGIN
-        v_event_i := 1;
+        v_event_i := p_event_i;
         RETURN create_value(p_parent_id, p_parent_type, p_name);
     END;
     
@@ -760,7 +796,7 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
         
         v_index NUMBER;
         v_length NUMBER;
-        v_gap_values t_json_values;
+        v_gap_values json_core.t_json_values;
 
     BEGIN
 

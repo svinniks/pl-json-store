@@ -80,6 +80,7 @@ CREATE OR REPLACE TYPE t_transient_json UNDER t_json (
         self IN t_transient_json,
         p_parent_id OUT NUMBER,
         p_type OUT CHAR,
+        p_name OUT VARCHAR2,
         p_value OUT VARCHAR2
     ),
     
@@ -97,6 +98,11 @@ CREATE OR REPLACE TYPE t_transient_json UNDER t_json (
     )
     RETURN t_json,
     
+    OVERRIDING MEMBER FUNCTION get_property (
+        p_name IN VARCHAR2
+    )
+    RETURN t_json,
+    
     OVERRIDING MEMBER FUNCTION get_keys
     RETURN t_varchars,
     
@@ -107,6 +113,14 @@ CREATE OR REPLACE TYPE t_transient_json UNDER t_json (
         p_type IN CHAR 
        ,p_value IN VARCHAR2
        ,p_from_index IN NATURALN
+    )
+    RETURN NUMBER,
+    
+    OVERRIDING MEMBER FUNCTION create_json (
+        p_parent_id IN NUMBER,
+        p_name IN VARCHAR2,
+        p_content_parse_events IN t_varchars,
+        p_event_i IN PLS_INTEGER
     )
     RETURN NUMBER,
     

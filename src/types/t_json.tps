@@ -24,6 +24,7 @@ CREATE OR REPLACE TYPE t_json IS OBJECT (
         self IN t_json,
         p_parent_id OUT NUMBER,
         p_type OUT CHAR,
+        p_name OUT VARCHAR2,
         p_value OUT VARCHAR2
     ),
     
@@ -41,6 +42,11 @@ CREATE OR REPLACE TYPE t_json IS OBJECT (
     )
     RETURN t_json,
     
+    NOT INSTANTIABLE MEMBER FUNCTION get_property (
+        p_name IN VARCHAR2
+    )
+    RETURN t_json,
+    
     NOT INSTANTIABLE MEMBER FUNCTION get_keys
     RETURN t_varchars,
     
@@ -51,6 +57,14 @@ CREATE OR REPLACE TYPE t_json IS OBJECT (
         p_type IN CHAR 
        ,p_value IN VARCHAR2
        ,p_from_index IN NATURALN
+    )
+    RETURN NUMBER,
+    
+    NOT INSTANTIABLE MEMBER FUNCTION create_json (
+        p_parent_id IN NUMBER,
+        p_name IN VARCHAR2,
+        p_content_parse_events IN t_varchars,
+        p_event_i IN PLS_INTEGER
     )
     RETURN NUMBER,
     
@@ -656,6 +670,24 @@ CREATE OR REPLACE TYPE t_json IS OBJECT (
     MEMBER PROCEDURE push_json (
         self IN t_json,
         p_value IN t_json
+    ),
+    
+    -- Apply methods
+    
+    MEMBER PROCEDURE apply_json (
+        p_content_parse_events IN t_varchars
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        p_content IN VARCHAR2
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        p_content IN CLOB
+    ),
+    
+    MEMBER PROCEDURE apply_json (
+        p_content IN t_json
     ),
     
     -- Value deletion methods

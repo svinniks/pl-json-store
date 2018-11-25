@@ -109,6 +109,11 @@ CREATE OR REPLACE TYPE t_transient_json UNDER t_json (
     OVERRIDING MEMBER FUNCTION get_length
     RETURN NUMBER,
     
+    OVERRIDING MEMBER FUNCTION get_raw_values (
+        p_type IN CHAR
+    )
+    RETURN t_varchars,
+    
     OVERRIDING MEMBER FUNCTION index_of (
         p_type IN CHAR 
        ,p_value IN VARCHAR2

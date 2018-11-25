@@ -81,6 +81,12 @@ CREATE OR REPLACE PACKAGE transient_json_store IS
     )
     RETURN NUMBER;
     
+    FUNCTION get_raw_values (
+        p_array_id IN NUMBER,
+        p_type IN CHAR
+    )
+    RETURN t_varchars;
+    
     FUNCTION index_of (
         p_array_id IN NUMBER,
         p_type IN VARCHAR2,

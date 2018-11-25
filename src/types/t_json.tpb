@@ -642,6 +642,65 @@ CREATE OR REPLACE TYPE BODY t_json IS
     
     END;
     
+    MEMBER FUNCTION get_strings
+    RETURN t_varchars IS
+    BEGIN
+        json_core.allow_private_call;
+        RETURN get_raw_values('S');
+    END;
+    
+    MEMBER FUNCTION get_numbers
+    RETURN t_numbers IS
+    
+        v_raw_values t_varchars;
+        v_numbers t_numbers;
+        
+    BEGIN
+        
+        json_core.allow_private_call;
+        v_raw_values := get_raw_values('N');
+        
+        v_numbers := t_numbers();
+        v_numbers.EXTEND(v_raw_values.COUNT);
+        
+        FOR v_i IN 1..v_raw_values.COUNT LOOP
+            v_numbers(v_i) := v_raw_values(v_i);
+        END LOOP;
+        
+        RETURN v_numbers;
+    
+    END;
+    
+    MEMBER FUNCTION get_dates
+    RETURN t_dates IS
+    
+        v_raw_values t_varchars;
+        v_dates t_dates;
+        
+    BEGIN
+        
+        json_core.allow_private_call;
+        v_raw_values := get_raw_values('S');
+        
+        v_dates := t_dates();
+        v_dates.EXTEND(v_raw_values.COUNT);
+        
+        FOR v_i IN 1..v_raw_values.COUNT LOOP
+        
+            BEGIN
+                v_dates(v_i) := TO_DATE(v_raw_values(v_i), 'YYYY-MM-DD');
+            EXCEPTION
+                WHEN OTHERS THEN
+                    -- Type conversion error!
+                    error$.raise('JDC-00010');
+            END;
+            
+        END LOOP;
+        
+        RETURN v_dates;
+    
+    END;
+    
     -- Property modification methods
     
     MEMBER FUNCTION set_string (

@@ -1197,6 +1197,64 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
     
     END;
     
+    FUNCTION get_raw_values (
+        p_array_id IN NUMBER,
+        p_type IN CHAR
+    )
+    RETURN t_varchars IS
+    
+        v_array json_core.t_json_value;
+        v_raw_values t_varchars;
+        
+        v_values json_core.t_json_values;
+        v_value json_core.t_json_value;
+        
+        v_element_i PLS_INTEGER;
+        v_last_element_i PLS_INTEGER;
+        
+    BEGIN
+    
+        v_array := get_value(p_array_id);
+        
+        IF v_array.type != 'A' THEN
+            --Value is not an array!
+            error$.raise('JDC-00012');
+        END IF;
+        
+        SELECT *
+        BULK COLLECT INTO v_values
+        FROM json_values
+        WHERE parent_id = p_array_id
+        ORDER BY to_index(name); 
+        
+        v_raw_values := t_varchars();
+        v_last_element_i := 0;
+        
+        FOR v_i IN 1..v_values.COUNT LOOP
+        
+            v_value := v_values(v_i);
+            
+            IF v_value.type NOT IN (p_type, 'E') THEN
+                -- Type conversion error!
+                error$.raise('JDC-00010');
+            END IF;
+            
+            v_element_i := v_value.name;
+            
+            FOR v_i IN v_last_element_i..v_element_i LOOP
+                v_raw_values.EXTEND(1);
+            END LOOP;
+            
+            v_raw_values(v_element_i + 1) := v_value.value;
+            
+            v_last_element_i := v_element_i + 1;
+        
+        END LOOP;
+        
+        RETURN v_raw_values;
+    
+    END;
+    
     FUNCTION index_of (
         p_array_id IN NUMBER,
         p_type IN VARCHAR2,

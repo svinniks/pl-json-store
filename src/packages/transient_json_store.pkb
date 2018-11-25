@@ -577,6 +577,66 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
     
     END;
     
+    FUNCTION get_raw_values (
+        p_array_id IN NUMBER,
+        p_type IN CHAR
+    )
+    RETURN t_varchars IS
+    
+        v_array json_core.t_json_value;
+        v_raw_values t_varchars;
+        
+        v_name VARCHAR2(4000);
+        v_pattern VARCHAR2(4000);
+        
+        v_value_id NUMBER;
+        v_value json_core.t_json_value;
+        
+        v_element_i PLS_INTEGER;
+        v_last_element_i PLS_INTEGER;
+        
+    BEGIN
+    
+        v_array := get_value(p_array_id);
+        
+        IF v_array.type != 'A' THEN
+            --Value is not an array!
+            error$.raise('JDC-00012');
+        END IF;
+        
+        v_raw_values := t_varchars();
+        v_last_element_i := 0;
+        
+        v_name := v_value_child_ids.NEXT(v_array.id || '-');
+        v_pattern := v_array.id || '-%';
+                
+        WHILE v_name LIKE v_pattern LOOP
+                
+            v_value_id := v_value_child_ids(v_name);
+            v_value := v_values(v_value_id);
+                    
+            IF v_value.type NOT IN (p_type, 'E') THEN
+                -- Type conversion error!
+                error$.raise('JDC-00010');
+            END IF;
+            
+            v_element_i := v_value.name;
+            
+            FOR v_i IN v_last_element_i..v_element_i LOOP
+                v_raw_values.EXTEND(1);
+            END LOOP;
+            
+            v_raw_values(v_element_i + 1) := v_value.value;
+            
+            v_name := v_value_child_ids.NEXT(v_name);
+            v_last_element_i := v_element_i + 1;
+                    
+        END LOOP;
+        
+        RETURN v_raw_values;
+    
+    END;
+    
     FUNCTION index_of (
         p_array_id IN NUMBER,
         p_type IN VARCHAR2,

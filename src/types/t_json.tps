@@ -53,6 +53,11 @@ CREATE OR REPLACE TYPE t_json IS OBJECT (
     NOT INSTANTIABLE MEMBER FUNCTION get_length
     RETURN NUMBER,
     
+    NOT INSTANTIABLE MEMBER FUNCTION get_raw_values (
+        p_type IN CHAR
+    )
+    RETURN t_varchars,
+    
     NOT INSTANTIABLE MEMBER FUNCTION index_of (
         p_type IN CHAR 
        ,p_value IN VARCHAR2
@@ -292,6 +297,15 @@ CREATE OR REPLACE TYPE t_json IS OBJECT (
         p_serialize_nulls IN BOOLEAN := TRUE
     )
     RETURN CLOB,
+    
+    MEMBER FUNCTION get_strings
+    RETURN t_varchars,
+    
+    MEMBER FUNCTION get_numbers
+    RETURN t_numbers,
+    
+    MEMBER FUNCTION get_dates
+    RETURN t_dates,
     
     -- Property modification methods
     

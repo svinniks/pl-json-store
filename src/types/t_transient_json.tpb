@@ -281,6 +281,15 @@ CREATE OR REPLACE TYPE BODY t_transient_json IS
     BEGIN
         RETURN transient_json_store.get_length(id);
     END;
+    
+    OVERRIDING MEMBER FUNCTION get_raw_values (
+        p_type IN CHAR
+    )
+    RETURN t_varchars IS
+    BEGIN
+        json_core.private_call;
+        RETURN transient_json_store.get_raw_values(id, p_type);
+    END;
          
     OVERRIDING MEMBER FUNCTION index_of (
         p_type IN CHAR 

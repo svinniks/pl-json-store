@@ -627,7 +627,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
         v_column_count := 0;
         v_comma := NULL;
          
-        add_text('SELECT ');
+        add_text('SELECT /*+ FIRST_ROWS ORDERED */ ');
         select_list_visit(p_query_element_i, NULL);
         
         v_table_instance_counter := 0;

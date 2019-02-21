@@ -566,7 +566,7 @@ suite("GET_TABLE_5 tests", function() {
     
     });
 
-    test("Existing", function() {
+    test("Special fields of an existing optional value", function() {
     
         let valueId = createValue({
             name: "Sergejs"
@@ -584,5 +584,28 @@ suite("GET_TABLE_5 tests", function() {
         ]);
     
     });
+
+    test("Special fields without _", function() {
+    
+        let valueId = createValue({
+            type: "Sergejs",
+            key: "Vinniks",
+            id: "Hello, World!",
+            value: "Good bye, World!"
+        });
+
+        let table = database.selectRows(`
+                *
+            FROM TABLE(${implementationType}(${valueId}).get_table_5('
+                (type, key, id, value)
+            '))
+        `);
+
+        expect(table).to.eql([
+            ["Sergejs", "Vinniks", "Hello, World!", "Good bye, World!", null]
+        ])
+    
+    });
+    
 
 });

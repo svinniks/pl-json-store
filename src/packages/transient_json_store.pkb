@@ -1175,14 +1175,16 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
                     
                     IF v_value.id <= 0 THEN
                         v_row(p_column_number) := NULL;
-                    ELSIF v_element.value = 'id' THEN
-                        v_row(p_column_number) := v_value.id;
-                    ELSIF v_element.value = 'key' THEN
-                        v_row(p_column_number) := v_value.name;
-                    ELSIF v_element.value = 'type' THEN
-                        v_row(p_column_number) := v_value.type;
-                    ELSIF v_element.value = 'value' THEN
-                        v_row(p_column_number) := v_value.value;
+                    ELSIF v_element.type = 'F' THEN
+                        IF v_element.value = 'id' THEN
+                            v_row(p_column_number) := v_value.id;
+                        ELSIF v_element.value = 'key' THEN
+                            v_row(p_column_number) := v_value.name;
+                        ELSIF v_element.value = 'type' THEN
+                            v_row(p_column_number) := v_value.type;
+                        ELSIF v_element.value = 'value' THEN
+                            v_row(p_column_number) := v_value.value;
+                        END IF;
                     ELSE
                         v_row(p_column_number) := v_value.value;
                     END IF;

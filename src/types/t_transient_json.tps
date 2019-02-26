@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE t_transient_json UNDER t_json (
+CREATE OR REPLACE TYPE t_transient_json FORCE UNDER t_json (
 
     /* 
         Copyright 2018 Sergejs Vinniks

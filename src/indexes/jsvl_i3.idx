@@ -14,4 +14,4 @@
     limitations under the License.
 */
 
-CREATE INDEX jsvl_i3 ON json_values(UPPER(TRIM(value)))
+CREATE INDEX jsvl_i3 ON json_values(UPPER(TRIM(SUBSTR(value, 1, 1000))));

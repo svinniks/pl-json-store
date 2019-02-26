@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE t_persistent_json_table UNDER t_json_table (
+CREATE OR REPLACE TYPE t_persistent_json_table FORCE UNDER t_json_table (
 
     /* 
         Copyright 2018 Sergejs Vinniks

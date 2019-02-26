@@ -14,5 +14,5 @@
     limitations under the License.
 */
 
-CREATE OR REPLACE TYPE t_json_properties IS
+CREATE OR REPLACE TYPE t_json_properties FORCE IS
 TABLE OF t_json_property

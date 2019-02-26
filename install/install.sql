@@ -40,11 +40,6 @@
 @@types/t_json_mismatches.tps
 /
 
-@@packages/json_parser.pks
-/
-@@packages/json_parser.pkb
-/
-
 @@functions/to_index.fnc
 /
 
@@ -59,6 +54,11 @@
 @@indexes/jsvl_i3.idx
 /
 @@data/json_values.sql
+/
+
+@@packages/json_parser.pks
+/
+@@packages/json_parser.pkb
 /
 
 @@packages/json_core.pks

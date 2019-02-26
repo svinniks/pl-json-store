@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE t_json_property IS OBJECT (
+CREATE OR REPLACE TYPE t_json_property FORCE IS OBJECT (
 
     /* 
         Copyright 2018 Sergejs Vinniks

@@ -25,7 +25,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.* FROM json_values j1 WHERE j1.name=:const1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.* FROM json_values j1 WHERE j1.name=:const1");
     
     });
 
@@ -42,7 +42,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.* FROM json_values j1 WHERE j1.name=:var1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.* FROM json_values j1 WHERE j1.name=:var1");
     
     });
     
@@ -59,7 +59,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.* FROM json_values j1 WHERE j1.id=TO_NUMBER(:const1)");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.* FROM json_values j1 WHERE j1.id=TO_NUMBER(:const1)");
     
     });
 
@@ -76,7 +76,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.* FROM json_values j1 WHERE j1.id=TO_NUMBER(:var1)");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.* FROM json_values j1 WHERE j1.id=TO_NUMBER(:var1)");
     
     });
 
@@ -93,7 +93,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.* FROM json_values j1 WHERE j1.id=TO_NUMBER(:const1)");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.* FROM json_values j1 WHERE j1.id=TO_NUMBER(:const1)");
     
     });
 
@@ -110,7 +110,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.* FROM json_values j1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.* FROM json_values j1");
     
     });
 
@@ -128,7 +128,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.* FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:anchor) AND j2.parent_id=j1.id AND j2.name=:const1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.* FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:anchor) AND j2.parent_id=j1.id AND j2.name=:const1");
     
     });
 
@@ -145,7 +145,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.* FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.* FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2");
     
     });
 
@@ -162,7 +162,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.* FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.* FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2");
     
     });
 
@@ -179,7 +179,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.* FROM json_values j1,json_values j2 WHERE j1.name=:var1 AND j2.parent_id=j1.id AND j2.name=:var2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.* FROM json_values j1,json_values j2 WHERE j1.name=:var1 AND j2.parent_id=j1.id AND j2.name=:var2");
     
     });
 
@@ -196,7 +196,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.* FROM json_values j1,json_values j2 WHERE j1.name=:var1 AND j2.parent_id=j1.id AND j2.name=:var1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.* FROM json_values j1,json_values j2 WHERE j1.name=:var1 AND j2.parent_id=j1.id AND j2.name=:var1");
     
     });
 
@@ -213,7 +213,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.* FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:var1) AND j2.parent_id=j1.id AND j2.id=TO_NUMBER(:var2)");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.* FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:var1) AND j2.parent_id=j1.id AND j2.id=TO_NUMBER(:var2)");
     
     });
 
@@ -230,7 +230,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.* FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:var1) AND j2.parent_id=j1.id AND j2.id=TO_NUMBER(:var1)");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.* FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:var1) AND j2.parent_id=j1.id AND j2.id=TO_NUMBER(:var1)");
     
     });
 
@@ -247,7 +247,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.* FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:var1) AND j2.parent_id=j1.id AND j2.name=:var2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.* FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:var1) AND j2.parent_id=j1.id AND j2.name=:var2");
     
     });
 
@@ -264,7 +264,7 @@ suite("Value query statement generation", function() {
             p_query_type: VALUE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j5.* FROM json_values j1,json_values j2,json_values j3,json_values j4,json_values j5 WHERE j1.id=TO_NUMBER(:const1) AND j2.parent_id=j1.id AND j2.name=:const2 AND j3.parent_id=j2.id AND j4.parent_id=j3.id AND j4.name=:var1 AND j5.parent_id=j4.id AND j5.name=:const3");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j5.* FROM json_values j1,json_values j2,json_values j3,json_values j4,json_values j5 WHERE j1.id=TO_NUMBER(:const1) AND j2.parent_id=j1.id AND j2.name=:const2 AND j3.parent_id=j2.id AND j4.parent_id=j3.id AND j4.name=:var1 AND j5.parent_id=j4.id AND j5.name=:const3");
     
     });
 
@@ -285,7 +285,7 @@ suite("Property query statement generation", function() {
             p_query_type: PROPERTY_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.id,j1.type,j2.id,j2.type,:const2 AS name,j2.locked FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id(+)=j1.id AND j2.name(+)=:const2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.id,j1.type,j2.id,j2.type,:const2 AS name,j2.locked FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id(+)=j1.id AND j2.name(+)=:const2");
     
     });
 
@@ -302,7 +302,7 @@ suite("Property query statement generation", function() {
             p_query_type: PROPERTY_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.id,j1.type,j2.id,j2.type,:var1 AS name,j2.locked FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id(+)=j1.id AND j2.name(+)=:var1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.id,j1.type,j2.id,j2.type,:var1 AS name,j2.locked FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id(+)=j1.id AND j2.name(+)=:var1");
     
     });
 
@@ -319,7 +319,7 @@ suite("Property query statement generation", function() {
             p_query_type: PROPERTY_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.id,j1.type,j2.id,j2.type,:var1 AS name,j2.locked FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:const1) AND j2.parent_id(+)=j1.id AND j2.name(+)=:var1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.id,j1.type,j2.id,j2.type,:var1 AS name,j2.locked FROM json_values j1,json_values j2 WHERE j1.id=TO_NUMBER(:const1) AND j2.parent_id(+)=j1.id AND j2.name(+)=:var1");
     
     });
 
@@ -336,7 +336,7 @@ suite("Property query statement generation", function() {
             p_query_type: PROPERTY_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j3.id,j3.type,j4.id,j4.type,:var2 AS name,j4.locked FROM json_values j1,json_values j2,json_values j3,json_values j4 WHERE j1.id=TO_NUMBER(:const1) AND j2.parent_id=j1.id AND j2.name=:const2 AND j3.parent_id=j2.id AND j3.name=:var1 AND j4.parent_id(+)=j3.id AND j4.name(+)=:var2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j3.id,j3.type,j4.id,j4.type,:var2 AS name,j4.locked FROM json_values j1,json_values j2,json_values j3,json_values j4 WHERE j1.id=TO_NUMBER(:const1) AND j2.parent_id=j1.id AND j2.name=:const2 AND j3.parent_id=j2.id AND j3.name=:var1 AND j4.parent_id(+)=j3.id AND j4.name(+)=:var2");
     
     });
 
@@ -357,7 +357,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.value FROM json_values j1 WHERE j1.name=:const1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.value FROM json_values j1 WHERE j1.name=:const1");
     
     });
 
@@ -374,7 +374,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.value FROM json_values j1 WHERE j1.name=:var1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.value FROM json_values j1 WHERE j1.name=:var1");
     
     });
 
@@ -391,7 +391,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.value FROM json_values j1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.value FROM json_values j1");
     
     });
 
@@ -408,7 +408,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.value FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.value FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2");
     
     });
 
@@ -425,7 +425,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.value FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id(+)=j1.id AND j2.name(+)=:const2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.value FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id(+)=j1.id AND j2.name(+)=:const2");
     
     });
 
@@ -442,7 +442,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.name FROM json_values j1 WHERE j1.name=:const1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.name FROM json_values j1 WHERE j1.name=:const1");
     
     });
 
@@ -459,7 +459,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.id FROM json_values j1 WHERE j1.name=:const1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.id FROM json_values j1 WHERE j1.name=:const1");
     
     });
 
@@ -476,7 +476,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.value FROM json_values j1 WHERE j1.name=:const1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.value FROM json_values j1 WHERE j1.name=:const1");
     
     });
 
@@ -493,7 +493,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.value,j2.value FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.name=:const2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.value,j2.value FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.name=:const2");
     
     });
 
@@ -510,7 +510,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.value,j3.value FROM json_values j1,json_values j2,json_values j3 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2 AND j3.parent_id=j1.id AND j3.name=:const3");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.value,j3.value FROM json_values j1,json_values j2,json_values j3 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2 AND j3.parent_id=j1.id AND j3.name=:const3");
     
     });
 
@@ -527,7 +527,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.value,j3.value FROM json_values j1,json_values j2,json_values j3 WHERE j1.name=:const1 AND j2.parent_id(+)=j1.id AND j2.name(+)=:const2 AND j3.parent_id=j1.id AND j3.name=:const3");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.value,j3.value FROM json_values j1,json_values j2,json_values j3 WHERE j1.name=:const1 AND j2.parent_id(+)=j1.id AND j2.name(+)=:const2 AND j3.parent_id=j1.id AND j3.name=:const3");
     
     });
 
@@ -544,7 +544,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j2.value,j1.id FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j2.value,j1.id FROM json_values j1,json_values j2 WHERE j1.name=:const1 AND j2.parent_id=j1.id AND j2.name=:const2");
     
     });
 
@@ -561,7 +561,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j1.name,j1.value FROM json_values j1 WHERE j1.name=:const1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j1.name,j1.value FROM json_values j1 WHERE j1.name=:const1");
     
     });
 
@@ -590,7 +590,7 @@ suite("Value table query statement generation", function() {
             p_query_type: TABLE_QUERY
         });
 
-        expect(statement.statement).to.be("SELECT j4.value,j5.value,j7.value,j8.value,j9.value,j10.value,j3.id FROM json_values j1,json_values j2,json_values j3,json_values j4,json_values j5,json_values j6,json_values j7,json_values j8,json_values j9,json_values j10 WHERE j1.id=TO_NUMBER(:const1) AND j2.parent_id=j1.id AND j2.name=:const2 AND j3.parent_id=j2.id AND j4.parent_id=j3.id AND j4.name=:const3 AND j5.parent_id=j3.id AND j5.name=:const4 AND j6.parent_id=j3.id AND j6.name=:const5 AND j7.parent_id=j6.id AND j7.name=:const6 AND j8.parent_id(+)=j6.id AND j8.name(+)=:const7 AND j9.parent_id=j6.id AND j9.name=:const8 AND j10.parent_id(+)=j3.id AND j10.name(+)=:var1");
+        expect(statement.statement).to.be("SELECT /*+ FIRST_ROWS ORDERED */ j4.value,j5.value,j7.value,j8.value,j9.value,j10.value,j3.id FROM json_values j1,json_values j2,json_values j3,json_values j4,json_values j5,json_values j6,json_values j7,json_values j8,json_values j9,json_values j10 WHERE j1.id=TO_NUMBER(:const1) AND j2.parent_id=j1.id AND j2.name=:const2 AND j3.parent_id=j2.id AND j4.parent_id=j3.id AND j4.name=:const3 AND j5.parent_id=j3.id AND j5.name=:const4 AND j6.parent_id=j3.id AND j6.name=:const5 AND j7.parent_id=j6.id AND j7.name=:const6 AND j8.parent_id(+)=j6.id AND j8.name(+)=:const7 AND j9.parent_id=j6.id AND j9.name=:const8 AND j10.parent_id(+)=j3.id AND j10.name(+)=:var1");
     
     });
 

@@ -1,2 +1,2 @@
-CREATE OR REPLACE TYPE t_20_value_table IS
+CREATE OR REPLACE TYPE t_20_value_table FORCE IS
 TABLE OF t_20_value_row

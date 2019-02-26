@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE t_json_filter IS OBJECT (
+CREATE OR REPLACE TYPE t_json_filter FORCE IS OBJECT (
 
     /* 
         Copyright 2018 Sergejs Vinniks

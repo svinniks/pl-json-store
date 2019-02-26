@@ -19,29 +19,29 @@ DROP PACKAGE json_store
 
 DROP FUNCTION persistent_json_table
 /
-DROP TYPE t_persistent_json_table
+DROP TYPE t_persistent_json_table FORCE
 /
-DROP TYPE t_json_table
-/
-
-DROP TYPE t_persistent_json
-/
-DROP TYPE t_transient_json
+DROP TYPE t_json_table FORCE
 /
 
-DROP TYPE t_json_filter
+DROP TYPE t_persistent_json FORCE
 /
-DROP PACKAGE json_filters
-/
-DROP TYPE t_json_properties
-/
-DROP TYPE t_json_property
+DROP TYPE t_transient_json FORCE
 /
 
-DROP TYPE t_json
+DROP TYPE t_json_filter FORCE
+/
+DROP PACKAGE json_filters 
+/
+DROP TYPE t_json_properties FORCE
+/
+DROP TYPE t_json_property FORCE
 /
 
-DROP TYPE t_json_builder
+DROP TYPE t_json FORCE
+/
+
+DROP TYPE t_json_builder FORCE
 /
 DROP PACKAGE json_builders
 /
@@ -66,28 +66,28 @@ DROP FUNCTION to_index
 DROP PACKAGE json_parser
 /
 
-DROP TYPE t_json_mismatches
+DROP TYPE t_json_mismatches FORCE
 /
-DROP TYPE t_json_mismatch
-/
-
-DROP TYPE t_20_value_table
-/
-DROP TYPE t_15_value_table
-/
-DROP TYPE t_10_value_table
-/
-DROP TYPE t_5_value_table
+DROP TYPE t_json_mismatch FORCE
 /
 
-DROP TYPE t_20_value_row
+DROP TYPE t_20_value_table FORCE
+/ 
+DROP TYPE t_15_value_table FORCE
 /
-DROP TYPE t_15_value_row
+DROP TYPE t_10_value_table FORCE
 /
-DROP TYPE t_10_value_row
-/
-DROP TYPE t_5_value_row
+DROP TYPE t_5_value_table FORCE
 /
 
-DROP TYPE bind
+DROP TYPE t_20_value_row FORCE
+/
+DROP TYPE t_15_value_row FORCE
+/
+DROP TYPE t_10_value_row FORCE
+/
+DROP TYPE t_5_value_row FORCE
+/
+
+DROP TYPE bind FORCE
 /

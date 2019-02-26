@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE t_json_builder IS OBJECT (
+CREATE OR REPLACE TYPE t_json_builder FORCE IS OBJECT (
 
     /* 
         Copyright 2018 Sergejs Vinniks

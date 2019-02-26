@@ -16,8 +16,6 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
         limitations under the License.
     */
 
-    TYPE t_chars IS TABLE OF CHAR;
-
     PROCEDURE register_messages IS
     BEGIN
         default_message_resolver.register_message('JSN-00001', 'Unexpected character ":1"!');
@@ -30,14 +28,14 @@ CREATE OR REPLACE PACKAGE BODY json_parser IS
     RETURN t_varchars IS
         
         v_state VARCHAR2(30);
-        v_value VARCHAR2(4000);
+        v_value json_values.value%TYPE; -- If EXTENDED VARCHAR2 max. size is enabled, this will be up to 32766!
         v_name BOOLEAN;
         v_character_code VARCHAR2(4);
         
         v_context_stack t_varchars;
         v_element_i_stack t_numbers;
         
-        v_string VARCHAR2(32000);
+        v_string VARCHAR2(32767);
         v_char CHAR;
         
         v_parse_events t_varchars;

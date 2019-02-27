@@ -112,7 +112,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_writer IS
 
         v_event json_core.STRING;
         v_event_name CHAR;
-        v_event_value VARCHAR2(4000);
+        v_event_value VARCHAR2(32766);
 
         v_name VARCHAR2(4000);
         v_i PLS_INTEGER;

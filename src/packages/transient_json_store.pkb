@@ -700,7 +700,7 @@ CREATE OR REPLACE PACKAGE BODY transient_json_store IS
         v_event_i PLS_INTEGER;
         v_event json_core.STRING;
         v_event_name CHAR;
-        v_event_value VARCHAR2(4000);
+        v_event_value VARCHAR2(32766);
     
         PROCEDURE decompose_event IS
         BEGIN

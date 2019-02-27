@@ -26,7 +26,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
     
     TYPE t_query_statement_cache IS
         TABLE OF t_query_statement
-        INDEX BY VARCHAR2(32000);
+        INDEX BY VARCHAR2(32767);
         
     v_query_statement_cache t_query_statement_cache;
     
@@ -785,7 +785,7 @@ CREATE OR REPLACE PACKAGE BODY persistent_json_store IS
         DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 2, v_number);
         DBMS_SQL.DEFINE_COLUMN_CHAR(v_cursor_id, 3, v_char, 1);
         DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 4, v_string, 4000);
-        DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 5, v_string, 4000);
+        DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 5, v_string, 32766);
         DBMS_SQL.DEFINE_COLUMN_CHAR(v_cursor_id, 6, v_char, 1);
         
         BEGIN

@@ -1807,6 +1807,8 @@ CREATE OR REPLACE TYPE BODY t_json IS
                     
                     END LOOP;
                 
+                    v_event_i := v_event_i + 1;                               
+                                
                 END IF;
                 
             END IF;
